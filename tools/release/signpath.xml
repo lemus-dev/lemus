@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The SignPath artifact configuration for the Windows release (the project "lemus" on signpath.io;
+     paste it there, which also checks it). The release workflow uploads
+     dist/<plugin>-<version>-windows.zip, which GitHub wraps in a zip of its own, and passes the
+     version. SignPath signs each plugin's exe and VST3 binary inside, refusing any whose product
+     name isn't Lemus or whose version isn't this build's (host/version.rc.in), and returns the
+     zip signed. -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" />
+  </parameters>
+  <zip-file>
+    <zip-file path="*-windows.zip" max-matches="unbounded">
+      <directory path="*">
+        <pe-file path="*.exe" max-matches="unbounded" product-name="Lemus" product-version="${version}">
+          <authenticode-sign description="Lemus" description-url="https://lemusdev.org" />
+        </pe-file>
+        <directory path="*.vst3/Contents/x86_64-win">
+          <pe-file path="*.vst3" max-matches="unbounded" product-name="Lemus" product-version="${version}">
+            <authenticode-sign description="Lemus" description-url="https://lemusdev.org" />
+          </pe-file>
+        </directory>
+      </directory>
+    </zip-file>
+  </zip-file>
+</artifact-configuration>

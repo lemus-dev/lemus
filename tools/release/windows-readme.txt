@@ -11,6 +11,10 @@ so in the bar above its panel, which shows your ROM folder (by default
 %APPDATA%\Lemus\ROMs) and can change it. Put your own dump there, loose or in
 a zip (MAME's sets work as they are).
 
+Update check: once a day, while a plugin window is open, the plugin reads one
+small file from lemusdev.org to see whether there is a newer version. It sends
+nothing about you. About > Check for updates once a day turns it off.
+
 More at https://lemusdev.org
 
 Machine names identify the original equipment and are trademarks of their

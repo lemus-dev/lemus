@@ -3,6 +3,10 @@
 # voice mode), each zipped by tools/release/windows.ps1. Runs on demand and for version tags; the
 # zips are the run's artifact. The macOS release is built locally (tools/release/mac.sh), where the
 # signing keys are.
+#
+# Where the SignPath secrets are set (the public repo, github.com/lemus-dev/lemus), the zips are
+# signed by SignPath Foundation: the exe and the VST3 in each (tools/release/signpath.xml), once a
+# person approves the request on signpath.io. Without them the zips stay unsigned.
 name: release
 
 on:
@@ -13,6 +17,8 @@ on:
 jobs:
   windows:
     runs-on: windows-2022
+    env:
+      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,6 +34,35 @@ jobs:
       - name: Package
         shell: pwsh
         run: tools/release/windows.ps1 -Build build/release-win
+      - name: Version
+        id: version
+        shell: pwsh
+        run: '"version=" + (Select-String -Path CMakeLists.txt -Pattern "project\(LEMUS VERSION ([0-9.]+)").Matches[0].Groups[1].Value >> $env:GITHUB_OUTPUT'
+      - name: Upload for signing
+        id: unsigned
+        if: env.SIGNPATH_API_TOKEN != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugins-windows-unsigned
+          path: dist/*.zip
+      - name: Sign
+        if: env.SIGNPATH_API_TOKEN != ''
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: lemus
+          signing-policy-slug: release-signing
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: build/signed
+          parameters: |
+            version: "${{ steps.version.outputs.version }}"
+      - name: Use the signed zips
+        if: env.SIGNPATH_API_TOKEN != ''
+        shell: pwsh
+        run: Move-Item -Force build/signed/*.zip dist/
       - uses: actions/upload-artifact@v4
         with:
           name: plugins-windows

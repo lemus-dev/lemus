@@ -26,7 +26,9 @@ readme (`windows-readme.txt`) that says where the VST3 goes.
    `LEMUS_NOTARY_PROFILE` set (see the script). Without them it builds an unsigned package for
    testing.
 4. Windows: tag the commit `v<version>` and push it (or run the workflow by hand); download the
-   zips from the run. The workflow lists the plugins it builds and tests.
+   zips from the run. The workflow lists the plugins it builds and tests. Once SignPath is set up
+   (below), take them from the public repo's run for the tag instead (step 6 pushes it there):
+   those are signed.
 5. Try both installers on a clean machine, then the DAW checks below.
 6. Publish the release's source to https://github.com/lemus-dev/lemus and tag it `v<version>`
    there too: the binaries are AGPLv3, so their source must be out when they are.
@@ -36,6 +38,17 @@ readme (`windows-readme.txt`) that says where the VST3 goes.
    version within a day. The site builds `latest.json` from the same list:
 
        {"plugins": {"ro-mono-303": {"version": "0.2.0", "url": "https://lemusdev.org/ro-mono-303"}}}
+
+## Signing on Windows
+
+SignPath Foundation signs the Windows zips for free, as an open-source project: the workflow's run
+in the public repo, where the secrets `SIGNPATH_API_TOKEN` and `SIGNPATH_ORGANIZATION_ID` are set,
+uploads each zip, an approver approves the request on signpath.io within the hour, and the signed
+zip becomes the run's artifact. SignPath's project is `lemus`, its policy `release-signing`, its
+artifact configuration `tools/release/signpath.xml`. Their rules (https://signpath.org/terms):
+every signed file's product name is Lemus (`host/version.rc.in`), the site publishes a code signing
+policy (`/code-signing`, linked from every page), and the team uses two-factor sign-in on GitHub
+and SignPath. The certificate is SignPath Foundation's, so Windows names it as the publisher.
 
 ## DAW checks
 

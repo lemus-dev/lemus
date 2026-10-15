@@ -266,6 +266,13 @@ foreach(id ${LEMUS_PLUGIN_MACHINES})
   )
   lemus_add_host_with(plugin_${id} only_${id} ${id})
   target_compile_definitions(plugin_${id} PUBLIC LEMUS_MACHINE="${id}")
+  # Windows version info (host/version.rc.in): the product is Lemus, the description the plugin.
+  if(WIN32)
+    string(REPLACE "." "," _lemus_rc_version "${PROJECT_VERSION}.0")
+    set(_lemus_rc_name "${LEMUS_PLUGIN_${id}_NAME}")
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/host/version.rc.in ${LEMUS_GENERATED_DIR}/rc/${id}.rc @ONLY)
+    target_compile_definitions(plugin_${id} PRIVATE JUCE_USER_DEFINED_RC_FILE="${LEMUS_GENERATED_DIR}/rc/${id}.rc")
+  endif()
   list(APPEND LEMUS_PLUGINS plugin_${id})
 endforeach()
 

@@ -1,0 +1,30 @@
+---
+// The code signing policy SignPath Foundation asks every project it signs for to publish, linked
+// from every page's footer as "Code signing policy".
+import Base from '../layouts/Base.astro';
+import Stub from '../components/Stub.astro';
+---
+<Base title="Code signing policy · Lemus" description="How Lemus's Windows releases are signed, who approves it, and what the plugins send over the network.">
+<Stub heading="Code signing policy">
+<p>Free code signing provided by <a href="https://signpath.io">SignPath.io</a>, certificate by <a href="https://signpath.org">SignPath Foundation</a>.</p>
+
+<h2 class="h3">What is signed</h2>
+<p>The Windows releases of Lemus plugins: each plugin's standalone app (.exe) and VST3. They are built by GitHub Actions from the public source at <a href="https://github.com/lemus-dev/lemus">github.com/lemus-dev/lemus</a>, from the release's version tag, and a person approves every signing request. The macOS installers are not signed through SignPath.</p>
+
+<h2 class="h3">Team</h2>
+<ul>
+<li>Committers and reviewers: the <a href="https://github.com/orgs/lemus-dev/people">members of the lemus-dev organization</a> on GitHub. Changes from anyone else are reviewed by a member before they are merged.</li>
+<li>Approvers: the owners of the lemus-dev organization.</li>
+</ul>
+
+<h2 id="privacy" class="h3">Privacy</h2>
+<p>The plugins collect nothing about you and send nothing anywhere you haven't asked them to, with one exception: once a day, while a plugin window is open, the update check reads one small file from lemusdev.org to see whether there is a newer version. The request carries no data about you. About › Check for updates once a day turns it off. The links in About open your browser.</p>
+</Stub>
+</Base>
+
+<style>
+.h3 { margin-top: 20px; font-size: 26px; }
+p, li { color: var(--ink2); font-size: 16px; }
+p { margin: 0; max-width: 46em; }
+ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+</style>
