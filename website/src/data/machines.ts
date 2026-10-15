@@ -30,7 +30,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.1.2', stage: 'alpha', mac: 'ro-mono-303-0.1.2-mac.pkg', windows: 'ro-mono-303-0.1.2-windows.zip' },
+    release: { version: '0.1.3', stage: 'beta', mac: 'ro-mono-303-0.1.3-mac.pkg', windows: 'ro-mono-303-0.1.3-windows.zip' },
   },
 ];
 
