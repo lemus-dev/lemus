@@ -4,8 +4,8 @@ A release is each shipping machine's own plugin (`-DLEMUS_MACHINES`, for now `tb
 download of its own: the TB-303 is **ro-mono-303**. A machine's plugin is the host with that
 machine alone, declared in its `machine.cmake` (`lemus_plugin`: name, plugin code, description,
 whether it has a standalone app). The all-in-one Lemus and Lemus FX don't ship. Every plugin
-shares one version (the project's), so a release rebuilds them all. Releases are binaries only for
-now.
+shares one version (the project's), so a release rebuilds them all. Each release's source is
+published at https://github.com/lemus-dev/lemus (AGPLv3), tagged `v<version>`.
 
 | Platform | Formats | Built by | Output |
 |---|---|---|---|
@@ -28,7 +28,9 @@ readme (`windows-readme.txt`) that says where the VST3 goes.
 4. Windows: tag the commit `v<version>` and push it (or run the workflow by hand); download the
    zips from the run. The workflow lists the plugins it builds and tests.
 5. Try both installers on a clean machine, then the DAW checks below.
-6. Upload them to the website, then set each released plugin's `release` in
+6. Publish the release's source to https://github.com/lemus-dev/lemus and tag it `v<version>`
+   there too: the binaries are AGPLv3, so their source must be out when they are.
+7. Upload them to the website, then set each released plugin's `release` in
    `website/src/data/machines.ts` and run `npm run deploy` in `website/`. That publishes the
    download links and `latest.json`, so it's the last step: every open plugin window shows the new
    version within a day. The site builds `latest.json` from the same list:

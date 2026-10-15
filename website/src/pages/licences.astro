@@ -8,8 +8,8 @@ import Stub from '../components/Stub.astro';
 const notices = fs.readFileSync(path.resolve(process.cwd(), '../tools/release/NOTICES.txt'), 'utf8');
 ---
 <Base title="Licences · Lemus" description="Licences of Lemus and the software it uses." current="licences">
-<Stub eyebrow="LICENCES" heading="Credits and licences">
-<p style="margin: 0; color: #a9b1d6; max-width: 46em">Lemus plugins are free. They include the third-party software and fonts below, under these licences.</p>
-<pre style="margin: 0; padding: 20px 24px; background: #16161e; border: 1px solid #292e42; border-radius: 12px; font-family: inherit; font-size: 13px; line-height: 1.6; color: #a9b1d6; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 80ch">{notices}</pre>
+<Stub heading="Credits and licences">
+<p>Lemus is free software under the GNU Affero General Public License, version 3; its source is at <a href="https://github.com/lemus-dev/lemus">github.com/lemus-dev/lemus</a>. The plugins include the third-party software and fonts below, under these licences.</p>
+<pre style="margin: 0; padding: 20px 24px; background: var(--paper2); border: 1.5px solid var(--ink); font-family: var(--mono); font-size: 13px; line-height: 1.6; color: var(--ink2); white-space: pre-wrap; overflow-wrap: anywhere; max-width: 80ch">{notices}</pre>
 </Stub>
 </Base>

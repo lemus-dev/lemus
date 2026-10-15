@@ -2,34 +2,39 @@
 import Base from '../layouts/Base.astro';
 import Stub from '../components/Stub.astro';
 import { machines } from '../data/machines';
-
-const h2 = 'margin: 16px 0 0; font-size: 21px; line-height: 1.3; scroll-margin-top: 16px';
-const p = 'margin: 0; color: #a9b1d6; font-size: 15px; max-width: 46em';
-const mono = 'color: #c0caf5; overflow-wrap: anywhere';
 ---
 <Base title="Support · Lemus" description="Lemus plugins: user guides, the ROM folder, panel artwork, the update check, and contact." current="support">
-<Stub eyebrow="SUPPORT" heading="Support">
-<p style={p}>What all Lemus plugins share. Each plugin's own controls are in its user guide; installing is on the <a href="/download#installing">download page</a>.</p>
+<Stub heading="Support">
+<p>What all Lemus plugins share. Each plugin's own controls are in its user guide; installing is on the <a href="/download#installing">download page</a>.</p>
 
-<h2 id="guides" style={h2}>User guides</h2>
-<ul style="margin: 0; padding-left: 22px; color: #a9b1d6; font-size: 15px">
-{machines.map((m) => <li><a href={`/${m.slug}/guide`}>{m.slug}</a>: {m.emulates}</li>)}
+<h2 id="guides" class="h3">User guides</h2>
+<ul>
+{machines.map((m) => <li><a href={`/${m.slug}/guide`} class="mono">{m.slug}</a>: {m.emulates}</li>)}
 </ul>
 
-<h2 id="rom" style={h2}>ROM images</h2>
-<p style={p}>A machine's firmware is its maker's copyrighted work, so Lemus doesn't include it. A machine with a CPU runs it from your own ROM image; its guide names the file and its SHA1. Without it, a machine marked [~] plays its voice over MIDI but nothing the CPU does; one marked [✗] doesn't run.</p>
-<p style={p}>The ROM folder is <span style={mono}>~/Library/Application Support/Lemus/ROMs</span> on macOS and <span style={mono}>%APPDATA%\Lemus\ROMs</span> on Windows, shared by every Lemus plugin; each plugin can point it elsewhere. ROMs are matched by SHA1, under any name, loose, in subfolders or in zips: MAME sets work as they are. Adding one later restores the whole machine in an open session.</p>
+<h2 id="rom" class="h3">ROM images</h2>
+<p>A machine's firmware is its maker's copyrighted work, so Lemus doesn't include it. A machine with a CPU runs it from your own ROM image; its guide names the file and its SHA1. Without it, a machine marked [~] plays its voice over MIDI but nothing the CPU does; one marked [✗] doesn't run.</p>
+<p>The ROM folder is <span class="path">~/Library/Application Support/Lemus/ROMs</span> on macOS and <span class="path">%APPDATA%\Lemus\ROMs</span> on Windows, shared by every Lemus plugin; each plugin can point it elsewhere. ROMs are matched by SHA1, under any name, loose, in subfolders or in zips: MAME sets work as they are. Adding one later restores the whole machine in an open session.</p>
 
-<h2 id="artwork" style={h2}>Panel artwork</h2>
-<p style={p}>Makers' logos and model names are trademarks, so their places on the panel are blank. Each plugin writes an SVG file to the ROM folder with a commented-out slot for each place; artwork in a slot, comments removed, is drawn on the panel the next time the plugin starts. The slot names and units are in the plugin's guide.</p>
+<h2 id="artwork" class="h3">Panel artwork</h2>
+<p>Makers' logos and model names are trademarks, so their places on the panel are blank. Each plugin writes an SVG file to the ROM folder with a commented-out slot for each place; artwork in a slot, comments removed, is drawn on the panel the next time the plugin starts. The slot names and units are in the plugin's guide.</p>
 
-<h2 id="updates" style={h2}>Update check</h2>
-<p style={p}>Once a day, while a plugin window is open, the plugin fetches one small file from lemusdev.org and sends nothing about you. About › Check for updates once a day turns it off.</p>
+<h2 id="updates" class="h3">Update check</h2>
+<p>Once a day, while a plugin window is open, the plugin fetches one small file from lemusdev.org and sends nothing about you. About › Check for updates once a day turns it off.</p>
 
-<h2 id="mailing-list" style={h2}>Mailing list</h2>
-<p style={p}>The mailing list carries release announcements only. The form at the foot of each page adds an address after it is confirmed by email. The list is held by Kit, which sends the mail; every email has an unsubscribe link.</p>
+<h2 id="mailing-list" class="h3">Mailing list</h2>
+<p>The mailing list carries release announcements only. The form at the foot of each page adds an address after it is confirmed by email. The list is held by Kit, which sends the mail; every email has an unsubscribe link.</p>
 
-<h2 id="contact" style={h2}>Contact</h2>
-<p style={p}><a href="mailto:hello@lemusdev.org">hello@lemusdev.org</a>. With a problem, give the plugin and version (in About), your system, your DAW and what you did. Security issues: <a href="mailto:security@lemusdev.org">security@lemusdev.org</a>.</p>
+<h2 id="contact" class="h3">Contact</h2>
+<p><a href="mailto:hello@lemusdev.org">hello@lemusdev.org</a>. With a problem, give the plugin and version (in About), your system, your DAW and what you did. Security issues: <a href="mailto:security@lemusdev.org">security@lemusdev.org</a>.</p>
 </Stub>
 </Base>
+
+<style>
+.h3 { margin-top: 20px; font-size: 26px; scroll-margin-top: 16px; }
+p, li { color: var(--ink2); font-size: 16px; }
+p { margin: 0; max-width: 46em; }
+ul { margin: 0; padding-left: 22px; }
+.mono { font-size: 15px; }
+.path { font: 14px var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+</style>

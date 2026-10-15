@@ -1,8 +1,12 @@
 ---
-// The number badge of a control outlined in a Shot, for the text that refers to it.
+// The balloon of a control outlined in a Shot, for the text that refers to it.
 interface Props {
   n: string | number;
 }
 const { n } = Astro.props;
 ---
-<span style="display: inline-block; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: #e0af68; color: #16161e; font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; vertical-align: 1px">{n}</span>
+<span class="num">{n}</span>
+
+<style>
+.num { display: inline-block; min-width: 22px; height: 22px; padding: 0 5px; box-sizing: border-box; border: 1.5px solid var(--wire); border-radius: 999px; background: var(--paper); color: var(--wire-text); font: 700 11px/19px var(--mono); text-align: center; vertical-align: 1px; }
+</style>

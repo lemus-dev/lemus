@@ -30,7 +30,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.1.1', stage: 'alpha', mac: 'ro-mono-303-0.1.1-mac.pkg', windows: 'ro-mono-303-0.1.1-windows.zip' },
+    release: { version: '0.1.2', stage: 'alpha', mac: 'ro-mono-303-0.1.2-mac.pkg', windows: 'ro-mono-303-0.1.2-windows.zip' },
   },
 ];
 
@@ -41,5 +41,8 @@ export const downloadLinks = (m: Machine) =>
     ? { mac: `/download/${m.release.mac}`, windows: `/download/${m.release.windows}` }
     : { mac: '/download', windows: '/download' };
 
-export const platforms =
-  'macOS 11+ (Universal): AU, VST3, standalone · Windows 10+: VST3, standalone';
+// Each system the plugins run on, and the formats for it.
+export const platforms: [string, string][] = [
+  ['macOS 11+', 'Universal: AU, VST3, standalone'],
+  ['Windows 10+', 'VST3, standalone'],
+];

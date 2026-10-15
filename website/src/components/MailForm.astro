@@ -1,0 +1,21 @@
+---
+// The mailing list's form. It posts straight to Kit, which redirects to /subscribed; details at
+// /support#mailing-list. The heading next to it says what the list is.
+interface Props {
+  id: string; // the email field's id, unique on the page
+  small?: boolean;
+}
+const { id, small = false } = Astro.props;
+---
+<form action="https://app.kit.com/forms/10048682/subscriptions" method="post" class:list={['mail', { small }]}>
+<label for={id} class="sr">Email address</label>
+<input id={id} type="email" name="email_address" required autocomplete="email" placeholder="you@example.com">
+<button type="submit" class:list={['btn', 'wire', { small }]}>Subscribe</button>
+</form>
+
+<style>
+.mail { display: flex; flex-wrap: wrap; gap: 10px; }
+input { flex: 1 1 220px; min-width: 0; min-height: 52px; box-sizing: border-box; padding: 0 16px; font: inherit; font-size: 17px; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); border-radius: 0; }
+input::placeholder { color: var(--ink3); }
+.small input { min-height: 44px; padding: 0 12px; font-size: 15px; border-width: 1.5px; }
+</style>

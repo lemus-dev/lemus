@@ -1,5 +1,9 @@
 # TB-303 CPU board and firmware: I/O map, timing, and emulation feasibility
 
+> **Clean-room note.** This document describes Roland's firmware from a disassembly of the original
+> ROM. Anyone writing replacement firmware for a clean-room implementation must not read it, or use
+> `tools/dis650.py` on the ROM.
+
 Sources: MAME `roland_tb303.cpp` and the uCOM-4 core (copies and licences in
 `private/reference/mame/`); *Roland TB-303 Service Notes*, first edition, 19 Feb 1982 (archive.org item
 `Roland_TB-303_Service_Notes`: page 2 has the uPD650C pin table, pages 4–5 the main board

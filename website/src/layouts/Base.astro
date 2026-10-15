@@ -1,6 +1,11 @@
 ---
-import '@fontsource/jetbrains-mono/400.css';
-import '@fontsource/jetbrains-mono/700.css';
+import '@fontsource/barlow/400.css';
+import '@fontsource/barlow/500.css';
+import '@fontsource/barlow/600.css';
+import '@fontsource/barlow-condensed/600.css';
+import '@fontsource/barlow-condensed/700.css';
+import '@fontsource/b612-mono/400.css';
+import '@fontsource/b612-mono/700.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
@@ -18,12 +23,12 @@ const image = new URL('/media/ro-mono-303/voice-mode.png', Astro.site).href;
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{title}</title>
 <meta name="description" content={description}>
 <link rel="canonical" href={canonical}>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#1a1b26">
+<meta name="theme-color" content="#f3f5f7">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Lemus">
 <meta property="og:title" content={title}>
@@ -32,11 +37,18 @@ const image = new URL('/media/ro-mono-303/voice-mode.png', Astro.site).href;
 <meta property="og:image" content={image}>
 </head>
 <body>
-<div style="background: #1a1b26; color: #c0caf5; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 16px; line-height: 1.65; min-height: 100vh">
+<div class="ruler" aria-hidden="true"></div>
 <Header current={current} />
+<slot name="sub" />
+<!-- The page is drawn like a schematic sheet: a bus down the left margin, each section heading
+     tapped off it, ending in a ground symbol. -->
+<main class="frame">
+<span class="bus" aria-hidden="true"></span>
+<span class="bus-top" aria-hidden="true"></span>
+<span class="gnd" aria-hidden="true"><span style="width: 20px"></span><span style="width: 12px"></span><span style="width: 4px"></span></span>
 <slot />
+</main>
 {Astro.slots.has('footer') ? <Footer><slot name="footer" /></Footer> : <Footer />}
-</div>
 <script>
 // Starting one clip pauses any other that is playing ('play' doesn't bubble, so capture it).
 document.addEventListener('play', (e) => {
@@ -47,6 +59,118 @@ document.addEventListener('play', (e) => {
 </html>
 
 <style is:global>
-body{margin:0;background:#1a1b26}
-a{color:#7aa2f7}a:hover{color:#a9c1ff}
+/* Ink draws the parts, Tokyo Night blue the wires and links, red the corrections: a CAD
+   schematic's split. --wire is for lines and fills, --wire-text for blue text on the paper. */
+:root {
+  --paper: #f3f5f7;
+  --paper2: #e7ebf2;
+  --ink: #161a26;
+  --ink2: #4a5266;
+  --ink3: #636b80;
+  --rule: #b3bacb;
+  --wire: #7aa2f7;
+  --wire-text: #3d59a1;
+  --tint: rgba(122, 162, 247, 0.13);
+  --grid: rgba(122, 162, 247, 0.17);
+  --grid-bold: rgba(122, 162, 247, 0.34);
+  --hatch: rgba(22, 26, 38, 0.12);
+  --red: #be3320;
+  --amber: #8a5300;
+  --green: #1c6e44;
+  --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --body: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+  --mono: 'B612 Mono', ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+html { background: var(--paper); }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+a { color: var(--wire-text); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--wire-text); outline-offset: 3px; }
+::selection { background: rgba(122, 162, 247, 0.35); }
+h1, h2, h3 { text-wrap: balance; }
+img { max-width: 100%; }
+.mono { font-family: var(--mono); }
+.dim { color: var(--ink2); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* The sheet: a frame with the bus in its left rail and the content in a column beside it. */
+.ruler { height: 12px; border-bottom: 1px solid var(--rule); background-image: linear-gradient(90deg, var(--ink) 1px, transparent 1px), linear-gradient(90deg, var(--ink2) 1px, transparent 1px); background-size: 80px 12px, 8px 5px; background-repeat: repeat-x; }
+.frame { display: block; max-width: 1280px; margin: 0 auto; box-sizing: border-box; padding-right: max(24px, env(safe-area-inset-right, 0px)); position: relative; }
+.sheet { display: grid; grid-template-columns: 80px minmax(0, 1fr); }
+.sheet > .col { grid-column: 2; min-width: 0; }
+.sheet > .rail { grid-column: 1; display: flex; justify-content: center; align-items: center; }
+.bus { position: absolute; left: 40px; top: 0; bottom: 12px; border-left: 2px solid var(--wire); }
+.bus-top { position: absolute; left: 36px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--wire); }
+.gnd { position: absolute; left: 31px; bottom: 0; width: 20px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.gnd > span { display: block; border-top: 2px solid var(--wire); }
+
+/* A heading tapped off the bus: a wire from the bus to the heading's first line. */
+.tap { position: relative; }
+.tap::before { content: ''; position: absolute; top: calc(0.46em - 1px); right: calc(100% + 12px); width: 28px; border-top: 2px solid var(--tap, var(--wire)); }
+.tap::after { content: ''; position: absolute; top: calc(0.46em - 5px); right: calc(100% + 34px); width: 10px; height: 10px; border-radius: 50%; background: var(--tap, var(--wire)); }
+.tap.red { --tap: var(--red); }
+/* A box tapped off the bus, the wire meeting its left edge --tap-y down. */
+.tapbox { position: relative; }
+.tapbox::before { content: ''; position: absolute; top: var(--tap-y, 30px); right: 100%; width: 42px; border-top: 2px solid var(--wire); }
+.tapbox::after { content: ''; position: absolute; top: calc(var(--tap-y, 30px) - 4px); right: calc(100% + 36px); width: 10px; height: 10px; border-radius: 50%; background: var(--wire); }
+
+@media (max-width: 760px) {
+  .sheet { grid-template-columns: 36px minmax(0, 1fr); }
+  .bus { left: 16px; }
+  .bus-top { left: 12px; }
+  .gnd { left: 7px; }
+  .tap::before { width: 12px; right: calc(100% + 8px); }
+  .tap::after { right: calc(100% + 14px); }
+  .tapbox::before { width: 22px; }
+  .tapbox::after { right: calc(100% + 16px); }
+}
+
+/* Type */
+.h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(48px, 5.8vw, 84px); line-height: 0.92; letter-spacing: 0.005em; text-transform: uppercase; }
+.h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(34px, 4.2vw, 52px); line-height: 1; text-transform: uppercase; }
+.h3 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1.1; letter-spacing: 0.03em; text-transform: uppercase; }
+.lbl { font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink2); }
+
+/* A section of a page: a rule across the column, then its content. */
+.sec { border-top: 1.5px solid var(--ink); padding-block: 72px 88px; display: flex; flex-direction: column; gap: 32px; }
+
+/* Buttons: ink by default; .ghost outlined, .wire Tokyo blue, .red for the redline asks. */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 28px; box-sizing: border-box; background: var(--ink); color: var(--paper); border: 2px solid var(--ink); border-radius: 0; font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; cursor: pointer; }
+.btn:hover { background: var(--wire-text); border-color: var(--wire-text); color: var(--paper); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover { color: var(--wire-text); border-color: var(--wire-text); }
+.btn.wire { background: var(--wire); border-color: var(--wire); color: var(--ink); }
+.btn.wire:hover { background: var(--wire-text); border-color: var(--wire-text); color: var(--paper); }
+.btn.red { background: var(--red); border-color: var(--red); color: var(--paper); }
+.btn.red:hover { background: var(--ink); border-color: var(--ink); }
+.btn.small { min-height: 44px; padding: 0 20px; font-size: 17px; }
+.btn.slug { font-family: var(--mono); font-weight: 700; font-size: 15px; letter-spacing: 0; text-transform: none; }
+
+/* A figure mounted on graph paper, with balloons and leader lines pointing into it. */
+.mount { border: 1.5px solid var(--ink); background-color: var(--paper); background-image: linear-gradient(var(--grid-bold) 1px, transparent 1px), linear-gradient(90deg, var(--grid-bold) 1px, transparent 1px), linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px; }
+.mount img { display: block; width: 100%; height: auto; box-shadow: 0 0 0 1.5px var(--ink); }
+.balloon { position: absolute; width: 32px; height: 32px; box-sizing: border-box; transform: translateX(-50%); border: 2px solid var(--wire); border-radius: 50%; background: var(--paper); color: var(--wire-text); display: grid; place-items: center; font: 700 11px/1 var(--mono); }
+.leader { position: absolute; border-left: 2px solid var(--wire); transform: translateX(-1px); }
+.target { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--wire); box-shadow: 0 0 0 2px var(--paper); transform: translate(-50%, -50%); }
+.caption { display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.45; color: var(--ink2); }
+.caption .row { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.caption .key { font: 700 12px var(--mono); color: var(--wire-text); }
+.caption .fig { font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: 0.06em; color: var(--ink); }
+
+/* Tables ruled like a parts list. */
+.table-box { position: relative; overflow-x: auto; border: 2px solid var(--ink); }
+.table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.table caption { text-align: left; padding: 10px 16px; font-size: 14px; color: var(--ink2); border-bottom: 1px solid var(--rule); }
+.table th, .table td { padding: 10px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule); }
+.table tr > :last-child { border-right: 0; }
+.table tbody tr:last-child > * { border-bottom: 0; }
+.table thead th { background: var(--paper2); border-bottom: 2px solid var(--ink); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; }
+.table .num { font-family: var(--mono); font-size: 14px; }
+
+/* Status marks */
+.ok { color: var(--green); font-weight: 600; white-space: nowrap; }
+.ok::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--green); margin-right: 9px; vertical-align: 1px; }
+.partial { color: var(--amber); font-weight: 600; white-space: nowrap; }
+.missing { color: var(--red); font-weight: 600; white-space: nowrap; }
 </style>

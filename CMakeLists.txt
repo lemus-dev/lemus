@@ -32,6 +32,8 @@ option(LEMUS_TOOLS "Build the test host and the hosts' tests" ON)
 # The project's website: the plugins link to it and read the latest version from it. Not a cache
 # variable, so changing it here reaches every existing build directory.
 set(LEMUS_SITE "https://lemusdev.org")
+# Where the source is published (AGPLv3): the About box links to it.
+set(LEMUS_SOURCE "https://github.com/lemus-dev/lemus")
 
 # Machines register themselves, so adding or changing one touches only machines/<id>/: every
 # machines/<id>/machine.cmake is included, calls lemus_machine(<id> instrument|fx) and defines
@@ -268,7 +270,7 @@ foreach(id ${LEMUS_PLUGIN_MACHINES})
 endforeach()
 
 foreach(target ${LEMUS_PLUGINS})
-  target_compile_definitions(${target} PUBLIC ${LEMUS_DEFINITIONS} LEMUS_SITE="${LEMUS_SITE}" LEMUS_UPDATE_CHECK=1)
+  target_compile_definitions(${target} PUBLIC ${LEMUS_DEFINITIONS} LEMUS_SITE="${LEMUS_SITE}" LEMUS_SOURCE="${LEMUS_SOURCE}" LEMUS_UPDATE_CHECK=1)
   target_compile_options(${target} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
   target_link_libraries(${target} PUBLIC
     juce::juce_recommended_config_flags
@@ -293,7 +295,8 @@ function(lemus_add_check target source list is_synth name)
     JucePlugin_IsMidiEffect=0
     LEMUS_PRIVATE_DIR="${LEMUS_PRIVATE_DIR}"
     LEMUS_ROOT_DIR="${LEMUS_ROOT_DIR}"
-    LEMUS_SITE="${LEMUS_SITE}")
+    LEMUS_SITE="${LEMUS_SITE}"
+    LEMUS_SOURCE="${LEMUS_SOURCE}")
   target_compile_options(${target} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
   target_link_libraries(${target} PRIVATE juce::juce_recommended_config_flags)
 endfunction()

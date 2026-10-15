@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
+# license:BSD-3-Clause
+# copyright-holders:hap (MAME ucom4 disassembler), ported to Python for the TB-303 emulator
 """uCOM-43 (uPD650) disassembler, after MAME's ucom4d.cpp.
+
+Clean-room note: anyone writing replacement firmware for a clean-room implementation must not use
+this on the ROM or read its output (see docs/firmware.md).
 
 Usage: dis650.py ROM [start] [end]   (addresses in hex)
 Prints address, bytes, mnemonic and, for port instructions, the port letter.

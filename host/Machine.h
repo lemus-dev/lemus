@@ -16,7 +16,7 @@ enum class Kind { Instrument, Effect };
 
 struct MachineInfo {
 	juce::String id;          // stable: saved in sessions, never renamed
-	juce::String name;        // the original device, e.g. "ProCo RAT 2"
+	juce::String name;        // the original device, e.g. "Roland TB-303"
 	juce::String description; // e.g. "Distortion pedal (1988)"
 	Kind kind = Kind::Effect;
 	// The ROM images it needs, from the user's ROM folder. None for a circuit-only machine.

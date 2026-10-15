@@ -3,48 +3,64 @@ import Base from '../layouts/Base.astro';
 import Stub from '../components/Stub.astro';
 import Prerelease from '../components/Prerelease.astro';
 import { machines, downloadLinks, platforms } from '../data/machines';
-
-const button = 'background: #7aa2f7; color: #16161e; text-decoration: none; font-weight: 700; padding: 12px 20px; border-radius: 8px; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center';
 ---
 <Base title="Download · Lemus" description="Download Lemus plugins for macOS and Windows. Each machine is a separate, free plugin." current="download">
-<Stub eyebrow="DOWNLOAD" heading="Download">
-<p style="margin: 0; color: #a9b1d6; max-width: 46em">Lemus plugins are free. Each machine is a separate plugin.</p>
-<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 16px; max-width: 46em">
+<Stub heading="Download">
+<p>Lemus plugins are free. Each machine is a separate plugin.</p>
+<ul class="machines">
 {machines.map((m) => {
   const links = downloadLinks(m);
   return (
-<li style="background: #16161e; border: 1px solid #292e42; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
-<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px">
-<a href={`/${m.slug}`} style="font-size: 21px; font-weight: 700; color: #c0caf5">{m.slug}</a>
-<span style="font-size: 14px; color: #a9b1d6">{m.emulates} ({m.year})</span>
+<li>
+<div class="head">
+<a href={`/${m.slug}`} class="slug">{m.slug}</a>
+<span class="dim">{m.emulates} ({m.year})</span>
 </div>
 {m.release ? (
 <>
-<div style="display: flex; flex-wrap: wrap; gap: 12px">
-<a href={links.mac} style={button}>macOS</a>
-<a href={links.windows} style={button}>Windows</a>
+<div class="buttons">
+<a href={links.mac} class="btn">macOS</a>
+<a href={links.windows} class="btn">Windows</a>
 </div>
-<div style="font-size: 13px; color: #a9b1d6">Version {m.release.version}{m.release.stage && ` ${m.release.stage}`} · {platforms}</div>
+<div class="meta">
+<span>Version {m.release.version}{m.release.stage && ` ${m.release.stage}`}</span>
+{platforms.map(([os, formats]) => <span>{os}: {formats}</span>)}
+</div>
 <Prerelease release={m.release} />
 </>
 ) : (
-<p style="margin: 0; color: #e0af68; font-size: 15px">Not available for download yet. The first release is being prepared.</p>
+<p class="partial">Not available for download yet. The first release is being prepared.</p>
 )}
 </li>
   );
 })}
 </ul>
-<div style="display: flex; flex-direction: column; gap: 16px; max-width: 46em">
-<h2 id="installing" style="margin: 16px 0 0; font-size: 21px; line-height: 1.3">Installing</h2>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<h3 style="margin: 0; font-size: 16px">macOS</h3>
-<p style="margin: 0; color: #a9b1d6; font-size: 15px">The installer puts the AU and VST3 in /Library/Audio/Plug-Ins and the standalone app in /Applications. It isn't signed or notarised yet, so macOS refuses it the first time: allow it with System Settings › Privacy &amp; Security › Open Anyway.</p>
+<div class="install">
+<h2 id="installing" class="h2">Installing</h2>
+<div>
+<h3 class="h3">macOS</h3>
+<p>The installer puts the AU and VST3 in /Library/Audio/Plug-Ins and the standalone app in /Applications. It isn't signed or notarised yet, so macOS refuses it the first time: allow it with System Settings › Privacy &amp; Security › Open Anyway.</p>
 </div>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<h3 style="margin: 0; font-size: 16px">Windows</h3>
-<p style="margin: 0; color: #a9b1d6; font-size: 15px">Copy the .vst3 folder to your VST3 folder (C:\Program Files\Common Files\VST3 by default, or any folder your DAW scans) and rescan plugins in your DAW. The .exe is the standalone app. Nothing is signed yet: keep the download if the browser warns, and choose More info › Run anyway if SmartScreen stops the app.</p>
+<div>
+<h3 class="h3">Windows</h3>
+<p>Copy the .vst3 folder to your VST3 folder (C:\Program Files\Common Files\VST3 by default, or any folder your DAW scans) and rescan plugins in your DAW. The .exe is the standalone app. Nothing is signed yet: keep the download if the browser warns, and choose More info › Run anyway if SmartScreen stops the app.</p>
 </div>
-<p style="margin: 0; color: #a9b1d6; font-size: 15px">ROM images aren't included: see <a href="/support#rom">Support</a>.</p>
+<p>ROM images aren't included: see <a href="/support#rom">Support</a>.</p>
 </div>
 </Stub>
 </Base>
+
+<style>
+.machines { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 16px; max-width: 46em; }
+.machines li { border: 2px solid var(--ink); padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; }
+.slug { font: 700 22px var(--mono); color: var(--ink); }
+.dim { font-size: 15px; }
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+.meta { display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: var(--ink2); }
+.machines p { margin: 0; font-size: 15px; }
+.install { display: flex; flex-direction: column; gap: 18px; max-width: 46em; margin-top: 24px; scroll-margin-top: 16px; }
+.install > div { display: flex; flex-direction: column; gap: 6px; }
+.install .h3 { font-size: 21px; }
+.install p { margin: 0; color: var(--ink2); font-size: 16px; }
+</style>

@@ -1,7 +1,11 @@
 Lemus: third-party notices
 ==========================
 
-Lemus is built with JUCE (https://juce.com), used under the JUCE licence.
+Lemus is free software: you can redistribute it and/or modify it under the
+terms of the GNU Affero General Public License, version 3 (AGPLv3). Its
+source is at https://github.com/lemus-dev/lemus.
+
+Lemus is built with JUCE (https://juce.com), used under the AGPLv3.
 
 The TB-303's CPU emulation is a port of MAME's NEC uCOM-4 core
 (src/devices/cpu/ucom4), licensed under the BSD 3-Clause licence:

@@ -1,15 +1,18 @@
 ---
-// A plain page: eyebrow, heading and whatever the page puts in the slot.
+// A plain page: a heading tapped off the bus and whatever the page puts in the slot.
 interface Props {
-  eyebrow: string;
   heading: string;
 }
-const { eyebrow, heading } = Astro.props;
+const { heading } = Astro.props;
 ---
-<section style="max-width: 1200px; margin: 0 auto; padding: 88px 24px 120px; display: flex; flex-direction: column; gap: 24px">
-<div style="display: flex; flex-direction: column; gap: 12px; max-width: 46em">
-<div style="font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700">{eyebrow}</div>
-<h1 style="margin: 0; font-size: clamp(32px, 4vw, 48px); line-height: 1.1; letter-spacing: -0.02em">{heading}</h1>
-</div>
+<section class="sheet">
+<div class="col stub">
+<h1 class="h1 tap">{heading}</h1>
 <slot />
+</div>
 </section>
+
+<style>
+.stub { padding-block: 72px 112px; display: flex; flex-direction: column; gap: 24px; }
+.stub > :global(p) { margin: 0; color: var(--ink2); max-width: 46em; }
+</style>

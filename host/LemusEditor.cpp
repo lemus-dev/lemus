@@ -329,14 +329,14 @@ public:
 	}
 };
 
-// The About box: the host and machine, the machine's notes, the disclaimer, links to the website
-// and the update-check switch.
+// The About box: the host and machine, its licence, the machine's notes, the disclaimer, links to
+// the website and the source, and the update-check switch.
 class AboutBox final : public juce::Component {
 public:
 	AboutBox(const lemus::MachineInfo &m, const juce::String &notes)
 	{
 		setLookAndFeel(&m_look.get());
-		m_text = juce::String(JucePlugin_Name) + " " + JucePlugin_VersionString + "\n" + m.name + " emulation (" + m.description + ")\n\n" +
+		m_text = juce::String(JucePlugin_Name) + " " + JucePlugin_VersionString + "\n" + m.name + " emulation (" + m.description + ")\nFree software under the GNU AGPLv3.\n\n" +
 		         (notes.isNotEmpty() ? notes + "\n\n" : juce::String()) + kDisclaimer;
 
 		const juce::String site = LEMUS_SITE;
@@ -352,7 +352,9 @@ public:
 		m_support.setURL(juce::URL(site + "/support"));
 		m_licences.setButtonText("Credits and licences");
 		m_licences.setURL(juce::URL(site + "/licences"));
-		m_links.addArray({&m_site, &m_support, &m_licences});
+		m_source.setButtonText("Source code");
+		m_source.setURL(juce::URL(LEMUS_SOURCE));
+		m_links.addArray({&m_site, &m_support, &m_licences, &m_source});
 		for (auto *b : m_links) {
 			b->setFont(mono(13.0f), false, juce::Justification::centredLeft);
 			addAndMakeVisible(*b);
@@ -383,7 +385,7 @@ private:
 	static constexpr int kWidth = 380, kPad = 14;
 	juce::SharedResourcePointer<LemusLook> m_look;
 	juce::String m_text;
-	juce::HyperlinkButton m_guide, m_site, m_support, m_licences;
+	juce::HyperlinkButton m_guide, m_site, m_support, m_licences, m_source;
 	juce::Array<juce::HyperlinkButton *> m_links; // in the order shown
 	Check m_updates{"Check for updates once a day"};
 	int m_textHeight = 0;

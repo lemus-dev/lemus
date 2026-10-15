@@ -69,7 +69,8 @@ I recorded these from my own TB-303 and release them under CC BY 4.0.`;
 ---
 <Base title="Record your TB-303 · Lemus" description="The takes to record from a real TB-303 to calibrate ro-mono-303 and for blind A/B tests, and how to send them." current="ro-mono-303">
 
-<div class="page">
+<div class="sheet">
+<div class="col page">
 
 <header class="intro">
 <nav aria-label="Breadcrumb" class="crumbs"><a href="/ro-mono-303">ro-mono-303</a> / Record your TB-303</nav>
@@ -151,41 +152,42 @@ I recorded these from my own TB-303 and release them under CC BY 4.0.`;
 </section>
 
 </div>
+</div>
 
 </Base>
 
 <style>
-.page { max-width: 1000px; margin: 0 auto; padding: 0 24px 96px; }
-.intro { padding: 56px 0 24px; display: flex; flex-direction: column; gap: 16px; }
-.crumbs { font-size: 13px; color: #a9b1d6; }
-.crumbs a { color: #a9b1d6; }
-h1 { margin: 0; font-size: clamp(32px, 5vw, 48px); line-height: 1.1; letter-spacing: -0.02em; }
-.lede { margin: 0; color: #a9b1d6; font-size: 17px; max-width: 44em; }
-section { padding: 40px 0 8px; border-top: 1px solid #292e42; margin-top: 24px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
-h2 { margin: 0; font-size: clamp(24px, 3vw, 30px); line-height: 1.15; }
-h3 { margin: 12px 0 0; font-size: 18px; line-height: 1.3; scroll-margin-top: 16px; }
-p, li { color: #a9b1d6; font-size: 15px; }
+.page { max-width: 1000px; padding-bottom: 96px; }
+.intro { padding: 56px 0 24px; display: flex; flex-direction: column; gap: 18px; }
+.crumbs { font-size: 14px; color: var(--ink2); }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(40px, 5.4vw, 68px); line-height: 0.95; text-transform: uppercase; }
+.lede { margin: 0; color: var(--ink2); font-size: 18px; max-width: 44em; }
+section { padding: 40px 0 8px; border-top: 1.5px solid var(--ink); margin-top: 24px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(30px, 3.6vw, 40px); line-height: 1; text-transform: uppercase; }
+h3 { margin: 12px 0 0; font-family: var(--display); font-weight: 600; font-size: 22px; line-height: 1.2; letter-spacing: 0.02em; text-transform: uppercase; scroll-margin-top: 16px; }
+p, li { color: var(--ink2); font-size: 16px; }
 p { margin: 0; max-width: 46em; }
 ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
-.mono { font-family: inherit; color: #c0caf5; overflow-wrap: anywhere; }
-.small { font-size: 13px; }
-.card { background: #16161e; border: 1px solid #292e42; border-radius: 12px; padding: 18px 20px; max-width: 46em; }
-.email { margin: 0; font-size: 13px; line-height: 1.6; white-space: pre-wrap; display: block; }
-.scroll { overflow-x: auto; border: 1px solid #292e42; border-radius: 12px; background: #16161e; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid #292e42; vertical-align: top; color: #a9b1d6; }
-thead th { font-weight: 400; font-size: 13px; color: #737aa2; }
-tbody th { color: #c0caf5; font-weight: 700; }
+.mono { font-family: var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.small { font-size: 14px; }
+.card { border: 2px solid var(--ink); padding: 18px 20px; max-width: 46em; }
+.email { margin: 0; font-size: 13px; line-height: 1.6; white-space: pre-wrap; display: block; background: var(--paper2); }
+.scroll { overflow-x: auto; border: 2px solid var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink2); }
+thead th { background: var(--paper2); border-bottom: 2px solid var(--ink); font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+tbody th { color: var(--ink); font-weight: 600; }
 .grid { min-width: 720px; }
 .grid th, .grid td { padding: 8px 4px; text-align: center; min-width: 30px; }
 .grid th:first-child { text-align: left; padding-left: 16px; min-width: 64px; }
-.grid tbody td { color: #c0caf5; font-weight: 700; }
-.grid td.dim { color: #565f89; font-weight: 400; }
-.grid td.mark { color: #e0af68; }
+.grid tbody td { font-family: var(--mono); color: var(--ink); font-weight: 700; }
+.grid td.dim { color: var(--ink3); font-weight: 400; }
+.grid td.mark { color: var(--wire-text); }
 .grid tbody tr:last-child th, .grid tbody tr:last-child td { border-bottom: 0; }
 .takes { min-width: 760px; }
 .takes th, .takes td { padding: 8px 14px; }
-.takes td { color: #c0caf5; }
-.takes .group th { color: #7aa2f7; font-size: 13px; font-weight: 700; padding-top: 16px; }
+.takes td { font-family: var(--mono); font-size: 14px; color: var(--ink); }
+.takes tbody th { font-family: var(--mono); font-size: 14px; }
+.takes .group th { font-family: var(--display); font-size: 15px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--wire-text); padding-top: 16px; }
 .takes tbody:last-child tr:last-child th, .takes tbody:last-child tr:last-child td { border-bottom: 0; }
 </style>

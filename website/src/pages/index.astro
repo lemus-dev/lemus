@@ -1,90 +1,248 @@
 ---
 import Base from '../layouts/Base.astro';
+import MailForm from '../components/MailForm.astro';
 import { machines, platforms } from '../data/machines';
 ---
 <Base title="Lemus · Emulations of legacy music equipment" description="Lemus is an independent project that emulates electronic music equipment no longer in production: synthesizers, drum machines and effects. Each machine is a free plugin for macOS and Windows." current="home">
 
-<section style="max-width: 1200px; margin: 0 auto; padding: 88px 24px 96px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 56px; align-items: center">
-<div style="display: flex; flex-direction: column; gap: 24px">
-<div style="font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700">LEMUS · LEGACY ELECTRONIC MUSIC SYSTEMS</div>
-<h1 style="margin: 0; font-size: clamp(38px, 5vw, 60px); line-height: 1.08; color: #c0caf5; font-weight: 700; letter-spacing: -0.02em">Emulations of legacy music equipment.</h1>
-<p style="margin: 0; color: #a9b1d6; font-size: 17px; max-width: 34em">Lemus is an independent project emulating synthesizers, drum machines and effects no longer in production. It documents their hardware and recreates it in software. Each machine is a free plugin.</p>
-<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px">
-<a href="/download" style="background: #7aa2f7; color: #16161e; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 8px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center">Download</a>
-<a href="/ro-mono-303" style="border: 1px solid #33467c; color: #c0caf5; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 8px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 10px">ro-mono-303
-<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"></path></svg></a>
+<section class="sheet">
+<div class="col hero">
+<div class="intro">
+<h1 class="h1">Emulations of legacy music equipment.</h1>
+<p class="lede">Lemus is an independent project emulating synthesizers, drum machines and effects no longer in production. It documents their hardware and recreates it in software. Each machine is a free plugin.</p>
+<div class="buttons">
+<a href="/download" class="btn">Download</a>
+<a href="/ro-mono-303" class="btn ghost slug">ro-mono-303</a>
 </div>
-<div style="font-size: 13px; color: #a9b1d6">{platforms}</div>
+<div class="platforms">{platforms.map(([os, formats]) => <span>{os}: {formats}</span>)}</div>
 </div>
 
-<img src="/media/ro-mono-303/voice-mode.png" alt="ro-mono-303 in voice mode: the TB-303 panel with knobs, switches and keys, its brand mark slots left blank" style="display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid #292e42">
-</section>
-
-<section id="how" style="background: #16161e; border-top: 1px solid #292e42; border-bottom: 1px solid #292e42">
-<div style="max-width: 1200px; margin: 0 auto; padding: 88px 24px; display: flex; flex-direction: column; gap: 40px">
-<div style="display: flex; flex-direction: column; gap: 12px; max-width: 40em">
-<div style="font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700">ABOUT</div>
-<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15">How a machine is emulated</h2>
-</div>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px">
-<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 12px">
-<div style="font-size: 28px; font-weight: 700; color: #33467c">01</div>
-<h3 style="margin: 0; font-size: 19px">Firmware</h3>
-<p style="margin: 0; color: #a9b1d6; font-size: 15px">If a machine has a CPU, its original program runs unmodified on an emulated processor, from the user's own ROM image.</p>
-</div>
-<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 12px">
-<div style="font-size: 28px; font-weight: 700; color: #33467c">02</div>
-<h3 style="margin: 0; font-size: 19px">Circuits</h3>
-<p style="margin: 0; color: #a9b1d6; font-size: 15px">Analog circuits are modelled part by part from the service notes, and each block is checked against a SPICE simulation of the same circuit.</p>
-</div>
-<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 12px; padding: 28px; display: flex; flex-direction: column; gap: 12px">
-<div style="font-size: 28px; font-weight: 700; color: #33467c">03</div>
-<h3 style="margin: 0; font-size: 19px">Calibration</h3>
-<p style="margin: 0; color: #a9b1d6; font-size: 15px">What the schematic leaves open, such as trimmer settings and transistor gain, is fitted to recordings of real units, within each part's tolerance.</p>
+<figure class="panel">
+<div class="mount">
+<div class="pin">
+<img src="/media/ro-mono-303/voice-mode.png" alt="ro-mono-303 in voice mode: the TB-303 panel with knobs, switches and keys, its brand mark slots left blank" width="1200" height="640">
+<span class="leader" style="left: 40.8%; top: -22px; height: calc(15% + 22px)" aria-hidden="true"></span>
+<span class="target" style="left: 40.8%; top: 15%" aria-hidden="true"></span>
+<span class="balloon" style="left: 40.8%; top: -52px" aria-hidden="true">A2</span>
+<span class="leader" style="left: 59%; top: 74%; height: calc(26% + 22px)" aria-hidden="true"></span>
+<span class="target" style="left: 59%; top: 74%" aria-hidden="true"></span>
+<span class="balloon" style="left: 59%; top: calc(100% + 20px)" aria-hidden="true">A1</span>
 </div>
 </div>
+<figcaption class="caption">
+<div class="row"><span class="key">A1</span><span><strong>Sequencer.</strong> The original firmware, run from the ROM image. Without it, voice mode.</span></div>
+<div class="row"><span class="key">A2</span><span><strong>Voice.</strong> Modelled part by part from the service notes.</span></div>
+<div class="row small"><span class="fig">FIG. 1</span><span>ro-mono-303 in voice mode. The brand mark slots are left blank.</span></div>
+</figcaption>
+</figure>
 </div>
 </section>
 
-<section id="plugins" style="max-width: 1200px; margin: 0 auto; padding: 88px 24px; display: flex; flex-direction: column; gap: 28px">
-<div style="display: flex; flex-direction: column; gap: 12px">
-<div style="font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700">PLUGINS</div>
-<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15">Supported machines</h2>
-<p style="margin: 0; color: #a9b1d6; max-width: 40em">A plugin is named for its maker, type and model: ro-mono-303 is a Roland mono synth, model 303.</p>
+<section id="mailing-list" class="sheet">
+<div class="col band-wrap">
+<div class="band tapbox">
+<div class="band-text">
+<h2 class="band-h">Release announcements by email</h2>
+<p>Release announcements only, from hello@lemusdev.org. An address is added once it's confirmed by email, and every email has an unsubscribe link. <a href="/support#mailing-list">Mailing list</a></p>
 </div>
-<div style="overflow-x: auto; border: 1px solid #292e42; border-radius: 12px; background: #16161e">
-<table style="width: 100%; min-width: 760px; border-collapse: collapse; font-size: 15px">
+<MailForm id="mail-home" />
+</div>
+</div>
+</section>
+
+<section id="how" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">How a machine is emulated</h2>
+
+<figure class="flow">
+<div class="mount diagram">
+<svg class="dg" role="img" aria-labelledby="dg-title" viewBox="0 0 1100 330" width="1100" height="330">
+<title id="dg-title">The user's ROM image feeds A1, the firmware, which sends CV and gate to A2, the circuits; their audio is the plugin's output. Recordings of real units feed A3, calibration, which sets fitted values in A2. A2 is compared with a SPICE simulation of the same circuit.</title>
+
+<rect class="term" x="0.75" y="60.75" width="148.5" height="38.5" rx="19.25"></rect>
+<text class="t-term" x="75" y="86">ROM IMAGE</text>
+<text class="t-sub" x="75" y="124">the user's own</text>
+<circle class="node" cx="150" cy="80" r="4"></circle>
+<path class="wire" d="M150 80H232"></path>
+<path class="head" d="M230 75L240 80L230 85Z"></path>
+
+<rect class="block" x="241" y="21" width="218" height="118"></rect>
+<text class="t-des" x="254" y="42">A1</text>
+<path class="flag" d="M439 27L449.5 45H428.5Z"></path><text class="t-flag" x="439" y="42">1</text>
+<text class="t-block" x="254" y="80">FIRMWARE</text>
+<text class="t-sub l" x="254" y="106">The original program</text>
+<text class="t-sub l" x="254" y="123">on an emulated CPU</text>
+
+<text class="t-net" x="560" y="70">CV/GATE</text>
+<path class="wire" d="M460 80H652"></path>
+<path class="head" d="M650 75L660 80L650 85Z"></path>
+
+<rect class="block" x="661" y="21" width="218" height="118"></rect>
+<text class="t-des" x="674" y="42">A2</text>
+<path class="flag" d="M859 27L869.5 45H848.5Z"></path><text class="t-flag" x="859" y="42">2</text>
+<text class="t-block" x="674" y="80">CIRCUITS</text>
+<text class="t-sub l" x="674" y="106">Modelled part by part</text>
+<text class="t-sub l" x="674" y="123">from the service notes</text>
+
+<text class="t-net" x="915" y="70">AUDIO</text>
+<path class="wire" d="M880 80H942"></path>
+<path class="head" d="M940 75L950 80L940 85Z"></path>
+<rect class="term" x="950.75" y="60.75" width="148.5" height="38.5" rx="19.25"></rect>
+<text class="t-term" x="1025" y="86">PLUGIN OUT</text>
+<text class="t-sub" x="1025" y="124">AU, VST3, standalone</text>
+
+<path class="wire dashed" d="M880 118H910V250H950"></path>
+<text class="t-net l" x="918" y="186">COMPARED</text>
+<rect class="term dashed" x="950.75" y="230.75" width="148.5" height="38.5" rx="19.25"></rect>
+<text class="t-term" x="1025" y="256">SPICE</text>
+<text class="t-sub" x="1025" y="294">the same circuit, simulated</text>
+
+<path class="wire" d="M770 190V148"></path>
+<path class="head" d="M765 150L770 140L775 150Z"></path>
+<text class="t-net l" x="782" y="170">FITTED VALUES</text>
+
+<rect class="term" x="420.75" y="230.75" width="168.5" height="38.5" rx="19.25"></rect>
+<text class="t-term" x="505" y="256">RECORDINGS</text>
+<text class="t-sub" x="505" y="294">of real units</text>
+<circle class="node" cx="590" cy="250" r="4"></circle>
+<path class="wire" d="M590 250H652"></path>
+<path class="head" d="M650 245L660 250L650 255Z"></path>
+
+<rect class="block" x="661" y="191" width="218" height="118"></rect>
+<text class="t-des" x="674" y="212">A3</text>
+<path class="flag" d="M859 197L869.5 215H848.5Z"></path><text class="t-flag" x="859" y="212">3</text>
+<text class="t-block" x="674" y="250">CALIBRATION</text>
+<text class="t-sub l" x="674" y="276">Fitted to real units,</text>
+<text class="t-sub l" x="674" y="293">within tolerance</text>
+</svg>
+</div>
+<figcaption class="caption"><div class="row"><span class="fig">FIG. 2</span><span>The firmware drives the circuit model. Calibration sets what the schematic leaves open.</span></div></figcaption>
+</figure>
+
+<ol class="notes">
+<li>
+<span class="flag-n" aria-hidden="true"><svg width="28" height="26" viewBox="0 0 22 20"><path d="M11 1.5L20.5 18.5H1.5Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg><span>1</span></span>
+<div>
+<h3 class="h3">Firmware</h3>
+<p>If a machine has a CPU, its original program runs unmodified on an emulated processor, from the user's own ROM image.</p>
+</div>
+</li>
+<li>
+<span class="flag-n" aria-hidden="true"><svg width="28" height="26" viewBox="0 0 22 20"><path d="M11 1.5L20.5 18.5H1.5Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg><span>2</span></span>
+<div>
+<h3 class="h3">Circuits</h3>
+<p>Analog circuits are modelled part by part from the service notes, and each block is checked against a SPICE simulation of the same circuit.</p>
+</div>
+</li>
+<li>
+<span class="flag-n" aria-hidden="true"><svg width="28" height="26" viewBox="0 0 22 20"><path d="M11 1.5L20.5 18.5H1.5Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg><span>3</span></span>
+<div>
+<h3 class="h3">Calibration</h3>
+<p>What the schematic leaves open, such as trimmer settings and transistor gain, is fitted to recordings of real units, within each part's tolerance.</p>
+</div>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="plugins" class="sheet">
+<div class="col sec last">
+<div class="text">
+<h2 class="h2 tap">Supported machines</h2>
+<p>A plugin is named for its maker, type and model: <span class="mono">ro-mono-303</span> is a Roland mono synth, model 303.</p>
+</div>
+<div class="table-box">
+<table class="table parts">
 <thead>
-<tr style="text-align: left; color: #a9b1d6; font-size: 13px">
-<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Plugin</th>
-<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Emulates</th>
-<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Type</th>
-<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Status</th>
-<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Without ROM</th>
-<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Links</span></th>
-</tr>
+<tr><th scope="col" class="item">Item</th><th scope="col">Plugin</th><th scope="col">Emulates</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col">Without ROM</th><th scope="col"><span class="sr">Links</span></th></tr>
 </thead>
 <tbody>
-{machines.map((m) => (
-<tr style="background: #33467c">
-<td style="padding: 18px 20px; font-weight: 700">{m.slug}</td>
-<td style="padding: 18px 20px">{m.emulates} ({m.year})</td>
-<td style="padding: 18px 20px">{m.type}</td>
-<td style="padding: 18px 20px">{m.status}</td>
-{m.withoutRom === 'voice'
-  ? <td style="padding: 18px 20px; color: #e0af68">[~] voice mode</td>
-  : <td style="padding: 18px 20px; color: #f7768e">[✗] ROM missing</td>}
-<td style="padding: 18px 20px; text-align: right; white-space: nowrap"><a href={`/${m.slug}`} style="color: #c0caf5; font-weight: 700; display: inline-flex; align-items: center; min-height: 44px; margin-right: 20px">Details</a><a href="/download" style="color: #c0caf5; font-weight: 700; display: inline-flex; align-items: center; min-height: 44px">Download</a></td>
+{machines.map((m, i) => (
+<tr>
+<td class="item"><span class="ball">{i + 1}</span></td>
+<td class="mono plugin">{m.slug}</td>
+<td>{m.emulates} ({m.year})</td>
+<td>{m.type}</td>
+<td><span class={m.status === 'working' ? 'ok' : 'partial'}>{m.status}</span></td>
+<td>{m.withoutRom === 'voice'
+  ? <span class="partial"><span class="mono">[~]</span> voice mode</span>
+  : <span class="missing"><span class="mono">[✗]</span> ROM missing</span>}</td>
+<td class="links"><a href={`/${m.slug}`}>Details</a><a href="/download">Download</a></td>
 </tr>
 ))}
 <tr>
-<td style="padding: 18px 20px; color: #a9b1d6" colspan="6">More machines are in development. Each one is released when it passes the same checks.</td>
+<td colspan="7" class="more"><span>More machines are in development. Each one is released when it passes the same checks. <a href="#mailing-list">Release announcements by email</a></span></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p style="margin: 0; color: #a9b1d6; font-size: 15px; max-width: 46em">ROM images and makers' logos aren't included. Without its ROM, a machine marked <span style="color: #e0af68">[~]</span> plays its voice over MIDI; one marked <span style="color: #f7768e">[✗]</span> doesn't run. <a href="/support#rom">ROM images and artwork</a></p>
+<p class="foot">ROM images and makers' logos aren't included. Without its ROM, a machine marked <span class="partial mono">[~]</span> plays its voice over MIDI; one marked <span class="missing mono">[✗]</span> doesn't run. <a href="/support#rom">ROM images and artwork</a></p>
+</div>
 </section>
 
-
 </Base>
+
+<style>
+.hero { padding-block: 72px 64px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 56px; align-items: center; }
+.intro { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.lede { margin: 0; color: var(--ink2); font-size: 19px; line-height: 1.55; max-width: 31em; }
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+.platforms { display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: var(--ink2); }
+.panel { margin: 0; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel .mount { padding: 54px 20px; }
+.pin { position: relative; }
+.caption strong { color: var(--ink); font-weight: 600; }
+.caption .small { font-size: 13px; }
+
+.band-wrap { padding-bottom: 88px; }
+.band { --tap-y: 38px; border: 2px solid var(--ink); background: var(--tint); padding: 22px 24px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 48px; }
+.band-text { flex: 1 1 360px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.band-h { margin: 0; font-family: var(--display); font-weight: 700; font-size: 32px; line-height: 1.1; text-transform: uppercase; }
+.band p { margin: 0; font-size: 15px; color: var(--ink2); max-width: 36em; }
+.band :global(form) { flex: 1 1 400px; max-width: 540px; }
+
+.flow { margin: 0; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.diagram { overflow-x: auto; padding: 40px 30px; }
+.dg { display: block; width: 100%; min-width: 820px; max-width: 1100px; height: auto; }
+.dg .wire { fill: none; stroke: var(--wire); stroke-width: 2; }
+.dg .dashed { stroke-dasharray: 6 4; }
+.dg .head, .dg .node { fill: var(--wire); }
+.dg .block { fill: var(--paper); stroke: var(--ink); stroke-width: 2; }
+.dg .term { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.dg .flag { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linejoin: round; }
+.dg text { fill: var(--ink); }
+.dg .t-term { font: 600 16px var(--display); letter-spacing: 0.06em; text-anchor: middle; }
+.dg .t-sub { font: 13px var(--body); fill: var(--ink2); text-anchor: middle; }
+.dg .t-sub.l { text-anchor: start; }
+.dg .t-des { font: 700 12px var(--mono); }
+.dg .t-flag { font: 700 10px var(--mono); text-anchor: middle; }
+.dg .t-block { font: 700 28px var(--display); }
+.dg .t-net { font: 700 11px var(--mono); letter-spacing: 0.06em; fill: var(--wire-text); text-anchor: middle; }
+.dg .t-net.l { text-anchor: start; }
+
+.notes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 28px 44px; }
+.notes li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 14px; align-items: start; }
+.notes li > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.notes p { margin: 0; font-size: 16px; color: var(--ink2); }
+.flag-n { display: inline-grid; place-items: center; width: 28px; height: 26px; font: 700 11px/1 var(--mono); }
+.flag-n > * { grid-area: 1 / 1; }
+.flag-n span { padding-top: 8px; }
+
+.text { display: flex; flex-direction: column; gap: 16px; }
+.text p { margin: 0; color: var(--ink2); max-width: 40em; }
+.text .mono { font-size: 15px; color: var(--ink); }
+.parts { min-width: 900px; }
+.parts td { padding-block: 14px; vertical-align: middle; }
+.parts .item { width: 56px; text-align: center; }
+.ball { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; box-sizing: border-box; border: 1.5px solid var(--ink); border-radius: 50%; font: 700 13px var(--mono); }
+.plugin { font-weight: 700; font-size: 15px; }
+.parts span.mono { font-size: 13px; }
+.links { text-align: right; white-space: nowrap; font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: 0.06em; text-transform: uppercase; }
+.links a { display: inline-flex; align-items: center; min-height: 44px; text-underline-offset: 4px; }
+.links a + a { margin-left: 22px; }
+.parts td.more { color: var(--ink2); background-image: repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 9px); }
+.more > span { background: var(--paper); padding: 2px 8px; }
+.foot { margin: 0; color: var(--ink2); font-size: 15px; max-width: 46em; }
+.foot .mono { font-size: 13px; }
+.last { padding-bottom: 96px; gap: 28px; }
+</style>

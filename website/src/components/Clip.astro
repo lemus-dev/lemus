@@ -1,0 +1,68 @@
+---
+// One audio clip with the knob settings it was played at. The play button is its only control;
+// the line under the settings shows how far it has played.
+interface Props {
+  src: string;
+  settings: [string, string][]; // knob, value
+  note?: string;
+}
+const { src, settings, note } = Astro.props;
+const label = `Play ro-mono-303 at ${settings.map(([k, v]) => `${k} ${v}`).join(', ')}`;
+---
+<div class="clip">
+<button type="button" class="play" aria-label={label}>
+<svg class="i-play" aria-hidden="true" width="16" height="18" viewBox="0 0 14 16"><path d="M1 1L13 8L1 15Z" fill="currentColor"></path></svg>
+<svg class="i-pause" aria-hidden="true" width="14" height="16" viewBox="0 0 14 16"><path d="M2 1h3.5v14H2zM8.5 1H12v14H8.5z" fill="currentColor"></path></svg>
+</button>
+<div class="body">
+<div class="knobs">{settings.map(([k, v]) => <span><span class="k">{k}</span> <span class="v">{v}</span></span>)}</div>
+{note && <div class="note">{note}</div>}
+<div class="progress" aria-hidden="true"><span class="line"><span class="fill"></span></span><span class="time">0:00</span></div>
+</div>
+<audio preload="none" src={src}></audio>
+</div>
+
+<script>
+const clock = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+for (const clip of document.querySelectorAll<HTMLElement>('.clip')) {
+  const audio = clip.querySelector('audio')!;
+  const button = clip.querySelector<HTMLButtonElement>('.play')!;
+  const fill = clip.querySelector<HTMLElement>('.fill')!;
+  const time = clip.querySelector<HTMLElement>('.time')!;
+  const play = button.getAttribute('aria-label')!;
+  const show = () => {
+    clip.classList.toggle('playing', !audio.paused);
+    button.setAttribute('aria-label', audio.paused ? play : play.replace(/^Play/, 'Pause'));
+  };
+  const tick = () => {
+    const d = audio.duration;
+    fill.style.width = d ? `${(audio.currentTime / d) * 100}%` : '0';
+    time.textContent = d ? `${clock(audio.currentTime)} / ${clock(d)}` : clock(audio.currentTime);
+  };
+  button.addEventListener('click', () => (audio.paused ? audio.play() : audio.pause()));
+  audio.addEventListener('play', show);
+  audio.addEventListener('pause', show);
+  audio.addEventListener('ended', () => { audio.currentTime = 0; show(); });
+  audio.addEventListener('timeupdate', tick);
+  audio.addEventListener('loadedmetadata', tick);
+}
+</script>
+
+<style>
+.clip { border: 1.5px solid var(--ink); background: var(--paper); padding: 16px 18px; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 18px; align-items: center; }
+.play { width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%; background: var(--wire); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+.play:hover { background: var(--wire-text); color: var(--paper); }
+.i-play { margin-left: 4px; }
+.i-pause, .playing .i-play { display: none; }
+.playing .i-pause { display: block; }
+.body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.knobs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 20px; }
+.knobs > span { white-space: nowrap; }
+.k { font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; color: var(--ink2); }
+.v { font: 700 15px var(--mono); }
+.note { font-size: 14px; line-height: 1.45; color: var(--ink2); }
+.progress { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+.line { position: relative; flex: 1; height: 2px; background: var(--rule); }
+.fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--wire); }
+.time { font: 11px var(--mono); color: var(--ink2); font-variant-numeric: tabular-nums; }
+</style>
