@@ -1,0 +1,28 @@
+* Device models for the TB-303 voice, with parameters set from the parts' data sheets (typical
+* values). One of two independent model sets (the other is private/reference/spice/
+* models-community.lib); a conclusion counts only if it holds with both.
+*
+* 2SA733 P (NEC data sheet D10868JJ8V0DS00, private/docs/datasheets/nec-2sa733.pdf): hFE 200-400
+* (P rank) at 1 mA, VBE 0.62 V typ at 1 mA (IS = 1 mA / exp(0.62/VT)), fT 180 MHz typ
+* (TF = 1/(2 pi fT)), Cob 4.5 pF at 10 V (CJC at 0 V about 10 pF).
+.model Q2SA733 PNP(IS=3.3e-14 BF=300 NF=1 VAF=80 BR=5 IKF=0.2 ISE=1e-15 NE=1.5 RB=50 RC=1
++ CJE=15p MJE=0.33 VJE=0.75 CJC=10p MJC=0.33 VJC=0.75 TF=0.88n TR=40n)
+* 2SC945 P (NEC data sheet D17117EJ2V0DS, private/docs/datasheets/nec-2sc945.pdf; the ladder "diodes",
+* Q24, Q25; X0X 2SC536F): hFE 200-400 (P rank) at 1 mA, VBE 0.62 V typ (0.55-0.65), fT 250 MHz,
+* Cob 3 pF.
+.model Q2SC945 NPN(IS=3.3e-14 BF=300 NF=1 VAF=100 BR=5 IKF=0.15 ISE=1e-15 NE=1.5 RB=50 RC=1
++ CJE=12p MJE=0.33 VJE=0.75 CJC=6p MJC=0.33 VJC=0.75 TF=0.64n TR=40n)
+* 2SC1583 F (Mitsubishi data sheet, private/docs/datasheets/mitsubishi-2sc1583.pdf): the matched
+* dual NPN at Q12, Q21 (and Q26, not simulated); also used for the 2SC2291 F at Q22 (Mitsubishi's
+* sheet not found; same family, a seller gives its G rank as 400-800 like the 2SC1583's). hFE of
+* the lower half 250-500 (F rank) at 6 V, 1 mA, about 0.87 of that at Q21's 0.26 mA per side (the
+* sheet's hFE-IC curve), so BF 308 here (rank centre 354); hFE1/hFE2 0.8-1.0; VBE 0.60 V at 1 mA (transfer
+* curve); fT 150 MHz at 1 mA; Cob 2.5 pF at 6 V.
+.model Q2SC1583 NPN(IS=8.4e-14 BF=308 NF=1 VAF=100 BR=5 IKF=0.15 ISE=1e-15 NE=1.5 RB=50 RC=1
++ CJE=8p MJE=0.33 VJE=0.75 CJC=5p MJC=0.33 VJC=0.75 TF=1.06n TR=40n)
+* Small-signal silicon diode (1S2473/1S1588 class): the usual 1N4148 parameters.
+.model D1S D(IS=2.52n RS=0.568 N=1.752 CJO=4p M=0.4 TT=20n)
+* 2SK30A-O JFET (Toshiba 2SK30ATM data sheet, private/docs/datasheets/toshiba-2sk30a.pdf): IDSS
+* 0.60-1.40 mA for the O rank (R 0.30-0.75, Y 1.20-3.00, GR 2.60-6.50); the sheet's VGS(off)-IDSS
+* curve gives about -1.0 V at 1 mA, so IDSS = BETA*VTO^2 = 1.0 mA with VTO = -1.0 V.
+.model J2SK30 NJF(VTO=-1.0 BETA=1.0m LAMBDA=0.01 IS=1e-14 CGS=8p CGD=3p)

@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "lemus-website",
+  "compatibility_date": "2026-10-01",
+  "account_id": "0797d481820750f63aceb437179e3fed",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    { "pattern": "lemusdev.org", "custom_domain": true },
+    { "pattern": "www.lemusdev.org", "custom_domain": true }
+  ],
+  "workers_dev": false
+}

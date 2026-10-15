@@ -1,0 +1,19 @@
+{
+  "name": "tb303-sweep",
+  "bpm": 125, "bars": 4, "tail": 1,
+  "params": {"waveform": 0, "tuning": 0.5, "cutoff": 0.1, "resonance": 0.85, "envmod": 0.55,
+             "decay": 0.4, "accent": 0.8, "volume": 0.6},
+  "automation": [{"param": "cutoff", "points": [[0, 0.05], [16, 0.9]]}],
+  "notes": [
+    {"at": 0.0, "note": "C-2", "len": 0.12}, {"at": 0.25, "note": "C-2", "len": 0.12},
+    {"at": 0.5, "note": "C-3", "len": 0.12, "accent": true}, {"at": 0.75, "note": "C-2", "len": 0.3},
+    {"at": 1.0, "note": "D#2", "len": 0.12}, {"at": 1.25, "note": "C-2", "len": 0.12},
+    {"at": 1.5, "note": "G-2", "len": 0.12, "accent": true}, {"at": 1.75, "note": "A#2", "len": 0.12},
+    {"at": 2.0, "note": "C-2", "len": 0.12}, {"at": 2.25, "note": "C-2", "len": 0.12},
+    {"at": 2.5, "note": "C-3", "len": 0.3, "accent": true}, {"at": 2.75, "note": "C-2", "len": 0.12},
+    {"at": 3.0, "note": "F-2", "len": 0.12}, {"at": 3.25, "note": "D#2", "len": 0.12},
+    {"at": 3.5, "note": "C-2", "len": 0.12, "accent": true}, {"at": 3.75, "note": "G-1", "len": 0.12}
+  ],
+  "repeat": 4,
+  "sources": [{"use": "tb303.lemus"}, {"use": "tb303.roland"}]
+}

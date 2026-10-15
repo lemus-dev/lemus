@@ -1,0 +1,229 @@
+---
+import Base from '../layouts/Base.astro';
+import Prerelease from '../components/Prerelease.astro';
+import { bySlug, downloadLinks, platforms } from '../data/machines';
+
+const m = bySlug('ro-mono-303');
+const links = downloadLinks(m);
+---
+<Base title="ro-mono-303 · Lemus" description="ro-mono-303 emulates the Roland TB-303 Bass Line: its original sequencer firmware on an emulated CPU, and its voice circuit modelled part by part. Free for macOS and Windows." current="ro-mono-303">
+
+<section style="max-width: 1200px; margin: 0 auto; padding: 64px 24px 72px; display: flex; flex-direction: column; align-items: center; gap: 48px">
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px; max-width: 780px">
+<nav aria-label="Breadcrumb" style="font-size: 13px; color: #a9b1d6"><a href="/#plugins" style="color: #a9b1d6">Plugins</a> / ro-mono-303</nav>
+<h1 style="margin: 0; font-size: clamp(42px, 6vw, 72px); line-height: 1.02; font-weight: 700; letter-spacing: -0.02em">ro-mono-303</h1>
+<p style="margin: 0; color: #c0caf5; font-size: 19px">Emulation of the Roland TB-303 Bass Line (1981), a monophonic bass synthesizer with a built-in step sequencer.</p>
+<p style="margin: 0; color: #a9b1d6; font-size: 16px">It runs the original sequencer firmware on an emulated CPU, and models the voice circuit part by part from the service notes.</p>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px">
+<a href={links.mac} style="background: #7aa2f7; color: #16161e; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 8px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center">Download for macOS</a>
+<a href={links.windows} style="background: #7aa2f7; color: #16161e; text-decoration: none; font-weight: 700; padding: 14px 24px; border-radius: 8px; min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center">Download for Windows</a>
+</div>
+<div style="font-size: 13px; color: #a9b1d6">Free{m.release && ` · version ${m.release.version}${m.release.stage ? ` ${m.release.stage}` : ''}`} · {platforms}</div>
+{m.release && <Prerelease release={m.release} />}
+<a href="/ro-mono-303/guide" style="font-size: 15px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; min-height: 44px">User guide
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"></path></svg></a>
+<a href="#accuracy" style="font-size: 15px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; min-height: 44px">Hear it next to a real TB-303
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M4 9l4 4 4-4"></path></svg></a>
+</div>
+
+<img src="/media/ro-mono-303/voice-mode.png" alt="ro-mono-303 in voice mode: the TB-303 panel with knobs, switches and keys, its brand mark slots left blank, and the plugin bar with SYNC, CUT OFF MAX and SERVICE" style="display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid #292e42">
+</section>
+
+<section id="accuracy" style="background: #16161e; border-top: 1px solid #292e42; border-bottom: 1px solid #292e42">
+<div style="max-width: 1200px; margin: 0 auto; padding: 88px 24px 96px; display: flex; flex-direction: column; gap: 40px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 32px; align-items: start">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700">ACCURACY</div>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15">Next to a real TB-303</h2>
+<p style="margin: 0; color: #a9b1d6">acidvoice.com has recordings of a real TB-303 playing an accent test at three knob settings. These are ro-mono-303 playing the same pattern at the same settings, with no effects.</p>
+<a href="https://www.acidvoice.com/tb-3-vs-tb-303.htm" style="align-self: start; border: 1px solid #33467c; color: #c0caf5; text-decoration: none; font-weight: 700; padding: 12px 20px; border-radius: 8px; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 10px">The real TB-303 on acidvoice.com
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h7v7M13 3L4 12"></path></svg></a>
+<p style="margin: 0; color: #a9b1d6; font-size: 13px">ro-mono-303 is set to match that unit: CUT OFF MAX 2.05 kHz and DECAY 65 % (the site doesn't give DECAY).</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 14px; font-weight: 700">CUT OFF 100 % · RESONANCE 100 % · ACCENT 100 %</div>
+<div style="font-size: 13px; color: #a9b1d6">ro-mono-303 at RESONANCE 98 %, matched to that unit by ear</div>
+<audio controls preload="none" src="/media/ro-mono-303/acidvoice-303_100.m4a" style="width: 100%; color-scheme: dark"></audio>
+</div>
+<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 14px; font-weight: 700">CUT OFF 60 % · RESONANCE 100 % · ACCENT 100 %</div>
+<div style="font-size: 13px; color: #a9b1d6">ro-mono-303 at CUT OFF 51 %, where its filter sits where that unit's does at 60 %</div>
+<audio controls preload="none" src="/media/ro-mono-303/acidvoice-303_60.m4a" style="width: 100%; color-scheme: dark"></audio>
+</div>
+<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 14px; font-weight: 700">CUT OFF 0 % · RESONANCE 0 % · ACCENT 100 %</div>
+<audio controls preload="none" src="/media/ro-mono-303/acidvoice-303_0_0.m4a" style="width: 100%; color-scheme: dark"></audio>
+</div>
+</div>
+</div>
+
+<div style="border-top: 1px solid #292e42; padding-top: 36px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h3 style="margin: 0; font-size: 22px">In numbers</h3>
+<p style="margin: 0; color: #a9b1d6; font-size: 15px">Measured note by note against 400 notes recorded from a real TB-303. Method: <a href="#made">How it was made</a>.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px">
+<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 32px; line-height: 1.1; font-weight: 700; color: #a9c1ff">4.89</div>
+<div style="font-size: 15px; color: #c0caf5">distance from the real unit, lower is closer</div>
+<div style="font-size: 13px; color: #a9b1d6">Two takes of the real unit differ by 2.39. The schematic values alone score 9.76.</div>
+</div>
+<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 32px; line-height: 1.1; font-weight: 700; color: #a9c1ff">5.5 %</div>
+<div style="font-size: 15px; color: #c0caf5">median error in the resonant peak</div>
+<div style="font-size: 13px; color: #a9b1d6">Roland's TB-303 software, measured the same way: 21 %.</div>
+</div>
+<div style="background: #1a1b26; border: 1px solid #292e42; border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 32px; line-height: 1.1; font-weight: 700; color: #a9c1ff">±1 ¢</div>
+<div style="font-size: 15px; color: #c0caf5">pitch error over five octaves</div>
+<div style="font-size: 13px; color: #a9b1d6">C1 to C5, factory trim. Roland's TB-303 software: −7 to +8 ¢.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="service" style="max-width: 1200px; margin: 0 auto; padding: 88px 24px 96px; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 24px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 44em">
+<div style="font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700">SERVICE</div>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15">Take the panel off</h2>
+<p style="margin: 0; color: #a9b1d6">The main board and switch board, every part where the service notes draw it, with the six trimmers and a scope, frequency counter and meter on each one's test point. <a href="/ro-mono-303/guide#service">SERVICE in the guide</a></p>
+</div>
+<div style="display: flex; align-items: center; gap: 16px; background: #16161e; border: 1px solid #9ece6a; border-radius: 12px; padding: 16px 20px; max-width: 100%; box-sizing: border-box">
+<div style="font-size: 32px; line-height: 1.1; font-weight: 700; color: #9ece6a; white-space: nowrap">16 / 16</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 15px; color: #c0caf5">service-note checks in spec</div>
+<div style="font-size: 13px; color: #a9b1d6">e.g. two octaves at 4.0005 : 1, spec 4 : 1 ± 0.5 %</div>
+</div>
+</div>
+</div>
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 10px">
+<img src="/media/ro-mono-303/service.webp" alt="ro-mono-303 with SERVICE on: the TB-303's main board and switch board, TM3 FREQ highlighted, a scope timing the filter's ring at TP6, a frequency counter on the VCO, a meter on CV OUT, and the six trimmers, all green: in spec" width="2400" height="1216" loading="lazy" style="display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid #292e42">
+<figcaption style="font-size: 13px; color: #a9b1d6">TM3 FREQ selected: the scope times the filter's ring at TP6. Green on a trimmer's track is the service notes' spec.</figcaption>
+</figure>
+</section>
+
+<section id="differences" style="background: #16161e; border-top: 1px solid #292e42; border-bottom: 1px solid #292e42">
+<div style="max-width: 1200px; margin: 0 auto; padding: 88px 24px 96px; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 13px; letter-spacing: 0.12em; color: #e0af68; font-weight: 700">KNOWN DIFFERENCES</div>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15">What is still different</h2>
+</div>
+<dl style="margin: 0; display: flex; flex-direction: column; max-width: 60em">
+<div style="padding: 16px 0; border-top: 1px solid #292e42; display: flex; flex-direction: column; gap: 4px">
+<dt style="font-weight: 700">Accented low notes</dt>
+<dd style="margin: 0; color: #a9b1d6; font-size: 15px">Low in CUT OFF, both real units lose a band around 260–330 Hz on accented notes, up to 16 dB on one harmonic, that ro-mono-303 keeps. Plain notes match.</dd>
+</div>
+<div style="padding: 16px 0; border-top: 1px solid #292e42; display: flex; flex-direction: column; gap: 4px">
+<dt style="font-weight: 700">The accent's sweep</dt>
+<dd style="margin: 0; color: #a9b1d6; font-size: 15px">Fitted to one unit at one setting, ACCENT and RESONANCE full. There its accents peak within −70 to +30 cents of the real ones.</dd>
+</div>
+<div style="padding: 16px 0; border-top: 1px solid #292e42; display: flex; flex-direction: column; gap: 4px">
+<dt style="font-weight: 700">Loud accents</dt>
+<dd style="margin: 0; color: #a9b1d6; font-size: 15px">Both real units flatten their loudest accents; the BA662 VCA chip, as reverse engineered, doesn't. Its output is limited to match, but why the real chip does this isn't known.</dd>
+</div>
+<div style="padding: 16px 0; border-top: 1px solid #292e42; display: flex; flex-direction: column; gap: 4px">
+<dt style="font-weight: 700">The start of a note</dt>
+<dd style="margin: 0; color: #a9b1d6; font-size: 15px">Against Din Sync's unit, brightness in the first 0.1 s is about 25 % off. Two takes of that unit differ by about 2 %.</dd>
+</div>
+<div style="padding: 16px 0; border-top: 1px solid #292e42; border-bottom: 1px solid #292e42; display: flex; flex-direction: column; gap: 4px">
+<dt style="font-weight: 700">Units differ</dt>
+<dd style="margin: 0; color: #a9b1d6; font-size: 15px">With CUT OFF and RESONANCE full, Din Sync's unit tops out at about 1.4 kHz; Whittle gives about 2.5 kHz as typical. CUT OFF MAX (1.2 to 3 kHz) and the SERVICE trimmers cover the spread.</dd>
+</div>
+</dl>
+
+<div id="help" style="max-width: 60em; box-sizing: border-box; background: #1a1b26; border: 1px solid #e0af68; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+<h3 style="margin: 0; font-size: 21px">Own a TB-303?</h3>
+<p style="margin: 0; color: #c0caf5; font-size: 15px">Recordings of real units close these gaps and go into blind A/B tests here, published under CC BY 4.0 with your name.</p>
+<a href="/ro-mono-303/record" style="align-self: start; background: #e0af68; color: #16161e; text-decoration: none; font-weight: 700; padding: 12px 20px; border-radius: 8px; min-height: 44px; box-sizing: border-box; display: inline-flex; align-items: center">What to record</a>
+</div>
+</div>
+</section>
+
+<section id="made" style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700">DEVELOPMENT</div>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15">How it was made</h2>
+</div>
+
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+
+<li style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 20px; padding: 32px 0; border-top: 1px solid #292e42">
+<div style="font-size: 28px; font-weight: 700; color: #33467c">01</div>
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 52em">
+<h3 style="margin: 0; font-size: 21px">Schematic and SPICE</h3>
+<p style="margin: 0; color: #a9b1d6">Each block of the voice was modelled from the schematic in the service notes, then compared with an ngspice simulation of the same circuit, with typical part values and at both ends of their tolerance. The whole voice's note level is within 0.1–0.3 dB of the simulation.</p>
+</div>
+</li>
+
+<li style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 20px; padding: 32px 0; border-top: 1px solid #292e42; border-bottom: 1px solid #292e42">
+<div style="font-size: 28px; font-weight: 700; color: #33467c">02</div>
+<div style="display: flex; flex-direction: column; gap: 16px; min-width: 0">
+<h3 style="margin: 0; font-size: 21px">Calibration to a real unit</h3>
+<p style="margin: 0; color: #a9b1d6; max-width: 52em">The schematic doesn't fix trimmer settings, transistor gain or potentiometer taper. These were fitted to <a href="http://www.dinsync.info/2010/02/tb-303-reference-recordings-for-x0xb0x.html">Din Sync's TB-303 reference recordings</a>, 400 notes from a real TB-303 at documented knob positions, with each value kept within its part's tolerance.</p>
+<div style="overflow-x: auto; border: 1px solid #292e42; border-radius: 10px; background: #16161e">
+<table style="width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14px">
+<thead><tr style="text-align: left; color: #a9b1d6; font-size: 13px">
+<th scope="col" style="padding: 12px 16px; font-weight: 400; border-bottom: 1px solid #292e42">Part</th>
+<th scope="col" style="padding: 12px 16px; font-weight: 400; border-bottom: 1px solid #292e42">Schematic value</th>
+<th scope="col" style="padding: 12px 16px; font-weight: 400; border-bottom: 1px solid #292e42">Fitted</th>
+</tr></thead>
+<tbody>
+<tr><td style="padding: 10px 16px">Filter trimmer TM3, ring period</td><td style="padding: 10px 16px">2.0 ms</td><td style="padding: 10px 16px">2.5 ms</td></tr>
+<tr><td style="padding: 10px 16px">Resonance-loop transistor gain</td><td style="padding: 10px 16px">300</td><td style="padding: 10px 16px">385</td></tr>
+<tr><td style="padding: 10px 16px">Filter envelope peak</td><td style="padding: 10px 16px">10 V</td><td style="padding: 10px 16px">9.3 V</td></tr>
+<tr><td style="padding: 10px 16px">DECAY potentiometer</td><td style="padding: 10px 16px">1 MΩ</td><td style="padding: 10px 16px">860 kΩ</td></tr>
+<tr><td style="padding: 10px 16px">Potentiometer taper</td><td style="padding: 10px 16px">exponential</td><td style="padding: 10px 16px">two linear segments</td></tr>
+<tr><td style="padding: 10px 16px">VCA control offset</td><td style="padding: 10px 16px">0 mV</td><td style="padding: 10px 16px">−80 mV</td></tr>
+<tr><td style="padding: 10px 16px">VCA output swing</td><td style="padding: 10px 16px">±4.5 V</td><td style="padding: 10px 16px">±1 V</td></tr>
+<tr><td style="padding: 10px 16px">Accent-sweep gang of the RESONANCE pot</td><td style="padding: 10px 16px">50 kΩ</td><td style="padding: 10px 16px">37.5 kΩ</td></tr>
+<tr style="color: #a9c1ff; font-weight: 700"><td style="padding: 12px 16px; border-top: 1px solid #292e42">Distance from the real unit</td><td style="padding: 12px 16px; border-top: 1px solid #292e42">9.76</td><td style="padding: 12px 16px; border-top: 1px solid #292e42">4.89</td></tr>
+</tbody>
+</table>
+</div>
+<p style="margin: 0; color: #a9b1d6; font-size: 15px; max-width: 52em">The largest correction is the taper: with the schematic's exponential taper, the model is about an octave too bright with the controls at maximum. The last three values were fitted to how notes start and accents peak, on both units.</p>
+</div>
+</li>
+</ol>
+</section>
+
+<section id="roland" style="background: #16161e; border-top: 1px solid #292e42; border-bottom: 1px solid #292e42">
+<div style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 46em">
+<div style="font-size: 13px; letter-spacing: 0.12em; color: #ff9e64; font-weight: 700">COMPARISON WITH ROLAND'S SOFTWARE</div>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15">Roland's TB-303 software</h2>
+<p style="margin: 0; color: #a9b1d6">Measured against the same 400 real notes, with the same MIDI and knob positions, using its "Simple Saw" patch with no drive or delay.</p>
+</div>
+
+<div style="overflow-x: auto; border: 1px solid #292e42; border-radius: 12px; background: #1a1b26">
+<table style="width: 100%; min-width: 820px; border-collapse: collapse; font-size: 14px">
+<caption style="text-align: left; padding: 16px 20px 0; font-size: 13px; color: #a9b1d6">Mean difference from the real unit, saw / square. Lower is closer. ¢ = cents.</caption>
+<thead><tr style="text-align: left; color: #a9b1d6; font-size: 13px">
+<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42"></th>
+<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Spectrum</th>
+<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Brightness, first 0.1 s</th>
+<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Brightness, later</th>
+<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Resonant peak</th>
+<th scope="col" style="padding: 14px 20px; font-weight: 400; border-bottom: 1px solid #292e42">Level</th>
+</tr></thead>
+<tbody>
+<tr style="color: #a9b1d6"><th scope="row" style="padding: 12px 20px; text-align: left; font-weight: 400">Real unit, retaken</th><td style="padding: 12px 20px">2.5 / 2.2 dB</td><td style="padding: 12px 20px">41 / 60 ¢</td><td style="padding: 12px 20px">33 / 30 ¢</td><td style="padding: 12px 20px">95 / 43 ¢</td><td style="padding: 12px 20px">0.1 dB</td></tr>
+<tr style="background: #33467c"><th scope="row" style="padding: 12px 20px; text-align: left">ro-mono-303</th><td style="padding: 12px 20px">2.9 / 2.9 dB</td><td style="padding: 12px 20px">388 / 410 ¢</td><td style="padding: 12px 20px">184 / 174 ¢</td><td style="padding: 12px 20px">148 / 135 ¢</td><td style="padding: 12px 20px">0.8 dB</td></tr>
+<tr><th scope="row" style="padding: 12px 20px; text-align: left; font-weight: 400; color: #ff9e64">Roland's software</th><td style="padding: 12px 20px">3.3 / 3.3 dB</td><td style="padding: 12px 20px">718 / 812 ¢</td><td style="padding: 12px 20px">374 / 326 ¢</td><td style="padding: 12px 20px">385 / 333 ¢</td><td style="padding: 12px 20px">1.8 / 1.6 dB</td></tr>
+</tbody>
+</table>
+</div>
+<p style="margin: 0; color: #a9b1d6; max-width: 52em">Note by note, ro-mono-303 is the closer of the two on 70–89 % of notes, depending on the measure. ro-mono-303 was calibrated on these recordings; Roland's software wasn't.</p>
+<p style="margin: 0; font-size: 13px; color: #a9b1d6; max-width: 60em">Measured with Roland's TB-303 software 1.0.9, KEYBOARD on, POSITION LOCK off.</p>
+</div>
+</section>
+
+<section id="rom" style="max-width: 1200px; margin: 0 auto; padding: 96px 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700">ROM IMAGE</div>
+<h2 style="margin: 0; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.15">ROM image and voice mode</h2>
+<p style="margin: 0; color: #a9b1d6; max-width: 46em">The sequencer is a program in the CPU's 2 KB mask ROM, Roland's copyrighted work, so it isn't included. With the ROM image, d650c-133.ic8 from MAME's tb303 set, ro-mono-303 runs it on an emulated CPU. Without it, ro-mono-303 runs in voice mode: the same voice over MIDI, with no sequencer. <a href="/ro-mono-303/guide#first-start">The ROM, voice mode and artwork</a></p>
+</section>
+
+</Base>

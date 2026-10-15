@@ -1,0 +1,31 @@
+{
+  "tb303.lemus": {
+    "label": "lemus",
+    "plugin": "ro-mono-303",
+    "names": {
+      "waveform": "Waveform",
+      "tuning": "Tuning",
+      "cutoff": "Cut Off Freq",
+      "resonance": "Resonance",
+      "envmod": "Env Mod",
+      "decay": "Decay",
+      "accent": "Accent",
+      "volume": "Volume"
+    }
+  },
+  "tb303.roland": {
+    "label": "roland",
+    "plugin": "Roland/TB-303",
+    "state": "../private/reference/roland-vst/simple-saw.ov3s",
+    "names": {
+      "waveform": "VCO WAVEFORM",
+      "tuning": "VCO TUNING",
+      "cutoff": "VCF CUTOFF",
+      "resonance": "VCF RESONANCE",
+      "envmod": "VCF ENV MOD",
+      "decay": "VCF DECAY",
+      "accent": "VCF ACCENT",
+      "volume": "VCA VOLUME"
+    }
+  }
+}

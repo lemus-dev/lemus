@@ -1,0 +1,26 @@
+---
+// The page's disclaimer goes in the slot; without one, the general one is used.
+const custom = Astro.slots.has('default');
+---
+<footer style="border-top: 1px solid #292e42">
+<div style="max-width: 1200px; margin: 0 auto; padding: 40px 24px 56px; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 14px">
+<span style="color: #a9c1ff; font-weight: 700">Lemus</span>
+<a href="/download" style="color: #a9b1d6">Download</a>
+<a href="/support" style="color: #a9b1d6">Support</a>
+<a href="/licences" style="color: #a9b1d6">Licences</a>
+<a href="mailto:hello@lemusdev.org" style="color: #a9b1d6">hello@lemusdev.org</a>
+</div>
+<!-- Posts straight to Kit, which redirects to /subscribed; details at /support#mailing-list. -->
+<form action="https://app.kit.com/forms/10048682/subscriptions" method="post" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 14px">
+<label for="mailing-list-email" style="color: #a9b1d6">Release announcements by email</label>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<input id="mailing-list-email" type="email" name="email_address" required autocomplete="email" placeholder="you@example.com" style="font: inherit; color: #c0caf5; background: #16161e; border: 1px solid #33467c; border-radius: 8px; padding: 0 14px; min-height: 44px; box-sizing: border-box; width: 18em; max-width: 100%">
+<button type="submit" style="font: inherit; font-weight: 700; color: #16161e; background: #7aa2f7; border: 0; border-radius: 8px; padding: 0 18px; min-height: 44px; cursor: pointer">Subscribe</button>
+</div>
+</form>
+{custom ? <slot /> : (
+<p style="margin: 0; font-size: 13px; color: #a9b1d6; max-width: 60em">Lemus is an independent project and is not affiliated with or endorsed by the makers of the equipment it emulates. Roland and TB-303 are trademarks of Roland Corporation, used here only to name the original hardware and the software it is compared with.</p>
+)}
+</div>
+</footer>

@@ -1,0 +1,24 @@
+# Python for the machines' tools (panel measurement and tracing, analysis scripts). Set up once
+# from the repo root:
+#   python3.14 -m venv .venv && .venv/bin/pip install -r tools/requirements.txt
+imageio==2.38.0
+lazy-loader==0.6
+networkx==3.7
+numpy==2.5.3
+opencv-python-headless==5.0.0.93
+pillow==12.3.0
+scikit-image==0.26.0
+scipy==1.18.1
+tifffile==2026.9.20
+cffi==2.1.1
+contourpy==1.4.0
+cycler==0.12.1
+fonttools==4.66.1
+kiwisolver==1.5.1
+matplotlib==3.11.2
+packaging==26.3
+pycparser==3.0
+pyparsing==3.3.3
+python-dateutil==2.9.0.post0
+six==1.17.0
+soundfile==0.14.0

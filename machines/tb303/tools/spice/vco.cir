@@ -1,0 +1,34 @@
+* TB-303 VCO: saw core and reset, Q28 buffer, Q8 square shaper, and the VCF input network as the
+* square's load (docs/circuit.md section 3.3-3.6, 4.2). Included by tools/spice/compare_vco.py,
+* which sets the parameters, the models and the analysis.
+*   ichg   current the expo converter sinks from C33 (sets the pitch)
+*   ideal  1: drive the shaper from an ideal saw (PULSE, the voice model's: 10.85 to 5.6 V) instead of the core
+*   f, treset   the ideal saw's frequency and reset time
+V12 n12 0 11.85
+VREF nref 0 5.333
+* --- saw core (section 3.3): C33 discharged by the expo current, reset by Q25/Q27/D25/Q24
+C33 nsaw 0 0.01u IC=11
+Isink nsaw 0 {ichg}
+Q25 nq27b nb nsaw Q2SC945
+Q27 nq27c nq27b n12 Q2SA733
+D25 nq27c nb D1S
+Q24 nb nb nq24e Q2SC945
+R101 nq24e nref 10k
+* --- Q28 2SK30 source follower (section 3.4)
+J28 n12 nsaw nsrcc J2SK30
+R105 nsrcc 0 10k
+* --- the shaper's input: the core's buffered saw, or an ideal saw
+Bsel nsrc 0 V = {ideal}*V(nideal) + (1-{ideal})*V(nsrcc)
+Videal nideal 0 PULSE(10.85 5.6 0 {1/f - treset} {treset} 0 {1/f})
+* --- Q8 square shaper (section 3.5)
+R35 nsrc nq8b 100k
+C10 nsrc nc10 0.01u
+R34 nc10 nq8b 10k
+Q8 nsq nq8b nq8e Q2SA733
+R45 n12 nq8e 22k
+C11 nq8e 0 1u IC=8.7
+R36 nsq nref 10k
+* --- WAVEFORM = square: R62 220k, C17 1 uF, R70 2.2k to the bias node (section 4.2)
+R62 nsq nc17 220k
+C17 nc17 nq12b 1u IC={c17ic}
+R70 nq12b nref 2.2k

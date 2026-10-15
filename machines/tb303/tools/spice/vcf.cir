@@ -1,0 +1,80 @@
+* TB-303 VCF (docs/circuit.md section 4.1-4.4): the input network, Q12 input pair, the four-cap
+* transistor ladder, Q22 top pair, Q21 output amplifier and Q19 buffer, the resonance loop through
+* VR4-A, Q18, C23 and R97/R98, and the VCA input branches as VCF OUT's load. Included by
+* tools/spice/compare_vcf.py, which sets the parameters, the input (a source on node nin, the VCO
+* side of R62) and the analysis.
+*   iff   ladder current (Q11's collector), A
+*   kres  RESONANCE rotation 0..1 (VR4 is 50k B: linear)
+* The duals (Q12, Q21 2SC1583; Q22 2SC2291) use the 2SC1583 model, the other NPNs the 2SC945's.
+V12 n12 0 11.85
+VREF nref 0 5.333
+R95 n12 nvcf 100
+C28 nvcf 0 47u
+* --- input network (4.2): R62 220k, C17 1u into Q12's left base; R70/R98 2.2k to the bias node
+R62 nin nc17 220k
+C17 nc17 nb12l 1u IC=0
+R70 nb12l nbias 2.2k
+R98 nb12r nbias 2.2k
+R68 nref nbias 2.2k
+C16 nbias 0 10u
+* --- ladder current: Q11's collector through R69 into Q12's emitters (an ideal sink here)
+R69 ne12 nq11c 2.2k
+Iff nq11c 0 {iff}
+* --- Q12 input pair and the ladder (4.1): caps across each rung, diode-connected pairs between
+Q12L nl1 nb12l ne12 Q2SC1583
+Q12R nr1 nb12r ne12 Q2SC1583
+C18 nl1 nr1 0.018u
+Q13 nl2 nl2 nl1 Q2SC945
+Q15 nr2 nr2 nr1 Q2SC945
+C19 nl2 nr2 0.033u
+Q14 nl3 nl3 nl2 Q2SC945
+Q17 nr3 nr3 nr2 Q2SC945
+C24 nl3 nr3 0.033u
+Q16 nl4 nl4 nl3 Q2SC945
+Q23 nr4 nr4 nr3 Q2SC945
+C26 nl4 nr4 0.033u
+Q22L nvcf nb22 nl4 Q2SC1583
+Q22R nvcf nb22 nr4 Q2SC1583
+R115 nvcf nb22 10k
+C30 nb22 0 10u
+* --- output amplifier (4.4): C25/C27 cross-coupled to Q21's bases, Q20 tail, 22k loads, Q19
+C25 nl4 nb21r 0.1u
+C27 nr4 nb21l 0.1u
+R113 nb21l nb21bias 100k
+R114 nb21r nb21bias 100k
+R116 nref nb21bias 10k
+C29 nb21bias 0 1u
+R112 nb21bias nb20 10k
+R109 nb20 0 10k
+Q20 ne21 nb20 ne20 Q2SC945
+R108 ne20 0 2.2k
+Q21L nc21l nb21l ne21 Q2SC1583
+Q21R nc21r nb21r ne21 Q2SC1583
+R110 nvcf nc21r 22k
+R111 nvcf nc21l 22k
+* Q19 follows the collector that makes the loop's feedback negative at low frequencies (the
+* transcription doesn't say which side R110 is on; the other choice gives positive feedback and
+* no resonance).
+Q19 nvcf nc21r ne19 Q2SC945
+R96 ne19 0 10k
+C14 ne19 nout 1u
+* --- resonance loop (4.3): VR4-A from VCF OUT to ground, wiper -> C15 -> R67 -> Q18 follower,
+* C23 -> R97 into Q12's right base
+RVRa nout nwip {50k*(1-kres)+1}
+RVRb nwip 0 {50k*kres+1}
+C15 nwip nc15 1u
+R67 nc15 nb18 2.2k
+R99 nb18 nb18b 100k
+R66 nref nb18b 100k
+C22 nb18b 0 1u
+Q18 n12 nb18 ne18 Q2SC945
+R94 ne18 0 10k
+C23 ne18 nc23 1u
+R97 nc23 nb12r 10k
+* --- the VCA input branches as loads (6.5): VCF OUT via R121 220k + 10n, wiper via R122 100k + 10n,
+* into R124 2.2k
+R121 nout nv1 220k
+C21 nv1 nvca 10n
+R122 nwip nv2 100k
+C21b nv2 nvca 10n
+R124 nvca 0 2.2k

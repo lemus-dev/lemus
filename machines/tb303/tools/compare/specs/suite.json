@@ -1,0 +1,2027 @@
+[
+ {
+  "name": "static-saw-c000-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c000-r050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.0,
+   "resonance": 0.5,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c000-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.0,
+   "resonance": 1.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c025-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.25,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c025-r050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.25,
+   "resonance": 0.5,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c025-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.25,
+   "resonance": 1.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c050-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.5,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c050-r050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.5,
+   "resonance": 0.5,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c050-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.5,
+   "resonance": 1.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c075-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.75,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c075-r050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.75,
+   "resonance": 0.5,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c075-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.75,
+   "resonance": 1.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c100-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c100-r050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.5,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-saw-c100-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 1.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-sqr-c000-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 0.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-sqr-c050-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 0.5,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "static-sqr-c100-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "osc-saw-C1",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-1",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-saw-C2",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-2",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-saw-C3",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-3",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-saw-C4",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-4",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-saw-C5",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-5",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-sqr-C1",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-1",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-sqr-C2",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-2",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-sqr-C3",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-3",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-sqr-C4",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-4",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "osc-sqr-C5",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-5",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "tuning-000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.0,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-3",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "tuning-100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 1.0,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-3",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "vca-long",
+  "bpm": 60,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 16,
+    "accent": false
+   }
+  ],
+  "lines": 24
+ },
+ {
+  "name": "env-d000-e050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.1,
+   "resonance": 0.5,
+   "envmod": 0.5,
+   "decay": 0.0,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "env-d000-e100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.1,
+   "resonance": 0.5,
+   "envmod": 1.0,
+   "decay": 0.0,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "env-d050-e050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.1,
+   "resonance": 0.5,
+   "envmod": 0.5,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "env-d050-e100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.1,
+   "resonance": 0.5,
+   "envmod": 1.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "env-d100-e050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.1,
+   "resonance": 0.5,
+   "envmod": 0.5,
+   "decay": 1.0,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "env-d100-e100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.1,
+   "resonance": 0.5,
+   "envmod": 1.0,
+   "decay": 1.0,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 8,
+    "accent": false
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "acc-single-a000-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 0.0,
+   "envmod": 0.5,
+   "decay": 0.5,
+   "accent": 0.0,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 2
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 2,
+    "accent": true
+   }
+  ],
+  "lines": 16
+ },
+ {
+  "name": "acc-single-a000-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 1.0,
+   "envmod": 0.5,
+   "decay": 0.5,
+   "accent": 0.0,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 2
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 2,
+    "accent": true
+   }
+  ],
+  "lines": 16
+ },
+ {
+  "name": "acc-single-a050-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 0.0,
+   "envmod": 0.5,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 2
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 2,
+    "accent": true
+   }
+  ],
+  "lines": 16
+ },
+ {
+  "name": "acc-single-a050-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 1.0,
+   "envmod": 0.5,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 2
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 2,
+    "accent": true
+   }
+  ],
+  "lines": 16
+ },
+ {
+  "name": "acc-single-a100-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 0.0,
+   "envmod": 0.5,
+   "decay": 0.5,
+   "accent": 1.0,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 2
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 2,
+    "accent": true
+   }
+  ],
+  "lines": 16
+ },
+ {
+  "name": "acc-single-a100-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 1.0,
+   "envmod": 0.5,
+   "decay": 0.5,
+   "accent": 1.0,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 2
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 2,
+    "accent": true
+   }
+  ],
+  "lines": 16
+ },
+ {
+  "name": "acc-run-r000",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 0.0,
+   "envmod": 0.5,
+   "decay": 0.3,
+   "accent": 1.0,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 2,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 4,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 6,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 10,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 12,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 14,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   }
+  ],
+  "lines": 20
+ },
+ {
+  "name": "acc-run-r050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 0.5,
+   "envmod": 0.5,
+   "decay": 0.3,
+   "accent": 1.0,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 2,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 4,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 6,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 10,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 12,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 14,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   }
+  ],
+  "lines": 20
+ },
+ {
+  "name": "acc-run-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.2,
+   "resonance": 1.0,
+   "envmod": 0.5,
+   "decay": 0.3,
+   "accent": 1.0,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 2,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 4,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 6,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 10,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 12,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   },
+   {
+    "line": 14,
+    "note": "A-2",
+    "len": 1,
+    "accent": true
+   }
+  ],
+  "lines": 20
+ },
+ {
+  "name": "slide-oct-up",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.6,
+   "resonance": 0.3,
+   "envmod": 0.3,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-2",
+    "len": 2,
+    "slide": true
+   },
+   {
+    "line": 4,
+    "note": "C-3",
+    "len": 4
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "slide-oct-down",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.6,
+   "resonance": 0.3,
+   "envmod": 0.3,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-3",
+    "len": 2,
+    "slide": true
+   },
+   {
+    "line": 4,
+    "note": "C-2",
+    "len": 4
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "slide-fifth",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.6,
+   "resonance": 0.3,
+   "envmod": 0.3,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-2",
+    "len": 2,
+    "slide": true
+   },
+   {
+    "line": 4,
+    "note": "G-2",
+    "len": 4
+   }
+  ],
+  "lines": 12
+ },
+ {
+  "name": "gate-16ths",
+  "bpm": 120,
+  "lpb": 8,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.3,
+   "resonance": 0.6,
+   "envmod": 0.6,
+   "decay": 0.4,
+   "accent": 0.5,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 2,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 4,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 6,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 8,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 10,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 12,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 14,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 16,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 18,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 20,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 22,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 24,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 26,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 28,
+    "note": "A-2",
+    "len": 1
+   },
+   {
+    "line": 30,
+    "note": "A-2",
+    "len": 1
+   }
+  ],
+  "lines": 36
+ },
+ {
+  "name": "volume-025",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.25
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "volume-050",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.5
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "volume-075",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 0.75
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "volume-100",
+  "bpm": 120,
+  "lpb": 4,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 0.0,
+   "envmod": 0.0,
+   "decay": 0.5,
+   "accent": 0.5,
+   "volume": 1.0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-2",
+    "len": 4,
+    "accent": false
+   }
+  ],
+  "lines": 8
+ },
+ {
+  "name": "acid-saw",
+  "bpm": 130,
+  "lpb": 8,
+  "params": {
+   "waveform": 0,
+   "tuning": 0.5,
+   "cutoff": 0.25,
+   "resonance": 0.85,
+   "envmod": 0.6,
+   "decay": 0.4,
+   "accent": 0.8,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 2,
+    "note": "C-2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 4,
+    "note": "C-3",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 6,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 8,
+    "note": "D#2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 10,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 12,
+    "note": "G-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 14,
+    "note": "C-3",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 16,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 18,
+    "note": "A#2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 20,
+    "note": "C-2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 22,
+    "note": "F-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 24,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 26,
+    "note": "D#3",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 28,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 30,
+    "note": "G-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 32,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 34,
+    "note": "C-2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 36,
+    "note": "C-3",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 38,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 40,
+    "note": "D#2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 42,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 44,
+    "note": "G-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 46,
+    "note": "C-3",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 48,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 50,
+    "note": "A#2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 52,
+    "note": "C-2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 54,
+    "note": "F-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 56,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 58,
+    "note": "D#3",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 60,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 62,
+    "note": "G-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   }
+  ],
+  "lines": 68
+ },
+ {
+  "name": "acid-sqr",
+  "bpm": 130,
+  "lpb": 8,
+  "params": {
+   "waveform": 1,
+   "tuning": 0.5,
+   "cutoff": 0.3,
+   "resonance": 0.75,
+   "envmod": 0.5,
+   "decay": 0.5,
+   "accent": 0.7,
+   "volume": 0.6
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 2,
+    "note": "C-2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 4,
+    "note": "C-3",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 6,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 8,
+    "note": "D#2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 10,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 12,
+    "note": "G-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 14,
+    "note": "C-3",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 16,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 18,
+    "note": "A#2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 20,
+    "note": "C-2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 22,
+    "note": "F-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 24,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 26,
+    "note": "D#3",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 28,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 30,
+    "note": "G-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 32,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 34,
+    "note": "C-2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 36,
+    "note": "C-3",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 38,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 40,
+    "note": "D#2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 42,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 44,
+    "note": "G-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 46,
+    "note": "C-3",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 48,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 50,
+    "note": "A#2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 52,
+    "note": "C-2",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 54,
+    "note": "F-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 56,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": true
+   },
+   {
+    "line": 58,
+    "note": "D#3",
+    "len": 1,
+    "accent": true,
+    "slide": false
+   },
+   {
+    "line": 60,
+    "note": "C-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   },
+   {
+    "line": 62,
+    "note": "G-2",
+    "len": 1,
+    "accent": false,
+    "slide": false
+   }
+  ],
+  "lines": 68
+ }
+]

@@ -1,0 +1,8 @@
+---
+// The number badge of a control outlined in a Shot, for the text that refers to it.
+interface Props {
+  n: string | number;
+}
+const { n } = Astro.props;
+---
+<span style="display: inline-block; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; background: #e0af68; color: #16161e; font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; vertical-align: 1px">{n}</span>

@@ -1,0 +1,191 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// The patterns an owner writes into the TB-303, step by step: N a note, T a tie, R a rest. Each
+// note in `notes` is the next N, in order; `oct` is DOWN or UP held while entering it.
+interface Note { key: string; oct?: 'DOWN' | 'UP'; accent?: boolean; slide?: boolean }
+interface Pattern { id: string; name: string; time: string; notes: Note[] }
+const patterns: Pattern[] = [
+  { id: 'L', name: 'long notes', time: 'NTTTNTTTNTTTNTTT', notes: [
+    { key: 'C', oct: 'DOWN' }, { key: 'C' }, { key: 'C′' }, { key: 'C′', oct: 'UP' },
+  ] },
+  { id: 'A', name: 'accents', time: 'NTRRNTRRNTRRNTRR', notes: [
+    { key: 'C' }, { key: 'A♯', oct: 'DOWN', accent: true }, { key: 'C', accent: true }, { key: 'G', accent: true },
+  ] },
+  // No accent on a note that is slid into: it latches without a new gate and may not be heard.
+  { id: 'S', name: 'bass line', time: 'NNTNNRNNNTNRNNTN', notes: [
+    { key: 'C', oct: 'DOWN' }, { key: 'C', slide: true }, { key: 'D♯' }, { key: 'C′', accent: true },
+    { key: 'G', oct: 'DOWN', accent: true }, { key: 'A♯', oct: 'DOWN', slide: true }, { key: 'C' }, { key: 'F', accent: true },
+    { key: 'C', accent: true, slide: true }, { key: 'C′' }, { key: 'G', slide: true },
+  ] },
+];
+for (const p of patterns) {
+  if (p.time.length !== 16 || [...p.time].filter((c) => c === 'N').length !== p.notes.length)
+    throw new Error(`pattern ${p.id}: its steps and notes don't agree`);
+}
+
+const arrow = (n: Note) => n.key + (n.oct === 'DOWN' ? '↓' : n.oct === 'UP' ? '↑' : '');
+function grid(p: Pattern) {
+  let i = -1;
+  return [...p.time].map((c) => {
+    if (c === 'N') { i++; const n = p.notes[i]; return { pitch: arrow(n), accent: !!n.accent, slide: !!n.slide }; }
+    return { pitch: c === 'T' ? '—' : '·', accent: false, slide: false };
+  });
+}
+
+// The takes, in recording order. Knobs on the panel's ticks: 0 fully left, 5 the square, 10 fully right.
+interface Take { id: string; p: string; wave: 'Saw' | 'Square'; k: [number, number, number, number, number] }
+const groups: { title: string; takes: Take[] }[] = [
+  { title: 'Tuning, octave width, waveforms', takes: [
+    { id: 'L1', p: 'L', wave: 'Saw', k: [10, 0, 0, 5, 5] },
+    { id: 'L2', p: 'L', wave: 'Square', k: [10, 0, 0, 5, 5] },
+  ] },
+  { title: 'Filter range', takes: [0, 3, 5, 8, 10].map((cut, i) => ({ id: `L${i + 3}`, p: 'L', wave: 'Saw' as const, k: [cut, 10, 0, 5, 5] as Take['k'] })) },
+  // Long notes like Din Sync's, so they compare with its all-100 % and all-50 % notes.
+  { title: 'Filter envelope, TEMPO fully left', takes: [
+    { id: 'E1', p: 'L', wave: 'Saw', k: [10, 10, 10, 10, 10] },
+    { id: 'E2', p: 'L', wave: 'Saw', k: [5, 5, 5, 5, 5] },
+  ] },
+  { title: 'Accented low notes', takes: [0, 3, 5, 8, 10].map((acc, i) => ({ id: `A${i + 1}`, p: 'A', wave: 'Saw' as const, k: [0, 0, 0, 5, acc] as Take['k'] })) },
+  { title: 'Accent sweep', takes: [
+    { id: 'A6', p: 'A', wave: 'Saw', k: [5, 10, 0, 5, 5] },
+    { id: 'A7', p: 'A', wave: 'Saw', k: [5, 10, 0, 5, 10] },
+  ] },
+  { title: 'Bass line', takes: [
+    { id: 'S1', p: 'S', wave: 'Saw', k: [5, 5, 5, 5, 5] },
+  ] },
+];
+
+const email = `Unit: TB-303, serial number ____
+Mods or repairs: ____
+Last calibrated: ____ (when, and by whom) / never / don't know
+Interface: ____, 24-bit, __ kHz
+Tempo: TEMPO knob / DIN sync
+VOLUME: __ long ticks up from OFF
+Files: ____ (link)
+Credit: ____
+
+I recorded these from my own TB-303 and release them under CC BY 4.0.`;
+---
+<Base title="Record your TB-303 · Lemus" description="The takes to record from a real TB-303 to calibrate ro-mono-303 and for blind A/B tests, and how to send them." current="ro-mono-303">
+
+<div class="page">
+
+<header class="intro">
+<nav aria-label="Breadcrumb" class="crumbs"><a href="/ro-mono-303">ro-mono-303</a> / Record your TB-303</nav>
+<h1>Record your TB-303</h1>
+<p class="lede">Recordings of real units calibrate ro-mono-303, close its <a href="/ro-mono-303#differences">known differences</a>, and go into blind A/B tests on this site. They are published under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> with your name.</p>
+</header>
+
+<section id="unit">
+<h2>The unit</h2>
+<ul>
+<li>Calibrated to the service notes is best. Uncalibrated is fine: takes L1–L7 show where its trimmers sit. Don’t trim it by ear for this.</li>
+<li>Mods and repairs are fine; list them.</li>
+<li>Being serviced soon? One set before and one after is the most useful recording of all.</li>
+</ul>
+</section>
+
+<section id="setup">
+<h2>Recording</h2>
+<ul>
+<li>OUTPUT straight into the interface. No effects, EQ, compression or limiting anywhere.</li>
+<li>WAV, 24-bit, 44.1 kHz or higher. No normalising, trimming or fades.</li>
+<li>VOLUME and input gain fixed for every take: VOLUME below MAX (the output stage clips near the top), gain so A5 and A7, the loudest, peak around −6 dBFS.</li>
+<li>TEMPO about 120 BPM; E1 and E2 with TEMPO fully left. On DIN sync, 120 and 40 BPM.</li>
+<li>Knob values are ticks: 0 fully left, 5 the square, 10 fully right. TUNING at 5 throughout.</li>
+</ul>
+</section>
+
+<section id="patterns">
+<h2>Patterns</h2>
+<p class="small">16 steps. — tie, · rest, ↓ ↑ DOWN or UP held. Write them over patterns you can spare.</p>
+{patterns.map((p) => (
+<Fragment>
+<h3 id={`pattern-${p.id.toLowerCase()}`}>{p.id}: {p.name}</h3>
+<div class="scroll">
+<table class="grid">
+<thead><tr><th scope="col">Step</th>{grid(p).map((_, s) => <th scope="col">{s + 1}</th>)}</tr></thead>
+<tbody>
+<tr><th scope="row">Note</th>{grid(p).map((g) => <td class={g.pitch === '—' || g.pitch === '·' ? 'dim' : ''}>{g.pitch}</td>)}</tr>
+<tr><th scope="row">Accent</th>{grid(p).map((g) => <td class="mark">{g.accent ? '●' : ''}</td>)}</tr>
+<tr><th scope="row">Slide</th>{grid(p).map((g) => <td class="mark">{g.slide ? '●' : ''}</td>)}</tr>
+</tbody>
+</table>
+</div>
+</Fragment>
+))}
+</section>
+
+<section id="takes">
+<h2>Takes</h2>
+<p>One WAV per take, at least four times round the pattern, plus a photo of the knobs. Name both after the take: L1.wav, L1.jpg.</p>
+<div class="scroll">
+<table class="takes">
+<thead><tr><th scope="col">Take</th><th scope="col">Pattern</th><th scope="col">WAVEFORM</th><th scope="col">CUT OFF</th><th scope="col">RESONANCE</th><th scope="col">ENV MOD</th><th scope="col">DECAY</th><th scope="col">ACCENT</th></tr></thead>
+{groups.map((g) => (
+<tbody>
+<tr class="group"><th scope="rowgroup" colspan="8">{g.title}</th></tr>
+{g.takes.map((t) => (
+<tr><th scope="row">{t.id}</th><td>{t.p}</td><td>{t.wave}</td>{t.k.map((v) => <td>{v}</td>)}</tr>
+))}
+</tbody>
+))}
+<tbody>
+<tr class="group"><th scope="rowgroup" colspan="8">Noise floor</th></tr>
+<tr><th scope="row">N</th><td colspan="7">Stopped, VOLUME unchanged, 10 seconds</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section id="ab">
+<h2>Blind A/B tests</h2>
+<p>Each test sets a take against ro-mono-303 playing the same pattern at the same knobs, matched to your unit from the takes above. S1 is the standard one. Your own lines are welcome too: knobs left alone during the take, with the pattern written out and a photo of the knobs.</p>
+</section>
+
+<section id="send">
+<h2>Sending</h2>
+<p>Zip the files, upload the zip anywhere that gives a link, and send the link to <a href="mailto:hello@lemusdev.org?subject=TB-303%20recordings">hello@lemusdev.org</a> with this:</p>
+<pre class="card mono email">{email}</pre>
+</section>
+
+</div>
+
+</Base>
+
+<style>
+.page { max-width: 1000px; margin: 0 auto; padding: 0 24px 96px; }
+.intro { padding: 56px 0 24px; display: flex; flex-direction: column; gap: 16px; }
+.crumbs { font-size: 13px; color: #a9b1d6; }
+.crumbs a { color: #a9b1d6; }
+h1 { margin: 0; font-size: clamp(32px, 5vw, 48px); line-height: 1.1; letter-spacing: -0.02em; }
+.lede { margin: 0; color: #a9b1d6; font-size: 17px; max-width: 44em; }
+section { padding: 40px 0 8px; border-top: 1px solid #292e42; margin-top: 24px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+h2 { margin: 0; font-size: clamp(24px, 3vw, 30px); line-height: 1.15; }
+h3 { margin: 12px 0 0; font-size: 18px; line-height: 1.3; scroll-margin-top: 16px; }
+p, li { color: #a9b1d6; font-size: 15px; }
+p { margin: 0; max-width: 46em; }
+ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.mono { font-family: inherit; color: #c0caf5; overflow-wrap: anywhere; }
+.small { font-size: 13px; }
+.card { background: #16161e; border: 1px solid #292e42; border-radius: 12px; padding: 18px 20px; max-width: 46em; }
+.email { margin: 0; font-size: 13px; line-height: 1.6; white-space: pre-wrap; display: block; }
+.scroll { overflow-x: auto; border: 1px solid #292e42; border-radius: 12px; background: #16161e; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid #292e42; vertical-align: top; color: #a9b1d6; }
+thead th { font-weight: 400; font-size: 13px; color: #737aa2; }
+tbody th { color: #c0caf5; font-weight: 700; }
+.grid { min-width: 720px; }
+.grid th, .grid td { padding: 8px 4px; text-align: center; min-width: 30px; }
+.grid th:first-child { text-align: left; padding-left: 16px; min-width: 64px; }
+.grid tbody td { color: #c0caf5; font-weight: 700; }
+.grid td.dim { color: #565f89; font-weight: 400; }
+.grid td.mark { color: #e0af68; }
+.grid tbody tr:last-child th, .grid tbody tr:last-child td { border-bottom: 0; }
+.takes { min-width: 760px; }
+.takes th, .takes td { padding: 8px 14px; }
+.takes td { color: #c0caf5; }
+.takes .group th { color: #7aa2f7; font-size: 13px; font-weight: 700; padding-top: 16px; }
+.takes tbody:last-child tr:last-child th, .takes tbody:last-child tr:last-child td { border-bottom: 0; }
+</style>

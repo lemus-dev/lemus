@@ -1,0 +1,40 @@
+---
+// A screenshot of a plugin, optionally cropped to one area, with controls outlined and numbered.
+// Coordinates are the plugin editor's pixels at its default size (ro-mono-303: 1200 × 640, the
+// Lemus bar included), whatever the image's own resolution.
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Box {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+interface Mark extends Box {
+  n?: string | number; // a number badge, matched in the text
+}
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  crop?: Box;
+  marks?: Mark[];
+  caption?: string;
+  base?: { w: number; h: number };
+}
+const { src, alt, marks = [], caption, base = { w: 1200, h: 640 } } = Astro.props;
+const crop = Astro.props.crop ?? { x: 0, y: 0, w: base.w, h: base.h };
+const image = await getImage({ src, format: 'webp', quality: 85 });
+const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`;
+---
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 10px">
+<div style={`position: relative; width: 100%; aspect-ratio: ${crop.w} / ${crop.h}; overflow: hidden; border-radius: 10px; border: 1px solid #292e42; background: #16161e`}>
+<img src={image.src} alt={alt} loading="lazy" decoding="async" style={`position: absolute; left: ${pct(-crop.x, crop.w)}; top: ${pct(-crop.y, crop.h)}; width: ${pct(base.w, crop.w)}; height: auto; max-width: none; display: block`}>
+{marks.map((m) => (
+<span aria-hidden="true" style={`position: absolute; left: ${pct(m.x - crop.x, crop.w)}; top: ${pct(m.y - crop.y, crop.h)}; width: ${pct(m.w, crop.w)}; height: ${pct(m.h, crop.h)}; box-sizing: border-box; border: 2px solid #e0af68; border-radius: 6px; box-shadow: 0 0 0 3px rgba(224, 175, 104, 0.28)`}>
+{m.n !== undefined && <span style="position: absolute; left: -11px; top: -11px; min-width: 22px; height: 22px; padding: 0 6px; box-sizing: border-box; border-radius: 999px; background: #e0af68; color: #16161e; font-size: 12px; font-weight: 700; line-height: 22px; text-align: center">{m.n}</span>}
+</span>
+))}
+</div>
+{caption && <figcaption style="font-size: 13px; color: #a9b1d6">{caption}</figcaption>}
+</figure>

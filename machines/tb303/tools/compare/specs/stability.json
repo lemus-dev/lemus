@@ -1,0 +1,1610 @@
+[
+ {
+  "name": "stab-c100-e060-a080",
+  "bpm": 125,
+  "lpb": 8,
+  "lines": 256,
+  "params": {
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 1.0,
+   "envmod": 0.6,
+   "decay": 0.4,
+   "accent": 0.8,
+   "volume": 0.6,
+   "waveform": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 4,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 8,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 12,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 16,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 20,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 24,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 28,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 32,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 36,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 40,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 44,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 48,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 52,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 56,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 60,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 64,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 68,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 72,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 76,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 80,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 84,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 88,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 92,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 96,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 100,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 104,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 108,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 112,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 116,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 120,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 124,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 128,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 132,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 136,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 140,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 144,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 148,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 152,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 156,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 160,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 164,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 168,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 172,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 176,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 180,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 184,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 188,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 192,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 196,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 200,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 204,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 208,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 212,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 216,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 220,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 224,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 228,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 232,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 236,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 240,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 244,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 248,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 252,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   }
+  ]
+ },
+ {
+  "name": "stab-c050-e100-a100",
+  "bpm": 125,
+  "lpb": 8,
+  "lines": 256,
+  "params": {
+   "tuning": 0.5,
+   "cutoff": 0.5,
+   "resonance": 1.0,
+   "envmod": 1.0,
+   "decay": 0.2,
+   "accent": 1.0,
+   "volume": 0.6,
+   "waveform": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 4,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 8,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 12,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 16,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 20,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 24,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 28,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 32,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 36,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 40,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 44,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 48,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 52,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 56,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 60,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 64,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 68,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 72,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 76,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 80,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 84,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 88,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 92,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 96,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 100,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 104,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 108,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 112,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 116,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 120,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 124,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 128,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 132,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 136,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 140,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 144,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 148,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 152,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 156,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 160,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 164,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 168,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 172,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 176,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 180,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 184,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 188,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 192,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 196,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 200,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 204,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 208,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 212,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 216,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 220,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 224,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 228,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 232,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 236,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 240,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 244,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 248,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 252,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   }
+  ]
+ },
+ {
+  "name": "stab-c025-e030-a100",
+  "bpm": 125,
+  "lpb": 8,
+  "lines": 256,
+  "params": {
+   "tuning": 0.5,
+   "cutoff": 0.25,
+   "resonance": 1.0,
+   "envmod": 0.3,
+   "decay": 0.4,
+   "accent": 1.0,
+   "volume": 0.6,
+   "waveform": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 4,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 8,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 12,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 16,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 20,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 24,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 28,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 32,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 36,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 40,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 44,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 48,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 52,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 56,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 60,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 64,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 68,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 72,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 76,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 80,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 84,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 88,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 92,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 96,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 100,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 104,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 108,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 112,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 116,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 120,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 124,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 128,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 132,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 136,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 140,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 144,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 148,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 152,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 156,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 160,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 164,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 168,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 172,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 176,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 180,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 184,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 188,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 192,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 196,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 200,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 204,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 208,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 212,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 216,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 220,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 224,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 228,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 232,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 236,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 240,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 244,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 248,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 252,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   }
+  ]
+ },
+ {
+  "name": "stab-c100-e100-a100-sqr",
+  "bpm": 125,
+  "lpb": 8,
+  "lines": 256,
+  "params": {
+   "tuning": 0.5,
+   "cutoff": 1.0,
+   "resonance": 1.0,
+   "envmod": 1.0,
+   "decay": 0.4,
+   "accent": 1.0,
+   "volume": 0.6,
+   "waveform": 1
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 4,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 8,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 12,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 16,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 20,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 24,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 28,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 32,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 36,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 40,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 44,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 48,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 52,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 56,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 60,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 64,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 68,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 72,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 76,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 80,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 84,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 88,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 92,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 96,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 100,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 104,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 108,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 112,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 116,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 120,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 124,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 128,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 132,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 136,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 140,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 144,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 148,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 152,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 156,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 160,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 164,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 168,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 172,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 176,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 180,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 184,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 188,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 192,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 196,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 200,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 204,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 208,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 212,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 216,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 220,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 224,
+    "note": "G-1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 228,
+    "note": "G-2",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 232,
+    "note": "D#2",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 236,
+    "note": "C-1",
+    "len": 2,
+    "accent": true
+   },
+   {
+    "line": 240,
+    "note": "D#3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 244,
+    "note": "F-3",
+    "len": 2,
+    "accent": false
+   },
+   {
+    "line": 248,
+    "note": "A#1",
+    "len": 1,
+    "accent": false
+   },
+   {
+    "line": 252,
+    "note": "C-1",
+    "len": 2,
+    "accent": false
+   }
+  ]
+ }
+]

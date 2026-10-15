@@ -1,0 +1,25 @@
+* TB-303 pitch DAC and slide (docs/circuit.md section 2.2-2.3): IC9's outputs (logic high = 5.333 V)
+* into the R-2R ladder of 200k resistors (series arms 200k || 200k), terminated in R78 200k to
+* 5.333 V; the 4066 switches (C: C35 to the ladder while SLIDE is high; D: C35 to the follower
+* while it is low) and C35 0.22 uF; the IC11b follower (ideal). Included by
+* tools/spice/compare_slide.py, which sets the bit sources b0..b5 (0 or 5.333 V) and SLIDE (nsl).
+VREF nref 0 5.333
+R78 n0 nref 200k
+R82 b0 n0 200k
+R81 b1 n1 200k
+R80 b2 n2 200k
+R79 b3 n3 200k
+R87 b4 n4 200k
+R90 b5 n5 200k
+Ra n0 n1 100k
+Rb n1 n2 100k
+Rc n2 n3 100k
+Rd n3 n4 100k
+Re n4 n5 100k
+* IC11b: unity follower of the ladder node (n5); TP4 is its output
+Etp4 tp4 0 n5 0 1
+SC n5 nc35 nsl 0 SW4066
+SD nc35 tp4 nslb 0 SW4066
+Bslb nslb 0 V = 11.85 - V(nsl)
+C35 nc35 0 0.22u
+.model SW4066 SW(VT=6 VH=0.5 RON=200 ROFF=1G)

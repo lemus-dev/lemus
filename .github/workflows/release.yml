@@ -1,0 +1,34 @@
+# The Windows release: each shipping machine's own plugin (VST3 and the standalone app), checked
+# with its own tests and the instruments host's (the runner has no ROMs, so the 303 is checked in
+# voice mode), each zipped by tools/release/windows.ps1. Runs on demand and for version tags; the
+# zips are the run's artifact. The macOS release is built locally (tools/release/mac.sh), where the
+# signing keys are.
+name: release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Configure
+        run: cmake -S . -B build/release-win -G "Visual Studio 17 2022" -A x64 -DLEMUS_MACHINES=tb303 -DLEMUS_COPY_PLUGINS=OFF
+      - name: Build
+        run: cmake --build build/release-win --config Release --parallel --target plugin_tb303_VST3 plugin_tb303_Standalone lemustest_tb303 lemustest_instrument
+      - name: Test
+        run: |
+          build/release-win/lemustest_tb303_artefacts/Release/lemustest_tb303.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          build/release-win/lemustest_instrument_artefacts/Release/lemustest_instrument.exe
+      - name: Package
+        shell: pwsh
+        run: tools/release/windows.ps1 -Build build/release-win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugins-windows
+          path: dist/*.zip

@@ -1,0 +1,17 @@
+---
+// Shown next to a pre-release download: what its stage means, and that the installers aren't
+// signed yet (/download#installing says how to open them anyway).
+import type { Release } from '../data/machines';
+
+interface Props {
+  release: Release;
+}
+const { release } = Astro.props;
+const article = release.stage === 'alpha' ? 'an' : 'a';
+---
+{release.stage && (
+<div style="box-sizing: border-box; width: 100%; max-width: 560px; background: #16161e; border: 1px solid #e0af68; border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; text-align: left">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px"><span style="font-size: 12px; letter-spacing: 0.08em; font-weight: 700; color: #16161e; background: #e0af68; border-radius: 999px; padding: 3px 10px">{release.stage.toUpperCase()}</span><span style="font-size: 15px; font-weight: 700">Version {release.version} is {article} {release.stage}</span></div>
+<p style="margin: 0; color: #a9b1d6; font-size: 14px">Expect bugs, and changes before 1.0. The installers aren't signed yet, so macOS and Windows warn before opening them. <a href="/download#installing">How to open them</a></p>
+</div>
+)}

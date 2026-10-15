@@ -1,0 +1,5671 @@
+{
+ "source_image": "private/docs/photos/commons_tb303_panel_topdown_sims.jpg",
+ "units": "mm",
+ "origin": "top-left (rear-left) corner of the top-view outline; x right, y towards the player (down on screen)",
+ "px_per_mm_in_source": 5.43,
+ "source_px_origin": [
+  10.5,
+  18.5
+ ],
+ "panel": {
+  "w": 300.0,
+  "h": 142.0,
+  "official_dimensions_mm": {
+   "w": 300,
+   "d": 146,
+   "h": 55,
+   "weight_kg": 1.0
+  },
+  "aspect": 2.1127
+ },
+ "accuracy": "positions +-0.3 mm in x; +-0.5 mm (and up to ~1.5 % scale) in y; knob/key heights and 3-D sizes +-1 mm (estimated)",
+ "colours": {
+  "case_silver": {
+   "hex": "#C3C3BF",
+   "note": "top case/top panel metallic silver paint; Sims photo #BCBCB8 (daylight), VSE scan #ADB4AD..#B8BEBA, Soundgas studio (over-exposed) #EFEEE8"
+  },
+  "subpanel_silver": {
+   "hex": "#CDCDCA",
+   "note": "keyboard sub-panel plate (slightly lighter/cooler than top case); Sims #CBCBCA, Soundgas #E7E8E6"
+  },
+  "key_white": {
+   "hex": "#DCDFDE",
+   "note": "printed off-white \"white key\" areas; Sims #D5D8D9, VSE #EAEEE8, Soundgas #F5F7F5"
+  },
+  "print_black": {
+   "hex": "#1E1E20",
+   "note": "black print (bands, boxes, text); Sims #28282A, Soundgas #0B0D0F, VSE #3B3A3F"
+  },
+  "print_white": {
+   "hex": "#ECECEA",
+   "note": "reverse (white) text inside black areas; Sims #E1E2E4"
+  },
+  "print_orange": {
+   "hex": "#C4502A",
+   "note": "orange-red print (PATTERN, 1-8, A, B, PATT. SECTION); Sims median #A14A2A (brightest #C96F54), Soundgas #982F10; thin text darkens medians - ink is brighter than the medians"
+  },
+  "led_lit": {
+   "hex": "#FF1E32",
+   "note": "lit red LED lens; closeup photo core #F30037, body #E2002D, add glow"
+  },
+  "led_unlit": {
+   "hex": "#5A0C12",
+   "note": "unlit red LED (3 mm, GL-3AR-2) - dark red dome with specular highlight; Sims #6E151F, Soundgas #550004, on-black #320107"
+  },
+  "keycap_face": {
+   "hex": "#B9B9B6",
+   "note": "satin silver-grey key caps; Soundgas #B4B5B5 (neutral); Sims #A48E73 is warm room reflection"
+  },
+  "keycap_hilite": {
+   "hex": "#EDEDEB",
+   "note": "top bevel highlight of key caps"
+  },
+  "keycap_shadow": {
+   "hex": "#5E5E5A",
+   "note": "right/bottom side faces of caps"
+  },
+  "key_hole": {
+   "hex": "#121212",
+   "note": "gap around each key cap (panel cut-out)"
+  },
+  "knob_cap": {
+   "hex": "#C8C8C6",
+   "note": "flat satin top of the chrome-look knobs; Sims #B0ACA9, Soundgas #9D9F9D..#BABCB8"
+  },
+  "knob_knurl_light": {
+   "hex": "#E4E4E2",
+   "note": "knurled skirt highlights (very reflective metallised plastic)"
+  },
+  "knob_knurl_dark": {
+   "hex": "#55514B",
+   "note": "knurled skirt shadows; Sims #595246"
+  },
+  "bezel_ring": {
+   "hex": "#D9D9D7",
+   "note": "bright chrome dust-cover ring around each knob"
+  },
+  "bezel_gap": {
+   "hex": "#151515",
+   "note": "black gap between dust-cover ring and knob"
+  },
+  "case_front_rim": {
+   "hex": "#A9A9A5",
+   "note": "case rim in front of / beside the recessed sub-panel (seen in shade); Sims #9C8465 (warm reflection)"
+  },
+  "seam_dark": {
+   "hex": "#7C7C78",
+   "note": "fine seam/groove between tone strip and middle section"
+  },
+  "seam_hilite": {
+   "hex": "#E8E8E4",
+   "note": "highlight edge just below the seam"
+  }
+ },
+ "fonts": {
+  "panel_legends": "Helvetica Medium / Bold caps (Neue Haas Grotesk/Helvetica style). Reverse (white-on-black) legends are Helvetica Bold.",
+  "serif_marks": "D.C., D.S. and segno: Times Bold Italic style; roman numerals I-IV: Times Bold",
+  "logos": "Brand marks (roland, bass_line, tb303, computer_controlled) are not drawn: their slots are filled from the user's artwork pack."
+ },
+ "elements": [
+  {
+   "id": "case_outline",
+   "type": "case",
+   "x": 150.0,
+   "y": 71.0,
+   "w": 300.0,
+   "h": 142.0,
+   "corner_r": 1.3,
+   "colour": "case_silver",
+   "note": "top-view outline. Official spec 300(W) x 146(D) x 55(H) mm; the top view measures 300 x 142 mm (remaining ~4 mm depth is the bottom plate / rear jacks / rounding; 55 mm H includes knobs).",
+   "bbox": [
+    0.0,
+    0.0,
+    300.0,
+    142.0
+   ],
+   "nx": 0.5,
+   "ny": 0.5
+  },
+  {
+   "id": "tone_strip",
+   "type": "region",
+   "label": "upper (tone) strip",
+   "colour": "case_silver",
+   "x": 150.0,
+   "y": 13.54,
+   "w": 300.0,
+   "h": 27.07,
+   "bbox": [
+    0.0,
+    0.0,
+    300.0,
+    27.07
+   ],
+   "nx": 0.5,
+   "ny": 0.0954
+  },
+  {
+   "id": "seam_tone_strip",
+   "type": "line",
+   "points": [
+    [
+     1.38,
+     27.07
+    ],
+    [
+     298.8,
+     27.07
+    ]
+   ],
+   "stroke": 0.83,
+   "colour": "seam_dark",
+   "x": 150.09,
+   "y": 27.07,
+   "note": "fine groove (dark ~0.8 mm) with a 0.3 mm highlight just below it; stops ~1.4 mm short of the case sides",
+   "nx": 0.5003,
+   "ny": 0.1906
+  },
+  {
+   "id": "middle_section",
+   "type": "region",
+   "x": 150.0,
+   "y": 48.53,
+   "w": 300.0,
+   "h": 42.91,
+   "colour": "case_silver",
+   "label": "middle section (TEMPO/PATT.GROUP/MODE/VOLUME)",
+   "bbox": [
+    0.0,
+    27.08,
+    300.0,
+    69.98
+   ],
+   "nx": 0.5,
+   "ny": 0.3418
+  },
+  {
+   "id": "subpanel_step",
+   "type": "region",
+   "x": 150.0,
+   "y": 70.77,
+   "w": 297.98,
+   "h": 1.57,
+   "colour": "case_front_rim",
+   "note": "step down from middle section onto the recessed keyboard sub-panel; render as 1.3 mm shadowed face + 0.3 mm highlight at y=71.5",
+   "bbox": [
+    1.01,
+    69.98,
+    298.99,
+    71.55
+   ],
+   "nx": 0.5,
+   "ny": 0.4984
+  },
+  {
+   "id": "subpanel",
+   "type": "region",
+   "x": 150.32,
+   "y": 103.46,
+   "w": 295.86,
+   "h": 63.81,
+   "colour": "subpanel_silver",
+   "label": "keyboard sub-panel plate (recessed ~2-3 mm)",
+   "bbox": [
+    2.39,
+    71.55,
+    298.25,
+    135.37
+   ],
+   "nx": 0.5011,
+   "ny": 0.7286
+  },
+  {
+   "id": "case_rim_left",
+   "type": "region",
+   "x": 1.2,
+   "y": 105.99,
+   "w": 2.39,
+   "h": 72.01,
+   "colour": "case_front_rim",
+   "note": "case wall top beside sub-panel (1.0 mm wall + 1.4 mm inner step in shade)",
+   "bbox": [
+    0.0,
+    69.98,
+    2.4,
+    142.0
+   ],
+   "nx": 0.004,
+   "ny": 0.7464
+  },
+  {
+   "id": "case_rim_right",
+   "type": "region",
+   "x": 299.12,
+   "y": 105.99,
+   "w": 1.75,
+   "h": 72.01,
+   "colour": "case_front_rim",
+   "bbox": [
+    298.25,
+    69.98,
+    300.0,
+    142.0
+   ],
+   "nx": 0.9971,
+   "ny": 0.7464
+  },
+  {
+   "id": "case_rim_front",
+   "type": "region",
+   "x": 150.0,
+   "y": 138.68,
+   "w": 300.0,
+   "h": 6.63,
+   "colour": "case_front_rim",
+   "note": "front: 1.6 mm shadowed step (y 135.4-137.0) then 5 mm case rim/ledge (137-142), bright 0.2 mm edge highlight at the very front",
+   "bbox": [
+    0.0,
+    135.37,
+    300.0,
+    142.0
+   ],
+   "nx": 0.5,
+   "ny": 0.9766
+  },
+  {
+   "id": "frame_outer",
+   "type": "outline",
+   "x": 150.09,
+   "y": 103.43,
+   "w": 290.24,
+   "h": 59.54,
+   "stroke": 0.3,
+   "colour": "print_black",
+   "note": "thin outer keyline round all sub-panel graphics",
+   "bbox": [
+    4.97,
+    73.66,
+    295.21,
+    133.2
+   ],
+   "nx": 0.5003,
+   "ny": 0.7284
+  },
+  {
+   "id": "box_pattern_clear",
+   "type": "outline",
+   "x": 20.8,
+   "y": 86.21,
+   "w": 28.68,
+   "h": 21.88,
+   "stroke": 0.25,
+   "colour": "print_black",
+   "bbox": [
+    6.46,
+    75.27,
+    35.14,
+    97.15
+   ],
+   "nx": 0.0693,
+   "ny": 0.6071
+  },
+  {
+   "id": "box_run_stop",
+   "type": "outline",
+   "x": 20.8,
+   "y": 114.97,
+   "w": 28.68,
+   "h": 33.96,
+   "stroke": 0.25,
+   "colour": "print_black",
+   "bbox": [
+    6.46,
+    97.99,
+    35.14,
+    131.95
+   ],
+   "nx": 0.0693,
+   "ny": 0.8096
+  },
+  {
+   "id": "box_function",
+   "type": "outline",
+   "x": 50.49,
+   "y": 114.97,
+   "w": 28.77,
+   "h": 33.96,
+   "stroke": 0.25,
+   "colour": "print_black",
+   "bbox": [
+    36.11,
+    97.99,
+    64.88,
+    131.95
+   ],
+   "nx": 0.1683,
+   "ny": 0.8096
+  },
+  {
+   "id": "box_main",
+   "type": "outline",
+   "x": 149.91,
+   "y": 103.61,
+   "w": 227.44,
+   "h": 56.68,
+   "stroke": 0.25,
+   "colour": "print_black",
+   "note": "outline enclosing keyboard + TIME MODE/TRANSPOSE/ACCENT/SLIDE columns",
+   "bbox": [
+    36.19,
+    75.27,
+    263.63,
+    131.95
+   ],
+   "nx": 0.4997,
+   "ny": 0.7296
+  },
+  {
+   "id": "box_back",
+   "type": "outline",
+   "x": 278.96,
+   "y": 86.16,
+   "w": 28.64,
+   "h": 21.78,
+   "stroke": 0.25,
+   "colour": "print_black",
+   "bbox": [
+    264.64,
+    75.27,
+    293.28,
+    97.05
+   ],
+   "nx": 0.9299,
+   "ny": 0.6068
+  },
+  {
+   "id": "box_tap",
+   "type": "outline",
+   "x": 278.96,
+   "y": 114.94,
+   "w": 28.64,
+   "h": 34.01,
+   "stroke": 0.25,
+   "colour": "print_black",
+   "bbox": [
+    264.64,
+    97.94,
+    293.28,
+    131.94
+   ],
+   "nx": 0.9299,
+   "ny": 0.8094
+  },
+  {
+   "id": "fill_pitch_mode_block",
+   "type": "fill",
+   "x": 50.58,
+   "y": 86.21,
+   "w": 28.6,
+   "h": 21.88,
+   "colour": "print_black",
+   "bbox": [
+    36.28,
+    75.27,
+    64.88,
+    97.15
+   ],
+   "nx": 0.1686,
+   "ny": 0.6071
+  },
+  {
+   "id": "fill_note_name_band",
+   "type": "fill",
+   "x": 118.56,
+   "y": 77.32,
+   "w": 164.55,
+   "h": 4.1,
+   "colour": "print_black",
+   "note": "black band carrying the white note names",
+   "bbox": [
+    36.28,
+    75.27,
+    200.84,
+    79.37
+   ],
+   "nx": 0.3952,
+   "ny": 0.5445
+  },
+  {
+   "id": "fill_keyboard_right_strip",
+   "type": "fill",
+   "x": 199.36,
+   "y": 86.21,
+   "w": 2.95,
+   "h": 21.88,
+   "colour": "print_black",
+   "bbox": [
+    197.89,
+    75.27,
+    200.84,
+    97.15
+   ],
+   "nx": 0.6645,
+   "ny": 0.6071
+  },
+  {
+   "id": "fill_transpose_band",
+   "type": "fill",
+   "x": 230.75,
+   "y": 94.11,
+   "w": 65.75,
+   "h": 6.08,
+   "colour": "print_black",
+   "note": "holds TRANSPOSE / DOWN / UP / ACCENT / SLIDE in reverse type; white 0.3 mm rules: under TRANSPOSE (x 200.9-228.9 @ y 94.1) and verticals at DOWN|UP, UP|ACCENT, ACCENT|SLIDE",
+   "bbox": [
+    197.88,
+    91.07,
+    263.62,
+    97.15
+   ],
+   "nx": 0.7692,
+   "ny": 0.6627
+  },
+  {
+   "id": "fill_pattern_band",
+   "type": "fill",
+   "x": 125.72,
+   "y": 122.42,
+   "w": 144.7,
+   "h": 5.98,
+   "colour": "print_black",
+   "corner_r": 1.0,
+   "note": "horizontal part of the L-shaped PATTERN band (bottom corners rounded)",
+   "bbox": [
+    53.37,
+    119.43,
+    198.07,
+    125.41
+   ],
+   "nx": 0.4191,
+   "ny": 0.8621
+  },
+  {
+   "id": "fill_pattern_band_riser",
+   "type": "fill",
+   "x": 59.1,
+   "y": 115.33,
+   "w": 11.46,
+   "h": 8.2,
+   "colour": "print_black",
+   "note": "vertical part of the L (under NORMAL MODE)",
+   "bbox": [
+    53.37,
+    111.23,
+    64.83,
+    119.43
+   ],
+   "nx": 0.197,
+   "ny": 0.8122
+  },
+  {
+   "id": "keyline_pattern_band",
+   "type": "line",
+   "points": [
+    [
+     52.67,
+     111.23
+    ],
+    [
+     52.67,
+     126.24
+    ],
+    [
+     198.9,
+     126.24
+    ],
+    [
+     198.9,
+     119.43
+    ]
+   ],
+   "stroke": 0.26,
+   "colour": "print_black",
+   "x": 125.78,
+   "y": 118.73,
+   "note": "thin keyline offset ~0.75 mm outside the PATTERN band, rounded corners r~1.5 mm; DEL/INS tabs hang from it",
+   "nx": 0.4193,
+   "ny": 0.8361
+  },
+  {
+   "id": "fill_patt_section_band",
+   "type": "fill",
+   "x": 247.38,
+   "y": 122.48,
+   "w": 32.51,
+   "h": 5.93,
+   "colour": "print_black",
+   "corner_r": 1.0,
+   "note": "keyline also runs below it at y~704 px; white rule at y 682.5 px (x 1269-1436); white vertical at x 1353 px (y 668-680)",
+   "bbox": [
+    231.12,
+    119.52,
+    263.63,
+    125.45
+   ],
+   "nx": 0.8246,
+   "ny": 0.8625
+  },
+  {
+   "id": "whitekey_1",
+   "type": "fill",
+   "x": 74.03,
+   "y": 99.45,
+   "w": 16.17,
+   "h": 39.78,
+   "colour": "key_white",
+   "corner_r": 0.75,
+   "note": "printed white key; separated from neighbours by a 0.2 mm black line; bottom corners rounded",
+   "bbox": [
+    65.94,
+    79.56,
+    82.12,
+    119.34
+   ],
+   "nx": 0.2468,
+   "ny": 0.7004
+  },
+  {
+   "id": "whitekey_2",
+   "type": "fill",
+   "x": 90.43,
+   "y": 99.45,
+   "w": 16.17,
+   "h": 39.78,
+   "colour": "key_white",
+   "corner_r": 0.75,
+   "note": "printed white key; separated from neighbours by a 0.2 mm black line; bottom corners rounded",
+   "bbox": [
+    82.34,
+    79.56,
+    98.52,
+    119.34
+   ],
+   "nx": 0.3014,
+   "ny": 0.7004
+  },
+  {
+   "id": "whitekey_3",
+   "type": "fill",
+   "x": 106.81,
+   "y": 99.45,
+   "w": 16.17,
+   "h": 39.78,
+   "colour": "key_white",
+   "corner_r": 0.75,
+   "note": "printed white key; separated from neighbours by a 0.2 mm black line; bottom corners rounded",
+   "bbox": [
+    98.72,
+    79.56,
+    114.9,
+    119.34
+   ],
+   "nx": 0.356,
+   "ny": 0.7004
+  },
+  {
+   "id": "whitekey_4",
+   "type": "fill",
+   "x": 123.3,
+   "y": 99.45,
+   "w": 16.35,
+   "h": 39.78,
+   "colour": "key_white",
+   "corner_r": 0.75,
+   "note": "printed white key; separated from neighbours by a 0.2 mm black line; bottom corners rounded",
+   "bbox": [
+    115.12,
+    79.56,
+    131.47,
+    119.34
+   ],
+   "nx": 0.411,
+   "ny": 0.7004
+  },
+  {
+   "id": "whitekey_5",
+   "type": "fill",
+   "x": 139.69,
+   "y": 99.45,
+   "w": 15.99,
+   "h": 39.78,
+   "colour": "key_white",
+   "corner_r": 0.75,
+   "note": "printed white key; separated from neighbours by a 0.2 mm black line; bottom corners rounded",
+   "bbox": [
+    131.69,
+    79.56,
+    147.69,
+    119.34
+   ],
+   "nx": 0.4656,
+   "ny": 0.7004
+  },
+  {
+   "id": "whitekey_6",
+   "type": "fill",
+   "x": 156.07,
+   "y": 99.45,
+   "w": 16.35,
+   "h": 39.78,
+   "colour": "key_white",
+   "corner_r": 0.75,
+   "note": "printed white key; separated from neighbours by a 0.2 mm black line; bottom corners rounded",
+   "bbox": [
+    147.89,
+    79.56,
+    164.25,
+    119.34
+   ],
+   "nx": 0.5202,
+   "ny": 0.7004
+  },
+  {
+   "id": "whitekey_7",
+   "type": "fill",
+   "x": 172.56,
+   "y": 99.45,
+   "w": 16.16,
+   "h": 39.78,
+   "colour": "key_white",
+   "corner_r": 0.75,
+   "note": "printed white key; separated from neighbours by a 0.2 mm black line; bottom corners rounded",
+   "bbox": [
+    164.48,
+    79.56,
+    180.64,
+    119.34
+   ],
+   "nx": 0.5752,
+   "ny": 0.7004
+  },
+  {
+   "id": "whitekey_8",
+   "type": "fill",
+   "x": 188.95,
+   "y": 99.45,
+   "w": 16.16,
+   "h": 39.78,
+   "colour": "key_white",
+   "corner_r": 0.75,
+   "note": "printed white key; separated from neighbours by a 0.2 mm black line; bottom corners rounded",
+   "bbox": [
+    180.87,
+    79.56,
+    197.03,
+    119.34
+   ],
+   "nx": 0.6298,
+   "ny": 0.7004
+  },
+  {
+   "id": "blackkey_Cs",
+   "type": "fill",
+   "x": 82.32,
+   "y": 91.44,
+   "w": 9.2,
+   "h": 23.21,
+   "colour": "print_black",
+   "corner_r": 1.1,
+   "note": "printed black key (bottom corners rounded); holds LED + upper key cap",
+   "bbox": [
+    77.72,
+    79.83,
+    86.92,
+    103.05
+   ],
+   "nx": 0.2744,
+   "ny": 0.6439
+  },
+  {
+   "id": "blackkey_Ds",
+   "type": "fill",
+   "x": 98.71,
+   "y": 91.44,
+   "w": 9.2,
+   "h": 23.21,
+   "colour": "print_black",
+   "corner_r": 1.1,
+   "note": "printed black key (bottom corners rounded); holds LED + upper key cap",
+   "bbox": [
+    94.11,
+    79.83,
+    103.31,
+    103.05
+   ],
+   "nx": 0.329,
+   "ny": 0.6439
+  },
+  {
+   "id": "blackkey_Fs",
+   "type": "fill",
+   "x": 131.63,
+   "y": 91.44,
+   "w": 9.3,
+   "h": 23.21,
+   "colour": "print_black",
+   "corner_r": 1.1,
+   "note": "printed black key (bottom corners rounded); holds LED + upper key cap",
+   "bbox": [
+    126.98,
+    79.83,
+    136.28,
+    103.05
+   ],
+   "nx": 0.4388,
+   "ny": 0.6439
+  },
+  {
+   "id": "blackkey_Gs",
+   "type": "fill",
+   "x": 147.93,
+   "y": 91.44,
+   "w": 9.12,
+   "h": 23.21,
+   "colour": "print_black",
+   "corner_r": 1.1,
+   "note": "printed black key (bottom corners rounded); holds LED + upper key cap",
+   "bbox": [
+    143.37,
+    79.83,
+    152.49,
+    103.05
+   ],
+   "nx": 0.4931,
+   "ny": 0.6439
+  },
+  {
+   "id": "blackkey_As",
+   "type": "fill",
+   "x": 164.27,
+   "y": 91.44,
+   "w": 9.21,
+   "h": 23.21,
+   "colour": "print_black",
+   "corner_r": 1.1,
+   "note": "printed black key (bottom corners rounded); holds LED + upper key cap",
+   "bbox": [
+    159.67,
+    79.83,
+    168.88,
+    103.05
+   ],
+   "nx": 0.5476,
+   "ny": 0.6439
+  },
+  {
+   "id": "divider_upper_left",
+   "type": "line",
+   "points": [
+    [
+     75.78,
+     2.58
+    ],
+    [
+     75.78,
+     24.03
+    ]
+   ],
+   "stroke": 0.46,
+   "colour": "print_black",
+   "x": 75.78,
+   "y": 13.3,
+   "nx": 0.2526,
+   "ny": 0.0937
+  },
+  {
+   "id": "divider_upper_right",
+   "type": "line",
+   "points": [
+    [
+     214.55,
+     2.49
+    ],
+    [
+     214.55,
+     24.22
+    ]
+   ],
+   "stroke": 0.46,
+   "colour": "print_black",
+   "x": 214.55,
+   "y": 13.36,
+   "nx": 0.7152,
+   "ny": 0.0941
+  },
+  {
+   "id": "rule_tb303",
+   "type": "line",
+   "points": [
+    [
+     179.65,
+     51.84
+    ],
+    [
+     236.56,
+     51.84
+    ]
+   ],
+   "stroke": 0.46,
+   "colour": "print_black",
+   "x": 208.11,
+   "y": 51.84,
+   "note": "rule between the tb303 and computer_controlled marks; drawn only when the artwork pack has one of them",
+   "nx": 0.6937,
+   "ny": 0.3651
+  },
+  {
+   "id": "timemode_div_1",
+   "type": "line",
+   "points": [
+    [
+     214.46,
+     83.89
+    ],
+    [
+     214.46,
+     91.07
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 214.46,
+   "y": 87.48,
+   "nx": 0.7149,
+   "ny": 0.6161
+  },
+  {
+   "id": "timemode_div_2",
+   "type": "line",
+   "points": [
+    [
+     230.9,
+     83.52
+    ],
+    [
+     230.9,
+     91.07
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 230.9,
+   "y": 87.29,
+   "nx": 0.7697,
+   "ny": 0.6147
+  },
+  {
+   "id": "timemode_div_3",
+   "type": "line",
+   "points": [
+    [
+     247.24,
+     83.89
+    ],
+    [
+     247.24,
+     91.07
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 247.24,
+   "y": 87.48,
+   "nx": 0.8241,
+   "ny": 0.6161
+  },
+  {
+   "id": "lower_div_down_up",
+   "type": "line",
+   "points": [
+    [
+     214.46,
+     97.15
+    ],
+    [
+     214.46,
+     126.43
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 214.46,
+   "y": 111.79,
+   "nx": 0.7149,
+   "ny": 0.7873
+  },
+  {
+   "id": "lower_div_up_accent",
+   "type": "line",
+   "points": [
+    [
+     230.85,
+     97.15
+    ],
+    [
+     230.85,
+     119.43
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 230.85,
+   "y": 108.29,
+   "nx": 0.7695,
+   "ny": 0.7626
+  },
+  {
+   "id": "lower_div_accent_slide",
+   "type": "line",
+   "points": [
+    [
+     247.24,
+     97.15
+    ],
+    [
+     247.24,
+     119.43
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 247.24,
+   "y": 108.29,
+   "nx": 0.8241,
+   "ny": 0.7626
+  },
+  {
+   "id": "rule_transpose",
+   "type": "line",
+   "points": [
+    [
+     200.83,
+     94.09
+    ],
+    [
+     228.82,
+     94.09
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_white",
+   "x": 214.82,
+   "y": 94.09,
+   "nx": 0.7161,
+   "ny": 0.6626
+  },
+  {
+   "id": "transpose_white_vert_1",
+   "type": "line",
+   "points": [
+    [
+     214.46,
+     94.2
+    ],
+    [
+     214.46,
+     97.15
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_white",
+   "x": 214.46,
+   "y": 95.68,
+   "nx": 0.7149,
+   "ny": 0.6738
+  },
+  {
+   "id": "transpose_white_vert_2",
+   "type": "line",
+   "points": [
+    [
+     230.94,
+     91.07
+    ],
+    [
+     230.94,
+     97.15
+    ]
+   ],
+   "stroke": 0.46,
+   "colour": "print_white",
+   "x": 230.94,
+   "y": 94.11,
+   "nx": 0.7698,
+   "ny": 0.6627
+  },
+  {
+   "id": "transpose_white_vert_3",
+   "type": "line",
+   "points": [
+    [
+     247.24,
+     91.07
+    ],
+    [
+     247.24,
+     97.15
+    ]
+   ],
+   "stroke": 0.46,
+   "colour": "print_white",
+   "x": 247.24,
+   "y": 94.11,
+   "nx": 0.8241,
+   "ny": 0.6627
+  },
+  {
+   "id": "patt_section_rule",
+   "type": "line",
+   "points": [
+    [
+     231.77,
+     122.28
+    ],
+    [
+     262.52,
+     122.28
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_white",
+   "x": 247.14,
+   "y": 122.28,
+   "nx": 0.8238,
+   "ny": 0.8611
+  },
+  {
+   "id": "patt_section_vert",
+   "type": "line",
+   "points": [
+    [
+     247.24,
+     119.61
+    ],
+    [
+     247.24,
+     121.82
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_white",
+   "x": 247.24,
+   "y": 120.72,
+   "nx": 0.8241,
+   "ny": 0.8501
+  },
+  {
+   "id": "knob_tuning",
+   "type": "knob",
+   "label": "TUNING",
+   "x": 89.23,
+   "y": 15.32,
+   "d": 15.84,
+   "knob_d": 12.4,
+   "cap_d": 8.8,
+   "height": 12.0,
+   "knob_style": "small_knurled",
+   "colour": "knob_cap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "count": 11,
+    "step_deg": 30,
+    "r_inner": 8.66,
+    "r_outer": 10.41,
+    "tick_w": 0.4,
+    "top_marker": "filled square 1.3 mm at r=9.4 mm instead of the 0 deg tick",
+    "note": "9 and 3 o'clock ticks of neighbouring knobs nearly meet, reading as a dashed line"
+   },
+   "note": "d = outer diameter of chrome dust-cover ring (part N-506); knob part N-195; pot 16 mm (K161B0)",
+   "nx": 0.2974,
+   "ny": 0.1079
+  },
+  {
+   "id": "knob_tuning_marker",
+   "type": "symbol",
+   "label": "square",
+   "x": 89.23,
+   "y": 5.89,
+   "w": 1.3,
+   "h": 1.3,
+   "colour": "print_black",
+   "bbox": [
+    88.58,
+    5.24,
+    89.88,
+    6.54
+   ],
+   "nx": 0.2974,
+   "ny": 0.0415
+  },
+  {
+   "id": "label_tuning",
+   "type": "text",
+   "x": 89.32,
+   "y": 3.46,
+   "w": 9.76,
+   "h": 1.93,
+   "label": "TUNING",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    84.44,
+    2.5,
+    94.2,
+    4.42
+   ],
+   "nx": 0.2977,
+   "ny": 0.0244
+  },
+  {
+   "id": "knob_cutoff",
+   "type": "knob",
+   "label": "CUT OFF FREQ",
+   "x": 111.69,
+   "y": 15.32,
+   "d": 15.84,
+   "knob_d": 12.4,
+   "cap_d": 8.8,
+   "height": 12.0,
+   "knob_style": "small_knurled",
+   "colour": "knob_cap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "count": 11,
+    "step_deg": 30,
+    "r_inner": 8.66,
+    "r_outer": 10.41,
+    "tick_w": 0.4,
+    "top_marker": "filled square 1.3 mm at r=9.4 mm instead of the 0 deg tick",
+    "note": "9 and 3 o'clock ticks of neighbouring knobs nearly meet, reading as a dashed line"
+   },
+   "note": "d = outer diameter of chrome dust-cover ring (part N-506); knob part N-195; pot 16 mm (K161B0)",
+   "nx": 0.3723,
+   "ny": 0.1079
+  },
+  {
+   "id": "knob_cutoff_marker",
+   "type": "symbol",
+   "label": "square",
+   "x": 111.69,
+   "y": 5.89,
+   "w": 1.3,
+   "h": 1.3,
+   "colour": "print_black",
+   "bbox": [
+    111.04,
+    5.24,
+    112.34,
+    6.54
+   ],
+   "nx": 0.3723,
+   "ny": 0.0415
+  },
+  {
+   "id": "label_cutoff",
+   "type": "text",
+   "x": 111.6,
+   "y": 3.46,
+   "w": 19.7,
+   "h": 1.93,
+   "label": "CUT OFF FREQ",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    101.75,
+    2.5,
+    121.45,
+    4.42
+   ],
+   "nx": 0.372,
+   "ny": 0.0244
+  },
+  {
+   "id": "knob_resonance",
+   "type": "knob",
+   "label": "RESONANCE",
+   "x": 134.16,
+   "y": 15.32,
+   "d": 15.84,
+   "knob_d": 12.4,
+   "cap_d": 8.8,
+   "height": 12.0,
+   "knob_style": "small_knurled",
+   "colour": "knob_cap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "count": 11,
+    "step_deg": 30,
+    "r_inner": 8.66,
+    "r_outer": 10.41,
+    "tick_w": 0.4,
+    "top_marker": "filled square 1.3 mm at r=9.4 mm instead of the 0 deg tick",
+    "note": "9 and 3 o'clock ticks of neighbouring knobs nearly meet, reading as a dashed line"
+   },
+   "note": "d = outer diameter of chrome dust-cover ring (part N-506); knob part N-195; pot 16 mm (K161B0)",
+   "nx": 0.4472,
+   "ny": 0.1079
+  },
+  {
+   "id": "knob_resonance_marker",
+   "type": "symbol",
+   "label": "square",
+   "x": 134.16,
+   "y": 5.89,
+   "w": 1.3,
+   "h": 1.3,
+   "colour": "print_black",
+   "bbox": [
+    133.51,
+    5.24,
+    134.81,
+    6.54
+   ],
+   "nx": 0.4472,
+   "ny": 0.0415
+  },
+  {
+   "id": "label_resonance",
+   "type": "text",
+   "x": 133.98,
+   "y": 3.46,
+   "w": 16.58,
+   "h": 1.93,
+   "label": "RESONANCE",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    125.69,
+    2.5,
+    142.27,
+    4.42
+   ],
+   "nx": 0.4466,
+   "ny": 0.0244
+  },
+  {
+   "id": "knob_envmod",
+   "type": "knob",
+   "label": "ENV MOD",
+   "x": 156.63,
+   "y": 15.32,
+   "d": 15.84,
+   "knob_d": 12.4,
+   "cap_d": 8.8,
+   "height": 12.0,
+   "knob_style": "small_knurled",
+   "colour": "knob_cap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "count": 11,
+    "step_deg": 30,
+    "r_inner": 8.66,
+    "r_outer": 10.41,
+    "tick_w": 0.4,
+    "top_marker": "filled square 1.3 mm at r=9.4 mm instead of the 0 deg tick",
+    "note": "9 and 3 o'clock ticks of neighbouring knobs nearly meet, reading as a dashed line"
+   },
+   "note": "d = outer diameter of chrome dust-cover ring (part N-506); knob part N-195; pot 16 mm (K161B0)",
+   "nx": 0.5221,
+   "ny": 0.1079
+  },
+  {
+   "id": "knob_envmod_marker",
+   "type": "symbol",
+   "label": "square",
+   "x": 156.63,
+   "y": 5.89,
+   "w": 1.3,
+   "h": 1.3,
+   "colour": "print_black",
+   "bbox": [
+    155.98,
+    5.24,
+    157.28,
+    6.54
+   ],
+   "nx": 0.5221,
+   "ny": 0.0415
+  },
+  {
+   "id": "label_envmod",
+   "type": "text",
+   "x": 156.72,
+   "y": 3.46,
+   "w": 12.34,
+   "h": 1.93,
+   "label": "ENV MOD",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    150.55,
+    2.5,
+    162.89,
+    4.42
+   ],
+   "nx": 0.5224,
+   "ny": 0.0244
+  },
+  {
+   "id": "knob_decay",
+   "type": "knob",
+   "label": "DECAY",
+   "x": 179.1,
+   "y": 15.32,
+   "d": 15.84,
+   "knob_d": 12.4,
+   "cap_d": 8.8,
+   "height": 12.0,
+   "knob_style": "small_knurled",
+   "colour": "knob_cap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "count": 11,
+    "step_deg": 30,
+    "r_inner": 8.66,
+    "r_outer": 10.41,
+    "tick_w": 0.4,
+    "top_marker": "filled square 1.3 mm at r=9.4 mm instead of the 0 deg tick",
+    "note": "9 and 3 o'clock ticks of neighbouring knobs nearly meet, reading as a dashed line"
+   },
+   "note": "d = outer diameter of chrome dust-cover ring (part N-506); knob part N-195; pot 16 mm (K161B0)",
+   "nx": 0.597,
+   "ny": 0.1079
+  },
+  {
+   "id": "knob_decay_marker",
+   "type": "symbol",
+   "label": "square",
+   "x": 179.1,
+   "y": 5.89,
+   "w": 1.3,
+   "h": 1.3,
+   "colour": "print_black",
+   "bbox": [
+    178.45,
+    5.24,
+    179.75,
+    6.54
+   ],
+   "nx": 0.597,
+   "ny": 0.0415
+  },
+  {
+   "id": "label_decay",
+   "type": "text",
+   "x": 178.82,
+   "y": 3.46,
+   "w": 8.29,
+   "h": 1.93,
+   "label": "DECAY",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    174.67,
+    2.5,
+    182.97,
+    4.42
+   ],
+   "nx": 0.5961,
+   "ny": 0.0244
+  },
+  {
+   "id": "knob_accent",
+   "type": "knob",
+   "label": "ACCENT",
+   "x": 201.57,
+   "y": 15.32,
+   "d": 15.84,
+   "knob_d": 12.4,
+   "cap_d": 8.8,
+   "height": 12.0,
+   "knob_style": "small_knurled",
+   "colour": "knob_cap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "count": 11,
+    "step_deg": 30,
+    "r_inner": 8.66,
+    "r_outer": 10.41,
+    "tick_w": 0.4,
+    "top_marker": "filled square 1.3 mm at r=9.4 mm instead of the 0 deg tick",
+    "note": "9 and 3 o'clock ticks of neighbouring knobs nearly meet, reading as a dashed line"
+   },
+   "note": "d = outer diameter of chrome dust-cover ring (part N-506); knob part N-195; pot 16 mm (K161B0)",
+   "nx": 0.6719,
+   "ny": 0.1079
+  },
+  {
+   "id": "knob_accent_marker",
+   "type": "symbol",
+   "label": "square",
+   "x": 201.57,
+   "y": 5.89,
+   "w": 1.3,
+   "h": 1.3,
+   "colour": "print_black",
+   "bbox": [
+    200.92,
+    5.24,
+    202.22,
+    6.54
+   ],
+   "nx": 0.6719,
+   "ny": 0.0415
+  },
+  {
+   "id": "label_accent",
+   "type": "text",
+   "x": 201.2,
+   "y": 3.46,
+   "w": 10.68,
+   "h": 1.93,
+   "label": "ACCENT",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    195.86,
+    2.5,
+    206.54,
+    4.42
+   ],
+   "nx": 0.6707,
+   "ny": 0.0244
+  },
+  {
+   "id": "knob_tempo",
+   "type": "knob",
+   "label": "TEMPO",
+   "x": 44.01,
+   "y": 51.73,
+   "d": 23.39,
+   "knob_d": 19.5,
+   "cap_d": 15.0,
+   "height": 14.0,
+   "knob_style": "large_knurled",
+   "colour": "knob_cap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top"
+   },
+   "scale": {
+    "type": "ticks",
+    "count": 21,
+    "step_deg": 15,
+    "long_every_deg": 30,
+    "r_inner": 12.8,
+    "r_outer_long": 14.83,
+    "r_outer_short": 13.72,
+    "tick_w": 0.45,
+    "ends": "the +-150 deg marks are short slashes next to SLOW / FAST"
+   },
+   "note": "knob N-194; quarter-note = 40..300 BPM; pot K161100FAE-1MC",
+   "nx": 0.1467,
+   "ny": 0.3643
+  },
+  {
+   "id": "knob_volume",
+   "type": "knob",
+   "label": "VOLUME",
+   "x": 262.3,
+   "y": 51.73,
+   "d": 23.39,
+   "knob_d": 19.5,
+   "cap_d": 15.0,
+   "height": 14.0,
+   "knob_style": "large_knurled",
+   "colour": "knob_cap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top"
+   },
+   "scale": {
+    "type": "ticks",
+    "count": 21,
+    "step_deg": 15,
+    "long_every_deg": 30,
+    "r_inner": 12.8,
+    "r_outer_long": 14.83,
+    "r_outer_short": 13.72,
+    "tick_w": 0.45,
+    "ends": "the +-150 deg marks are short slashes next to OFF / MAX"
+   },
+   "note": "POWER SWITCH/VOLUME: switch clicks on just clockwise of OFF; pot VM11R-851A-5M1411-50kA",
+   "nx": 0.8743,
+   "ny": 0.3643
+  },
+  {
+   "id": "switch_patt_group",
+   "type": "rotary_switch",
+   "label": "TRACK / PATT.GROUP",
+   "x": 89.23,
+   "y": 51.73,
+   "d": 23.39,
+   "knob_style": "bar",
+   "knob_d": 19.0,
+   "bar_w": 7.0,
+   "height": 13.0,
+   "colour": "knob_cap",
+   "positions": [
+    {
+     "angle_deg": -105,
+     "label": "1 (group I)",
+     "dot": [
+      75.87,
+      54.88
+     ]
+    },
+    {
+     "angle_deg": -75,
+     "label": "2 (group I)",
+     "dot": [
+      76.0,
+      47.88
+     ]
+    },
+    {
+     "angle_deg": -45,
+     "label": "3 (group II)",
+     "dot": [
+      79.47,
+      41.95
+     ]
+    },
+    {
+     "angle_deg": -15,
+     "label": "4 (group II)",
+     "dot": [
+      85.8,
+      38.42
+     ]
+    },
+    {
+     "angle_deg": 15,
+     "label": "5 (group III)",
+     "dot": [
+      92.36,
+      38.38
+     ]
+    },
+    {
+     "angle_deg": 45,
+     "label": "6 (group III)",
+     "dot": [
+      98.43,
+      41.88
+     ]
+    },
+    {
+     "angle_deg": 75,
+     "label": "7 (group IV)",
+     "dot": [
+      102.17,
+      47.94
+     ]
+    }
+   ],
+   "note": "7-position rotary (switch SRM-1017, knob N-198). Centre x snapped to TUNING x (measured 494.1-494.2 px). Measured dot angles -104,-74,-45,-14,+14,+44,+74 deg -> nominal 30 deg detents. Position dots 0.9 mm at r = 13.6 mm.",
+   "nx": 0.2974,
+   "ny": 0.3643
+  },
+  {
+   "id": "switch_mode",
+   "type": "rotary_switch",
+   "label": "MODE",
+   "x": 134.16,
+   "y": 51.73,
+   "d": 23.39,
+   "knob_style": "bar",
+   "knob_d": 19.0,
+   "bar_w": 7.0,
+   "height": 13.0,
+   "colour": "knob_cap",
+   "positions": [
+    {
+     "angle_deg": 45,
+     "label": "TRACK WRITE",
+     "dot": [
+      143.35,
+      41.82
+     ]
+    },
+    {
+     "angle_deg": 75,
+     "label": "TRACK PLAY",
+     "dot": [
+      147.11,
+      47.92
+     ]
+    },
+    {
+     "angle_deg": 105,
+     "label": "PATTERN PLAY",
+     "dot": [
+      147.13,
+      55.06
+     ]
+    },
+    {
+     "angle_deg": 135,
+     "label": "PATTERN WRITE",
+     "dot": [
+      143.63,
+      61.09
+     ]
+    }
+   ],
+   "note": "4-position rotary (SRM-1034, knob N-198). Centre x snapped to RESONANCE x (measured 737.5-739.6 px). Dots at r = 13.4 mm.",
+   "nx": 0.4472,
+   "ny": 0.3643
+  },
+  {
+   "id": "dot_pattgroup_1",
+   "type": "symbol",
+   "label": "dot",
+   "x": 75.87,
+   "y": 54.88,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    75.42,
+    54.43,
+    76.32,
+    55.33
+   ],
+   "nx": 0.2529,
+   "ny": 0.3865
+  },
+  {
+   "id": "dot_pattgroup_2",
+   "type": "symbol",
+   "label": "dot",
+   "x": 76.0,
+   "y": 47.88,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    75.55,
+    47.43,
+    76.45,
+    48.33
+   ],
+   "nx": 0.2533,
+   "ny": 0.3372
+  },
+  {
+   "id": "dot_pattgroup_3",
+   "type": "symbol",
+   "label": "dot",
+   "x": 79.47,
+   "y": 41.95,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    79.02,
+    41.5,
+    79.92,
+    42.4
+   ],
+   "nx": 0.2649,
+   "ny": 0.2954
+  },
+  {
+   "id": "dot_pattgroup_4",
+   "type": "symbol",
+   "label": "dot",
+   "x": 85.8,
+   "y": 38.42,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    85.35,
+    37.97,
+    86.25,
+    38.87
+   ],
+   "nx": 0.286,
+   "ny": 0.2706
+  },
+  {
+   "id": "dot_pattgroup_5",
+   "type": "symbol",
+   "label": "dot",
+   "x": 92.36,
+   "y": 38.38,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    91.91,
+    37.93,
+    92.81,
+    38.83
+   ],
+   "nx": 0.3079,
+   "ny": 0.2703
+  },
+  {
+   "id": "dot_pattgroup_6",
+   "type": "symbol",
+   "label": "dot",
+   "x": 98.43,
+   "y": 41.88,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    97.98,
+    41.43,
+    98.88,
+    42.33
+   ],
+   "nx": 0.3281,
+   "ny": 0.2949
+  },
+  {
+   "id": "dot_pattgroup_7",
+   "type": "symbol",
+   "label": "dot",
+   "x": 102.17,
+   "y": 47.94,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    101.72,
+    47.49,
+    102.62,
+    48.39
+   ],
+   "nx": 0.3406,
+   "ny": 0.3376
+  },
+  {
+   "id": "dot_mode_1",
+   "type": "symbol",
+   "label": "dot",
+   "x": 143.35,
+   "y": 41.82,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    142.9,
+    41.37,
+    143.8,
+    42.27
+   ],
+   "nx": 0.4778,
+   "ny": 0.2945
+  },
+  {
+   "id": "dot_mode_2",
+   "type": "symbol",
+   "label": "dot",
+   "x": 147.11,
+   "y": 47.92,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    146.66,
+    47.47,
+    147.56,
+    48.37
+   ],
+   "nx": 0.4904,
+   "ny": 0.3375
+  },
+  {
+   "id": "dot_mode_3",
+   "type": "symbol",
+   "label": "dot",
+   "x": 147.13,
+   "y": 55.06,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    146.68,
+    54.61,
+    147.58,
+    55.51
+   ],
+   "nx": 0.4904,
+   "ny": 0.3877
+  },
+  {
+   "id": "dot_mode_4",
+   "type": "symbol",
+   "label": "dot",
+   "x": 143.63,
+   "y": 61.09,
+   "w": 0.9,
+   "h": 0.9,
+   "colour": "print_black",
+   "bbox": [
+    143.18,
+    60.64,
+    144.08,
+    61.54
+   ],
+   "nx": 0.4788,
+   "ny": 0.4302
+  },
+  {
+   "id": "tri_mix_in",
+   "type": "symbol",
+   "x": 14.73,
+   "y": 3.31,
+   "w": 2.39,
+   "h": 2.03,
+   "label": "filled triangle pointing up (towards rear jack)",
+   "colour": "print_black",
+   "bbox": [
+    13.54,
+    2.29,
+    15.93,
+    4.33
+   ],
+   "nx": 0.0491,
+   "ny": 0.0233
+  },
+  {
+   "id": "label_mix_in",
+   "type": "text",
+   "x": 14.55,
+   "y": 6.35,
+   "w": 7.92,
+   "h": 1.84,
+   "label": "MIX IN",
+   "cap_h": 1.84,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    10.59,
+    5.43,
+    18.51,
+    7.27
+   ],
+   "nx": 0.0485,
+   "ny": 0.0447
+  },
+  {
+   "id": "tri_sync_in",
+   "type": "symbol",
+   "x": 59.48,
+   "y": 3.31,
+   "w": 2.39,
+   "h": 2.03,
+   "label": "filled triangle pointing up (towards rear jack)",
+   "colour": "print_black",
+   "bbox": [
+    58.28,
+    2.29,
+    60.67,
+    4.33
+   ],
+   "nx": 0.1983,
+   "ny": 0.0233
+  },
+  {
+   "id": "label_sync_in",
+   "type": "text",
+   "x": 59.76,
+   "y": 6.35,
+   "w": 10.68,
+   "h": 1.84,
+   "label": "SYNC IN",
+   "cap_h": 1.84,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    54.42,
+    5.43,
+    65.1,
+    7.27
+   ],
+   "nx": 0.1992,
+   "ny": 0.0447
+  },
+  {
+   "id": "tri_cv",
+   "type": "symbol",
+   "x": 219.7,
+   "y": 3.31,
+   "w": 2.03,
+   "h": 2.03,
+   "label": "filled triangle pointing up (towards rear jack)",
+   "colour": "print_black",
+   "bbox": [
+    218.69,
+    2.29,
+    220.71,
+    4.33
+   ],
+   "nx": 0.7323,
+   "ny": 0.0233
+  },
+  {
+   "id": "label_cv",
+   "type": "text",
+   "x": 219.62,
+   "y": 6.35,
+   "w": 3.31,
+   "h": 1.84,
+   "label": "CV",
+   "cap_h": 1.84,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    217.97,
+    5.43,
+    221.28,
+    7.27
+   ],
+   "nx": 0.7321,
+   "ny": 0.0447
+  },
+  {
+   "id": "tri_gate",
+   "type": "symbol",
+   "x": 232.96,
+   "y": 3.41,
+   "w": 2.03,
+   "h": 1.84,
+   "label": "filled triangle pointing up (towards rear jack)",
+   "colour": "print_black",
+   "bbox": [
+    231.95,
+    2.49,
+    233.97,
+    4.33
+   ],
+   "nx": 0.7765,
+   "ny": 0.024
+  },
+  {
+   "id": "label_gate",
+   "type": "text",
+   "x": 232.88,
+   "y": 6.54,
+   "w": 6.63,
+   "h": 1.84,
+   "label": "GATE",
+   "cap_h": 1.84,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    229.56,
+    5.62,
+    236.19,
+    7.46
+   ],
+   "nx": 0.7763,
+   "ny": 0.0461
+  },
+  {
+   "id": "tri_headphone",
+   "type": "symbol",
+   "x": 248.25,
+   "y": 3.41,
+   "w": 2.02,
+   "h": 1.84,
+   "label": "filled triangle pointing up (towards rear jack)",
+   "colour": "print_black",
+   "bbox": [
+    247.24,
+    2.49,
+    249.26,
+    4.33
+   ],
+   "nx": 0.8275,
+   "ny": 0.024
+  },
+  {
+   "id": "label_headphone",
+   "type": "text",
+   "x": 248.34,
+   "y": 6.54,
+   "w": 16.57,
+   "h": 1.84,
+   "label": "HEADPHONE",
+   "cap_h": 1.84,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    240.06,
+    5.62,
+    256.62,
+    7.46
+   ],
+   "nx": 0.8278,
+   "ny": 0.0461
+  },
+  {
+   "id": "tri_output",
+   "type": "symbol",
+   "x": 265.56,
+   "y": 3.78,
+   "w": 2.02,
+   "h": 1.85,
+   "label": "filled triangle pointing up (towards rear jack)",
+   "colour": "print_black",
+   "bbox": [
+    264.55,
+    2.85,
+    266.57,
+    4.71
+   ],
+   "nx": 0.8852,
+   "ny": 0.0266
+  },
+  {
+   "id": "label_output",
+   "type": "text",
+   "x": 265.75,
+   "y": 6.54,
+   "w": 10.87,
+   "h": 1.84,
+   "label": "OUTPUT",
+   "cap_h": 1.84,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    260.31,
+    5.62,
+    271.19,
+    7.46
+   ],
+   "nx": 0.8858,
+   "ny": 0.0461
+  },
+  {
+   "id": "tri_dc9v",
+   "type": "symbol",
+   "x": 282.88,
+   "y": 3.87,
+   "w": 2.03,
+   "h": 2.03,
+   "label": "filled triangle pointing up (towards rear jack)",
+   "colour": "print_black",
+   "bbox": [
+    281.87,
+    2.86,
+    283.89,
+    4.88
+   ],
+   "nx": 0.9429,
+   "ny": 0.0273
+  },
+  {
+   "id": "label_dc9v",
+   "type": "text",
+   "x": 282.97,
+   "y": 6.63,
+   "w": 8.11,
+   "h": 1.66,
+   "label": "DC 9V",
+   "cap_h": 1.66,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    278.92,
+    5.8,
+    287.03,
+    7.46
+   ],
+   "nx": 0.9432,
+   "ny": 0.0467
+  },
+  {
+   "id": "tri_waveform",
+   "type": "symbol",
+   "x": 35.17,
+   "y": 3.31,
+   "w": 2.39,
+   "h": 2.03,
+   "label": "filled triangle (switch pointer)",
+   "colour": "print_black",
+   "bbox": [
+    33.98,
+    2.29,
+    36.37,
+    4.33
+   ],
+   "nx": 0.1172,
+   "ny": 0.0233
+  },
+  {
+   "id": "sym_saw",
+   "type": "symbol",
+   "x": 30.66,
+   "y": 3.4,
+   "w": 5.53,
+   "h": 2.21,
+   "label": "sawtooth glyph, 2 teeth, ~0.45 mm stroke",
+   "colour": "print_black",
+   "bbox": [
+    27.89,
+    2.29,
+    33.42,
+    4.5
+   ],
+   "nx": 0.1022,
+   "ny": 0.0239
+  },
+  {
+   "id": "sym_square",
+   "type": "symbol",
+   "x": 39.87,
+   "y": 3.4,
+   "w": 6.26,
+   "h": 2.21,
+   "label": "square-wave glyph, 2 cycles, ~0.45 mm stroke",
+   "colour": "print_black",
+   "bbox": [
+    36.74,
+    2.29,
+    43.0,
+    4.5
+   ],
+   "nx": 0.1329,
+   "ny": 0.0239
+  },
+  {
+   "id": "label_waveform",
+   "type": "text",
+   "x": 35.27,
+   "y": 6.3,
+   "w": 15.1,
+   "h": 1.75,
+   "label": "WAVEFORM",
+   "cap_h": 1.75,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    27.72,
+    5.42,
+    42.82,
+    7.17
+   ],
+   "nx": 0.1176,
+   "ny": 0.0444
+  },
+  {
+   "id": "logo_roland",
+   "type": "logo",
+   "x": 39.22,
+   "y": 17.77,
+   "w": 51.75,
+   "h": 7.36,
+   "label": "Roland",
+   "colour": "print_black",
+   "note": "brand mark slot, left blank: filled from the artwork pack (id roland)",
+   "bbox": [
+    13.34,
+    14.09,
+    65.09,
+    21.45
+   ],
+   "nx": 0.1307,
+   "ny": 0.1251
+  },
+  {
+   "id": "logo_bass_line",
+   "type": "logo",
+   "x": 255.16,
+   "y": 17.86,
+   "w": 56.72,
+   "h": 7.18,
+   "label": "Bass Line",
+   "colour": "print_black",
+   "note": "brand mark slot, left blank: filled from the artwork pack (id bass_line)",
+   "bbox": [
+    226.8,
+    14.27,
+    283.52,
+    21.45
+   ],
+   "nx": 0.8505,
+   "ny": 0.1258
+  },
+  {
+   "id": "label_tempo",
+   "type": "text",
+   "x": 44.38,
+   "y": 31.73,
+   "w": 11.6,
+   "h": 2.49,
+   "label": "TEMPO",
+   "cap_h": 2.49,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    38.58,
+    30.48,
+    50.18,
+    32.98
+   ],
+   "nx": 0.1479,
+   "ny": 0.2235
+  },
+  {
+   "id": "rbox_track_pattgroup",
+   "type": "label_box",
+   "x": 77.28,
+   "y": 31.71,
+   "w": 11.91,
+   "h": 3.2,
+   "label": "TRACK",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Medium, caps (reverse)",
+   "bbox": [
+    71.33,
+    30.11,
+    83.23,
+    33.31
+   ],
+   "nx": 0.2576,
+   "ny": 0.2233
+  },
+  {
+   "id": "label_patt_group",
+   "type": "text",
+   "x": 96.32,
+   "y": 31.73,
+   "w": 21.18,
+   "h": 2.49,
+   "label": "PATT.GROUP",
+   "cap_h": 2.49,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    85.73,
+    30.48,
+    106.91,
+    32.98
+   ],
+   "nx": 0.3211,
+   "ny": 0.2235
+  },
+  {
+   "id": "label_mode",
+   "type": "text",
+   "x": 133.88,
+   "y": 31.54,
+   "w": 9.39,
+   "h": 2.49,
+   "label": "MODE",
+   "cap_h": 2.49,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    129.19,
+    30.29,
+    138.57,
+    32.78
+   ],
+   "nx": 0.4463,
+   "ny": 0.2221
+  },
+  {
+   "id": "label_volume",
+   "type": "text",
+   "x": 262.25,
+   "y": 31.91,
+   "w": 13.45,
+   "h": 2.49,
+   "label": "VOLUME",
+   "cap_h": 2.49,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    255.53,
+    30.66,
+    268.98,
+    33.16
+   ],
+   "nx": 0.8742,
+   "ny": 0.2247
+  },
+  {
+   "id": "label_slow",
+   "type": "text",
+   "x": 32.29,
+   "y": 63.77,
+   "w": 6.32,
+   "h": 1.75,
+   "label": "SLOW",
+   "cap_h": 1.75,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    29.13,
+    62.9,
+    35.45,
+    64.65
+   ],
+   "nx": 0.1076,
+   "ny": 0.4491
+  },
+  {
+   "id": "slash_slow",
+   "type": "line",
+   "points": [
+    [
+     36.37,
+     64.55
+    ],
+    [
+     37.57,
+     62.89
+    ]
+   ],
+   "stroke": 0.41,
+   "colour": "print_black",
+   "x": 36.97,
+   "y": 63.72,
+   "nx": 0.1232,
+   "ny": 0.4487
+  },
+  {
+   "id": "slash_fast",
+   "type": "line",
+   "points": [
+    [
+     50.55,
+     62.89
+    ],
+    [
+     51.66,
+     64.55
+    ]
+   ],
+   "stroke": 0.41,
+   "colour": "print_black",
+   "x": 51.1,
+   "y": 63.72,
+   "nx": 0.1703,
+   "ny": 0.4487
+  },
+  {
+   "id": "label_fast",
+   "type": "text",
+   "x": 55.62,
+   "y": 63.67,
+   "w": 5.34,
+   "h": 1.57,
+   "label": "FAST",
+   "cap_h": 1.57,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    52.95,
+    62.89,
+    58.29,
+    64.45
+   ],
+   "nx": 0.1854,
+   "ny": 0.4484
+  },
+  {
+   "id": "label_power_sw",
+   "type": "text",
+   "x": 240.61,
+   "y": 63.67,
+   "w": 14.73,
+   "h": 1.93,
+   "label": "POWER SW",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    233.25,
+    62.7,
+    247.98,
+    64.64
+   ],
+   "nx": 0.802,
+   "ny": 0.4484
+  },
+  {
+   "id": "label_off",
+   "type": "text",
+   "x": 251.19,
+   "y": 63.86,
+   "w": 3.87,
+   "h": 1.56,
+   "label": "OFF",
+   "cap_h": 1.57,
+   "font": "Helvetica Medium, caps (smaller)",
+   "colour": "print_black",
+   "bbox": [
+    249.25,
+    63.08,
+    253.12,
+    64.64
+   ],
+   "nx": 0.8373,
+   "ny": 0.4497
+  },
+  {
+   "id": "slash_off",
+   "type": "line",
+   "points": [
+    [
+     254.97,
+     64.55
+    ],
+    [
+     255.99,
+     63.08
+    ]
+   ],
+   "stroke": 0.41,
+   "colour": "print_black",
+   "x": 255.48,
+   "y": 63.81,
+   "nx": 0.8516,
+   "ny": 0.4494
+  },
+  {
+   "id": "slash_max",
+   "type": "line",
+   "points": [
+    [
+     268.78,
+     63.08
+    ],
+    [
+     269.8,
+     64.55
+    ]
+   ],
+   "stroke": 0.41,
+   "colour": "print_black",
+   "x": 269.29,
+   "y": 63.81,
+   "nx": 0.8976,
+   "ny": 0.4494
+  },
+  {
+   "id": "label_max",
+   "type": "text",
+   "x": 273.39,
+   "y": 63.77,
+   "w": 4.42,
+   "h": 1.38,
+   "label": "MAX",
+   "cap_h": 1.38,
+   "font": "Helvetica Medium, caps (smaller)",
+   "colour": "print_black",
+   "bbox": [
+    271.18,
+    63.08,
+    275.6,
+    64.46
+   ],
+   "nx": 0.9113,
+   "ny": 0.4491
+  },
+  {
+   "id": "logo_tb303",
+   "type": "logo",
+   "x": 222.0,
+   "y": 47.52,
+   "w": 28.73,
+   "h": 6.07,
+   "label": "TB-303",
+   "colour": "print_black",
+   "note": "brand mark slot, left blank: filled from the artwork pack (id tb303)",
+   "bbox": [
+    207.63,
+    44.48,
+    236.37,
+    50.56
+   ],
+   "nx": 0.74,
+   "ny": 0.3346
+  },
+  {
+   "id": "logo_computer_controlled",
+   "type": "logo",
+   "x": 208.1,
+   "y": 55.8,
+   "w": 56.54,
+   "h": 6.44,
+   "label": "Computer Controlled",
+   "colour": "print_black",
+   "note": "brand mark slot, left blank: filled from the artwork pack (id computer_controlled)",
+   "bbox": [
+    179.83,
+    52.58,
+    236.37,
+    59.02
+   ],
+   "nx": 0.6937,
+   "ny": 0.393
+  },
+  {
+   "id": "rbox_pattgroup_1",
+   "type": "label_box",
+   "x": 73.33,
+   "y": 54.91,
+   "w": 2.97,
+   "h": 2.25,
+   "label": "1",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    71.84,
+    53.78,
+    74.81,
+    56.03
+   ],
+   "nx": 0.2444,
+   "ny": 0.3867
+  },
+  {
+   "id": "rbox_pattgroup_2",
+   "type": "label_box",
+   "x": 73.33,
+   "y": 48.19,
+   "w": 2.97,
+   "h": 2.41,
+   "label": "2",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    71.84,
+    46.98,
+    74.81,
+    49.39
+   ],
+   "nx": 0.2444,
+   "ny": 0.3394
+  },
+  {
+   "id": "rbox_pattgroup_3",
+   "type": "label_box",
+   "x": 76.29,
+   "y": 42.09,
+   "w": 2.96,
+   "h": 2.3,
+   "label": "3",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    74.81,
+    40.94,
+    77.77,
+    43.24
+   ],
+   "nx": 0.2543,
+   "ny": 0.2964
+  },
+  {
+   "id": "rbox_pattgroup_4",
+   "type": "label_box",
+   "x": 82.42,
+   "y": 37.14,
+   "w": 3.18,
+   "h": 2.29,
+   "label": "4",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    80.83,
+    35.99,
+    84.01,
+    38.29
+   ],
+   "nx": 0.2747,
+   "ny": 0.2615
+  },
+  {
+   "id": "rbox_pattgroup_5",
+   "type": "label_box",
+   "x": 95.94,
+   "y": 37.14,
+   "w": 2.91,
+   "h": 2.29,
+   "label": "5",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    94.48,
+    35.99,
+    97.39,
+    38.29
+   ],
+   "nx": 0.3198,
+   "ny": 0.2615
+  },
+  {
+   "id": "rbox_pattgroup_6",
+   "type": "label_box",
+   "x": 101.56,
+   "y": 42.09,
+   "w": 2.95,
+   "h": 2.3,
+   "label": "6",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    100.09,
+    40.94,
+    103.03,
+    43.24
+   ],
+   "nx": 0.3385,
+   "ny": 0.2964
+  },
+  {
+   "id": "rbox_pattgroup_7",
+   "type": "label_box",
+   "x": 105.16,
+   "y": 48.19,
+   "w": 3.23,
+   "h": 2.41,
+   "label": "7",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    103.55,
+    46.98,
+    106.77,
+    49.39
+   ],
+   "nx": 0.3505,
+   "ny": 0.3394
+  },
+  {
+   "id": "label_group_I",
+   "type": "text",
+   "x": 69.17,
+   "y": 52.22,
+   "w": 1.03,
+   "h": 1.29,
+   "label": "I",
+   "cap_h": 1.29,
+   "font": "Times Bold (serif Roman numerals)",
+   "colour": "print_black",
+   "bbox": [
+    68.66,
+    51.57,
+    69.69,
+    52.87
+   ],
+   "nx": 0.2306,
+   "ny": 0.3677
+  },
+  {
+   "id": "label_group_II",
+   "type": "text",
+   "x": 77.1,
+   "y": 37.27,
+   "w": 2.04,
+   "h": 1.53,
+   "label": "II",
+   "cap_h": 1.53,
+   "font": "Times Bold (serif Roman numerals)",
+   "colour": "print_black",
+   "bbox": [
+    76.08,
+    36.51,
+    78.12,
+    38.04
+   ],
+   "nx": 0.257,
+   "ny": 0.2625
+  },
+  {
+   "id": "label_group_III",
+   "type": "text",
+   "x": 101.79,
+   "y": 37.32,
+   "w": 2.8,
+   "h": 1.64,
+   "label": "III",
+   "cap_h": 1.64,
+   "font": "Times Bold (serif Roman numerals)",
+   "colour": "print_black",
+   "bbox": [
+    100.39,
+    36.5,
+    103.19,
+    38.14
+   ],
+   "nx": 0.3393,
+   "ny": 0.2628
+  },
+  {
+   "id": "label_group_IV",
+   "type": "text",
+   "x": 108.89,
+   "y": 51.67,
+   "w": 3.25,
+   "h": 1.9,
+   "label": "IV",
+   "cap_h": 1.9,
+   "font": "Times Bold (serif Roman numerals)",
+   "colour": "print_black",
+   "bbox": [
+    107.27,
+    50.72,
+    110.52,
+    52.62
+   ],
+   "nx": 0.363,
+   "ny": 0.3639
+  },
+  {
+   "id": "bracket_group_I_top",
+   "type": "line",
+   "points": [
+    [
+     71.84,
+     48.16
+    ],
+    [
+     69.34,
+     48.16
+    ],
+    [
+     69.34,
+     51.47
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 70.59,
+   "y": 49.81,
+   "nx": 0.2353,
+   "ny": 0.3508
+  },
+  {
+   "id": "bracket_group_I_bot",
+   "type": "line",
+   "points": [
+    [
+     69.34,
+     52.95
+    ],
+    [
+     69.34,
+     54.97
+    ],
+    [
+     71.84,
+     54.97
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 70.59,
+   "y": 53.96,
+   "nx": 0.2353,
+   "ny": 0.38
+  },
+  {
+   "id": "bracket_group_II",
+   "type": "line",
+   "points": [
+    [
+     76.08,
+     36.85
+    ],
+    [
+     72.91,
+     36.85
+    ],
+    [
+     72.91,
+     42.03
+    ],
+    [
+     74.81,
+     42.03
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 74.5,
+   "y": 39.44,
+   "nx": 0.2483,
+   "ny": 0.2777
+  },
+  {
+   "id": "link_II_4",
+   "type": "line",
+   "points": [
+    [
+     78.12,
+     36.85
+    ],
+    [
+     80.83,
+     36.85
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 79.47,
+   "y": 36.85,
+   "nx": 0.2649,
+   "ny": 0.2595
+  },
+  {
+   "id": "link_5_III",
+   "type": "line",
+   "points": [
+    [
+     97.4,
+     36.85
+    ],
+    [
+     100.39,
+     36.85
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 98.9,
+   "y": 36.85,
+   "nx": 0.3297,
+   "ny": 0.2595
+  },
+  {
+   "id": "bracket_group_III",
+   "type": "line",
+   "points": [
+    [
+     103.19,
+     36.85
+    ],
+    [
+     105.25,
+     36.85
+    ],
+    [
+     105.25,
+     42.03
+    ],
+    [
+     103.04,
+     42.03
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 104.15,
+   "y": 39.44,
+   "nx": 0.3472,
+   "ny": 0.2777
+  },
+  {
+   "id": "bracket_group_IV",
+   "type": "line",
+   "points": [
+    [
+     106.78,
+     48.16
+    ],
+    [
+     108.97,
+     48.16
+    ],
+    [
+     108.97,
+     50.18
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 107.88,
+   "y": 49.17,
+   "nx": 0.3596,
+   "ny": 0.3463
+  },
+  {
+   "id": "rbox_mode_track_write",
+   "type": "label_box",
+   "x": 149.9,
+   "y": 42.17,
+   "w": 9.82,
+   "h": 2.65,
+   "label": "WRITE",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Medium, caps (reverse)",
+   "bbox": [
+    144.99,
+    40.84,
+    154.81,
+    43.5
+   ],
+   "nx": 0.4997,
+   "ny": 0.297
+  },
+  {
+   "id": "rbox_mode_track_play",
+   "type": "label_box",
+   "x": 152.7,
+   "y": 48.13,
+   "w": 7.77,
+   "h": 2.82,
+   "label": "PLAY",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Medium, caps (reverse)",
+   "bbox": [
+    148.81,
+    46.72,
+    156.58,
+    49.54
+   ],
+   "nx": 0.509,
+   "ny": 0.3389
+  },
+  {
+   "id": "rbox_mode_track",
+   "type": "label_box",
+   "x": 165.1,
+   "y": 45.14,
+   "w": 9.58,
+   "h": 2.65,
+   "label": "TRACK",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Medium, caps (reverse)",
+   "bbox": [
+    160.31,
+    43.81,
+    169.89,
+    46.47
+   ],
+   "nx": 0.5503,
+   "ny": 0.3179
+  },
+  {
+   "id": "label_mode_patt_play",
+   "type": "text",
+   "x": 152.66,
+   "y": 55.3,
+   "w": 6.85,
+   "h": 1.77,
+   "label": "PLAY",
+   "cap_h": 1.77,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    149.23,
+    54.41,
+    156.09,
+    56.18
+   ],
+   "nx": 0.5089,
+   "ny": 0.3894
+  },
+  {
+   "id": "label_mode_patt_write",
+   "type": "text",
+   "x": 149.72,
+   "y": 61.04,
+   "w": 8.43,
+   "h": 2.04,
+   "label": "WRITE",
+   "cap_h": 2.04,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    145.5,
+    60.02,
+    153.94,
+    62.06
+   ],
+   "nx": 0.4991,
+   "ny": 0.4299
+  },
+  {
+   "id": "label_mode_pattern",
+   "type": "text",
+   "x": 166.27,
+   "y": 58.57,
+   "w": 11.66,
+   "h": 1.9,
+   "label": "PATTERN",
+   "cap_h": 1.9,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    160.44,
+    57.62,
+    172.1,
+    59.52
+   ],
+   "nx": 0.5542,
+   "ny": 0.4125
+  },
+  {
+   "id": "bracket_mode_track",
+   "type": "line",
+   "points": [
+    [
+     154.79,
+     42.17
+    ],
+    [
+     158.84,
+     42.17
+    ],
+    [
+     158.84,
+     47.97
+    ],
+    [
+     156.63,
+     47.97
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 156.81,
+   "y": 45.07,
+   "nx": 0.5227,
+   "ny": 0.3174
+  },
+  {
+   "id": "tick_mode_track",
+   "type": "line",
+   "points": [
+    [
+     158.84,
+     45.08
+    ],
+    [
+     160.31,
+     45.08
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 159.57,
+   "y": 45.08,
+   "nx": 0.5319,
+   "ny": 0.3175
+  },
+  {
+   "id": "bracket_mode_pattern",
+   "type": "line",
+   "points": [
+    [
+     156.76,
+     55.25
+    ],
+    [
+     158.29,
+     55.25
+    ],
+    [
+     158.29,
+     61.05
+    ],
+    [
+     155.16,
+     61.05
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 156.72,
+   "y": 58.15,
+   "nx": 0.5224,
+   "ny": 0.4095
+  },
+  {
+   "id": "tick_mode_pattern",
+   "type": "line",
+   "points": [
+    [
+     158.29,
+     58.4
+    ],
+    [
+     160.07,
+     58.4
+    ]
+   ],
+   "stroke": 0.28,
+   "colour": "print_black",
+   "x": 159.18,
+   "y": 58.4,
+   "nx": 0.5306,
+   "ny": 0.4113
+  },
+  {
+   "id": "key_C",
+   "type": "button",
+   "label": "C",
+   "x": 74.31,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "C",
+    "pattern": "1",
+    "selector": "1"
+   },
+   "bbox": [
+    71.14,
+    104.97,
+    77.48,
+    117.31
+   ],
+   "nx": 0.2477,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_D",
+   "type": "button",
+   "label": "D",
+   "x": 90.66,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "D",
+    "pattern": "2",
+    "selector": "2"
+   },
+   "bbox": [
+    87.48,
+    104.97,
+    93.83,
+    117.31
+   ],
+   "nx": 0.3022,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_E",
+   "type": "button",
+   "label": "E",
+   "x": 107.09,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "E",
+    "pattern": "3",
+    "selector": "3"
+   },
+   "bbox": [
+    103.92,
+    104.97,
+    110.27,
+    117.31
+   ],
+   "nx": 0.357,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_F",
+   "type": "button",
+   "label": "F",
+   "x": 123.48,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "F",
+    "pattern": "4",
+    "selector": "4"
+   },
+   "bbox": [
+    120.31,
+    104.97,
+    126.66,
+    117.31
+   ],
+   "nx": 0.4116,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_G",
+   "type": "button",
+   "label": "G",
+   "x": 139.87,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "G",
+    "pattern": "5",
+    "selector": "5"
+   },
+   "bbox": [
+    136.69,
+    104.97,
+    143.05,
+    117.31
+   ],
+   "nx": 0.4662,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_A",
+   "type": "button",
+   "label": "A",
+   "x": 156.26,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "A",
+    "pattern": "6",
+    "selector": "6"
+   },
+   "bbox": [
+    153.08,
+    104.97,
+    159.44,
+    117.31
+   ],
+   "nx": 0.5209,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_B",
+   "type": "button",
+   "label": "B",
+   "x": 172.65,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "B",
+    "pattern": "7",
+    "selector": "7"
+   },
+   "bbox": [
+    169.47,
+    104.97,
+    175.83,
+    117.31
+   ],
+   "nx": 0.5755,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_C2",
+   "type": "button",
+   "label": "C'",
+   "x": 189.04,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "C (high)",
+    "pattern": "8",
+    "selector": "8"
+   },
+   "bbox": [
+    185.86,
+    104.97,
+    192.22,
+    117.31
+   ],
+   "nx": 0.6301,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_Cs",
+   "type": "button",
+   "label": "C#",
+   "x": 82.54,
+   "y": 91.62,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "C#",
+    "track_edit": "DEL"
+   },
+   "bbox": [
+    79.37,
+    85.45,
+    85.72,
+    97.79
+   ],
+   "nx": 0.2751,
+   "ny": 0.6452
+  },
+  {
+   "id": "key_Ds",
+   "type": "button",
+   "label": "D#",
+   "x": 98.9,
+   "y": 91.62,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "D#",
+    "track_edit": "INS"
+   },
+   "bbox": [
+    95.73,
+    85.45,
+    102.08,
+    97.79
+   ],
+   "nx": 0.3297,
+   "ny": 0.6452
+  },
+  {
+   "id": "key_Fs",
+   "type": "button",
+   "label": "F#",
+   "x": 131.77,
+   "y": 91.62,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "F#"
+   },
+   "bbox": [
+    128.59,
+    85.45,
+    134.95,
+    97.79
+   ],
+   "nx": 0.4392,
+   "ny": 0.6452
+  },
+  {
+   "id": "key_Gs",
+   "type": "button",
+   "label": "G#",
+   "x": 148.16,
+   "y": 91.62,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "G#"
+   },
+   "bbox": [
+    144.98,
+    85.45,
+    151.34,
+    97.79
+   ],
+   "nx": 0.4939,
+   "ny": 0.6452
+  },
+  {
+   "id": "key_As",
+   "type": "button",
+   "label": "A#",
+   "x": 164.55,
+   "y": 91.62,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "note": "A#"
+   },
+   "bbox": [
+    161.38,
+    85.45,
+    167.73,
+    97.79
+   ],
+   "nx": 0.5485,
+   "ny": 0.6452
+  },
+  {
+   "id": "key_down",
+   "type": "button",
+   "label": "DOWN",
+   "x": 206.45,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "transpose": "DOWN",
+    "time_mode": "note (dot + 16th)",
+    "bottom": "STEP",
+    "selector": "9"
+   },
+   "bbox": [
+    203.27,
+    104.97,
+    209.62,
+    117.31
+   ],
+   "nx": 0.6882,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_up",
+   "type": "button",
+   "label": "UP",
+   "x": 222.74,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "transpose": "UP",
+    "time_mode": "tie",
+    "bottom": "triplet",
+    "selector": "0"
+   },
+   "bbox": [
+    219.56,
+    104.97,
+    225.92,
+    117.31
+   ],
+   "nx": 0.7425,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_accent",
+   "type": "button",
+   "label": "ACCENT",
+   "x": 239.13,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "accent": true,
+    "time_mode": "rest",
+    "patt_section": "A",
+    "selector": "100"
+   },
+   "bbox": [
+    235.95,
+    104.97,
+    242.31,
+    117.31
+   ],
+   "nx": 0.7971,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_slide",
+   "type": "button",
+   "label": "SLIDE",
+   "x": 255.52,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "slide": true,
+    "patt_section": "B",
+    "selector": "200"
+   },
+   "bbox": [
+    252.34,
+    104.97,
+    258.69,
+    117.31
+   ],
+   "nx": 0.8517,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_function",
+   "type": "button",
+   "label": "FUNCTION",
+   "x": 44.62,
+   "y": 111.14,
+   "w": 6.35,
+   "h": 12.34,
+   "cap_w": 5.52,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "functions": {
+    "bottom": "BAR"
+   },
+   "bbox": [
+    41.45,
+    104.97,
+    47.79,
+    117.31
+   ],
+   "nx": 0.1487,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_pitch_mode",
+   "type": "button",
+   "label": "PITCH MODE",
+   "x": 50.59,
+   "y": 90.94,
+   "w": 12.34,
+   "h": 6.35,
+   "cap_w": 11.51,
+   "cap_h": 5.52,
+   "colour": "keycap_face",
+   "orientation": "horizontal",
+   "bbox": [
+    44.42,
+    87.77,
+    56.76,
+    94.11
+   ],
+   "nx": 0.1686,
+   "ny": 0.6404
+  },
+  {
+   "id": "key_time_mode",
+   "type": "button",
+   "label": "TIME MODE",
+   "x": 254.6,
+   "y": 86.98,
+   "w": 12.34,
+   "h": 6.35,
+   "cap_w": 11.51,
+   "cap_h": 5.52,
+   "colour": "keycap_face",
+   "orientation": "horizontal",
+   "bbox": [
+    248.43,
+    83.81,
+    260.77,
+    90.16
+   ],
+   "nx": 0.8487,
+   "ny": 0.6125
+  },
+  {
+   "id": "key_pattern_clear",
+   "type": "button",
+   "label": "PATTERN CLEAR",
+   "x": 21.09,
+   "y": 90.88,
+   "w": 12.34,
+   "h": 6.35,
+   "cap_w": 11.51,
+   "cap_h": 5.52,
+   "colour": "keycap_face",
+   "orientation": "horizontal",
+   "functions": {
+    "track": "D.C. / BAR RESET"
+   },
+   "bbox": [
+    14.92,
+    87.7,
+    27.26,
+    94.05
+   ],
+   "nx": 0.0703,
+   "ny": 0.64
+  },
+  {
+   "id": "key_back",
+   "type": "button",
+   "label": "BACK",
+   "x": 279.1,
+   "y": 91.07,
+   "w": 12.34,
+   "h": 6.35,
+   "cap_w": 11.51,
+   "cap_h": 5.52,
+   "colour": "keycap_face",
+   "orientation": "horizontal",
+   "functions": {
+    "track": "segno"
+   },
+   "bbox": [
+    272.93,
+    87.89,
+    285.27,
+    94.24
+   ],
+   "nx": 0.9303,
+   "ny": 0.6413
+  },
+  {
+   "id": "key_run_stop",
+   "type": "button",
+   "label": "RUN/STOP",
+   "x": 21.07,
+   "y": 111.14,
+   "w": 18.6,
+   "h": 12.34,
+   "cap_w": 17.77,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "style": "wide",
+   "note": "wide cap (N-192); a faint vertical moulding line is visible at x ~ 75 % of its width",
+   "bbox": [
+    11.77,
+    104.97,
+    30.37,
+    117.31
+   ],
+   "nx": 0.0702,
+   "ny": 0.7827
+  },
+  {
+   "id": "key_tap",
+   "type": "button",
+   "label": "WRITE/NEXT / TAP",
+   "x": 279.19,
+   "y": 111.23,
+   "w": 18.6,
+   "h": 12.34,
+   "cap_w": 17.77,
+   "cap_h": 11.51,
+   "colour": "keycap_face",
+   "orientation": "vertical",
+   "style": "wide",
+   "functions": {
+    "track": "D.S."
+   },
+   "bbox": [
+    269.89,
+    105.06,
+    288.49,
+    117.4
+   ],
+   "nx": 0.9306,
+   "ny": 0.7833
+  },
+  {
+   "id": "led_pitch_mode",
+   "type": "led",
+   "x": 51.01,
+   "y": 82.85,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    49.51,
+    81.35,
+    52.51,
+    84.35
+   ],
+   "nx": 0.17,
+   "ny": 0.5835
+  },
+  {
+   "id": "led_Cs",
+   "type": "led",
+   "x": 82.76,
+   "y": 81.95,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    81.26,
+    80.45,
+    84.26,
+    83.45
+   ],
+   "nx": 0.2759,
+   "ny": 0.5771
+  },
+  {
+   "id": "led_Ds",
+   "type": "led",
+   "x": 99.12,
+   "y": 82.04,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    97.62,
+    80.54,
+    100.62,
+    83.54
+   ],
+   "nx": 0.3304,
+   "ny": 0.5777
+  },
+  {
+   "id": "led_Fs",
+   "type": "led",
+   "x": 131.84,
+   "y": 82.06,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    130.34,
+    80.56,
+    133.34,
+    83.56
+   ],
+   "nx": 0.4395,
+   "ny": 0.5779
+  },
+  {
+   "id": "led_Gs",
+   "type": "led",
+   "x": 148.25,
+   "y": 81.99,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    146.75,
+    80.49,
+    149.75,
+    83.49
+   ],
+   "nx": 0.4942,
+   "ny": 0.5774
+  },
+  {
+   "id": "led_As",
+   "type": "led",
+   "x": 164.55,
+   "y": 81.95,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    163.05,
+    80.45,
+    166.05,
+    83.45
+   ],
+   "nx": 0.5485,
+   "ny": 0.5771
+  },
+  {
+   "id": "led_time_mode",
+   "type": "led",
+   "x": 231.05,
+   "y": 82.17,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    229.55,
+    80.67,
+    232.55,
+    83.67
+   ],
+   "nx": 0.7702,
+   "ny": 0.5787
+  },
+  {
+   "id": "led_run",
+   "type": "led",
+   "x": 21.05,
+   "y": 101.34,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    19.55,
+    99.84,
+    22.55,
+    102.84
+   ],
+   "nx": 0.0702,
+   "ny": 0.7137
+  },
+  {
+   "id": "led_function",
+   "type": "led",
+   "x": 60.11,
+   "y": 101.42,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    58.61,
+    99.92,
+    61.61,
+    102.92
+   ],
+   "nx": 0.2004,
+   "ny": 0.7142
+  },
+  {
+   "id": "led_C",
+   "type": "led",
+   "x": 74.31,
+   "y": 101.38,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    72.81,
+    99.88,
+    75.81,
+    102.88
+   ],
+   "nx": 0.2477,
+   "ny": 0.7139
+  },
+  {
+   "id": "led_D",
+   "type": "led",
+   "x": 90.66,
+   "y": 101.16,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    89.16,
+    99.66,
+    92.16,
+    102.66
+   ],
+   "nx": 0.3022,
+   "ny": 0.7124
+  },
+  {
+   "id": "led_E",
+   "type": "led",
+   "x": 107.29,
+   "y": 101.36,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    105.79,
+    99.86,
+    108.79,
+    102.86
+   ],
+   "nx": 0.3576,
+   "ny": 0.7138
+  },
+  {
+   "id": "led_F",
+   "type": "led",
+   "x": 123.57,
+   "y": 101.27,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    122.07,
+    99.77,
+    125.07,
+    102.77
+   ],
+   "nx": 0.4119,
+   "ny": 0.7132
+  },
+  {
+   "id": "led_G",
+   "type": "led",
+   "x": 140.09,
+   "y": 101.31,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    138.59,
+    99.81,
+    141.59,
+    102.81
+   ],
+   "nx": 0.467,
+   "ny": 0.7135
+  },
+  {
+   "id": "led_A",
+   "type": "led",
+   "x": 156.35,
+   "y": 101.34,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    154.85,
+    99.84,
+    157.85,
+    102.84
+   ],
+   "nx": 0.5212,
+   "ny": 0.7137
+  },
+  {
+   "id": "led_B",
+   "type": "led",
+   "x": 172.76,
+   "y": 101.34,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    171.26,
+    99.84,
+    174.26,
+    102.84
+   ],
+   "nx": 0.5759,
+   "ny": 0.7137
+  },
+  {
+   "id": "led_C2",
+   "type": "led",
+   "x": 189.21,
+   "y": 101.33,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    187.71,
+    99.83,
+    190.71,
+    102.83
+   ],
+   "nx": 0.6307,
+   "ny": 0.7136
+  },
+  {
+   "id": "led_down",
+   "type": "led",
+   "x": 206.56,
+   "y": 101.23,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    205.06,
+    99.73,
+    208.06,
+    102.73
+   ],
+   "nx": 0.6885,
+   "ny": 0.7129
+  },
+  {
+   "id": "led_up",
+   "type": "led",
+   "x": 222.85,
+   "y": 101.36,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    221.35,
+    99.86,
+    224.35,
+    102.86
+   ],
+   "nx": 0.7428,
+   "ny": 0.7138
+  },
+  {
+   "id": "led_accent",
+   "type": "led",
+   "x": 239.36,
+   "y": 101.33,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    237.86,
+    99.83,
+    240.86,
+    102.83
+   ],
+   "nx": 0.7979,
+   "ny": 0.7136
+  },
+  {
+   "id": "led_slide",
+   "type": "led",
+   "x": 255.82,
+   "y": 101.49,
+   "d": 3.0,
+   "w": 3.0,
+   "h": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED (Sharp GL-3AR-2), domed lens just proud of panel",
+   "bbox": [
+    254.32,
+    99.99,
+    257.32,
+    102.99
+   ],
+   "nx": 0.8527,
+   "ny": 0.7147
+  },
+  {
+   "id": "rbox_dc",
+   "type": "outline_box",
+   "x": 11.23,
+   "y": 78.73,
+   "w": 7.55,
+   "h": 4.06,
+   "label": "D.C.",
+   "stroke": 0.25,
+   "colour": "print_black",
+   "font": "Times Bold Italic",
+   "note": "thin outline box, black serif italic text",
+   "bbox": [
+    7.46,
+    76.7,
+    15.01,
+    80.76
+   ],
+   "nx": 0.0374,
+   "ny": 0.5544
+  },
+  {
+   "id": "rbox_bar_reset",
+   "type": "outline_box",
+   "x": 24.95,
+   "y": 78.73,
+   "w": 18.41,
+   "h": 4.06,
+   "label": "BAR RESET",
+   "stroke": 0.25,
+   "colour": "print_black",
+   "font": "Helvetica Medium, caps",
+   "bbox": [
+    15.74,
+    76.7,
+    34.16,
+    80.76
+   ],
+   "nx": 0.0832,
+   "ny": 0.5544
+  },
+  {
+   "id": "label_pattern_clear",
+   "type": "text",
+   "x": 20.79,
+   "y": 84.48,
+   "w": 21.96,
+   "h": 1.93,
+   "label": "PATTERN CLEAR",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    9.81,
+    83.52,
+    31.77,
+    85.45
+   ],
+   "nx": 0.0693,
+   "ny": 0.5949
+  },
+  {
+   "id": "label_run",
+   "type": "text",
+   "x": 15.96,
+   "y": 100.97,
+   "w": 4.61,
+   "h": 1.77,
+   "label": "RUN",
+   "cap_h": 1.77,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    13.66,
+    100.08,
+    18.27,
+    101.86
+   ],
+   "nx": 0.0532,
+   "ny": 0.7111
+  },
+  {
+   "id": "label_battery",
+   "type": "text",
+   "x": 28.52,
+   "y": 100.97,
+   "w": 10.17,
+   "h": 1.77,
+   "label": "BATTERY",
+   "cap_h": 1.77,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    23.43,
+    100.08,
+    33.6,
+    101.86
+   ],
+   "nx": 0.0951,
+   "ny": 0.7111
+  },
+  {
+   "id": "label_run_stop",
+   "type": "text",
+   "x": 20.71,
+   "y": 122.35,
+   "w": 15.25,
+   "h": 2.16,
+   "label": "RUN/STOP",
+   "cap_h": 2.16,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    13.09,
+    121.27,
+    28.34,
+    123.43
+   ],
+   "nx": 0.069,
+   "ny": 0.8616
+  },
+  {
+   "id": "label_pitch_mode",
+   "type": "text",
+   "x": 50.64,
+   "y": 77.94,
+   "w": 21.35,
+   "h": 3.06,
+   "label": "PITCH MODE",
+   "cap_h": 3.06,
+   "font": "Helvetica Bold, caps (reverse)",
+   "colour": "print_white",
+   "bbox": [
+    39.97,
+    76.41,
+    61.31,
+    79.47
+   ],
+   "nx": 0.1688,
+   "ny": 0.5489
+  },
+  {
+   "id": "label_function",
+   "type": "text",
+   "x": 47.19,
+   "y": 101.06,
+   "w": 17.32,
+   "h": 2.47,
+   "label": "FUNCTION",
+   "cap_h": 2.47,
+   "font": "Helvetica (regular), caps, large",
+   "colour": "print_black",
+   "bbox": [
+    38.53,
+    99.83,
+    55.85,
+    102.3
+   ],
+   "nx": 0.1573,
+   "ny": 0.7117
+  },
+  {
+   "id": "label_normal",
+   "type": "text",
+   "x": 58.2,
+   "y": 106.28,
+   "w": 11.61,
+   "h": 1.84,
+   "label": "NORMAL",
+   "cap_h": 1.84,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    52.4,
+    105.36,
+    64.0,
+    107.2
+   ],
+   "nx": 0.194,
+   "ny": 0.7485
+  },
+  {
+   "id": "label_normal_mode",
+   "type": "text",
+   "x": 58.07,
+   "y": 108.85,
+   "w": 7.88,
+   "h": 1.9,
+   "label": "MODE",
+   "cap_h": 1.9,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    54.13,
+    107.9,
+    62.01,
+    109.8
+   ],
+   "nx": 0.1936,
+   "ny": 0.7665
+  },
+  {
+   "id": "rbox_bar",
+   "type": "label_box",
+   "x": 44.36,
+   "y": 122.41,
+   "w": 8.24,
+   "h": 4.13,
+   "label": "BAR",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold, caps (reverse)",
+   "bbox": [
+    40.24,
+    120.34,
+    48.48,
+    124.47
+   ],
+   "nx": 0.1479,
+   "ny": 0.862
+  },
+  {
+   "id": "label_pattern",
+   "type": "text",
+   "x": 61.23,
+   "y": 122.19,
+   "w": 12.53,
+   "h": 2.21,
+   "label": "PATTERN",
+   "cap_h": 2.21,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_orange",
+   "bbox": [
+    54.96,
+    121.08,
+    67.49,
+    123.3
+   ],
+   "nx": 0.2041,
+   "ny": 0.8605
+  },
+  {
+   "id": "label_pattern_1",
+   "type": "text",
+   "x": 74.18,
+   "y": 122.33,
+   "w": 1.48,
+   "h": 2.48,
+   "label": "1",
+   "cap_h": 2.49,
+   "font": "Helvetica Bold figure",
+   "colour": "print_orange",
+   "bbox": [
+    73.44,
+    121.09,
+    74.92,
+    123.57
+   ],
+   "nx": 0.2473,
+   "ny": 0.8615
+  },
+  {
+   "id": "label_pattern_2",
+   "type": "text",
+   "x": 90.59,
+   "y": 122.33,
+   "w": 1.48,
+   "h": 2.48,
+   "label": "2",
+   "cap_h": 2.49,
+   "font": "Helvetica Bold figure",
+   "colour": "print_orange",
+   "bbox": [
+    89.85,
+    121.09,
+    91.33,
+    123.57
+   ],
+   "nx": 0.302,
+   "ny": 0.8615
+  },
+  {
+   "id": "label_pattern_3",
+   "type": "text",
+   "x": 107.17,
+   "y": 122.33,
+   "w": 1.47,
+   "h": 2.48,
+   "label": "3",
+   "cap_h": 2.49,
+   "font": "Helvetica Bold figure",
+   "colour": "print_orange",
+   "bbox": [
+    106.44,
+    121.09,
+    107.91,
+    123.57
+   ],
+   "nx": 0.3572,
+   "ny": 0.8615
+  },
+  {
+   "id": "label_pattern_4",
+   "type": "text",
+   "x": 123.31,
+   "y": 122.33,
+   "w": 1.47,
+   "h": 2.48,
+   "label": "4",
+   "cap_h": 2.49,
+   "font": "Helvetica Bold figure",
+   "colour": "print_orange",
+   "bbox": [
+    122.58,
+    121.09,
+    124.05,
+    123.57
+   ],
+   "nx": 0.411,
+   "ny": 0.8615
+  },
+  {
+   "id": "label_pattern_5",
+   "type": "text",
+   "x": 139.67,
+   "y": 122.33,
+   "w": 1.48,
+   "h": 2.48,
+   "label": "5",
+   "cap_h": 2.49,
+   "font": "Helvetica Bold figure",
+   "colour": "print_orange",
+   "bbox": [
+    138.93,
+    121.09,
+    140.41,
+    123.57
+   ],
+   "nx": 0.4656,
+   "ny": 0.8615
+  },
+  {
+   "id": "label_pattern_6",
+   "type": "text",
+   "x": 155.88,
+   "y": 122.33,
+   "w": 1.47,
+   "h": 2.48,
+   "label": "6",
+   "cap_h": 2.49,
+   "font": "Helvetica Bold figure",
+   "colour": "print_orange",
+   "bbox": [
+    155.14,
+    121.09,
+    156.62,
+    123.57
+   ],
+   "nx": 0.5196,
+   "ny": 0.8615
+  },
+  {
+   "id": "label_pattern_7",
+   "type": "text",
+   "x": 172.56,
+   "y": 122.33,
+   "w": 1.48,
+   "h": 2.48,
+   "label": "7",
+   "cap_h": 2.49,
+   "font": "Helvetica Bold figure",
+   "colour": "print_orange",
+   "bbox": [
+    171.82,
+    121.09,
+    173.3,
+    123.57
+   ],
+   "nx": 0.5752,
+   "ny": 0.8615
+  },
+  {
+   "id": "label_pattern_8",
+   "type": "text",
+   "x": 188.76,
+   "y": 122.33,
+   "w": 1.47,
+   "h": 2.48,
+   "label": "8",
+   "cap_h": 2.49,
+   "font": "Helvetica Bold figure",
+   "colour": "print_orange",
+   "bbox": [
+    188.02,
+    121.09,
+    189.5,
+    123.57
+   ],
+   "nx": 0.6292,
+   "ny": 0.8615
+  },
+  {
+   "id": "label_selector",
+   "type": "text",
+   "x": 60.13,
+   "y": 129.09,
+   "w": 17.68,
+   "h": 3.13,
+   "label": "SELECTOR",
+   "cap_h": 3.13,
+   "font": "Helvetica (regular), caps, large",
+   "colour": "print_black",
+   "bbox": [
+    51.29,
+    127.53,
+    68.97,
+    130.66
+   ],
+   "nx": 0.2004,
+   "ny": 0.9091
+  },
+  {
+   "id": "rbox_selector_1",
+   "type": "label_box",
+   "x": 73.94,
+   "y": 129.24,
+   "w": 5.9,
+   "h": 3.41,
+   "label": "1",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    70.99,
+    127.54,
+    76.89,
+    130.95
+   ],
+   "nx": 0.2465,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_2",
+   "type": "label_box",
+   "x": 90.33,
+   "y": 129.24,
+   "w": 5.9,
+   "h": 3.41,
+   "label": "2",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    87.38,
+    127.54,
+    93.28,
+    130.95
+   ],
+   "nx": 0.3011,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_3",
+   "type": "label_box",
+   "x": 106.72,
+   "y": 129.24,
+   "w": 5.89,
+   "h": 3.41,
+   "label": "3",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    103.78,
+    127.54,
+    109.66,
+    130.95
+   ],
+   "nx": 0.3557,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_4",
+   "type": "label_box",
+   "x": 123.2,
+   "y": 129.24,
+   "w": 5.71,
+   "h": 3.41,
+   "label": "4",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    120.34,
+    127.54,
+    126.06,
+    130.95
+   ],
+   "nx": 0.4107,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_5",
+   "type": "label_box",
+   "x": 139.59,
+   "y": 129.24,
+   "w": 5.71,
+   "h": 3.41,
+   "label": "5",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    136.74,
+    127.54,
+    142.44,
+    130.95
+   ],
+   "nx": 0.4653,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_6",
+   "type": "label_box",
+   "x": 155.99,
+   "y": 129.24,
+   "w": 5.71,
+   "h": 3.41,
+   "label": "6",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    153.14,
+    127.54,
+    158.84,
+    130.95
+   ],
+   "nx": 0.52,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_7",
+   "type": "label_box",
+   "x": 172.56,
+   "y": 129.24,
+   "w": 6.08,
+   "h": 3.41,
+   "label": "7",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    169.52,
+    127.54,
+    175.6,
+    130.95
+   ],
+   "nx": 0.5752,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_8",
+   "type": "label_box",
+   "x": 189.04,
+   "y": 129.24,
+   "w": 6.26,
+   "h": 3.41,
+   "label": "8",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    185.91,
+    127.54,
+    192.17,
+    130.95
+   ],
+   "nx": 0.6301,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_9",
+   "type": "label_box",
+   "x": 206.36,
+   "y": 129.24,
+   "w": 5.89,
+   "h": 3.41,
+   "label": "9",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    203.42,
+    127.54,
+    209.31,
+    130.95
+   ],
+   "nx": 0.6879,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_0",
+   "type": "label_box",
+   "x": 222.65,
+   "y": 129.24,
+   "w": 6.08,
+   "h": 3.41,
+   "label": "0",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    219.61,
+    127.54,
+    225.69,
+    130.95
+   ],
+   "nx": 0.7422,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_100",
+   "type": "label_box",
+   "x": 239.13,
+   "y": 129.24,
+   "w": 6.99,
+   "h": 3.41,
+   "label": "100",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    235.63,
+    127.54,
+    242.62,
+    130.95
+   ],
+   "nx": 0.7971,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_selector_200",
+   "type": "label_box",
+   "x": 255.43,
+   "y": 129.24,
+   "w": 7.18,
+   "h": 3.41,
+   "label": "200",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold figures (reverse)",
+   "bbox": [
+    251.84,
+    127.54,
+    259.02,
+    130.95
+   ],
+   "nx": 0.8514,
+   "ny": 0.9101
+  },
+  {
+   "id": "rbox_tab_del",
+   "type": "label_box",
+   "x": 82.13,
+   "y": 128.18,
+   "w": 7.55,
+   "h": 3.87,
+   "label": "DEL",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold, caps (reverse)",
+   "note": "tab hanging from the PATTERN keyline, rounded bottom corners",
+   "bbox": [
+    78.35,
+    126.25,
+    85.91,
+    130.12
+   ],
+   "nx": 0.2738,
+   "ny": 0.9027
+  },
+  {
+   "id": "rbox_tab_ins",
+   "type": "label_box",
+   "x": 98.62,
+   "y": 128.18,
+   "w": 7.36,
+   "h": 3.87,
+   "label": "INS",
+   "colour": "print_black",
+   "text_colour": "print_white",
+   "font": "Helvetica Bold, caps (reverse)",
+   "bbox": [
+    94.94,
+    126.25,
+    102.3,
+    130.12
+   ],
+   "nx": 0.3287,
+   "ny": 0.9027
+  },
+  {
+   "id": "label_note_C_407",
+   "type": "text",
+   "x": 74.03,
+   "y": 77.49,
+   "w": 2.03,
+   "h": 2.3,
+   "label": "C",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    73.02,
+    76.34,
+    75.05,
+    78.64
+   ],
+   "nx": 0.2468,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_Cs_449",
+   "type": "text",
+   "x": 82.6,
+   "y": 77.49,
+   "w": 3.68,
+   "h": 2.3,
+   "label": "C#",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    80.76,
+    76.34,
+    84.44,
+    78.64
+   ],
+   "nx": 0.2753,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_D_497",
+   "type": "text",
+   "x": 90.69,
+   "y": 77.49,
+   "w": 2.21,
+   "h": 2.3,
+   "label": "D",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    89.58,
+    76.34,
+    91.8,
+    78.64
+   ],
+   "nx": 0.3023,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_Ds_535",
+   "type": "text",
+   "x": 98.71,
+   "y": 77.49,
+   "w": 4.24,
+   "h": 2.3,
+   "label": "D#",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    96.59,
+    76.34,
+    100.83,
+    78.64
+   ],
+   "nx": 0.329,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_E_586",
+   "type": "text",
+   "x": 106.91,
+   "y": 77.49,
+   "w": 1.84,
+   "h": 2.3,
+   "label": "E",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    105.99,
+    76.34,
+    107.83,
+    78.64
+   ],
+   "nx": 0.3564,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_F_675",
+   "type": "text",
+   "x": 123.3,
+   "y": 77.49,
+   "w": 1.84,
+   "h": 2.3,
+   "label": "F",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    122.38,
+    76.34,
+    124.22,
+    78.64
+   ],
+   "nx": 0.411,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_Fs_715",
+   "type": "text",
+   "x": 131.95,
+   "y": 77.49,
+   "w": 4.42,
+   "h": 2.3,
+   "label": "F#",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    129.74,
+    76.34,
+    134.16,
+    78.64
+   ],
+   "nx": 0.4398,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_G_762",
+   "type": "text",
+   "x": 139.55,
+   "y": 77.49,
+   "w": 2.12,
+   "h": 2.3,
+   "label": "G",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    138.49,
+    76.34,
+    140.61,
+    78.64
+   ],
+   "nx": 0.4652,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_Gs_802",
+   "type": "text",
+   "x": 147.93,
+   "y": 77.49,
+   "w": 4.14,
+   "h": 2.3,
+   "label": "G#",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    145.86,
+    76.34,
+    150.0,
+    78.64
+   ],
+   "nx": 0.4931,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_A_853",
+   "type": "text",
+   "x": 156.24,
+   "y": 77.49,
+   "w": 1.89,
+   "h": 2.3,
+   "label": "A",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    155.3,
+    76.34,
+    157.19,
+    78.64
+   ],
+   "nx": 0.5208,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_As_892",
+   "type": "text",
+   "x": 164.37,
+   "y": 77.49,
+   "w": 4.05,
+   "h": 2.3,
+   "label": "A#",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    162.34,
+    76.34,
+    166.4,
+    78.64
+   ],
+   "nx": 0.5479,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_B_942",
+   "type": "text",
+   "x": 172.51,
+   "y": 77.49,
+   "w": 1.93,
+   "h": 2.3,
+   "label": "B",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    171.54,
+    76.34,
+    173.47,
+    78.64
+   ],
+   "nx": 0.575,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_note_C_1031",
+   "type": "text",
+   "x": 188.95,
+   "y": 77.49,
+   "w": 2.02,
+   "h": 2.3,
+   "label": "C",
+   "cap_h": 2.3,
+   "font": "Helvetica Bold, caps (reverse); # is a raised sharp sign",
+   "colour": "print_white",
+   "bbox": [
+    187.94,
+    76.34,
+    189.96,
+    78.64
+   ],
+   "nx": 0.6298,
+   "ny": 0.5457
+  },
+  {
+   "id": "label_del_key",
+   "type": "text",
+   "x": 82.28,
+   "y": 100.97,
+   "w": 5.43,
+   "h": 2.12,
+   "label": "DEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Bold, caps (reverse)",
+   "colour": "print_white",
+   "bbox": [
+    79.56,
+    99.91,
+    85.0,
+    102.03
+   ],
+   "nx": 0.2743,
+   "ny": 0.7111
+  },
+  {
+   "id": "label_ins_key",
+   "type": "text",
+   "x": 98.71,
+   "y": 100.97,
+   "w": 5.34,
+   "h": 2.12,
+   "label": "INS",
+   "cap_h": 2.12,
+   "font": "Helvetica Bold, caps (reverse)",
+   "colour": "print_white",
+   "bbox": [
+    96.04,
+    99.91,
+    101.38,
+    102.03
+   ],
+   "nx": 0.329,
+   "ny": 0.7111
+  },
+  {
+   "id": "label_time_mode",
+   "type": "text",
+   "x": 230.92,
+   "y": 78.09,
+   "w": 18.64,
+   "h": 2.39,
+   "label": "TIME MODE",
+   "cap_h": 2.39,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    221.6,
+    76.9,
+    240.24,
+    79.28
+   ],
+   "nx": 0.7697,
+   "ny": 0.5499
+  },
+  {
+   "id": "sym_tm_note",
+   "type": "symbol",
+   "x": 206.44,
+   "y": 87.3,
+   "w": 6.81,
+   "h": 3.87,
+   "label": "filled dot + sixteenth note (normal note)",
+   "colour": "print_black",
+   "bbox": [
+    203.03,
+    85.36,
+    209.84,
+    89.23
+   ],
+   "nx": 0.6881,
+   "ny": 0.6148
+  },
+  {
+   "id": "sym_tm_tie",
+   "type": "symbol",
+   "x": 221.55,
+   "y": 87.57,
+   "w": 6.45,
+   "h": 4.42,
+   "label": "hollow dot + sixteenth note with tie arc (tie)",
+   "colour": "print_black",
+   "bbox": [
+    218.33,
+    85.36,
+    224.78,
+    89.78
+   ],
+   "nx": 0.7385,
+   "ny": 0.6167
+  },
+  {
+   "id": "sym_tm_rest",
+   "type": "symbol",
+   "x": 238.58,
+   "y": 86.92,
+   "w": 7.74,
+   "h": 3.5,
+   "label": "dash + sixteenth rest (rest)",
+   "colour": "print_black",
+   "bbox": [
+    234.71,
+    85.17,
+    242.45,
+    88.67
+   ],
+   "nx": 0.7953,
+   "ny": 0.6121
+  },
+  {
+   "id": "label_transpose",
+   "type": "text",
+   "x": 214.55,
+   "y": 92.5,
+   "w": 17.12,
+   "h": 2.57,
+   "label": "TRANSPOSE",
+   "cap_h": 2.58,
+   "font": "Helvetica Bold, caps (reverse)",
+   "colour": "print_white",
+   "bbox": [
+    205.99,
+    91.22,
+    223.11,
+    93.78
+   ],
+   "nx": 0.7152,
+   "ny": 0.6514
+  },
+  {
+   "id": "label_key_down",
+   "type": "text",
+   "x": 206.4,
+   "y": 95.63,
+   "w": 8.74,
+   "h": 2.29,
+   "label": "DOWN",
+   "cap_h": 2.28,
+   "font": "Helvetica Bold, caps (reverse)",
+   "colour": "print_white",
+   "bbox": [
+    202.03,
+    94.48,
+    210.77,
+    96.77
+   ],
+   "nx": 0.688,
+   "ny": 0.6735
+  },
+  {
+   "id": "label_key_up",
+   "type": "text",
+   "x": 222.77,
+   "y": 95.63,
+   "w": 3.85,
+   "h": 2.29,
+   "label": "UP",
+   "cap_h": 2.28,
+   "font": "Helvetica Bold, caps (reverse)",
+   "colour": "print_white",
+   "bbox": [
+    220.84,
+    94.48,
+    224.7,
+    96.77
+   ],
+   "nx": 0.7426,
+   "ny": 0.6735
+  },
+  {
+   "id": "label_key_accent",
+   "type": "text",
+   "x": 239.21,
+   "y": 94.1,
+   "w": 11.64,
+   "h": 2.39,
+   "label": "ACCENT",
+   "cap_h": 2.39,
+   "font": "Helvetica Bold, caps (reverse)",
+   "colour": "print_white",
+   "bbox": [
+    233.39,
+    92.91,
+    245.03,
+    95.29
+   ],
+   "nx": 0.7974,
+   "ny": 0.6627
+  },
+  {
+   "id": "label_key_slide",
+   "type": "text",
+   "x": 254.57,
+   "y": 94.1,
+   "w": 8.18,
+   "h": 2.39,
+   "label": "SLIDE",
+   "cap_h": 2.39,
+   "font": "Helvetica Bold, caps (reverse)",
+   "colour": "print_white",
+   "bbox": [
+    250.48,
+    92.91,
+    258.66,
+    95.29
+   ],
+   "nx": 0.8486,
+   "ny": 0.6627
+  },
+  {
+   "id": "label_step",
+   "type": "text",
+   "x": 206.35,
+   "y": 122.57,
+   "w": 7.0,
+   "h": 1.95,
+   "label": "STEP",
+   "cap_h": 1.95,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    202.85,
+    121.59,
+    209.85,
+    123.54
+   ],
+   "nx": 0.6878,
+   "ny": 0.8632
+  },
+  {
+   "id": "sym_triplet",
+   "type": "symbol",
+   "x": 222.65,
+   "y": 122.84,
+   "w": 6.82,
+   "h": 5.71,
+   "label": "three beamed eighth notes over a \"3\" bracket (triplet)",
+   "colour": "print_black",
+   "bbox": [
+    219.24,
+    119.98,
+    226.06,
+    125.7
+   ],
+   "nx": 0.7422,
+   "ny": 0.8651
+  },
+  {
+   "id": "label_patt_A",
+   "type": "text",
+   "x": 238.95,
+   "y": 120.81,
+   "w": 1.84,
+   "h": 1.66,
+   "label": "A",
+   "cap_h": 1.66,
+   "font": "Helvetica Bold",
+   "colour": "print_orange",
+   "bbox": [
+    238.03,
+    119.98,
+    239.87,
+    121.64
+   ],
+   "nx": 0.7965,
+   "ny": 0.8508
+  },
+  {
+   "id": "label_patt_B",
+   "type": "text",
+   "x": 255.43,
+   "y": 120.81,
+   "w": 1.66,
+   "h": 1.66,
+   "label": "B",
+   "cap_h": 1.66,
+   "font": "Helvetica Bold",
+   "colour": "print_orange",
+   "bbox": [
+    254.6,
+    119.98,
+    256.26,
+    121.64
+   ],
+   "nx": 0.8514,
+   "ny": 0.8508
+  },
+  {
+   "id": "label_patt_section",
+   "type": "text",
+   "x": 246.97,
+   "y": 123.81,
+   "w": 20.6,
+   "h": 2.14,
+   "label": "PATT. SECTION",
+   "cap_h": 2.14,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_orange",
+   "bbox": [
+    236.67,
+    122.74,
+    257.27,
+    124.88
+   ],
+   "nx": 0.8232,
+   "ny": 0.8719
+  },
+  {
+   "id": "rbox_segno",
+   "type": "outline_box",
+   "x": 279.03,
+   "y": 78.78,
+   "w": 6.98,
+   "h": 3.85,
+   "label": "segno sign",
+   "stroke": 0.25,
+   "colour": "print_black",
+   "font": "serif segno glyph (S with slash and two dots)",
+   "bbox": [
+    275.54,
+    76.86,
+    282.52,
+    80.7
+   ],
+   "nx": 0.9301,
+   "ny": 0.5548
+  },
+  {
+   "id": "label_back",
+   "type": "text",
+   "x": 279.1,
+   "y": 84.48,
+   "w": 7.0,
+   "h": 1.93,
+   "label": "BACK",
+   "cap_h": 1.93,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    275.6,
+    83.52,
+    282.6,
+    85.45
+   ],
+   "nx": 0.9303,
+   "ny": 0.5949
+  },
+  {
+   "id": "rbox_ds",
+   "type": "outline_box",
+   "x": 279.02,
+   "y": 101.17,
+   "w": 7.29,
+   "h": 4.1,
+   "label": "D.S.",
+   "stroke": 0.25,
+   "colour": "print_black",
+   "font": "Times Bold Italic",
+   "bbox": [
+    275.38,
+    99.12,
+    282.66,
+    103.22
+   ],
+   "nx": 0.9301,
+   "ny": 0.7125
+  },
+  {
+   "id": "rbox_write_next",
+   "type": "outline_box",
+   "x": 279.11,
+   "y": 122.51,
+   "w": 20.5,
+   "h": 4.44,
+   "label": "WRITE/NEXT",
+   "stroke": 0.25,
+   "colour": "print_black",
+   "font": "Helvetica Medium, caps",
+   "bbox": [
+    268.86,
+    120.29,
+    289.36,
+    124.73
+   ],
+   "nx": 0.9304,
+   "ny": 0.8627
+  },
+  {
+   "id": "label_tap",
+   "type": "text",
+   "x": 279.19,
+   "y": 128.96,
+   "w": 4.6,
+   "h": 1.75,
+   "label": "TAP",
+   "cap_h": 1.75,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_black",
+   "bbox": [
+    276.89,
+    128.09,
+    281.49,
+    129.84
+   ],
+   "nx": 0.9306,
+   "ny": 0.9082
+  }
+ ],
+ "rear_panel": {
+  "note": "Jacks are on the REAR face; x positions = the printed triangles on the top panel (they point at the jacks). Rear face ~40 mm tall (case body; 55 mm spec height includes knobs). Jacks sit on a horizontal moulded seam ~mid-height.",
+  "items": [
+   {
+    "id": "rear_mix_in",
+    "label": "MIX IN",
+    "kind": "6.3 mm jack (100 kOhm in)",
+    "x": 14.73
+   },
+   {
+    "id": "rear_waveform",
+    "label": "WAVEFORM",
+    "kind": "2-position slide switch, black actuator in ~8 x 5 mm slot (left = saw, right = square as seen from the front/top)",
+    "x": 35.17
+   },
+   {
+    "id": "rear_sync_in",
+    "label": "SYNC IN",
+    "kind": "5-pin DIN socket (black)",
+    "x": 59.48
+   },
+   {
+    "id": "rear_cv",
+    "label": "CV",
+    "kind": "3.5 mm mini jack (CV out, 1 V/oct)",
+    "x": 219.71
+   },
+   {
+    "id": "rear_gate",
+    "label": "GATE",
+    "kind": "3.5 mm mini jack (gate out 0/+12 V)",
+    "x": 232.97
+   },
+   {
+    "id": "rear_headphone",
+    "label": "HEADPHONE",
+    "kind": "6.3 mm stereo jack",
+    "x": 248.25
+   },
+   {
+    "id": "rear_output",
+    "label": "OUTPUT",
+    "kind": "6.3 mm jack (10 kOhm out)",
+    "x": 265.56
+   },
+   {
+    "id": "rear_dc9v",
+    "label": "DC 9V",
+    "kind": "DC barrel in black square housing (BOSS ACA)",
+    "x": 282.87
+   }
+  ]
+ },
+ "ui_suggestions": [
+  {
+   "id": "ui_waveform_switch",
+   "type": "slide_switch",
+   "label": "WAVEFORM (UI stand-in)",
+   "x": 35.17,
+   "y": 1.15,
+   "w": 7.0,
+   "h": 1.9,
+   "note": "Not on the real top panel. The real switch is on the rear under the WAVEFORM triangle. Roland's own TB-303 plug-in draws a tiny 2-position slide switch at the very rear edge above the WAVEFORM legend; this rectangle is a suggestion in that spirit."
+  }
+ ]
+}

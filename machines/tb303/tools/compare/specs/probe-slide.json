@@ -1,0 +1,7 @@
+[{"name": "probe-slide", "bpm": 120, "lpb": 4,
+  "params": {"waveform": 0, "cutoff": 0.3, "resonance": 0.5, "envmod": 0.6, "decay": 0.5, "accent": 1.0},
+  "notes": [{"line": 0, "note": "C-3", "len": 2, "slide": true},
+            {"line": 4, "note": "C-4", "len": 2},
+            {"line": 8, "note": "C-3", "len": 2},
+            {"line": 12, "note": "C-4", "len": 2}],
+  "lines": 16}]

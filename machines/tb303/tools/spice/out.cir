@@ -1,0 +1,54 @@
+* TB-303 VCA and output (docs/circuit.md section 6.1, 6.5, 7): the VCA's two input branches, the
+* BA662 (tools/spice/ba662.lib: the chip, or the ideal OTA the voice model uses), its output load,
+* C38, VOLUME, the Q34/Q33 mixer and the OUTPUT jack network.
+* Included by tools/spice/compare_out.py, which includes ba662.lib, picks the BA662 subcircuit,
+* adds the input (VCF OUT, node nvcf, a stiff source: Q19's emitter) and sets:
+*   iabc   the VCA's control current into pin 1, A
+*   kres   RESONANCE (VR4-A, 50k B), loaded by Q18's input as in the VCF
+*   tvol   VOLUME's A-taper fraction
+V12 n12 0 11.85
+VREF nref 0 5.333
+* --- VR4-A and its Q18 load (section 4.3)
+RVRa nvcf nwip {50k*(1-kres)+1}
+RVRb nwip 0 {50k*kres+1}
+C15 nwip nc15 1u
+R67 nc15 nq18 2.2k
+Rq18 nq18 0 94k
+* --- VCA input branches (6.5) into pin 3; R124/R125 to the bias node (6.1)
+R121 nvcf nv1 220k
+C21 nv1 np3 10n
+R122 nwip nv2 100k
+C21b nv2 np3 10n
+R124 np3 nbias 2.2k
+R125 np2 nbias 2.2k
+R126 nref nbias 2.2k
+C37 nbias 0 10u
+* --- IC15 BA662: I_ABC into pin 1, pin 4 (buffer bias) and pin 9 to +12 V, pin 6 to pin 7
+IABC 0 npin1 DC {iabc}
+XIC15 npin1 np2 np3 n12 0 np6 np6 np8 n12 BA662
+R128 np6 nld 220k
+R129 np6 n129 22k
+R127 n129 nld 47k
+R162 nref nld 2.2k
+C40 nld 0 10u
+* --- C38, VOLUME (VR8 50k A, pin 1 to ground)
+C38 np8 nvt 1u
+RVOLa nvt nvw {50k*(1-tvol)+1}
+RVOLb nvw 0 {50k*tvol+1}
+* --- mixer (7): Q34 common base, Q33 PNP output, R153 feedback
+R155 nvw nc59 47k
+C59 nc59 ne34 1u
+R157 nref nb34 10k
+C52 nb34 0 10u
+Q34 nc34 nb34 ne34 Q2SC945
+R136 n12 nrail 100
+C53 nrail 0 47u
+R154 nrail nc34 100k
+R158 nc34 nb33 10k
+Q33 nout nb33 nrail Q2SA733
+R160 nout 0 10k
+R153 nout ne34 100k
+* --- OUTPUT J6: R161 1k, C56 1u, R165 100k
+R161 nout nr161 1k
+C56 nr161 njack 1u
+R165 njack 0 100k

@@ -1,0 +1,657 @@
+---
+import Base from '../../layouts/Base.astro';
+import Shot from '../../components/Shot.astro';
+import Num from '../../components/Num.astro';
+import panel from '../../assets/ro-mono-303/panel.webp';
+import panelWrite from '../../assets/ro-mono-303/panel-write.webp';
+import panelTrackWrite from '../../assets/ro-mono-303/panel-track-write.webp';
+import prompt from '../../assets/ro-mono-303/prompt.webp';
+import addrom from '../../assets/ro-mono-303/addrom.webp';
+import service from '../../assets/ro-mono-303/service-tm3.webp';
+
+// Areas of the 1200 × 640 window (the panel is y 32–600, the bottom bar y 600–640).
+const middle = { x: 0, y: 140, w: 1200, h: 425 };
+const keys = { x: 0, y: 322, w: 1200, h: 244 };
+const at = {
+  tone: { x: 325, y: 42, w: 513, h: 83 },
+  waveform: { x: 104, y: 33, w: 76, h: 29 },
+  tempo: { x: 116, y: 154, w: 117, h: 137 },
+  track: { x: 275, y: 152, w: 167, h: 134 },
+  mode: { x: 490, y: 153, w: 199, h: 133 },
+  volume: { x: 933, y: 155, w: 169, h: 136 },
+  clearBlock: { x: 26, y: 333, w: 115, h: 88 },
+  clear: { x: 56, y: 379, w: 56, h: 32 },
+  runBlock: { x: 26, y: 424, w: 115, h: 136 },
+  run: { x: 44, y: 449, w: 80, h: 55 },
+  pitchBlock: { x: 145, y: 333, w: 114, h: 88 },
+  pitch: { x: 174, y: 380, w: 56, h: 32 },
+  functionBlock: { x: 144, y: 424, w: 115, h: 136 },
+  fn: { x: 162, y: 449, w: 32, h: 55 },
+  noteKeys: { x: 281, y: 350, w: 491, h: 154 },
+  whiteKeys: { x: 281, y: 449, w: 491, h: 55 },
+  timeMode: { x: 808, y: 337, w: 239, h: 58 },
+  timeKey: { x: 990, y: 364, w: 56, h: 32 },
+  fourKeys: { x: 805, y: 394, w: 233, h: 162 },
+  downUp: { x: 810, y: 449, w: 97, h: 55 },
+  downUpRest: { x: 810, y: 449, w: 163, h: 55 },
+  accentSlide: { x: 941, y: 449, w: 97, h: 55 },
+  backBlock: { x: 1059, y: 333, w: 115, h: 87 },
+  back: { x: 1088, y: 380, w: 56, h: 32 },
+  tapBlock: { x: 1059, y: 424, w: 115, h: 136 },
+  tap: { x: 1076, y: 449, w: 81, h: 56 },
+  selector: { x: 203, y: 539, w: 835, h: 20 },
+  bar: { x: 8, y: 604, w: 530, h: 32 },
+};
+
+// The sections and their headings, for the contents at the top and the sidebar. Keep in step
+// with the ids and headings below.
+type Entry = { id: string; title: string; sub?: Entry[] };
+const toc: Entry[] = [
+  { id: 'start', title: 'Getting started', sub: [
+    { id: 'first-start', title: 'The first start' },
+    { id: 'voice-mode', title: 'Voice mode' },
+    { id: 'add-rom', title: 'Adding the ROM later' },
+    { id: 'artwork', title: 'Panel artwork' },
+    { id: 'first-sound', title: 'Your first sound' },
+  ] },
+  { id: 'panel', title: 'The panel at a glance' },
+  { id: 'sequencer', title: 'The sequencer', sub: [
+    { id: 'organised', title: 'How it’s organised' },
+    { id: 'first-pattern', title: 'Your first pattern' },
+    { id: 'choose', title: 'Choose a pattern' },
+    { id: 'write', title: 'Write a pattern', sub: [
+      { id: 'pitch', title: 'The notes' },
+      { id: 'time', title: 'The rhythm' },
+      { id: 'accents', title: 'Accents and slides' },
+      { id: 'tap-write', title: 'Tap the rhythm in' },
+    ] },
+    { id: 'play', title: 'Play patterns' },
+    { id: 'tuning-note', title: 'The tuning note' },
+  ] },
+  { id: 'tracks', title: 'Tracks: songs from patterns', sub: [
+    { id: 'track-write', title: 'Write a track' },
+    { id: 'track-play', title: 'Play a track' },
+    { id: 'track-check', title: 'Check and correct' },
+    { id: 'bar', title: 'Go to a measure (BAR)' },
+    { id: 'segno', title: 'Segno and D.S.' },
+    { id: 'del-ins', title: 'Delete and insert' },
+    { id: 'long-songs', title: 'Over 64 measures' },
+    { id: 'habits', title: 'Good habits' },
+  ] },
+  { id: 'bars', title: 'The bars and SERVICE', sub: [
+    { id: 'top-bar', title: 'The top bar' },
+    { id: 'bottom-bar', title: 'The bottom bar' },
+    { id: 'service', title: 'SERVICE: the trimmers' },
+  ] },
+  { id: 'midi', title: 'MIDI and your DAW', sub: [
+    { id: 'midi-notes', title: 'MIDI notes' },
+    { id: 'cc', title: 'Controllers' },
+    { id: 'sync', title: 'Sync' },
+    { id: 'automation', title: 'Automation and sessions' },
+  ] },
+  { id: 'keyboard', title: 'Keyboard and mouse', sub: [
+    { id: 'keys', title: 'Computer keys' },
+    { id: 'mouse', title: 'Mouse' },
+  ] },
+];
+---
+<Base title="ro-mono-303 user guide · Lemus" description="How to use ro-mono-303: the ROM and voice mode, panel artwork, writing and playing patterns and tracks on the TB-303's own sequencer, the plugin bars, SERVICE and the trimmers, MIDI and DAW sync." current="ro-mono-303">
+
+<div class="guide">
+
+<!-- Beside the guide on a wide window; on a narrow one, a drawer behind the Contents button. -->
+<nav class="side" id="contents" aria-label="Contents">
+<div class="label">Contents</div>
+<ol>
+{toc.map((s, i) => (
+<li>
+<a href={`#${s.id}`} class="top"><span class="n">{i + 1}</span>{s.title}</a>
+{s.sub && <ol>
+{s.sub.map((h) => (
+<li>
+<a href={`#${h.id}`}>{h.title}</a>
+{h.sub && <ol>{h.sub.map((g) => <li><a href={`#${g.id}`} class="deep">{g.title}</a></li>)}</ol>}
+</li>
+))}
+</ol>}
+</li>
+))}
+</ol>
+</nav>
+<button type="button" class="toc-button" aria-controls="contents" aria-expanded="false" hidden>
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h8"></path></svg>
+<span>Contents</span>
+</button>
+
+<div class="main">
+<header class="intro">
+<nav aria-label="Breadcrumb" class="crumbs"><a href="/ro-mono-303">ro-mono-303</a> / User guide</nav>
+<h1>ro-mono-303 user guide</h1>
+<p class="lede">ro-mono-303 runs the TB-303's own sequencer program: what you know from a TB-303 applies here. Installing is on the <a href="/download#installing">download page</a>; the ROM folder, artwork files, the update check and contact are on <a href="/support">Support</a>.</p>
+<ol class="toc">
+{toc.map(({ id, title }) => <li><a href={`#${id}`}>{title}</a></li>)}
+</ol>
+</header>
+
+<!-- ===================================================================== -->
+<section id="start">
+<div class="eyebrow">1</div>
+<h2>Getting started</h2>
+
+<h3 id="first-start">The first start</h3>
+<p>The sequencer is a program in the CPU's 2 KB mask ROM, Roland's copyrighted work, so Lemus doesn't include it. The first time ro-mono-303 starts without it, it asks how to continue.</p>
+<Shot src={prompt} alt="The first-start prompt over the dimmed panel: d650c-133.ic8 and tb303.svg not found, where Lemus looked, and two choices, I have the ROM with Locate ROM… and Use voice mode with what voice mode does" crop={{ x: 200, y: 6, w: 800, h: 628 }} caption="The prompt the first time ro-mono-303 starts without its CPU ROM." />
+<ul>
+<li><span class="k">I have the ROM</span> (Locate ROM…) takes the ROM image, a zip holding it such as MAME's tb303.zip, or a folder. A file is checked and copied into the ROM folder; a folder becomes the ROM folder. The full TB-303 starts at once, settings kept.</li>
+<li><span class="k">Use voice mode</span> carries on without it.</li>
+</ul>
+<p>The prompt doesn't come back, unless the ROM goes missing after ro-mono-303 has run with it. In voice mode the top bar keeps <span class="k">Add CPU ROM…</span>.</p>
+<div class="card">
+<div class="label">The ROM Lemus looks for</div>
+<p class="mono">d650c-133.ic8 · 2,048 bytes · CRC 268a8d8b<br>SHA1 7a4236b2bc9a5cd4c80c63ca1a193e03becfcb4c</p>
+<p>The CPU image in MAME's tb303 set, found by checksum anywhere in the <a href="/support#rom">ROM folder</a>.</p>
+</div>
+
+<h3 id="voice-mode">Voice mode</h3>
+<p>Without the ROM, ro-mono-303 is the TB-303's voice, played from MIDI: the same sound, without anything the CPU does.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col"></th><th scope="col">With the ROM</th><th scope="col">Voice mode</th></tr></thead>
+<tbody>
+<tr><th scope="row">Sound</th><td>The complete voice</td><td>The same voice</td></tr>
+<tr><th scope="row">MIDI notes and controllers</th><td>Yes</td><td>Yes</td></tr>
+<tr><th scope="row">Knobs, WAVEFORM, automation</th><td>Yes</td><td>Yes</td></tr>
+<tr><th scope="row">Sequencer: patterns, tracks, tap</th><td>The original firmware</td><td>No</td></tr>
+<tr><th scope="row">Panel keys and LEDs</th><td>Work as on the unit</td><td>No effect</td></tr>
+<tr><th scope="row">TEMPO, MODE, TRACK</th><td>Work</td><td>No effect</td></tr>
+</tbody>
+</table>
+</div>
+<p>Adding the ROM later switches the session to the full machine, keeping its knobs and pattern memory.</p>
+
+<h3 id="add-rom">Adding the ROM later</h3>
+<Shot src={addrom} alt="The Add CPU ROM… pop-up under the top bar: the ROM's name, size and checksums, the ROM folder's path, and the buttons Show folder, Change… and Rescan" crop={{ x: 700, y: 0, w: 500, h: 390 }} marks={[{ x: 1006, y: 3, w: 118, h: 26, n: 1 }]} caption="Add CPU ROM… in the top bar, while ro-mono-303 is in voice mode." />
+<ol>
+<li>Click <span class="k">Add CPU ROM…</span> <Num n="1" /> in the top bar.</li>
+<li>Put the ROM in the folder shown, or choose your own with <span class="k">Change…</span>.</li>
+<li>Click <span class="k">Rescan</span>. ro-mono-303 reloads as the full TB-303.</li>
+</ol>
+
+<h3 id="artwork">Panel artwork</h3>
+<p>The four blank places take your own artwork, from <span class="mono">tb303.svg</span> in the ROM folder (<a href="/support#artwork">how artwork files work</a>).</p>
+<Shot src={panel} alt="The top half of the panel with the four blank artwork places outlined: roland at top left, bass_line at top right, tb303 and computer_controlled in the middle section" crop={{ x: 0, y: 32, w: 1200, h: 280 }} marks={[{ x: 50, y: 85, w: 214, h: 36, n: 'roland' }, { x: 904, y: 86, w: 233, h: 35, n: 'bass_line' }, { x: 827, y: 206, w: 122, h: 31, n: 'tb303' }, { x: 716, y: 239, w: 232, h: 32, n: 'computer_controlled' }]} caption="The four artwork places and their ids." />
+<ol>
+<li>The slot ids are <span class="mono">roland</span>, <span class="mono">bass_line</span>, <span class="mono">tb303</span> and <span class="mono">computer_controlled</span>. Keep the id on your element (a path, shape, text or group).</li>
+<li>Units are the panel's millimetres from the top-left corner of the 300 × 142 mm panel; the page size and viewBox are ignored.</li>
+<li>Only the outline is used, filled in the panel's print colour.</li>
+<li>A <span class="mono">tb303.zip</span> holding the file works too.</li>
+</ol>
+
+<h3 id="first-sound">Your first sound</h3>
+<ul>
+<li><span class="k">From MIDI</span>, in both modes: see <a href="#midi-notes">MIDI notes</a>. Leave SYNC off, or the 303's own pattern plays along.</li>
+<li><span class="k">From the sequencer</span>, with the ROM: a new instance's patterns are empty, as on a new TB-303, so <a href="#write">write one</a> first.</li>
+</ul>
+
+</section>
+
+<!-- ===================================================================== -->
+<section id="panel">
+<div class="eyebrow">2</div>
+<h2>The panel at a glance</h2>
+<p>Drawn from the original to within about 0.3 mm.</p>
+<Shot src={panel} alt="The whole ro-mono-303 window with its controls numbered 1 to 16" marks={[
+  { ...at.tone, n: 1 }, { ...at.waveform, n: 2 }, { ...at.tempo, n: 3 }, { ...at.track, n: 4 }, { ...at.mode, n: 5 }, { ...at.volume, n: 6 },
+  { ...at.clearBlock, n: 7 }, { ...at.runBlock, n: 8 }, { ...at.pitchBlock, n: 9 }, { ...at.functionBlock, n: 10 }, { ...at.noteKeys, n: 11 },
+  { ...at.timeMode, n: 12 }, { ...at.fourKeys, n: 13 }, { ...at.backBlock, n: 14 }, { ...at.tapBlock, n: 15 }, { ...at.bar, n: 16 },
+]} />
+<dl class="legend">
+<div><dt><Num n="1" /> Tone knobs</dt><dd>TUNING (±700 cents), CUT OFF FREQ, RESONANCE, ENV MOD, DECAY, ACCENT. All 0 to 10, 5 by default.</dd></div>
+<div><dt><Num n="2" /> WAVEFORM</dt><dd>Saw or square. On the original it's on the back panel; here a slide switch above the legend.</dd></div>
+<div><dt><Num n="3" /> TEMPO</dt><dd>The internal clock, 40 to 300 BPM. Ignored with SYNC on.</dd></div>
+<div><dt><Num n="4" /> TRACK / PATT.GROUP</dt><dd>Seven positions: the track (1 to 7), and with it the pattern group: 1–2 group I, 3–4 group II, 5–6 group III, 7 group IV.</dd></div>
+<div><dt><Num n="5" /> MODE</dt><dd>TRACK WRITE, TRACK PLAY, PATTERN PLAY (the default) and PATTERN WRITE.</dd></div>
+<div><dt><Num n="6" /> VOLUME / POWER SW</dt><dd>The output level, and at OFF the power switch: turned back up, the 303 starts afresh, stopped, patterns kept.</dd></div>
+<div><dt><Num n="7" /> PATTERN CLEAR</dt><dd>Clears a pattern in PATTERN WRITE; starts the tap-write metronome; in the track modes it's BAR RESET (back to measure 1) and D.C. (the last measure).</dd></div>
+<div><dt><Num n="8" /> RUN/STOP</dt><dd>Starts and stops the sequencer.</dd></div>
+<div><dt><Num n="9" /> PITCH MODE</dt><dd>Enters pitch mode to write notes; held, it transposes.</dd></div>
+<div><dt><Num n="10" /> FUNCTION (BAR)</dt><dd>Back to normal mode; with DOWN or UP it sets a pattern's length or triplets; in the track modes it's BAR, for measure numbers, and with C♯ or D♯ it deletes or inserts a measure. Its LED is NORMAL MODE.</dd></div>
+<div><dt><Num n="11" /> Note keys</dt><dd>Thirteen keys from C to C. The white keys are also patterns 1 to 8 and the digits 1 to 8; C♯ is DEL and D♯ is INS. Their LEDs show notes, the selected pattern and measure numbers.</dd></div>
+<div><dt><Num n="12" /> TIME MODE</dt><dd>Enters time mode to write the rhythm. The signs above the keys show what each key writes: note, tie, rest.</dd></div>
+<div><dt><Num n="13" /> DOWN, UP, ACCENT, SLIDE</dt><dd>Transpose an octave down or up while writing notes; note, tie and rest in time mode; accent and slide; sections A and B (ACCENT and SLIDE); STEP and triplets (with FUNCTION); and the digits 9, 0, 100 and 200 for measure numbers.</dd></div>
+<div><dt><Num n="14" /> BACK (segno)</dt><dd>Steps back one note while writing notes; in TRACK WRITE it sets the segno.</dd></div>
+<div><dt><Num n="15" /> TAP (WRITE/NEXT, D.S.)</dt><dd>Steps through notes and steps to check them; taps in a rhythm; in TRACK WRITE writes the measure and moves on; in TRACK PLAY jumps to the segno.</dd></div>
+<div><dt><Num n="16" /> Bottom bar</dt><dd>SYNC, CUT OFF MAX and SERVICE: see <a href="#bottom-bar">the bottom bar</a>.</dd></div>
+</dl>
+<p>The jacks along the top edge (MIX IN, SYNC IN, CV, GATE, HEADPHONE, OUTPUT, DC 9V) are legends only. CV and gate out, MIX IN and the headphone amplifier aren't emulated; DIN sync comes from your DAW.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="sequencer">
+<div class="eyebrow">3</div>
+<h2>The sequencer</h2>
+
+<h3 id="organised">How it's organised</h3>
+<ul>
+<li><span class="k">64 patterns:</span> four groups (I to IV), each with two sections (A and B) of eight patterns.</li>
+<li><span class="k">A pattern</span> is up to 16 sixteenth-note steps, or 15 triplet steps. Notes and rhythm are written separately.</li>
+<li><span class="k">7 tracks</span> chain patterns into songs, one pattern per measure: see <a href="#tracks">Tracks</a>.</li>
+<li>The memory is saved with the session.</li>
+<li>For steps that need two keys at once, right-click (ctrl-click on a Mac) the first: it stays down until clicked again. The <a href="#keys">computer keys</a> work too.</li>
+</ul>
+
+<h3 id="first-pattern">Your first pattern</h3>
+<p>Eight notes on pattern A1 of a new instance, whose patterns are already cleared. Every step is one click.</p>
+<ol>
+<li>Set TRACK to 1 and MODE to PATTERN WRITE. FUNCTION and ACCENT are lit.</li>
+<li>Press ACCENT (section A), then C (pattern 1). C blinks.</li>
+<li>Press PITCH MODE; it lights. Press C, C, C′, C, D♯, C, F, G; each sounds. Press FUNCTION.</li>
+<li>Press TIME MODE; it lights. Press DOWN then ACCENT, eight times over: a note and a rest, 16 steps. Nothing sounds; after the 16th, FUNCTION lights.</li>
+<li>Turn MODE to PATTERN PLAY and press ACCENT and C again. Without this it plays transposed by the last note key pressed, here G: a fifth up.</li>
+<li>Press RUN/STOP. It loops C C C′ C D♯ C F G, a note every eighth.</li>
+</ol>
+<p><span class="k">Accent the third note:</span> stop, turn MODE to PATTERN WRITE, press ACCENT and C, PITCH MODE, then TAP twice. Hold TAP and press ACCENT (with the mouse: right-click TAP, click ACCENT, click TAP), then FUNCTION.</p>
+
+<h3 id="choose">Choose a pattern</h3>
+<Shot src={panel} alt="The TRACK switch, the ACCENT and SLIDE keys and the eight white keys outlined" crop={middle} marks={[{ ...at.track, n: 1 }, { ...at.accentSlide, n: 2 }, { ...at.whiteKeys, n: 3 }]} />
+<ol>
+<li>Set the TRACK / PATT.GROUP switch <Num n="1" /> to the group: 1 or 2 for group I, 3 or 4 for II, 5 or 6 for III, 7 for IV.</li>
+<li>Press ACCENT for section A or SLIDE for section B <Num n="2" />.</li>
+<li>Press a white key, 1 to 8 <Num n="3" />.</li>
+</ol>
+
+<h3 id="write">Write a pattern</h3>
+<p>Clear it, write its notes, write its rhythm, then add accents and slides, with the 303 stopped and MODE on PATTERN WRITE.</p>
+
+<h4>1. Clear it</h4>
+<Shot src={panelWrite} alt="The MODE switch, the white keys and PATTERN CLEAR outlined" crop={middle} marks={[{ ...at.mode, n: 1 }, { ...at.whiteKeys, n: 2 }, { ...at.clear, n: 3 }]} />
+<ol>
+<li>Turn MODE <Num n="1" /> to PATTERN WRITE and choose the pattern.</li>
+<li>Hold its white key <Num n="2" /> and press PATTERN CLEAR <Num n="3" />.</li>
+</ol>
+<p>A cleared pattern has 16 sixteenth-note steps, all silent. Clearing is also the only way back from triplets to sixteenths.</p>
+
+<h4>2. Set its length (only if it isn't 16 steps)</h4>
+<Shot src={panelWrite} alt="FUNCTION, DOWN and UP outlined on the keyboard" crop={keys} marks={[{ ...at.fn, n: 1 }, { x: 810, y: 449, w: 32, h: 55, n: 2 }, { x: 875, y: 449, w: 32, h: 55, n: 3 }]} />
+<ul>
+<li><span class="k">Steps:</span> hold FUNCTION <Num n="1" /> and press DOWN (STEP) <Num n="2" /> once per step, 1 to 16.</li>
+<li><span class="k">Triplets:</span> hold FUNCTION and press UP <Num n="3" />. Each step becomes a third of a beat, 12 steps.</li>
+</ul>
+<p>The 303 has no time signature setting: a bar of 3/4 is 12 sixteenth steps, or 9 triplet steps. A bar longer than 16 steps takes two patterns, chained or in a track.</p>
+
+<h4 id="pitch">3. Write the notes (pitch mode)</h4>
+<Shot src={panelWrite} alt="PITCH MODE, the note keys, DOWN and UP, BACK and FUNCTION outlined" crop={keys} marks={[{ ...at.pitch, n: 1 }, { ...at.noteKeys, n: 2 }, { ...at.downUp, n: 3 }, { ...at.back, n: 4 }, { ...at.fn, n: 5 }]} />
+<ol>
+<li>Press PITCH MODE <Num n="1" />.</li>
+<li>Press the note keys <Num n="2" /> in order, one per note that starts: ties and rests come in the next pass.</li>
+<li>Hold DOWN or UP <Num n="3" /> for an octave lower or higher. BACK <Num n="4" /> steps back one note.</li>
+<li>Press FUNCTION <Num n="5" /> to finish.</li>
+</ol>
+<p><span class="k">To check:</span> PITCH MODE, then TAP once per note; a note key pressed now overwrites. FUNCTION to finish.</p>
+
+<h4 id="time">4. Write the rhythm (time mode)</h4>
+<Shot src={panelWrite} alt="TIME MODE with the note, tie and rest signs, and the DOWN, UP and ACCENT keys outlined" crop={keys} marks={[{ ...at.timeMode, n: 1 }, { ...at.downUpRest, n: 2 }]} />
+<ol>
+<li>Press TIME MODE <Num n="1" />. Nothing sounds in time mode.</li>
+<li>For each step, press the key under its sign <Num n="2" />: DOWN a note, UP a tie, ACCENT a rest.</li>
+<li>After the last step it returns to normal mode.</li>
+</ol>
+<p><span class="k">To check:</span> TIME MODE, then TAP once per step. Each note step takes the next pitch, so changing the rhythm moves pitches, with their accents and slides, to other steps. A tie on step 1 becomes a note.</p>
+
+<h4 id="accents">5. Add accents and slides</h4>
+<Shot src={panelWrite} alt="PITCH MODE, TAP, and ACCENT and SLIDE outlined" crop={keys} marks={[{ ...at.pitch, n: 1 }, { ...at.tap, n: 2 }, { ...at.accentSlide, n: 3 }]} />
+<ol>
+<li>Press PITCH MODE <Num n="1" />, then TAP <Num n="2" /> once per note.</li>
+<li>On a note, hold TAP and press ACCENT or SLIDE <Num n="3" /> to toggle it; their LEDs show the note's state while TAP is held.</li>
+<li>FUNCTION finishes, at any note.</li>
+</ol>
+<ul>
+<li>A slide goes on the first of the two notes it joins. It does nothing across a rest, and between two notes of the same pitch it makes a tie.</li>
+<li>A slide on the last note slides into the first note of the next pattern (or of this one, as it loops).</li>
+<li>Writing the notes again clears the accents and slides; writing the rhythm again keeps them.</li>
+</ul>
+
+<h4 id="tap-write">Or tap the rhythm in</h4>
+<Shot src={panelWrite} alt="RUN/STOP, PATTERN CLEAR, TAP and the white keys outlined" crop={keys} marks={[{ ...at.run, n: 1 }, { ...at.clear, n: 2 }, { ...at.tap, n: 3 }, { ...at.whiteKeys, n: 4 }]} />
+<p>Instead of time mode, in PATTERN WRITE with the notes written:</p>
+<ol>
+<li>Press RUN/STOP <Num n="1" />. It runs silent.</li>
+<li>Press PATTERN CLEAR <Num n="2" />. A metronome clicks every eighth note (every quarter note in triplets); the low click is step 1.</li>
+<li>Tap TAP <Num n="3" /> in time, within one measure; timing is quantised. Then the pattern plays.</li>
+</ol>
+<p>A tapped note lasts as long as you hold TAP. Hold any white key <Num n="4" /> while you tap and each note lasts until the next one, with no rests. Pressing PATTERN CLEAR again while it runs clears the rhythm and keeps the notes.</p>
+
+<h3 id="play">Play patterns</h3>
+<Shot src={panel} alt="MODE, RUN/STOP, the white keys, and PITCH MODE outlined" crop={middle} marks={[{ ...at.mode, n: 1 }, { ...at.run, n: 2 }, { ...at.whiteKeys, n: 3 }, { ...at.pitch, n: 4 }]} />
+<ol>
+<li>Turn MODE <Num n="1" /> to PATTERN PLAY and choose a pattern, even the one just written: otherwise it plays transposed by the last note key pressed.</li>
+<li>Press RUN/STOP <Num n="2" />. It loops until pressed again.</li>
+</ol>
+<ul>
+<li><span class="k">Change pattern</span> while it plays by pressing another white key or section: the new one starts when the current pattern ends. The group can't change while it runs.</li>
+<li><span class="k">Chain patterns:</span> press two white keys <Num n="3" /> together, both in 1–4 or both in 5–8. The patterns from the lower to the higher play in order and loop: 1 and 3 play 1, 2, 3.</li>
+<li><span class="k">Transpose:</span> hold PITCH MODE <Num n="4" /> and press a note key; the interval is counted up from C (F is up a fourth, C′ an octave). The original manual contradicts itself on whether this works in PATTERN PLAY; in tracks it always does.</li>
+</ul>
+
+<h3 id="tuning-note">The tuning note</h3>
+<p>In PATTERN PLAY, stopped: hold PITCH MODE and press A, then TAP. Each TAP sounds the A. Other keys work the same way.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="tracks">
+<div class="eyebrow">4</div>
+<h2>Tracks: songs from patterns</h2>
+<p>A track is a list of up to 64 measures, each one a pattern and how far it's transposed (0 to 12 semitones up), plus the last measure (D.C.) and a repeat point (segno). There are seven; the track's number fixes its pattern group (tracks 1–2 use group I, 3–4 II, 5–6 III, 7 IV). You change a track by writing over its measures; there's no clearing it.</p>
+
+<h3 id="track-write">Write a track</h3>
+<Shot src={panelTrackWrite} alt="The TRACK switch, MODE, PATTERN CLEAR, RUN/STOP, the white keys with ACCENT and SLIDE, and TAP outlined" crop={middle} marks={[{ ...at.track, n: 1 }, { ...at.mode, n: 2 }, { ...at.clear, n: 3 }, { ...at.run, n: 4 }, { ...at.whiteKeys, n: 5 }, { ...at.accentSlide, n: 5 }, { ...at.tap, n: 6 }]} />
+<ol>
+<li>Stop the 303. Choose the track with the TRACK switch <Num n="1" /> and turn MODE <Num n="2" /> to TRACK WRITE.</li>
+<li>Press PATTERN CLEAR (BAR RESET) <Num n="3" /> to go to measure 1.</li>
+<li>Press RUN/STOP <Num n="4" />. You write while it runs.</li>
+<li>Choose this measure's pattern: section and white key <Num n="5" />. Press the key even if it's the pattern already playing.</li>
+<li>To transpose the measure, hold PITCH MODE and press the key that interval above C (C for none).</li>
+<li>Press TAP (WRITE/NEXT) <Num n="6" /> to write it and move on.</li>
+<li>On the last measure, choose its pattern, press PATTERN CLEAR (D.C.), then TAP.</li>
+</ol>
+<p>Pressing two white keys writes a chain: each of its patterns becomes a measure. Only the last D.C. you set counts.</p>
+
+<h3 id="track-play">Play a track</h3>
+<ol>
+<li>Stop the 303. Choose the track and turn MODE to TRACK PLAY.</li>
+<li>Press PATTERN CLEAR (BAR RESET) to start from measure 1, then RUN/STOP.</li>
+</ol>
+<p>It loops at its D.C. measure. Another track chosen while one plays starts at that D.C.</p>
+
+<h3 id="track-check">Check and correct a track</h3>
+<p>In TRACK WRITE, press BAR RESET and RUN/STOP. Hold PITCH MODE to see the measure's transposition on the note LEDs (C lit is none); hold PITCH MODE and press another key to change it, or choose another pattern to replace it. TAP moves on to the next measure. To move the D.C., TAP to the measure, then press PATTERN CLEAR (D.C.) and TAP.</p>
+
+<h3 id="bar">Go to a measure (BAR)</h3>
+<Shot src={panel} alt="FUNCTION (BAR) and the selector digits along the bottom of the keyboard outlined" crop={keys} marks={[{ ...at.fn, n: 1 }, { ...at.selector, n: 2 }]} />
+<ol>
+<li>Stop the 303, in TRACK PLAY (to play from there) or TRACK WRITE (to write from there).</li>
+<li>Hold FUNCTION (BAR) <Num n="1" /> and enter the measure number with the digits printed along the bottom <Num n="2" />, largest part first: white keys 1 to 8, DOWN 9, UP 0, ACCENT 100, SLIDE 200. Measure 131 is ACCENT, E (3), C (1).</li>
+<li>Release FUNCTION. RUN/STOP plays or writes from there.</li>
+</ol>
+<p>Holding BAR while a track runs shows the measure playing. Stopped, BAR with PATTERN CLEAR shows the D.C. measure, and BAR with BACK the segno.</p>
+
+<h3 id="segno">Repeats: segno and D.S.</h3>
+<ul>
+<li><span class="k">Set the segno</span> in TRACK WRITE: go to the measure with BAR, press RUN/STOP, then BACK (segno). One per track; not on the D.C. measure.</li>
+<li><span class="k">D.S.:</span> while a track plays, press TAP. After the current measure it jumps to the segno and carries on; pressed in the D.C. measure, it goes to the segno instead of measure 1.</li>
+</ul>
+
+<h3 id="del-ins">Delete and insert measures</h3>
+<ul>
+<li><span class="k">Delete:</span> in TRACK WRITE, go to the measure with BAR, then hold FUNCTION and press C♯ (DEL). The later measures move up and the D.C. follows; the segno doesn't.</li>
+<li><span class="k">Insert:</span> go with BAR to the measure to insert before, hold FUNCTION and press D♯ (INS), press RUN/STOP, choose the new measure's pattern, press TAP, then RUN/STOP.</li>
+</ul>
+<p>Don't delete or insert at or after the D.C. measure.</p>
+
+<h3 id="long-songs">Songs longer than 64 measures</h3>
+<p>Writing past measure 64 carries on into the next track, in the first track's pattern group. A song can be 256 measures long from tracks 1 to 4, 192 from track 5, 128 from 6 and 64 from 7. Always play and correct such a song from its first track.</p>
+
+<h3 id="habits">Good habits</h3>
+<ul>
+<li>Don't turn MODE while the RUN LED is lit.</li>
+<li>Going from a track mode to a pattern mode, stop and press PATTERN CLEAR (BAR RESET) first.</li>
+<li>If the sequencer gets confused, turn VOLUME to OFF and back up (the power switch), set TRACK PLAY, press BAR RESET, then change mode. The patterns are kept.</li>
+</ul>
+<p class="note">The track functions run on the original firmware but haven't been through Lemus's own checks yet. Report anything that differs from this guide to <a href="mailto:hello@lemusdev.org">hello@lemusdev.org</a>.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="bars">
+<div class="eyebrow">5</div>
+<h2>The bars and SERVICE</h2>
+
+<h3 id="top-bar">The top bar</h3>
+<ul>
+<li><span class="k">VOICE MODE</span> and a line saying what's missing, while ro-mono-303 runs without its ROM.</li>
+<li><span class="k">Add CPU ROM…</span>, in voice mode: see <a href="#add-rom">Adding the ROM later</a>.</li>
+<li><span class="k">About:</span> the version, the artwork in use, and the <a href="/support#updates">update check</a>. A newer version shows as a button in the bar.</li>
+</ul>
+
+<h3 id="bottom-bar">The bottom bar</h3>
+<Shot src={panel} alt="The bottom bar: SYNC, CUT OFF MAX, SERVICE, the status line and the question mark" crop={{ x: 0, y: 594, w: 720, h: 46 }} marks={[{ x: 10, y: 606, w: 104, h: 28, n: 1 }, { x: 118, y: 606, w: 200, h: 28, n: 2 }, { x: 322, y: 606, w: 100, h: 28, n: 3 }, { x: 430, y: 606, w: 270, h: 28, n: 4 }]} caption="The left end of the bottom bar; ? is at the far right." />
+<dl class="legend">
+<div><dt><Num n="1" /> SYNC</dt><dd>OFF: the 303 runs on its own clock. HOST: your DAW's transport runs it. See <a href="#sync">Sync</a>.</dd></div>
+<div><dt><Num n="2" /> CUT OFF MAX</dt><dd>The filter's top, with CUT OFF and RESONANCE full: 1.2 to 3 kHz, 2.3 kHz by default. Units differ here (<a href="/ro-mono-303#differences">known differences</a>). Double-click resets it.</dd></div>
+<div><dt><Num n="3" /> SERVICE</dt><dd>Takes the panel off to show the boards and the trimmers. A dot on it means a trimmer is off its factory setting. See <a href="#service">SERVICE</a>.</dd></div>
+<div><dt><Num n="4" /> Status line</dt><dd>RUN, STOP or HOST, the tempo, the note playing, GATE, ACC and SLIDE while they're on, and the filter's frequency.</dd></div>
+<div><dt><Num n="5" /> ?</dt><dd>Shows the list of computer keys over the panel. Any click, ? or Escape closes it.</dd></div>
+</dl>
+
+<h3 id="service">SERVICE: the boards and the trimmers</h3>
+<Shot src={service} base={{ w: 1200, h: 608 }} alt="SERVICE view: the main board and the switch board where the panel was, TM3 picked and ringed on the board, and on the right the scope timing the filter's ring at TP6, the counter, the meter and the six trimmer rows" marks={[{ x: 438, y: 150, w: 32, h: 32, n: 1 }, { x: 890, y: 6, w: 300, h: 186, n: 2 }, { x: 890, y: 196, w: 300, h: 60, n: 3 }, { x: 890, y: 262, w: 300, h: 300, n: 4 }, { x: 426, y: 574, w: 124, h: 28, n: 5 }]} caption="SERVICE with TM3 picked: the scope times the filter's ring at test point TP6." />
+<p>The main board and switch board where the panel was, every part where the service notes draw it, with a scope, a frequency counter, a meter and the six trimmers on the right.</p>
+<ul>
+<li><span class="k">Pick a trimmer</span> by its row, on the board <Num n="1" />, or with ↑ ↓. The scope <Num n="2" /> moves to its test point, with the service notes' adjustment under the screen.</li>
+<li><span class="k">The counter and the meter</span> <Num n="3" /> read the VCO's frequency and the CV output's voltage.</li>
+<li><span class="k">Turn it</span> by dragging its row <Num n="4" /> or on the board, with ← →, or the wheel; shift is finer. Green is in spec; the white tick is the factory setting.</li>
+<li><span class="k">Reset</span> one by double-clicking, all six with FACTORY TRIM <Num n="5" />.</li>
+</ul>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">Trimmer</th><th scope="col">Sets</th><th scope="col">Measured at</th><th scope="col">Service spec</th></tr></thead>
+<tbody>
+<tr><th scope="row">TM1 TEMPO</th><td>The tempo range</td><td>TP1, TEMPO fully up</td><td>8 ms clock period (7 to 9)</td></tr>
+<tr><th scope="row">TM2 INT</th><td>The CPU's interrupt</td><td>TP2</td><td>1.8 ms (1.6 to 2.0)</td></tr>
+<tr><th scope="row">TM3 FREQ</th><td>The filter's cutoff</td><td>TP6: CUT OFF centre, RESONANCE full, the rest down, a note held</td><td>Rings every 2 ms (1.5 to 2.5)</td></tr>
+<tr><th scope="row">TM4 TUNE</th><td>Tuning</td><td>The counter, TUNING centre, A held</td><td>110 Hz</td></tr>
+<tr><th scope="row">TM5 WIDTH</th><td>Octave width</td><td>The counter, C then C′</td><td>Exactly 2 : 1</td></tr>
+<tr><th scope="row">TM6</th><td>CV out level</td><td>The meter, C then C′</td><td>1.000 V per octave</td></tr>
+</tbody>
+</table>
+</div>
+<p>Factory settings are in spec; TM3 is at 2.5 ms, the fitted unit's, at the slow end. Set WIDTH before TUNE. Trimmers are saved with the session.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="midi">
+<div class="eyebrow">6</div>
+<h2>MIDI and your DAW</h2>
+
+<h3 id="midi-notes">MIDI notes</h3>
+<ul>
+<li>Notes play the voice directly, on any channel. MIDI note 36 (C2) is the panel's low C, 65.4 Hz; A above it (note 45) is 110 Hz with TUNING centred.</li>
+<li>Velocity 100 or more is an accent.</li>
+<li>A note started while another is held slides to it. Letting go of the newest of several held notes slides back to the one before.</li>
+<li>MIDI and the sequencer share the voice: whichever starts a note last has it.</li>
+</ul>
+
+<h3 id="cc">Controllers</h3>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">CC</th><th scope="col">Knob</th></tr></thead>
+<tbody>
+<tr><td>74</td><td>CUT OFF FREQ</td></tr>
+<tr><td>71</td><td>RESONANCE</td></tr>
+<tr><td>12</td><td>ENV MOD</td></tr>
+<tr><td>75 or 13</td><td>DECAY</td></tr>
+<tr><td>16</td><td>ACCENT</td></tr>
+<tr><td>104</td><td>TUNING</td></tr>
+<tr><td>11</td><td>VOLUME (0 switches the 303 off, as the knob does)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="sync">Sync</h3>
+<ul>
+<li><span class="k">SYNC: OFF</span> (the default): RUN/STOP and TEMPO run the 303's own clock.</li>
+<li><span class="k">SYNC: HOST:</span> the DAW's transport is the DIN sync input: play starts the sequencer at the DAW's tempo, stop stops it.</li>
+<li>As on DIN sync, there is no song position: the 303 starts at the top of its pattern wherever the DAW starts. Start on a bar line, and press BAR RESET before playing a track from the top.</li>
+</ul>
+
+<h3 id="automation">Automation and sessions</h3>
+<p>These parameters can be automated, in this order: Tuning, Cut Off Freq, Resonance, Env Mod, Decay, Accent, Volume, Waveform, Tempo, Mode, Track / Patt. Group, Sync to Host, the six trimmers, and Full Cut Off (CUT OFF MAX).</p>
+<p>A session saves every parameter, the pattern and track memory, the window size, and whether SERVICE is open. When a session opens, the 303 starts stopped, as when it's switched on.</p>
+<p>Idle, it uses almost no CPU but its sequencer keeps running. Don't let the DAW suspend it on silent tracks, or the 303 can't play its own patterns.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="keyboard">
+<div class="eyebrow">7</div>
+<h2>Keyboard and mouse</h2>
+
+<h3 id="keys">Computer keys</h3>
+<p>Click the panel first. Keys stay down while held, so two-key steps work.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">Keys</th><th scope="col">Panel</th></tr></thead>
+<tbody>
+<tr><td class="mono">A W S E D F T G Y H U J K</td><td>The note keys C to C (A S D F G H J K are also patterns 1 to 8; W is C♯ DEL, E is D♯ INS)</td></tr>
+<tr><td class="mono">Z X C V</td><td>DOWN, UP, ACCENT, SLIDE</td></tr>
+<tr><td class="mono">Q</td><td>PITCH MODE</td></tr>
+<tr><td class="mono">R</td><td>TIME MODE</td></tr>
+<tr><td class="mono">I</td><td>FUNCTION (BAR)</td></tr>
+<tr><td class="mono">Backspace</td><td>PATTERN CLEAR (D.C., BAR RESET)</td></tr>
+<tr><td class="mono">,</td><td>BACK (segno)</td></tr>
+<tr><td class="mono">Return</td><td>TAP (WRITE/NEXT, D.S.)</td></tr>
+<tr><td class="mono">Space</td><td>RUN/STOP, in the standalone app (in a DAW, Space is the DAW's)</td></tr>
+<tr><td class="mono">1 to 7</td><td>The TRACK / PATT.GROUP switch</td></tr>
+<tr><td class="mono">F1 F2 F3 F4</td><td>MODE: TRACK WRITE, TRACK PLAY, PATTERN PLAY, PATTERN WRITE</td></tr>
+<tr><td class="mono">?</td><td>The key list</td></tr>
+<tr><td class="mono">Escape</td><td>Closes the key list and lets go of every key</td></tr>
+<tr><td class="mono">↑ ↓ ← →</td><td>In SERVICE: pick a trimmer, turn it</td></tr>
+</tbody>
+</table>
+</div>
+<p>Some DAWs keep letter keys for themselves.</p>
+
+<h3 id="mouse">Mouse</h3>
+<ul>
+<li><span class="k">Knobs:</span> drag up; shift is finer, double-click resets, the wheel works, hover shows the value.</li>
+<li><span class="k">Rotary switches:</span> click steps forward, right- or shift-click back, or drag.</li>
+<li><span class="k">Keys</span> are held while the button is. A right-click (ctrl-click on a Mac) holds one down until it’s clicked again; Escape lets go of all.</li>
+<li><span class="k">Window:</span> drag the bottom-right corner, half to twice the size.</li>
+</ul>
+</section>
+
+</div>
+
+</div>
+
+</Base>
+
+<script>
+// The sidebar marks the heading being read and opens its section; the button opens it as a
+// drawer on a narrow window. Without this script the sidebar shows every heading.
+const nav = document.querySelector<HTMLElement>('.side')!;
+const button = document.querySelector<HTMLButtonElement>('.toc-button')!;
+const links = [...nav.querySelectorAll<HTMLAnchorElement>('a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+nav.classList.add('spy');
+button.hidden = false;
+
+let current = -1;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 120) i = j; });
+  // At the end of the page the last headings can't reach the top: take the one jumped to, if
+  // it's in view, or else the last.
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) {
+    const jumped = targets.findIndex((t) => '#' + t.id === location.hash);
+    i = jumped >= 0 && targets[jumped].getBoundingClientRect().top < innerHeight ? jumped : targets.length - 1;
+  }
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => {
+    a.classList.toggle('on', j === i);
+    if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+  });
+  const section = i >= 0 ? links[i].closest('.side > ol > li') : null;
+  for (const li of nav.querySelectorAll(':scope > ol > li')) li.classList.toggle('open', li === section);
+  reveal();
+}
+
+// Keep the marked heading in view when the sidebar is taller than the window.
+function reveal() {
+  const a = links[current];
+  if (!a || nav.scrollHeight <= nav.clientHeight) return;
+  if (a.offsetTop < nav.scrollTop || a.offsetTop + a.offsetHeight > nav.scrollTop + nav.clientHeight)
+    nav.scrollTop = a.offsetTop - nav.clientHeight / 3;
+}
+
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+addEventListener('hashchange', later);
+mark();
+
+function open(on: boolean) {
+  nav.classList.toggle('open', on);
+  button.setAttribute('aria-expanded', String(on));
+  button.querySelector('span')!.textContent = on ? 'Close' : 'Contents';
+  if (on) reveal();
+}
+button.addEventListener('click', () => open(!nav.classList.contains('open')));
+nav.addEventListener('click', (e) => { if ((e.target as Element).closest('a')) open(false); });
+document.addEventListener('click', (e) => {
+  if (nav.classList.contains('open') && !nav.contains(e.target as Node) && !button.contains(e.target as Node)) open(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && nav.classList.contains('open')) { open(false); button.focus(); }
+});
+</script>
+
+<style>
+.guide { max-width: 1200px; margin: 0 auto; padding: 0 24px 96px; }
+.main { min-width: 0; max-width: 1000px; }
+
+.side { font-size: 13px; line-height: 1.45; }
+.side .label { padding: 0 0 10px 12px; }
+.side ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; max-width: none; }
+.side li { font-size: inherit; color: inherit; }
+.side > ol > li + li { margin-top: 6px; }
+.side a { display: flex; gap: 8px; padding: 3px 10px 3px 30px; border-left: 2px solid #292e42; color: #a9b1d6; text-decoration: none; }
+.side a.top { padding-left: 10px; color: #c0caf5; font-weight: 700; }
+.side a.deep { padding-left: 44px; }
+.side .n { flex: 0 0 auto; min-width: 12px; color: #737aa2; }
+.side a:hover { color: #c0caf5; border-left-color: #565f89; }
+.side a.on { color: #7aa2f7; border-left-color: #7aa2f7; }
+.side a.on .n { color: #7aa2f7; }
+.toc-button { display: none; }
+
+@media (min-width: 1080px) {
+  .guide { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 56px; }
+  .side { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; box-sizing: border-box; padding: 40px 0 32px; scrollbar-width: thin; }
+  .side.spy > ol > li:not(.open) > ol { display: none; }
+  .intro .toc { display: none; }
+}
+@media (max-width: 1079.98px) {
+  .side { display: none; }
+  .side.open { display: block; position: fixed; top: 0; bottom: 0; left: 0; z-index: 20; width: min(320px, 85vw); box-sizing: border-box; overflow-y: auto; padding: 24px 16px 96px; background: #16161e; border-right: 1px solid #292e42; box-shadow: 0 0 0 100vmax rgba(10, 11, 18, 0.6); }
+  .toc-button:not([hidden]) { display: inline-flex; align-items: center; gap: 8px; position: fixed; left: 16px; bottom: 16px; z-index: 21; min-height: 44px; padding: 0 16px; box-sizing: border-box; border-radius: 999px; border: 1px solid #3b4261; background: #1f2335; color: #c0caf5; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45); }
+  .toc-button:hover { border-color: #7aa2f7; }
+}
+.intro { padding: 56px 0 24px; display: flex; flex-direction: column; gap: 16px; }
+.crumbs { font-size: 13px; color: #a9b1d6; }
+.crumbs a { color: #a9b1d6; }
+h1 { margin: 0; font-size: clamp(32px, 5vw, 48px); line-height: 1.1; letter-spacing: -0.02em; }
+.lede { margin: 0; color: #a9b1d6; font-size: 17px; max-width: 44em; }
+.toc { margin: 8px 0 0; padding: 16px 20px 16px 44px; background: #16161e; border: 1px solid #292e42; border-radius: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 4px 24px; color: #737aa2; }
+section { padding: 48px 0 8px; border-top: 1px solid #292e42; margin-top: 32px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+.eyebrow { font-size: 13px; letter-spacing: 0.12em; color: #7aa2f7; font-weight: 700; }
+h2 { margin: -8px 0 0; font-size: clamp(26px, 3.4vw, 34px); line-height: 1.15; }
+h3 { margin: 20px 0 0; font-size: 20px; line-height: 1.3; scroll-margin-top: 16px; }
+h4 { margin: 12px 0 0; font-size: 16px; line-height: 1.4; color: #c0caf5; scroll-margin-top: 16px; }
+p, li, dd { color: #a9b1d6; font-size: 15px; }
+p { margin: 0; max-width: 46em; }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.k { color: #c0caf5; font-weight: 700; }
+.mono { font-family: inherit; color: #c0caf5; overflow-wrap: anywhere; }
+.card { background: #16161e; border: 1px solid #292e42; border-radius: 12px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.label { font-size: 12px; letter-spacing: 0.06em; font-weight: 700; color: #737aa2; text-transform: uppercase; }
+.note { font-size: 14px; border-left: 0; background: #16161e; border: 1px solid #292e42; border-radius: 10px; padding: 12px 16px; }
+.scroll { overflow-x: auto; border: 1px solid #292e42; border-radius: 12px; background: #16161e; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px; }
+th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid #292e42; vertical-align: top; color: #a9b1d6; }
+thead th { font-weight: 400; font-size: 13px; color: #737aa2; }
+tbody th { color: #c0caf5; font-weight: 700; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+.legend, .faq { margin: 0; display: flex; flex-direction: column; gap: 12px; max-width: 52em; }
+.legend dt, .faq dt { color: #c0caf5; font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.legend dd, .faq dd { margin: 2px 0 0; }
+</style>
