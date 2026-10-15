@@ -51,10 +51,12 @@ package() { # id
 		[[ $archs == *arm64* && $archs == *x86_64* ]] || { echo "not universal: $b ($archs)"; exit 1; }
 	done
 
-	# The notices go with every bundle (the BSD licence asks for them in binary distributions).
+	# The licence and the notices go with every bundle: the AGPL asks for its text with every copy of
+	# the binaries, the BSD licence for its notice.
 	for b in "${bundles[@]}"; do
 		mkdir -p "$b/Contents/Resources"
 		cp "$ROOT/tools/release/NOTICES.txt" "$b/Contents/Resources/"
+		cp "$ROOT/LICENSE" "$b/Contents/Resources/LICENSE.txt"
 	done
 
 	if [[ -n ${LEMUS_SIGN_APP:-} ]]; then

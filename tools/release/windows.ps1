@@ -1,7 +1,7 @@
 # Zips the Windows release from a Release build (see .github/workflows/release.yml): each machine's
 # own plugin built there in a zip of its own, dist/<plugin>-<version>-windows.zip
 # (dist/ro-mono-303-0.1.0-windows.zip), with the VST3, the standalone app if it has one, the
-# notices and a readme.
+# licence (the AGPL asks for its text with every copy), the notices and a readme.
 #
 #   tools/release/windows.ps1 -Build build/release-win
 param([Parameter(Mandatory)] [string] $Build)
@@ -28,6 +28,7 @@ foreach ($art in Get-ChildItem -Directory "$Build/plugin_*_artefacts") {
 	}
 	Set-Content -NoNewline -Path "$stage/README.txt" -Value $readme
 	Copy-Item "$root/tools/release/NOTICES.txt" $stage
+	Copy-Item "$root/LICENSE" "$stage/LICENSE.txt"
 
 	$zip = "$root/dist/$name-$version-windows.zip"
 	Remove-Item -Force $zip -ErrorAction SilentlyContinue

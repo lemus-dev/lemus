@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Stub from '../components/Stub.astro';
 import Prerelease from '../components/Prerelease.astro';
-import { machines, downloadLinks, platforms } from '../data/machines';
+import { machines, downloadLinks, platforms, sourceOf } from '../data/machines';
 ---
 <Base title="Download · Lemus" description="Download Lemus plugins for macOS and Windows. Each machine is a separate, free plugin." current="download">
 <Stub heading="Download">
@@ -23,7 +23,7 @@ import { machines, downloadLinks, platforms } from '../data/machines';
 <a href={links.windows} class="btn">Windows</a>
 </div>
 <div class="meta">
-<span>Version {m.release.version}{m.release.stage && ` ${m.release.stage}`}</span>
+<span>Version {m.release.version}{m.release.stage && ` ${m.release.stage}`}, source: <a href={sourceOf(m.release)}>v{m.release.version} on GitHub</a> (GNU AGPLv3)</span>
 {platforms.map(([os, formats]) => <span>{os}: {formats}</span>)}
 </div>
 <Prerelease release={m.release} />

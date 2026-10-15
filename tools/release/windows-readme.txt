@@ -15,4 +15,6 @@ More at https://lemusdev.org
 
 Machine names identify the original equipment and are trademarks of their
 owners. Lemus is not affiliated with or endorsed by them.
-Third-party notices: NOTICES.txt.
+
+Lemus is free software under the GNU AGPLv3 (LICENSE.txt); its source is at
+https://github.com/lemus-dev/lemus. Third-party notices: NOTICES.txt.

@@ -36,6 +36,10 @@ export const machines: Machine[] = [
 
 export const bySlug = (slug: string) => machines.find((m) => m.slug === slug)!;
 
+// The source of a release, next to its downloads: the binaries are AGPLv3, and the licence
+// accepts the source offered from the same place. Each release is tagged v<version> there.
+export const sourceOf = (r: Release) => `https://github.com/lemus-dev/lemus/tree/v${r.version}`;
+
 export const downloadLinks = (m: Machine) =>
   m.release
     ? { mac: `/download/${m.release.mac}`, windows: `/download/${m.release.windows}` }

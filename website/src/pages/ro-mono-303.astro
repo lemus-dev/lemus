@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Prerelease from '../components/Prerelease.astro';
 import MailForm from '../components/MailForm.astro';
 import Clip from '../components/Clip.astro';
-import { bySlug, downloadLinks, platforms } from '../data/machines';
+import { bySlug, downloadLinks, platforms, sourceOf } from '../data/machines';
 
 const m = bySlug('ro-mono-303');
 const links = downloadLinks(m);
@@ -48,7 +48,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <a href={links.mac} class="btn">Download for macOS</a>
 <a href={links.windows} class="btn">Download for Windows</a>
 </div>
-<p class="meta">Free{m.release && `, version ${m.release.version}${m.release.stage ? ` ${m.release.stage}` : ''}`}</p>
+<p class="meta">Free{m.release && <>, version {m.release.version}{m.release.stage && ` ${m.release.stage}`}, source: <a href={sourceOf(m.release)}>v{m.release.version} on GitHub</a> (GNU AGPLv3)</>}</p>
 {m.release && <Prerelease release={m.release} />}
 <div class="mailbox tapbox">
 <h2 class="mail-h">Release announcements by email</h2>

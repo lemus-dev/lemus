@@ -12,7 +12,7 @@ published at https://github.com/lemus-dev/lemus (AGPLv3), tagged `v<version>`.
 | macOS 11+, universal | AU, VST3, standalone app | `tools/release/mac.sh`, locally | `dist/<plugin>-<version>-mac.pkg` per plugin |
 | Windows 10+, x64 | VST3, standalone app | `.github/workflows/release.yml` (GitHub Actions) | `<plugin>-<version>-windows.zip` per plugin, the run's artifact |
 
-Both include `NOTICES.txt` (JUCE, MAME's uCOM-4 core, JetBrains Mono, IBM Plex Mono). The Mac installer puts the
+Both include `LICENSE.txt` (the AGPLv3, which must go with every copy) and `NOTICES.txt` (JUCE, MAME's uCOM-4 core, JetBrains Mono, IBM Plex Mono). The Mac installer puts the
 AU and VST3 in `/Library/Audio/Plug-Ins` and the app in `/Applications`; the Windows zip has a
 readme (`windows-readme.txt`) that says where the VST3 goes.
 
