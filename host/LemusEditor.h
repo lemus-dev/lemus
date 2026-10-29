@@ -42,13 +42,15 @@ private:
 	void componentMovedOrResized(juce::Component &, bool wasMoved, bool wasResized) override;
 	void showCurrentMachine();
 	void refresh(); // the ROM folder changed or was rescanned
+	void showWhatsNew(); // a newer release: what's new in it, over the rest
 
 	LemusProcessor &m_proc;
 	Constrainer m_constrainer{*this};
 	std::unique_ptr<Picker> m_picker;
 	std::unique_ptr<Bar> m_bar;
 	std::unique_ptr<juce::AudioProcessorEditor> m_inner;
-	std::unique_ptr<juce::Component> m_prompt; // the first start without an optional ROM, over the rest
+	std::unique_ptr<juce::Component> m_prompt;   // the first start without an optional ROM, over the rest
+	std::unique_ptr<juce::Component> m_whatsNew; // a newer release, over the rest
 	juce::AudioProcessor *m_innerFor = nullptr;
 	bool m_layingOut = false;
 	juce::String m_flash; // a notice for the bar, after a reload

@@ -35,6 +35,24 @@ void testUpdates()
 	check(updates::releaseOf(R"({"plugins": {"ro-mono-303": {"version": "0.2.0"}}})", "ro-drum-808").version.isEmpty() &&
 	          updates::releaseOf("not json", "ro-mono-303").version.isEmpty(),
 	      "latest.json: nothing for an unlisted plugin without a file-level version, or a broken file");
+
+	const juce::String notes = R"({"plugins": {"ro-mono-303": {"version": "0.3.0", "url": "https://lemusdev.org/ro-mono-303", "changes": [
+		{"version": "0.4.0", "notes": ["not out yet"]}, {"version": "0.1.0", "notes": ["old"]},
+		{"version": "0.3.0", "notes": ["three a", "three b"]}, {"version": "0.2.0", "notes": ["two"]}]}}})";
+	const auto since = updates::releaseOf(notes, "ro-mono-303", "0.1.0");
+	check(since.changes.size() == 2 && since.changes[0].version == "0.3.0" && since.changes[0].notes.size() == 2 && since.changes[1].version == "0.2.0",
+	      "latest.json: the changes after this build's version, up to the release, newest first");
+	check(updates::releaseOf(notes, "ro-mono-303").changes.size() == 3 && updates::releaseOf(file, "ro-mono-303").changes.empty(),
+	      "latest.json: without a version, every change up to the release; a file without notes has none");
+
+	const juce::int64 now = 1000LL * 24 * 60 * 60 * 1000, day = 24 * 60 * 60 * 1000;
+	updates::Release r;
+	r.version = "0.3.0";
+	check(updates::popUpDue(r, {}, {}, now) && !updates::popUpDue(updates::Release{}, {}, {}, now), "what's new: due for a newer release, not without one");
+	check(!updates::popUpDue(r, "0.3.0", {}, now) && updates::popUpDue(r, "0.2.0", {}, now), "what's new: not for a skipped version; a later one shows");
+	check(!updates::popUpDue(r, {}, "0.3.0 " + juce::String(now - 6 * day), now) && updates::popUpDue(r, {}, "0.3.0 " + juce::String(now - 7 * day), now),
+	      "what's new: shown, it comes back after a week");
+	check(updates::popUpDue(r, {}, "0.2.0 " + juce::String(now - day), now), "what's new: a newer version shows at once, whatever the last one's answer");
 }
 
 // The prompt the first time a machine starts without an optional ROM, with the first machine that

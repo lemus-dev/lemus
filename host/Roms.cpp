@@ -282,6 +282,16 @@ bool installBlankArtwork(const juce::File &folder, const ArtworkSpec &spec)
 	return folder.getChildFile(spec.name).replaceWithText(spec.blank, false, false, "\n");
 }
 
+bool removeBlankArtwork(const juce::File &folder, const ArtworkSpec &spec)
+{
+	if (spec.name.isEmpty() || spec.blank == nullptr)
+		return false;
+	const auto file = folder.getChildFile(spec.name);
+	if (!file.existsAsFile() || file.loadFileAsString() != juce::String(spec.blank).replace("\r\n", "\n"))
+		return false;
+	return file.deleteFile();
+}
+
 } // namespace romfolder
 
 namespace {

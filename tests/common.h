@@ -139,7 +139,9 @@ struct RomFolder {
 // panel as users get it, for screenshots), with the About box, the Add ROM pop-up, the first-start
 // ROM prompt or the machine's SERVICE view open if asked, at twice the size if asked.
 // LEMUS_SNAPSHOT_PARAMS sets machine parameters first: id=value pairs separated by commas, each
-// value as the parameter shows it (mode=Pattern Write, tempo=120). Returns the exit code.
+// value as the parameter shows it (mode=Pattern Write, tempo=120). LEMUS_SNAPSHOT_CLICKS clicks the
+// editor before the shot: x,y points in the editor (at 1x) separated by semicolons, each with ",right"
+// for a right-click (a held panel key, say). Returns the exit code.
 inline juce::Button *findButton(juce::Component &c, const juce::String &text)
 {
 	if (auto *b = dynamic_cast<juce::Button *>(&c); b != nullptr && b->getButtonText().startsWith(text))
@@ -184,6 +186,22 @@ inline int snapshot(const juce::String &machine, const juce::String &png, const 
 	}
 	std::unique_ptr<juce::AudioProcessorEditor> e(p.createEditorIfNeeded());
 	pump(500);
+	e->setVisible(true); // off screen, but found under a point
+	for (const auto &click : juce::StringArray::fromTokens(juce::SystemStats::getEnvironmentVariable("LEMUS_SNAPSHOT_CLICKS", {}), ";", "")) {
+		const auto parts = juce::StringArray::fromTokens(click, ",", "");
+		const juce::Point<float> at(parts[0].getFloatValue(), parts[1].getFloatValue());
+		auto *target = e->getComponentAt(at.toInt());
+		if (target == nullptr)
+			continue;
+		const auto local = target->getLocalPoint(e.get(), at);
+		const juce::ModifierKeys mods(parts[2].trim() == "right" ? juce::ModifierKeys::rightButtonModifier : juce::ModifierKeys::leftButtonModifier);
+		const auto now = juce::Time::getCurrentTime();
+		const juce::MouseEvent down(juce::Desktop::getInstance().getMainMouseSource(), local, mods, juce::MouseInputSource::defaultPressure, 0, 0, 0, 0,
+		                            target, target, now, local, now, 1, false);
+		target->mouseDown(down);
+		target->mouseUp(down.withNewPosition(local));
+		pump(50);
+	}
 	if (open == "about" || open == "addrom" || open == "service") {
 		if (auto *b = findButton(*e, open == "about" ? "About" : open == "service" ? "SERVICE" : "Add "))
 			b->triggerClick();

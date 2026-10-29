@@ -16,6 +16,7 @@ const sections = [
   { id: 'made', label: 'How it was made' },
   { id: 'roland', label: "Roland's software" },
   { id: 'rom', label: 'ROM' },
+  { id: 'artwork', label: 'Artwork' },
 ];
 
 // A scale for the In numbers charts: where a value sits, as a percentage of the axis.
@@ -280,9 +281,16 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 </section>
 
 <section id="rom" class="sheet">
-<div class="col sec last">
+<div class="col sec brief">
 <h2 class="h2 tap">ROM image and voice mode</h2>
-<p class="dim">The sequencer is a program in the CPU's 2 KB mask ROM, Roland's copyrighted work, so it isn't included. With the ROM image, <span class="mono">d650c-133.ic8</span> from MAME's tb303 set, ro-mono-303 runs it on an emulated CPU. Without it, ro-mono-303 runs in voice mode: the same voice over MIDI, with no sequencer. <a href="/ro-mono-303/guide#first-start">The ROM, voice mode and artwork</a></p>
+<p class="dim">The sequencer is a program in the CPU's 2 KB mask ROM, Roland's copyrighted work, so it isn't included. With the ROM image, <span class="mono">d650c-133.ic8</span> from MAME's tb303 set, ro-mono-303 runs it on an emulated CPU. Without it, ro-mono-303 runs in voice mode: the same voice over MIDI, with no sequencer. <a href="/ro-mono-303/guide#first-start">The ROM and voice mode</a></p>
+</div>
+</section>
+
+<section id="artwork" class="sheet">
+<div class="col sec brief last">
+<h2 class="h2 tap">Panel artwork</h2>
+<p class="dim">Roland's logo and the model names are trademarks, so their four places on the panel are blank. Each place has an empty slot in <span class="mono">tb303.svg</span> in the ROM folder, for your own artwork: drawn yourself, or generated with an AI tool such as Claude or ChatGPT. <a href="/ro-mono-303/guide#artwork">Panel artwork</a></p>
 </div>
 </section>
 
@@ -293,6 +301,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 // strip, or the last of all at the foot of the page.
 const links = [...document.querySelectorAll<HTMLAnchorElement>('.onpage a')];
 const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+const strip = document.querySelector<HTMLElement>('.onpage ol')!;
 let current = -2;
 function mark() {
   let i = -1;
@@ -301,7 +310,13 @@ function mark() {
   if (i === current) return;
   current = i;
   links.forEach((a, j) => { if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
-  links[i]?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  // Bring the link into view along the strip only. scrollIntoView would also scroll the page, up
+  // by the scroll padding, since the stuck strip sits inside it.
+  const a = links[i];
+  if (!a) return;
+  const r = a.getBoundingClientRect(), s = strip.getBoundingClientRect();
+  if (r.left < s.left) strip.scrollLeft += r.left - s.left;
+  else if (r.right > s.right) strip.scrollLeft += r.right - s.right;
 }
 let frame = 0;
 const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
@@ -428,6 +443,7 @@ mark();
 .versus .ours { background: var(--tint); color: var(--wire-text); font-weight: 700; }
 .versus .ours th { font-weight: 700; font-size: 15px; color: var(--wire-text); }
 .sec > p { margin: 0; max-width: 52em; }
-.last { padding-bottom: 96px; gap: 18px; }
-.last p { margin: 0; max-width: 46em; }
+.brief { gap: 18px; }
+.brief p { margin: 0; max-width: 46em; }
+.last { padding-bottom: 96px; }
 </style>

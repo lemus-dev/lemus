@@ -3,11 +3,17 @@
 
 #include <juce_data_structures/juce_data_structures.h>
 
+#include <algorithm>
+
 namespace lemus::updates {
 
 namespace {
 constexpr juce::int64 kDayMs = 24 * 60 * 60 * 1000;
-constexpr size_t kMaxBytes = 65536; // the file is about 100 bytes per plugin
+constexpr juce::int64 kRemindMs = 7 * kDayMs; // Remind me later
+constexpr size_t kMaxBytes = 65536;           // the file is about 100 bytes per plugin, plus its notes
+
+const juce::String kSkipped = juce::String("updateSkipped.") + JucePlugin_Name;
+const juce::String kShown = juce::String("updatePoppedUp.") + JucePlugin_Name;
 } // namespace
 
 bool enabled()
@@ -34,24 +40,66 @@ bool isNewer(const juce::String &a, const juce::String &b)
 	return false;
 }
 
-Release releaseOf(const juce::String &latestJson, const juce::String &plugin)
+Release releaseOf(const juce::String &latestJson, const juce::String &plugin, const juce::String &since)
 {
 	const auto file = juce::JSON::parse(latestJson);
 	const auto entry = plugin.isEmpty() ? juce::var() : file["plugins"][juce::Identifier(plugin)];
 	const auto &r = entry.isObject() ? entry : file;
-	return {r["version"].toString(), r["url"].toString()};
+	Release release{r["version"].toString(), r["url"].toString(), {}};
+	if (const auto *changes = r["changes"].getArray()) {
+		for (const auto &c : *changes) {
+			Change change{c["version"].toString(), {}};
+			if (const auto *notes = c["notes"].getArray())
+				for (const auto &n : *notes)
+					if (n.toString().isNotEmpty())
+						change.notes.add(n.toString());
+			if (change.version.isEmpty() || isNewer(change.version, release.version) || (since.isNotEmpty() && !isNewer(change.version, since)))
+				continue;
+			release.changes.push_back(change);
+		}
+	}
+	std::stable_sort(release.changes.begin(), release.changes.end(), [](const Change &a, const Change &b) { return isNewer(a.version, b.version); });
+	return release;
 }
 
 Release newer()
 {
 	if (!enabled())
 		return {};
-	auto r = releaseOf(settings()->getValue("latestJson"), JucePlugin_Name);
+	auto r = releaseOf(settings()->getValue("latestJson"), JucePlugin_Name, JucePlugin_VersionString);
 	if (!isNewer(r.version, JucePlugin_VersionString))
 		return {};
 	if (!r.url.startsWithIgnoreCase("https://"))
 		r.url = LEMUS_SITE;
 	return r;
+}
+
+bool popUpDue(const Release &r, const juce::String &skipped, const juce::String &shown, juce::int64 now)
+{
+	if (r.version.isEmpty() || r.version == skipped)
+		return false;
+	const auto at = shown.fromFirstOccurrenceOf(" ", false, false).getLargeIntValue();
+	return shown.upToFirstOccurrenceOf(" ", false, false) != r.version || at > now || now - at >= kRemindMs;
+}
+
+bool popUpDue(const Release &r)
+{
+	auto s = settings();
+	return popUpDue(r, s->getValue(kSkipped), s->getValue(kShown), juce::Time::currentTimeMillis());
+}
+
+void poppedUp(const Release &r)
+{
+	auto s = settings();
+	s->setValue(kShown, r.version + " " + juce::String(juce::Time::currentTimeMillis()));
+	s->saveIfNeeded();
+}
+
+void skip(const Release &r)
+{
+	auto s = settings();
+	s->setValue(kSkipped, r.version);
+	s->saveIfNeeded();
 }
 
 Checker::Checker() : Thread("Lemus update check") {}

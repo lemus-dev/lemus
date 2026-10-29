@@ -92,6 +92,11 @@ ArtworkFile findArtwork(const juce::File &folder, const ArtworkSpec &spec);
 // Returns whether it wrote one.
 bool installBlankArtwork(const juce::File &folder, const ArtworkSpec &spec);
 
+// Deletes the blank pack installBlankArtwork wrote into the folder, if it's still there untouched,
+// so a ROM folder left behind doesn't keep a pack that does nothing. A pack with any change is kept.
+// Returns whether it deleted one.
+bool removeBlankArtwork(const juce::File &folder, const ArtworkSpec &spec);
+
 } // namespace romfolder
 
 juce::String sha1Hex(const void *data, size_t size);

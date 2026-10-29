@@ -27,6 +27,10 @@ struct MachineInfo {
 	// Creates the emulation, given its ROMs. Its parameters are mapped onto the host's slots in
 	// order.
 	std::function<std::unique_ptr<juce::AudioProcessor>(const RomSet &)> create;
+	// Its outputs after the main one (a drum machine's individual outs), named. The machine's own
+	// plugin declares them, off until the host turns them on, each mono or stereo, and the machine
+	// takes the same layout. Hosts with several machines have the main output only.
+	std::vector<juce::String> outputs = {};
 };
 
 // The machines built into this host: machines/<host>.cpp, or machines/only_<id>.cpp in a machine's

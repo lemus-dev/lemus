@@ -18,9 +18,15 @@ constexpr int kStateVersion = 1;
 juce::AudioProcessor::BusesProperties LemusProcessor::buses()
 {
 	const auto stereo = juce::AudioChannelSet::stereo();
-	if (kInstrument)
-		return BusesProperties().withOutput("Output", stereo, true);
-	return BusesProperties().withInput("Input", stereo, true).withOutput("Output", stereo, true);
+	auto b = kInstrument ? BusesProperties().withOutput("Output", stereo, true)
+	                     : BusesProperties().withInput("Input", stereo, true).withOutput("Output", stereo, true);
+#ifdef LEMUS_MACHINE
+	// a machine's own plugin: its other outputs too (MachineInfo::outputs)
+	if (const auto *info = lemus::findMachine(LEMUS_MACHINE))
+		for (const auto &name : info->outputs)
+			b = b.withOutput(name, juce::AudioChannelSet::mono(), false);
+#endif
+	return b;
 }
 
 LemusProcessor::LemusProcessor() : AudioProcessor(buses())
@@ -53,6 +59,11 @@ bool LemusProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 	const auto out = layouts.getMainOutputChannelSet();
 	if (out != juce::AudioChannelSet::mono() && out != juce::AudioChannelSet::stereo())
 		return false;
+	for (int b = 1; b < layouts.outputBuses.size(); ++b) {
+		const auto &set = layouts.outputBuses.getReference(b);
+		if (!set.isDisabled() && set != juce::AudioChannelSet::mono() && set != juce::AudioChannelSet::stereo())
+			return false;
+	}
 	return kInstrument || layouts.getMainInputChannelSet() == out;
 }
 

@@ -238,7 +238,7 @@ const toc: Entry[] = [
 <li><span class="k">A pattern</span> is up to 16 sixteenth-note steps, or 15 triplet steps. Notes and rhythm are written separately.</li>
 <li><span class="k">7 tracks</span> chain patterns into songs, one pattern per measure: see <a href="#tracks">Tracks</a>.</li>
 <li>The memory is saved with the session.</li>
-<li>For steps that need two keys at once, right-click (ctrl-click on a Mac) the first: it stays down until clicked again. The <a href="#keys">computer keys</a> work too.</li>
+<li>For steps that need two keys at once, right-click (ctrl-click on a Mac) the first: it stays down until clicked again, and the status bar names it. The <a href="#keys">computer keys</a> work too: hold Return for TAP.</li>
 </ul>
 
 <h3 id="first-pattern">Your first pattern</h3>
@@ -251,7 +251,7 @@ const toc: Entry[] = [
 <li>Turn MODE to PATTERN PLAY and press ACCENT and C again. Without this it plays transposed by the last note key pressed, here G: a fifth up.</li>
 <li>Press RUN/STOP. It loops C C C′ C D♯ C F G, a note every eighth.</li>
 </ol>
-<p><span class="k">Accent the third note:</span> stop, turn MODE to PATTERN WRITE, press ACCENT and C, PITCH MODE, then TAP twice. Hold TAP and press ACCENT (with the mouse: right-click TAP, click ACCENT, click TAP), then FUNCTION.</p>
+<p><span class="k">Accent the third note:</span> stop, turn MODE to PATTERN WRITE, press ACCENT and C, PITCH MODE, then TAP twice. Hold TAP and press ACCENT (hold Return and click ACCENT; or right-click TAP, click ACCENT, click TAP), then FUNCTION. FUNCTION does nothing while TAP is down.</p>
 
 <h3 id="choose">Choose a pattern</h3>
 <Shot src={panel} alt="The TRACK switch, the ACCENT and SLIDE keys and the eight white keys outlined" crop={middle} marks={[{ ...at.track, n: 1 }, { ...at.accentSlide, n: 2 }, { ...at.whiteKeys, n: 3 }]} />
@@ -524,7 +524,7 @@ const toc: Entry[] = [
 <ul>
 <li><span class="k">Knobs:</span> drag up; shift is finer, double-click resets, the wheel works, hover shows the value.</li>
 <li><span class="k">Rotary switches:</span> click steps forward, right- or shift-click back, or drag.</li>
-<li><span class="k">Keys</span> are held while the button is. A right-click (ctrl-click on a Mac) holds one down until it’s clicked again; Escape lets go of all.</li>
+<li><span class="k">Keys</span> are held while the button is. A right-click (ctrl-click on a Mac) holds one down until it’s clicked again, and the status bar names it; Escape lets go of all.</li>
 <li><span class="k">Window:</span> drag the bottom-right corner, half to twice the size.</li>
 </ul>
 </section>

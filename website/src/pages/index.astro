@@ -146,7 +146,7 @@ import { machines, platforms } from '../data/machines';
 </section>
 
 <section id="plugins" class="sheet">
-<div class="col sec last">
+<div class="col sec machines">
 <div class="text">
 <h2 class="h2 tap">Supported machines</h2>
 <p>A plugin is named for its maker, type and model: <span class="mono">ro-mono-303</span> is a Roland mono synth, model 303.</p>
@@ -176,7 +176,21 @@ import { machines, platforms } from '../data/machines';
 </tbody>
 </table>
 </div>
-<p class="foot">ROM images and makers' logos aren't included. Without its ROM, a machine marked <span class="partial mono">[~]</span> plays its voice over MIDI; one marked <span class="missing mono">[✗]</span> doesn't run. <a href="/support#rom">ROM images and artwork</a></p>
+<p class="foot">Without its ROM image, a machine marked <span class="partial mono">[~]</span> plays its voice over MIDI; one marked <span class="missing mono">[✗]</span> doesn't run.</p>
+</div>
+</section>
+
+<section id="rom" class="sheet">
+<div class="col sec brief">
+<h2 class="h2 tap">ROM images</h2>
+<p class="dim">A machine's firmware is its maker's copyrighted work, so Lemus doesn't include it. A machine with a CPU runs its original program from your own ROM image; MAME sets work as they are. <a href="/support#rom">ROM images</a></p>
+</div>
+</section>
+
+<section id="artwork" class="sheet">
+<div class="col sec brief last">
+<h2 class="h2 tap">Panel artwork</h2>
+<p class="dim">Makers' logos and model names are trademarks, so their places on the panel are blank. Each place has an empty slot in an SVG file in the ROM folder, for your own artwork: drawn yourself, or generated with an AI tool such as Claude or ChatGPT. <a href="/support#artwork">Panel artwork</a></p>
 </div>
 </section>
 
@@ -244,5 +258,8 @@ import { machines, platforms } from '../data/machines';
 .more > span { background: var(--paper); padding: 2px 8px; }
 .foot { margin: 0; color: var(--ink2); font-size: 15px; max-width: 46em; }
 .foot .mono { font-size: 13px; }
-.last { padding-bottom: 96px; gap: 28px; }
+.machines { gap: 28px; }
+.brief { gap: 18px; }
+.brief p { margin: 0; max-width: 46em; }
+.last { padding-bottom: 96px; }
 </style>

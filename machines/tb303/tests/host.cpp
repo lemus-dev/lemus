@@ -195,6 +195,10 @@ void testArtwork()
 	LemusProcessor again;
 	check(again.selectMachine("tb303") && blankFile.loadFileAsString() == mine && artworkOf(again).empty(),
 	      "an existing tb303.svg is never overwritten, and one with no marks counts as no pack");
+	check(!romfolder::removeBlankArtwork(folder.dir, drivers::tb303().artwork) && blankFile.existsAsFile(),
+	      "leaving a ROM folder, a tb303.svg someone changed stays");
+	blankFile.replaceWithText(tb303::kBlankArtwork, false, false, "\n");
+	check(romfolder::removeBlankArtwork(folder.dir, drivers::tb303().artwork) && !blankFile.exists(), "and the untouched blank one goes");
 	blankFile.deleteFile();
 
 	// Drawn by hand in an editor: a layer with a transform, a curve, a rectangle in a group.

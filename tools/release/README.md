@@ -32,12 +32,21 @@ readme (`windows-readme.txt`) that says where the VST3 goes.
 5. Try both installers on a clean machine, then the DAW checks below.
 6. Publish the release's source to https://github.com/lemus-dev/lemus and tag it `v<version>`
    there too: the binaries are AGPLv3, so their source must be out when they are.
-7. Upload them to the website, then set each released plugin's `release` in
-   `website/src/data/machines.ts` and run `npm run deploy` in `website/`. That publishes the
-   download links and `latest.json`, so it's the last step: every open plugin window shows the new
-   version within a day. The site builds `latest.json` from the same list:
+7. Write what the version changed as a `changes` entry for each plugin in
+   `website/src/data/machines.ts` (short lines; the plugin's what's-new window shows them), and
+   use the same lines as the release notes. Attach the installers to a GitHub release of that tag,
+   which counts their downloads:
 
-       {"plugins": {"ro-mono-303": {"version": "0.2.0", "url": "https://lemusdev.org/ro-mono-303"}}}
+       gh release create v<version> -R lemus-dev/lemus --verify-tag --latest \
+         --title "ro-mono-303 <version>" --notes "<changes>" dist/ro-mono-303-<version>-*
+
+8. Set each released plugin's `release` in `website/src/data/machines.ts` and run
+   `npm run deploy` in `website/`. That publishes the download links (to the GitHub release's
+   files) and `latest.json`, so it's the last step: every open plugin window shows the new version
+   within a day, and pops up what's new in it. The site builds `latest.json` from the same list:
+
+       {"plugins": {"ro-mono-303": {"version": "0.2.0", "url": "https://lemusdev.org/ro-mono-303",
+                                    "changes": [{"version": "0.2.0", "notes": ["..."]}]}}}
 
 ## Signing on Windows
 
@@ -67,4 +76,6 @@ names, and remove the instance.
 `host/Updates.h`. While a plugin's window is open, once a day, the plugin reads `latest.json` from
 the website (`LEMUS_SITE`, https://lemusdev.org), sending nothing but the request itself (no query,
 no cookies, a fixed `User-Agent: Lemus`), and looks up its own name in it: a plugin the file
-doesn't list shows nothing. The About box can switch it off. The test programs never go online.
+doesn't list shows nothing. A newer version shows in the bar and in a what's-new window with the
+notes of every version since the installed one: Download, Remind me later (a week) or Skip this
+version (until the next). The About box can switch it all off. The test programs never go online.

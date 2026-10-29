@@ -58,6 +58,17 @@ juce::String shortPath(const juce::File &f)
 	return path.startsWith(home + juce::File::getSeparatorString()) ? "~" + path.substring(home.length()) : path;
 }
 
+// Makes `folder` the ROM folder. The old one keeps the user's files, but not the blank artwork packs
+// Lemus wrote there that nobody filled in: they'd look like the packs in use.
+void changeRomFolder(const juce::File &folder)
+{
+	const auto old = lemus::romfolder::location();
+	lemus::romfolder::setLocation(folder);
+	if (old != folder)
+		for (const auto &m : lemus::machines())
+			lemus::romfolder::removeBlankArtwork(old, m.artwork);
+}
+
 float drawWrapped(juce::Graphics &g, const juce::String &text, const juce::Font &font, juce::Colour colour, juce::Rectangle<float> area)
 {
 	const auto l = layoutOf(text, font, colour, area.getWidth());
@@ -336,8 +347,19 @@ public:
 	AboutBox(const lemus::MachineInfo &m, const juce::String &notes)
 	{
 		setLookAndFeel(&m_look.get());
+		const auto folder = lemus::romfolder::location();
 		m_text = juce::String(JucePlugin_Name) + " " + JucePlugin_VersionString + "\n" + m.name + " emulation (" + m.description + ")\nFree software under the GNU AGPLv3.\n\n" +
-		         (notes.isNotEmpty() ? notes + "\n\n" : juce::String()) + kDisclaimer;
+		         "ROM folder: " + shortPath(folder) + "\n\n" + (notes.isNotEmpty() ? notes + "\n\n" : juce::String()) + kDisclaimer;
+
+		// The ROM folder holds the ROMs and the artwork packs, wherever it is.
+		m_folder.setButtonText("Show ROM folder");
+		m_folder.onClick = [folder] {
+			if (folder == lemus::romfolder::defaultLocation())
+				folder.createDirectory();
+			if (folder.isDirectory())
+				folder.revealToUser();
+		};
+		m_links.add(&m_folder);
 
 		const juce::String site = LEMUS_SITE;
 		m_site.setButtonText(site.fromFirstOccurrenceOf("://", false, false));
@@ -385,7 +407,7 @@ private:
 	static constexpr int kWidth = 380, kPad = 14;
 	juce::SharedResourcePointer<LemusLook> m_look;
 	juce::String m_text;
-	juce::HyperlinkButton m_guide, m_site, m_support, m_licences, m_source;
+	juce::HyperlinkButton m_folder, m_guide, m_site, m_support, m_licences, m_source;
 	juce::Array<juce::HyperlinkButton *> m_links; // in the order shown
 	Check m_updates{"Check for updates once a day"};
 	int m_textHeight = 0;
@@ -523,7 +545,7 @@ private:
 			                       const auto folder = fc.getResult();
 			                       if (safe == nullptr || !folder.isDirectory())
 				                       return;
-			                       lemus::romfolder::setLocation(folder);
+			                       changeRomFolder(folder);
 			                       safe->m_folder = folder;
 			                       safe->rescan();
 		                       });
@@ -759,16 +781,16 @@ private:
 		relayout();
 	}
 
-	// The ROM is in the folder now: reload the machine with it.
-	bool reload()
+	// The ROM is in the folder now: reload the machine with it. `where` says where it went, since
+	// the ROM folder (and the artwork pack in it) may be one the user never picked.
+	bool reload(const juce::String &where)
 	{
-		const auto what = rom().what;
 		if (!m_proc.reloadWithRoms())
 			return false;
 		const bool all = m_proc.romsWithout().empty();
 		if (!all) // with every ROM, the answer is forgotten (LemusProcessor::createMachine)
 			lemus::setRomPromptAnswered(m_info.id, true);
-		m_onReloaded(what + " found. " + (all ? "The full " : "") + m_info.name + (all ? " is running" : " has reloaded") + "; your settings are kept.");
+		m_onReloaded(all ? where : where + " " + m_info.name + " has reloaded."); // with every ROM, the panel says the rest
 		return true;
 	}
 
@@ -809,9 +831,9 @@ private:
 	{
 		if (!hasAny(folder))
 			return fail(names() + " isn't in " + shortPath(folder) + ". Your ROM folder is unchanged.");
-		lemus::romfolder::setLocation(folder);
+		changeRomFolder(folder);
 		m_folder = folder;
-		if (!reload())
+		if (!reload("Your ROM folder is " + shortPath(folder) + "."))
 			fail("Found in " + shortPath(folder) + ", but it didn't load. Try Rescan from the bar.");
 	}
 
@@ -828,7 +850,7 @@ private:
 			target = m_folder.getNonexistentChildFile(file.getFileNameWithoutExtension(), file.getFileExtension());
 		if (!target.exists() && !(m_folder.createDirectory() && file.copyFileTo(target)))
 			return fail("Couldn't copy " + file.getFileName() + " into " + shortPath(m_folder) + ".");
-		if (!reload())
+		if (!reload(rom().what + " copied into your ROM folder, " + shortPath(m_folder) + "."))
 			fail("Copied into " + shortPath(m_folder) + ", but it didn't load. Try Rescan from the bar.");
 	}
 
@@ -871,6 +893,161 @@ public:
 
 private:
 	RomPromptBody m_body;
+};
+
+// A newer release of this plugin: what's new in every version since this build's, and the usual
+// three answers. Download opens its page; Remind me later shows it again in a week; Skip this
+// version doesn't show it again until the next. Escape or a click beside it is Remind me later. The
+// bar keeps saying there's a release whatever the answer, and opens this again.
+class WhatsNewBody final : public juce::Component {
+public:
+	WhatsNewBody(const lemus::updates::Release &release, std::function<void()> onClosed) : m_release(release), m_onClosed(std::move(onClosed))
+	{
+		m_download.onClick = [this] {
+			juce::URL(m_release.url).launchInDefaultBrowser();
+			m_onClosed();
+		};
+		m_later.onClick = [this] { m_onClosed(); };
+		m_skip.onClick = [this] {
+			lemus::updates::skip(m_release);
+			m_onClosed();
+		};
+		for (auto *b : {&m_download, &m_later, &m_skip})
+			addAndMakeVisible(*b);
+		setSize(kWidth, layout(nullptr));
+	}
+
+	void paint(juce::Graphics &g) override { layout(&g); }
+
+	void resized() override
+	{
+		auto row = juce::Rectangle<int>(kPad, m_buttonsY, kWidth - 2 * kPad, 32);
+		m_download.setBounds(row.removeFromRight(m_download.idealWidth() + 8));
+		m_skip.setBounds(row.removeFromLeft(m_skip.idealWidth()));
+		row.removeFromLeft(8);
+		m_later.setBounds(row.removeFromLeft(m_later.idealWidth()));
+	}
+
+private:
+	static constexpr int kWidth = 600, kPad = 20, kMaxVersions = 5;
+
+	// Draws (with g) or only measures (without); sets where the buttons go and returns the height.
+	int layout(juce::Graphics *g)
+	{
+		const float pad = float(kPad), iw = float(kWidth - 2 * kPad);
+		auto text = [&](const juce::String &s, const juce::Font &f, juce::Colour c, float x, float y, float width) {
+			const auto l = layoutOf(s, f, c, width);
+			if (g != nullptr)
+				l.draw(*g, {x, y, width, l.getHeight()});
+			return l.getHeight();
+		};
+		if (g != nullptr) {
+			g->setColour(col::panel);
+			g->fillRoundedRectangle(getLocalBounds().toFloat(), 10.0f);
+			g->setColour(col::rule);
+			g->drawRoundedRectangle(getLocalBounds().toFloat().reduced(0.5f), 10.0f, 1.0f);
+		}
+
+		float y = pad;
+		y += text(juce::String(JucePlugin_Name) + " " + m_release.version + " is out", mono(16.0f, true), col::ink, pad, y, iw) + 6;
+		y += text(juce::String("You have ") + JucePlugin_VersionString + ".", mono(13.0f), col::inkSoft, pad, y, iw) + 16;
+
+		if (m_release.changes.empty()) {
+			y += text("What's new is on its page.", mono(13.0f), col::inkSoft, pad, y, iw) + 16;
+		} else {
+			// The notes on `well`, newest version first; past a few versions, the page has the rest.
+			const float x = pad + 14, cw = iw - 28, markW = 18;
+			const int shown = juce::jmin(int(m_release.changes.size()), kMaxVersions);
+			const bool more = int(m_release.changes.size()) > shown;
+			float h = 24;
+			for (int i = 0; i < shown; ++i) {
+				const auto &c = m_release.changes[size_t(i)];
+				h += (i > 0 ? 12 : 0) + layoutOf(c.version, mono(13.0f, true), col::ink, cw).getHeight() + 4;
+				for (const auto &n : c.notes)
+					h += layoutOf(n, mono(13.0f), col::inkSoft, cw - markW).getHeight() + 4;
+			}
+			if (more)
+				h += 12 + layoutOf("Earlier versions are on its page.", mono(12.0f), col::muted, cw).getHeight();
+			if (g != nullptr) {
+				g->setColour(col::well);
+				g->fillRoundedRectangle({pad, y, iw, h}, 8.0f);
+			}
+			float ly = y + 12;
+			for (int i = 0; i < shown; ++i) {
+				const auto &c = m_release.changes[size_t(i)];
+				if (i > 0)
+					ly += 12;
+				ly += text(c.version, mono(13.0f, true), col::ink, x, ly, cw) + 4;
+				for (const auto &n : c.notes) {
+					if (g != nullptr) {
+						g->setColour(col::accent);
+						g->setFont(mono(13.0f));
+						g->drawText(utf8("\xc2\xb7"), juce::Rectangle<float>(x, ly, markW, 18), juce::Justification::centredLeft, false);
+					}
+					ly += text(n, mono(13.0f), col::inkSoft, x + markW, ly, cw - markW) + 4;
+				}
+			}
+			if (more)
+				text("Earlier versions are on its page.", mono(12.0f), col::muted, x, ly + 12, cw);
+			y += h + 16;
+		}
+
+		m_buttonsY = int(y);
+		y += 32 + 12;
+		y += text("Remind me later shows this again in a week. The bar keeps the update until you have it.", mono(12.0f), col::muted, pad, y, iw);
+		return int(std::ceil(y + pad));
+	}
+
+	lemus::updates::Release m_release;
+	std::function<void()> m_onClosed;
+	Pill m_download{"Download", Pill::Kind::Primary, col::accent, 12.0f};
+	Pill m_later{"Remind me later", Pill::Kind::Plain, col::accent, 12.0f};
+	Pill m_skip{"Skip this version", Pill::Kind::Plain, col::accent, 12.0f};
+	int m_buttonsY = 0;
+};
+
+// The what's-new pop-up over the whole editor, like the ROM prompt: the panel dimmed behind it, the
+// pop-up centred and, in a small window, scaled down to fit.
+class WhatsNew final : public juce::Component {
+public:
+	WhatsNew(const lemus::updates::Release &release, std::function<void()> onClosed) : m_body(release, onClosed), m_onClosed(std::move(onClosed))
+	{
+		lemus::updates::poppedUp(release);
+		addAndMakeVisible(m_body);
+		setWantsKeyboardFocus(true);
+	}
+
+	void paint(juce::Graphics &g) override { g.fillAll(juce::Colour(0xbc0d0e14)); }
+
+	void resized() override
+	{
+		const float w = float(m_body.getWidth()), h = float(m_body.getHeight());
+		if (w <= 0 || h <= 0)
+			return;
+		const float s = juce::jmin(1.0f, (float(getWidth()) - 32) / w, (float(getHeight()) - 32) / h);
+		m_body.setTransform(juce::AffineTransform::scale(s).translated((float(getWidth()) - w * s) / 2, (float(getHeight()) - h * s) / 2));
+	}
+
+	void visibilityChanged() override
+	{
+		if (isShowing())
+			grabKeyboardFocus();
+	}
+	void parentHierarchyChanged() override { visibilityChanged(); }
+
+	// Beside the pop-up, or Escape: Remind me later.
+	void mouseDown(const juce::MouseEvent &) override { m_onClosed(); }
+	bool keyPressed(const juce::KeyPress &key) override
+	{
+		if (key != juce::KeyPress::escapeKey)
+			return false;
+		m_onClosed();
+		return true;
+	}
+
+private:
+	WhatsNewBody m_body;
+	std::function<void()> m_onClosed;
 };
 
 } // namespace
@@ -1150,7 +1327,7 @@ private:
 		m_chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories, [this](const juce::FileChooser &fc) {
 			const auto folder = fc.getResult();
 			if (folder.isDirectory()) {
-				lemus::romfolder::setLocation(folder);
+				changeRomFolder(folder);
 				m_refresh();
 			}
 		});
@@ -1175,11 +1352,14 @@ private:
 //==============================================================================
 // The strip above a machine's editor: which host and machine this is; while it runs without an
 // optional ROM, which mode that is and a way to add the ROM; a newer release when the update
-// check has found one; the About box; and, after a reload, what happened.
+// check has found one (it opens the what's-new pop-up, as a check that finds one does); the About
+// box; and, after a reload, what happened.
 class LemusEditor::Bar final : public juce::Component, private juce::ChangeListener, private juce::Timer {
 public:
-	Bar(LemusProcessor &proc, const juce::String &notes, const juce::String &flash, int flashMs, std::function<void(const juce::String &)> onReloaded)
-		: m_proc(proc), m_info(*proc.machine()), m_notes(notes), m_without(proc.romsWithout()), m_flash(flash), m_onReloaded(std::move(onReloaded))
+	Bar(LemusProcessor &proc, const juce::String &notes, const juce::String &flash, int flashMs, std::function<void(const juce::String &)> onReloaded,
+	    std::function<void()> onWhatsNew)
+		: m_proc(proc), m_info(*proc.machine()), m_notes(notes), m_without(proc.romsWithout()), m_flash(flash), m_onReloaded(std::move(onReloaded)),
+		  m_onWhatsNew(std::move(onWhatsNew))
 	{
 		m_about.onClick = [this] { showAbout(); };
 		addAndMakeVisible(m_about);
@@ -1190,7 +1370,7 @@ public:
 			addAndMakeVisible(m_addRom);
 		}
 
-		m_update.onClick = [this] { juce::URL(m_release.url).launchInDefaultBrowser(); };
+		m_update.onClick = [this] { m_onWhatsNew(); };
 		addChildComponent(m_update);
 		showRelease();
 		m_checker->addChangeListener(this);
@@ -1269,7 +1449,12 @@ public:
 	}
 
 private:
-	void changeListenerCallback(juce::ChangeBroadcaster *) override { showRelease(); }
+	void changeListenerCallback(juce::ChangeBroadcaster *) override
+	{
+		showRelease();
+		if (lemus::updates::popUpDue(m_release))
+			m_onWhatsNew();
+	}
 
 	void timerCallback() override
 	{
@@ -1303,6 +1488,7 @@ private:
 	std::vector<lemus::RomSpec> m_without;
 	juce::String m_flash;
 	std::function<void(const juce::String &)> m_onReloaded;
+	std::function<void()> m_onWhatsNew;
 	Pill m_about{"About"};
 	Pill m_addRom{"Add ROM", Pill::Kind::Outline, col::warn};
 	Pill m_update{"Update", Pill::Kind::Outline, col::accent};
@@ -1356,6 +1542,7 @@ void LemusEditor::showCurrentMachine()
 	if (m_inner != nullptr)
 		m_inner->removeComponentListener(this);
 	m_inner.reset();
+	m_whatsNew.reset();
 	m_prompt.reset();
 	m_bar.reset();
 	m_picker.reset();
@@ -1385,7 +1572,7 @@ void LemusEditor::showCurrentMachine()
 			safe->m_flashUntil = juce::Time::currentTimeMillis() + 8000;
 		}
 	};
-	m_bar = std::make_unique<Bar>(m_proc, notes.joinIntoString("\n\n"), left > 0 ? m_flash : juce::String(), int(left), flash);
+	m_bar = std::make_unique<Bar>(m_proc, notes.joinIntoString("\n\n"), left > 0 ? m_flash : juce::String(), int(left), flash, [this] { showWhatsNew(); });
 	addAndMakeVisible(*m_bar);
 	addAndMakeVisible(*m_inner);
 	m_inner->addComponentListener(this);
@@ -1405,6 +1592,25 @@ void LemusEditor::showCurrentMachine()
 		                            c->getMaximumHeight() + kBarHeight);
 	setResizable(m_inner->isResizable(), false);
 	setSize(m_inner->getWidth(), m_inner->getHeight() + kBarHeight);
+	resized();
+	if (lemus::updates::popUpDue(lemus::updates::newer()))
+		showWhatsNew();
+}
+
+void LemusEditor::showWhatsNew()
+{
+	// Not over the ROM prompt (it waits for the next time), nor twice.
+	const auto release = lemus::updates::newer();
+	if (release.version.isEmpty() || m_prompt != nullptr || m_whatsNew != nullptr)
+		return;
+	// Closed after the click that answered it has finished.
+	m_whatsNew = std::make_unique<WhatsNew>(release, [safe = juce::Component::SafePointer<LemusEditor>(this)] {
+		juce::MessageManager::callAsync([safe] {
+			if (safe != nullptr)
+				safe->m_whatsNew.reset();
+		});
+	});
+	addAndMakeVisible(*m_whatsNew);
 	resized();
 }
 
@@ -1441,4 +1647,6 @@ void LemusEditor::resized()
 		m_inner->setBounds(b);
 	if (m_prompt != nullptr)
 		m_prompt->setBounds(getLocalBounds());
+	if (m_whatsNew != nullptr)
+		m_whatsNew->setBounds(getLocalBounds());
 }

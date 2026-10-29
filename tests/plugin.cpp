@@ -11,6 +11,9 @@ namespace {
 using namespace lemus;
 
 const juce::String kId = LEMUS_MACHINE;
+// A note goes in after a new instance's power-on: a machine may mute its outputs at first, as the
+// TR-909 does (2.5 s), and its firmware may take a while to boot.
+const int kAfterPowerOn = int(3.0 * kRate);
 
 juce::MemoryBlock stateOf(juce::AudioProcessor &p)
 {
@@ -42,14 +45,43 @@ void testMachine()
 	e.reset();
 
 	if (LemusProcessor::kInstrument) {
-		juce::AudioBuffer<float> silence(2, int(kRate));
+		juce::AudioBuffer<float> silence(2, int(kAfterPowerOn + kRate));
 		silence.clear();
-		const auto out = render(p, silence, {{0, juce::MidiMessage::noteOn(1, 48, uint8_t(100))}, {int(kRate / 2), juce::MidiMessage::noteOff(1, 48)}});
+		const auto out = render(p, silence, {{kAfterPowerOn, juce::MidiMessage::noteOn(1, 48, uint8_t(100))},
+		                                     {kAfterPowerOn + int(kRate / 2), juce::MidiMessage::noteOff(1, 48)}});
 		check(peak(out) > 0.01f, "it plays a note from MIDI");
 	} else {
 		const auto in = testSignal(int(kRate));
 		check(peak(render(p, in)) > 0.01f, "it passes the test signal through its circuit");
 	}
+}
+
+// The machine's other outputs (MachineInfo::outputs, a drum machine's individual outs): after the
+// main one, named, off until the host turns them on. A host may turn them all on, stereo (Onyx
+// does), and the machine then plays on the same layout.
+void testOutputs()
+{
+	const auto &outs = findMachine(kId)->outputs;
+	if (outs.empty())
+		return;
+	std::printf("\nOutputs\n");
+	RomFolder empty;
+	if (LemusProcessor::anyRequired(LemusProcessor::missingRoms(*findMachine(kId))))
+		return;
+	LemusProcessor p;
+	bool named = p.getBusCount(false) == 1 + int(outs.size());
+	for (int i = 0; named && i < int(outs.size()); ++i)
+		named = p.getBus(false, 1 + i)->getName() == outs[size_t(i)] && !p.getBus(false, 1 + i)->isEnabled();
+	check(named, "its " + juce::String(int(outs.size())) + " other outputs after the main one, named (" + outs.front() + " ...), off");
+	auto layout = p.getBusesLayout();
+	for (int b = 1; b < layout.outputBuses.size(); ++b)
+		layout.outputBuses.getReference(b) = juce::AudioChannelSet::stereo();
+	check(p.setBusesLayout(layout) && p.getTotalNumOutputChannels() == 2 * (1 + int(outs.size())), "a host can turn them all on, stereo");
+	juce::AudioBuffer<float> silence(p.getTotalNumOutputChannels(), int(kAfterPowerOn + kRate));
+	silence.clear();
+	const auto out = render(p, silence, {{kAfterPowerOn, juce::MidiMessage::noteOn(1, 48, uint8_t(100))},
+	                                     {kAfterPowerOn + int(kRate / 2), juce::MidiMessage::noteOff(1, 48)}});
+	check(p.machineProcessor()->getBusesLayout() == p.getBusesLayout() && peak(out) > 0.01f, "the machine takes that layout, and plays a note on it");
 }
 
 void testSessions()
@@ -93,6 +125,7 @@ int main(int argc, char **argv)
 		                opts.contains("noroms"), opts.contains("noart"), opts.contains("2x") ? 2.0f : 1.0f);
 	}
 	testMachine();
+	testOutputs();
 	testSessions();
 	finish();
 	return g_failures == 0 ? 0 : 1;

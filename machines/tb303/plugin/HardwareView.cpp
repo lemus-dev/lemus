@@ -846,6 +846,19 @@ void HardwareView::drawBar(juce::Graphics &g)
 	if (!m_proc.romLoaded())
 		status = "VOICE ONLY (no CPU ROM)   NOTE " + juce::String(names[l.note % 12]) + juce::String(l.note / 12 - 1) + (l.gate ? "  GATE" : "      ") +
 		         (l.accent ? "  ACC" : "     ") + (l.slide && l.gate ? "  SLIDE" : "       ");
+	// Keys held down by a right-click: easy to forget, and the firmware won't leave pitch mode while TAP
+	// is down, so they take over the status until let go.
+	static const char *keyNames[] = {"C",    "C#",   "D",      "D#",    "E",             "F",        "F#",         "G",
+	                                 "G#",   "A",    "A#",     "B",     "C'",            "DOWN",     "UP",         "ACCENT",
+	                                 "SLIDE", "PATTERN CLEAR", "FUNCTION", "PITCH MODE", "TIME MODE", "BACK", "TAP"};
+	juce::StringArray held;
+	for (size_t i = 0; i < m_keys.size(); ++i)
+		if (m_latched[i] && m_keys[i].key >= 0)
+			held.add(keyNames[m_keys[i].key]);
+	if (!held.isEmpty() && !m_service) {
+		status = held.joinIntoString(", ") + (held.size() > 1 ? " held: click them" : " held: click it") + " or Esc to release";
+		g.setColour(juce::Colour(0xffff8c1a));
+	}
 	if (m_service)
 		status = juce::String::fromUTF8("PANEL OFF  pick a trimmer on the right \xc2\xb7 \xe2\x86\x91\xe2\x86\x93 pick, \xe2\x86\x90\xe2\x86\x92 turn \xc2\xb7 the keys play");
 	const float sx = barRect(m_service ? BarItem::Factory : BarItem::Service).getRight() + 14;
@@ -855,7 +868,7 @@ void HardwareView::drawBar(juce::Graphics &g)
 
 void HardwareView::drawHelp(juce::Graphics &g)
 {
-	const juce::Rectangle<float> r(150, 60, 900, 483);
+	const juce::Rectangle<float> r(150, 48, 900, 504);
 	g.setColour(juce::Colour(0xf01b1f25));
 	g.fillRoundedRectangle(r, 12);
 	g.setColour(juce::Colour(0xff2e343d));
@@ -878,6 +891,7 @@ void HardwareView::drawHelp(juce::Graphics &g)
 		"",
 		"Mouse: drag knobs (shift = fine, double-click = default), click switches, press keys.",
 		"Right-click (ctrl-click) a key: it stays down until clicked again. Escape lets go of all.",
+		"FUNCTION won't end PITCH MODE while TAP is down. For TAP + ACCENT/SLIDE, hold Return and click them.",
 		"MIDI notes play the voice directly: velocity >= 100 accents, overlapping notes slide.",
 		"SYNC: HOST runs the sequencer from the DAW transport (DIN sync: run + 24 ppqn clock).",
 		"CUT OFF MAX: how high full CUT OFF reaches, 1.2 to 3 kHz: drag it (double-click: the fitted unit's).",
