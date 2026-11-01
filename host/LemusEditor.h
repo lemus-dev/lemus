@@ -41,6 +41,7 @@ private:
 	void changeListenerCallback(juce::ChangeBroadcaster *) override;
 	void componentMovedOrResized(juce::Component &, bool wasMoved, bool wasResized) override;
 	void showCurrentMachine();
+	void showMachineEditor(); // the loaded machine's editor, built again
 	void refresh(); // the ROM folder changed or was rescanned
 	void showWhatsNew(); // a newer release: what's new in it, over the rest
 
@@ -52,6 +53,7 @@ private:
 	std::unique_ptr<juce::Component> m_prompt;   // the first start without an optional ROM, over the rest
 	std::unique_ptr<juce::Component> m_whatsNew; // a newer release, over the rest
 	juce::AudioProcessor *m_innerFor = nullptr;
+	int m_innerArtwork = -1; // the artwork version m_inner was built with
 	bool m_layingOut = false;
 	juce::String m_flash; // a notice for the bar, after a reload
 	juce::int64 m_flashUntil = 0;

@@ -16,11 +16,11 @@
 // board model. MIDI notes play the voice directly (velocity >= 100 accents, legato slides),
 // like Roland's own software with KEYBOARD on. With SYNC on, the host transport is the DIN
 // sync input (run level and 24 ppqn clock); otherwise RUN/STOP and TEMPO run the unit.
-class TB303Processor : public juce::AudioProcessor {
+class TB303Processor : public juce::AudioProcessor, public lemus::ArtworkUser {
 public:
 	// rom: the CPU's 2 KB mask ROM (d650c-133.ic8); without it the machine stays silent.
-	// artwork: the artwork pack (tb303.svg) with the panel's brand marks, or null for none.
-	explicit TB303Processor(const juce::MemoryBlock *rom, const juce::MemoryBlock *artwork = nullptr);
+	// artwork: the panel's brand marks (host/Artwork.h), none by default.
+	explicit TB303Processor(const juce::MemoryBlock *rom, lemus::Artwork artwork = {});
 	~TB303Processor() override = default;
 
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -55,6 +55,7 @@ public:
 	static constexpr int kModelVersion = 1;
 	int modelVersion() const { return m_modelVersion; }
 	const lemus::Artwork &artwork() const { return m_artwork; }
+	void setArtwork(lemus::Artwork artwork) override { m_artwork = std::move(artwork); } // the view reads it when it's built
 
 	// Panel -> machine. Queued and applied at the start of the next audio block, in order.
 	void setKey(tb303::Machine::Key k, bool down);

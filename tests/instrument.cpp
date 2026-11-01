@@ -1,7 +1,7 @@
 // Headless checks of Lemus, the instruments host: its own here, and each machine's through it
 // (machines/<id>/tests/host.cpp, registered with LEMUS_HOST_TEST).
 //   lemustest_instrument                         run the checks
-//   lemustest_instrument --snapshot <id>|picker <png> [about|addrom|prompt|service] [noroms|noart] [2x]   the editor in Lemus, as a PNG
+//   lemustest_instrument --snapshot <id>|picker <png> [about|roms|prompt|service] [noroms|noart] [2x]   the editor in Lemus, as a PNG
 //   lemustest_instrument --save-state <id> <file>   a session state with the machine loaded
 #include "common.h"
 
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 		juce::StringArray opts;
 		for (int i = 4; i < argc; ++i)
 			opts.add(argv[i]);
-		return snapshot(argv[2], argv[3], opts.contains("about") ? "about" : opts.contains("addrom") ? "addrom" : opts.contains("prompt") ? "prompt" : opts.contains("service") ? "service" : "",
+		return snapshot(argv[2], argv[3], opts.contains("about") ? "about" : opts.contains("addrom") ? "addrom" : opts.contains("roms") ? "roms" : opts.contains("prompt") ? "prompt" : opts.contains("service") ? "service" : "",
 		                opts.contains("noroms"), opts.contains("noart"), opts.contains("2x") ? 2.0f : 1.0f);
 	}
 	if (argc == 4 && juce::String(argv[1]) == "--save-state")

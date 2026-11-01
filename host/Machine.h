@@ -21,8 +21,8 @@ struct MachineInfo {
 	Kind kind = Kind::Effect;
 	// The ROM images it needs, from the user's ROM folder. None for a circuit-only machine.
 	std::vector<RomSpec> roms;
-	// Its artwork pack (optional): the panel's brand marks. Given to `create` in the RomSet under
-	// its name when the ROM folder has one.
+	// Its artwork (optional): the panel's brand marks. Given to `create` in the RomSet: a pack under
+	// its name, each place's own file under ArtworkSpec::key (host/Roms.h addArtwork).
 	ArtworkSpec artwork;
 	// Creates the emulation, given its ROMs. Its parameters are mapped onto the host's slots in
 	// order.

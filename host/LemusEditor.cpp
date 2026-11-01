@@ -1,4 +1,5 @@
 #include "LemusEditor.h"
+#include "Artwork.h"
 #include "Style.h"
 #include "Updates.h"
 
@@ -127,6 +128,12 @@ public:
 	}
 
 	int idealWidth() const { return juce::GlyphArrangement::getStringWidthInt(font(), getButtonText()) + int(m_size * 2.4f); }
+	void setStyle(Kind kind, juce::Colour tint)
+	{
+		m_kind = kind;
+		m_tint = tint;
+		repaint();
+	}
 
 	void paintButton(juce::Graphics &g, bool over, bool down) override
 	{
@@ -372,11 +379,13 @@ public:
 #endif
 		m_support.setButtonText("Help and support");
 		m_support.setURL(juce::URL(site + "/support"));
+		m_forum.setButtonText("Forum");
+		m_forum.setURL(juce::URL(LEMUS_FORUM));
 		m_licences.setButtonText("Credits and licences");
 		m_licences.setURL(juce::URL(site + "/licences"));
 		m_source.setButtonText("Source code");
 		m_source.setURL(juce::URL(LEMUS_SOURCE));
-		m_links.addArray({&m_site, &m_support, &m_licences, &m_source});
+		m_links.addArray({&m_site, &m_support, &m_forum, &m_licences, &m_source});
 		for (auto *b : m_links) {
 			b->setFont(mono(13.0f), false, juce::Justification::centredLeft);
 			addAndMakeVisible(*b);
@@ -407,106 +416,62 @@ private:
 	static constexpr int kWidth = 380, kPad = 14;
 	juce::SharedResourcePointer<LemusLook> m_look;
 	juce::String m_text;
-	juce::HyperlinkButton m_folder, m_guide, m_site, m_support, m_licences, m_source;
+	juce::HyperlinkButton m_folder, m_guide, m_site, m_support, m_forum, m_licences, m_source;
 	juce::Array<juce::HyperlinkButton *> m_links; // in the order shown
 	Check m_updates{"Check for updates once a day"};
 	int m_textHeight = 0;
 };
 
-// Adding an optional ROM the machine runs without: what it is, where it goes, and a rescan that
-// reloads the machine with it in place, keeping the session.
-class RomPopover final : public juce::Component {
+// Saving the instance's state to a file and loading one: the standalone app's Options menu uses
+// the same files, so what was made there opens in a session, and the other way round.
+class StatePopover final : public juce::Component {
 public:
-	RomPopover(LemusProcessor &proc, std::function<void(const juce::String &)> onReloaded) : m_proc(proc), m_onReloaded(std::move(onReloaded))
+	explicit StatePopover(LemusProcessor &proc) : m_proc(proc)
 	{
 		setLookAndFeel(&m_look.get());
-		m_roms = proc.romsWithout();
-		m_folder = lemus::romfolder::location();
-		m_show.onClick = [this] {
-			m_folder.createDirectory();
-			m_folder.revealToUser();
-		};
-		m_change.onClick = [this] { chooseFolder(); };
-		m_rescan.onClick = [this] { rescan(); };
-		for (auto *b : {&m_show, &m_change, &m_rescan})
-			addAndMakeVisible(*b);
+		m_save.onClick = [this] { choose(true); };
+		m_load.onClick = [this] { choose(false); };
+		addAndMakeVisible(m_save);
+		addAndMakeVisible(m_load);
 		relayout();
 	}
-	~RomPopover() override { setLookAndFeel(nullptr); }
+	~StatePopover() override { setLookAndFeel(nullptr); }
 
 	void paint(juce::Graphics &g) override { layout(&g); }
 
 	void resized() override
 	{
 		auto row = juce::Rectangle<int>(kPad, m_buttonsY, kWidth, 32);
-		m_show.setBounds(row.removeFromLeft(m_show.idealWidth()));
+		m_save.setBounds(row.removeFromLeft(m_save.idealWidth()));
 		row.removeFromLeft(8);
-		m_change.setBounds(row.removeFromLeft(m_change.idealWidth()));
-		m_rescan.setBounds(row.removeFromRight(m_rescan.idealWidth() + 8));
+		m_load.setBounds(row.removeFromLeft(m_load.idealWidth()));
 	}
 
 private:
-	static constexpr int kWidth = 420, kPad = 14;
+	static constexpr int kWidth = 380, kPad = 14;
 
 	// Draws (with g) or only measures (without); sets where the buttons go and returns the height.
 	int layout(juce::Graphics *g)
 	{
 		const float w = float(kWidth), ox = float(kPad);
 		float y = float(kPad);
-		auto text = [&](const juce::String &s, const juce::Font &f, juce::Colour c, float x = 0, float width = -1) {
-			const auto l = layoutOf(s, f, c, width < 0 ? w - x : width);
+		auto text = [&](const juce::String &s, const juce::Font &f, juce::Colour c) {
+			const auto l = layoutOf(s, f, c, w);
 			if (g != nullptr)
-				l.draw(*g, {ox + x, y, l.getWidth(), l.getHeight()});
+				l.draw(*g, {ox, y, l.getWidth(), l.getHeight()});
 			return l.getHeight();
 		};
-		const auto &first = m_roms.front();
 		const auto *info = m_proc.machine();
-		const juce::String name = info != nullptr ? info->name : juce::String();
-		y += text(name + " is in " + (first.mode.isNotEmpty() ? first.mode.toLowerCase() : "a reduced mode"), mono(15.0f, true), col::ink) + 8;
-		y += text("It's running without its " + first.what + ": " + first.without + ". Lemus ships no ROMs; it uses your own dump.",
+		y += text("Save or load the state", mono(15.0f, true), col::ink) + 8;
+		y += text("Everything the session keeps of the " + (info != nullptr ? info->name : juce::String("machine")) +
+		              ", its memory included. The standalone app's Options menu saves and loads the same files.",
 		          mono(13.0f), col::inkSoft) +
 		     14;
-		for (const auto &r : m_roms) {
-			// A card: the image's name, size and checksums, on `well`.
-			const float x = 12, cw = w - 24;
-			const juce::StringArray lines{r.name, sizeText(r.size) + utf8(" \xc2\xb7 CRC ") + r.crc32, "SHA1 " + r.sha1};
-			std::vector<juce::TextLayout> ls;
-			float h = 20;
-			for (int i = 0; i < lines.size(); ++i) {
-				ls.push_back(layoutOf(lines[i], i == 0 ? mono(13.0f, true) : mono(12.0f), i == 0 ? col::ink : col::muted, cw));
-				h += ls.back().getHeight() + (i > 0 ? 2 : 0);
-			}
-			if (g != nullptr) {
-				g->setColour(col::well);
-				g->fillRoundedRectangle({ox, y, w, h}, 8.0f);
-				float ly = y + 10;
-				for (size_t i = 0; i < ls.size(); ++i) {
-					ls[i].draw(*g, {ox + x, ly, cw, ls[i].getHeight()});
-					ly += ls[i].getHeight() + 2;
-				}
-			}
-			y += h + 8;
-		}
-		y += 6;
-		y += text("Put it in your ROM folder, loose or in a zip (MAME's sets work as they are). Any file name will do.", mono(13.0f),
-		          col::inkSoft) +
-		     8;
-		{
-			const juce::Rectangle<float> box(ox, y, w, 30);
-			if (g != nullptr) {
-				g->setColour(col::well);
-				g->fillRoundedRectangle(box, 8.0f);
-				g->setColour(col::ink);
-				g->setFont(mono(12.0f));
-				g->drawText(shortPath(m_folder), box.reduced(12, 0), juce::Justification::centredLeft, true);
-			}
-			y += box.getHeight() + 14;
-		}
 		m_buttonsY = int(y);
 		y += 32;
 		if (m_status.isNotEmpty()) {
 			y += 12;
-			y += text(m_status, mono(12.0f), col::warn);
+			y += text(m_status, mono(12.0f), m_failed ? col::warn : col::ok);
 		}
 		return int(std::ceil(y)) + kPad;
 	}
@@ -518,48 +483,334 @@ private:
 		repaint();
 	}
 
+	void choose(bool save)
+	{
+		// From the last file saved or loaded; at first, the documents folder.
+		const auto last = lemus::settings()->getValue("stateFile");
+		const auto from = last.isNotEmpty() && juce::File::isAbsolutePath(last) ? juce::File(last)
+		                                                                       : juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
+		m_chooser = std::make_unique<juce::FileChooser>(save ? "Save the state" : "Load a saved state", from);
+		const int flags = save ? juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles | juce::FileBrowserComponent::warnAboutOverwriting
+		                       : juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+		m_chooser->launchAsync(flags, [save, safe = juce::Component::SafePointer<StatePopover>(this)](const juce::FileChooser &fc) {
+			const auto file = fc.getResult();
+			if (safe == nullptr || file == juce::File())
+				return;
+			const auto error = save ? safe->m_proc.saveStateTo(file) : safe->m_proc.loadStateFrom(file);
+			if (error.isEmpty()) {
+				auto s = lemus::settings();
+				s->setValue("stateFile", file.getFullPathName());
+				s->saveIfNeeded();
+			}
+			if (safe == nullptr) // a load that changed the machine can take the editor with it
+				return;
+			safe->m_failed = error.isNotEmpty();
+			safe->m_status = error.isNotEmpty() ? error : utf8("\xe2\x9c\x93 ") + (save ? "Saved " : "Loaded ") + shortPath(file) + ".";
+			safe->relayout();
+		});
+	}
+
+	LemusProcessor &m_proc;
+	juce::SharedResourcePointer<LemusLook> m_look;
+	juce::String m_status;
+	bool m_failed = false;
+	Pill m_save{utf8("Save to file\xe2\x80\xa6")}, m_load{utf8("Load from file\xe2\x80\xa6"), Pill::Kind::Primary};
+	std::unique_ptr<juce::FileChooser> m_chooser;
+	int m_buttonsY = 0;
+};
+
+// A pop-up's content, scrolled when it's taller than `maxHeight` (a small window), following the
+// content's size as it changes.
+class Scroller final : public juce::Component, private juce::ComponentListener {
+public:
+	Scroller(std::unique_ptr<juce::Component> content, int maxHeight) : m_content(std::move(content)), m_max(juce::jmax(160, maxHeight))
+	{
+		m_view.setViewedComponent(m_content.get(), false);
+		m_view.setScrollBarsShown(true, false);
+		m_view.setScrollBarThickness(8);
+		addAndMakeVisible(m_view);
+		m_content->addComponentListener(this);
+		fit();
+	}
+	~Scroller() override { m_content->removeComponentListener(this); }
+	void resized() override { m_view.setBounds(getLocalBounds()); }
+
+private:
+	void componentMovedOrResized(juce::Component &, bool, bool wasResized) override
+	{
+		if (wasResized)
+			fit();
+	}
+	void fit()
+	{
+		const bool scrolls = m_content->getHeight() > m_max;
+		setSize(m_content->getWidth() + (scrolls ? m_view.getScrollBarThickness() : 0), juce::jmin(m_content->getHeight(), m_max));
+	}
+
+	std::unique_ptr<juce::Component> m_content;
+	juce::Viewport m_view;
+	int m_max;
+};
+
+// The ROMs pill's pop-up: the ROM folder (shown, changed, read again) and everything the machine
+// takes from it, each with its full path: its ROMs, found or not (with what to look for), and its
+// artwork, a file per place as MAME keeps it (artwork/<machine>/ or artwork/<machine>.zip), each
+// place with its file's name and size. Opening it reads the artwork again, as Rescan does, so files
+// added since the machine loaded show at once. While the machine runs without an optional ROM it
+// says so first; Rescan then reloads the machine with the ROM, keeping the session.
+class RomsPopover final : public juce::Component {
+public:
+	RomsPopover(LemusProcessor &proc, std::function<void(const juce::String &)> onReloaded)
+		: m_proc(proc), m_info(*proc.machine()), m_onReloaded(std::move(onReloaded))
+	{
+		setLookAndFeel(&m_look.get());
+		m_show.onClick = [this] {
+			const auto folder = lemus::romfolder::location();
+			if (folder.isDirectory() || (folder == lemus::romfolder::defaultLocation() && folder.createDirectory()))
+				folder.startAsProcess();
+		};
+		m_showArt.onClick = [this] {
+			const auto folder = lemus::romfolder::location();
+			const auto dir = lemus::romfolder::placeFolder(folder, m_info.artwork);
+			if ((folder.isDirectory() || folder == lemus::romfolder::defaultLocation()) && dir.createDirectory())
+				dir.startAsProcess();
+		};
+		m_change.onClick = [this] { chooseFolder(); };
+		m_rescan.onClick = [this] { rescan(); };
+		for (auto *b : {&m_show, &m_change, &m_rescan})
+			addAndMakeVisible(*b);
+		addChildComponent(m_showArt);
+		m_showArt.setVisible(!m_info.artwork.places.empty());
+		m_proc.reloadArtwork();
+		refresh();
+	}
+	~RomsPopover() override { setLookAndFeel(nullptr); }
+
+	void paint(juce::Graphics &g) override { layout(&g); }
+
+	void resized() override
+	{
+		auto row = juce::Rectangle<int>(kPad, m_buttonsY, kWidth, 28);
+		m_rescan.setBounds(row.removeFromRight(m_rescan.idealWidth()));
+		row.removeFromRight(8);
+		m_change.setBounds(row.removeFromRight(m_change.idealWidth()));
+		row.removeFromRight(8);
+		m_show.setBounds(row.removeFromRight(m_show.idealWidth()));
+		m_showArt.setBounds(kPad + kWidth - m_showArt.idealWidth(), m_showArtY, m_showArt.idealWidth(), 28);
+	}
+
+private:
+	static constexpr int kWidth = 600, kPad = 16;
+
+	struct Line {
+		juce::String title, about, status;
+		juce::Colour colour;
+	};
+
+	// Draws (with g) or only measures (without); sets where the buttons go and returns the height.
+	int layout(juce::Graphics *g)
+	{
+		const float w = float(kWidth), ox = float(kPad);
+		float y = float(kPad);
+		auto text = [&](const juce::String &s, const juce::Font &f, juce::Colour c) {
+			const auto l = layoutOf(s, f, c, w);
+			if (g != nullptr)
+				l.draw(*g, {ox, y, l.getWidth(), l.getHeight()});
+			return l.getHeight();
+		};
+		// A section's rule and name, with its buttons on the right of the same line (at *buttonsY).
+		auto heading = [&](const juce::String &s, int *buttonsY) {
+			if (g != nullptr) {
+				g->setColour(col::rule);
+				g->fillRect(juce::Rectangle<float>(ox, y, w, 1));
+			}
+			y += 12;
+			if (buttonsY != nullptr)
+				*buttonsY = int(y);
+			if (buttonsY != nullptr) {
+				y += 7; // the name in the middle of its buttons' line
+				text(s.toUpperCase(), mono(11.0f, true).withExtraKerningFactor(0.08f), col::muted);
+				y += 21 + 10;
+			} else {
+				y += text(s.toUpperCase(), mono(11.0f, true).withExtraKerningFactor(0.08f), col::muted) + 10;
+			}
+		};
+		auto lines = [&](const std::vector<Line> &ls) {
+			for (const auto &l : ls) {
+				y += text(l.title, mono(13.0f, true), col::ink) + 2;
+				if (l.about.isNotEmpty())
+					y += text(l.about, mono(12.0f), col::muted) + 2;
+				y += text(l.status, mono(12.0f), l.colour) + 12;
+			}
+		};
+
+		const auto without = m_proc.romsWithout();
+		if (!without.empty()) {
+			const auto &first = without.front();
+			y += text(m_info.name + " is in " + (first.mode.isNotEmpty() ? first.mode.toLowerCase() : "a reduced mode"), mono(15.0f, true), col::ink) + 6;
+			y += text("It's running without its " + first.what + ": " + first.without + ". Lemus ships no ROMs; it uses your own dump.", mono(13.0f),
+			          col::inkSoft) +
+			     14;
+		} else {
+			y += text("ROMs", mono(15.0f, true), col::ink) + 6;
+			y += text("Lemus ships no ROMs and no brand artwork: the " + m_info.name + " uses yours, from your ROM folder.", mono(13.0f), col::inkSoft) + 14;
+		}
+
+		heading("ROM folder", &m_buttonsY);
+		{
+			const auto l = layoutOf(shortPath(lemus::romfolder::location()), mono(12.0f), col::ink, w - 24);
+			const juce::Rectangle<float> box(ox, y, w, l.getHeight() + 14);
+			if (g != nullptr) {
+				g->setColour(col::well);
+				g->fillRoundedRectangle(box, 8.0f);
+				l.draw(*g, box.reduced(12, 7));
+			}
+			y += box.getHeight() + 16;
+		}
+
+		if (!m_roms.empty()) {
+			heading("ROMs", nullptr);
+			lines(m_roms);
+			if (m_romMissing)
+				y += text("Put it in your ROM folder, loose or in a zip (MAME's sets work as they are). Any file name will do.", mono(12.0f), col::inkSoft) +
+				     14;
+		}
+		if (m_info.artwork.name.isNotEmpty()) {
+			const auto &spec = m_info.artwork;
+			const auto maker = m_info.name.upToFirstOccurrenceOf(" ", false, false);
+			heading("Artwork", spec.places.empty() ? nullptr : &m_showArtY);
+			if (!spec.places.empty())
+				y += text(maker + "'s logo and model names aren't included. Put an SVG or PNG of your own for each place where it says (artwork/" +
+				              spec.folder() + ".zip with the same files works too). It's drawn as it looks, fitted to the place; transparent parts " +
+				              "show the panel." + juce::String(spec.sharpPxPerMm > 0 ? " The pixel sizes keep a PNG sharp in the largest window." : ""),
+				          mono(12.0f), col::inkSoft) +
+				     12;
+			else
+				y += text(maker + "'s logo and model names aren't included: they come from " + spec.name + " in your ROM folder, if you have one.",
+				          mono(12.0f), col::inkSoft) +
+				     12;
+			lines(m_art);
+		}
+		if (m_status.isNotEmpty())
+			y += text(m_status, mono(12.0f), m_failed ? col::warn : col::ok) + 4;
+		return int(std::ceil(y)) + kPad - 8;
+	}
+
+	void relayout()
+	{
+		setSize(kWidth + 2 * kPad, layout(nullptr));
+		resized();
+		repaint();
+	}
+
+	// What the folder has now.
+	void refresh()
+	{
+		const auto folder = lemus::romfolder::location();
+		m_roms.clear();
+		m_romMissing = false;
+		const auto roms = lemus::romfolder::load(folder, m_info.roms);
+		for (const auto &r : m_info.roms) {
+			Line l{r.name, r.what + utf8(" \xc2\xb7 ") + sizeText(r.size) + (r.optional ? utf8(" \xc2\xb7 optional") : juce::String()), {}, col::ok};
+			if (roms.has(r.name)) {
+				l.status = utf8("\xe2\x9c\x93 ") + shortPath(roms.where(r.name));
+			} else {
+				m_romMissing = true;
+				l.status = utf8("not found \xc2\xb7 CRC ") + r.crc32 + utf8(" \xc2\xb7 SHA1 ") + r.sha1;
+				l.colour = col::warn;
+			}
+			m_roms.push_back(l);
+		}
+
+		m_art.clear();
+		const auto &spec = m_info.artwork;
+		const auto found = lemus::romfolder::findAllArtwork(folder, spec);
+		const auto full = [&](const juce::String &where) { return shortPath(folder.getChildFile(where)); };
+		if (spec.places.empty()) {
+			if (spec.name.isNotEmpty())
+				m_art.push_back({spec.name, utf8("Artwork pack \xc2\xb7 optional"),
+				                 found.pack.data.isEmpty() ? juce::String("not found") : utf8("\xe2\x9c\x93 ") + full(found.pack.where),
+				                 found.pack.data.isEmpty() ? col::muted : col::ok});
+		} else {
+			const auto pack = lemus::Artwork::parse(found.pack.data.isEmpty() ? nullptr : &found.pack.data);
+			for (const auto &place : spec.places) {
+				juce::String about = place.label + utf8(" \xc2\xb7 ") + juce::String(place.width, 1) + utf8(" \xc3\x97 ") + juce::String(place.height, 1) + " mm";
+				if (spec.sharpPxPerMm > 0)
+					about << utf8(" \xc2\xb7 ") << juce::roundToInt(place.width * spec.sharpPxPerMm) << utf8(" \xc3\x97 ")
+					      << juce::roundToInt(place.height * spec.sharpPxPerMm) << " px";
+				Line l{place.id + ".svg or " + place.id + ".png", about,
+				       utf8("none \xc2\xb7 goes in ") + shortPath(lemus::romfolder::placeFolder(folder, spec).getChildFile(place.id)) + ".svg or .png", col::muted};
+				const auto own = std::find_if(found.places.begin(), found.places.end(), [&](const lemus::PlaceFile &p) { return p.place == place.id; });
+				if (own != found.places.end()) {
+					if (lemus::Picture::load(own->data) != nullptr) {
+						l.status = utf8("\xe2\x9c\x93 ") + full(own->where);
+						l.colour = col::ok;
+					} else {
+						l.status = full(own->where) + ": not an SVG or PNG Lemus can read (or it draws nothing, or it's over " +
+						           juce::String(lemus::Picture::kMaxSide) + " pixels a side)";
+						l.colour = col::warn;
+					}
+				} else if (pack.find(place.mark) != nullptr) {
+					l.status = "the outline from " + full(found.pack.where) + ", in the print colour";
+					l.colour = col::inkSoft;
+				}
+				m_art.push_back(l);
+			}
+		}
+		relayout();
+	}
+
 	void rescan()
 	{
-		const auto roms = m_roms;
-		if (m_proc.reloadWithRoms()) {
-			const auto *info = m_proc.machine();
+		const auto without = m_proc.romsWithout();
+		if (!without.empty() && m_proc.reloadWithRoms()) {
 			const bool all = m_proc.romsWithout().empty();
-			m_onReloaded(roms.front().what + " found. " + (all ? "The full " : "") + (info != nullptr ? info->name : juce::String()) +
-			             (all ? " is running" : " has reloaded") + "; your settings are kept.");
+			m_onReloaded(without.front().what + " found. " + (all ? "The full " : "") + m_info.name + (all ? " is running" : " has reloaded") +
+			             "; your settings are kept.");
 			if (auto *box = findParentComponentOfClass<juce::CallOutBox>())
 				box->dismiss();
 			return;
 		}
-		juce::StringArray names;
-		for (const auto &r : roms)
-			names.add(r.name);
-		m_status = "Not found yet: " + names.joinIntoString(", ") + " isn't in that folder.";
-		relayout();
+		const bool art = m_proc.reloadArtwork();
+		m_failed = false;
+		if (!without.empty()) {
+			juce::StringArray names;
+			for (const auto &r : without)
+				names.add(r.name);
+			m_status = "Not found yet: " + names.joinIntoString(", ") + " isn't in that folder." + (art ? " The artwork is read again." : "");
+			m_failed = true;
+		} else {
+			m_status = utf8("\xe2\x9c\x93 ") + (art ? "Read again: the panel has the artwork above." : "Read again: nothing has changed.");
+		}
+		refresh();
 	}
 
 	void chooseFolder()
 	{
-		m_chooser = std::make_unique<juce::FileChooser>("Choose your ROM folder", m_folder.isDirectory() ? m_folder : juce::File::getSpecialLocation(juce::File::userHomeDirectory));
+		const auto folder = lemus::romfolder::location();
+		m_chooser = std::make_unique<juce::FileChooser>("Choose your ROM folder", folder.isDirectory() ? folder : juce::File::getSpecialLocation(juce::File::userHomeDirectory));
 		m_chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
-		                       [safe = juce::Component::SafePointer<RomPopover>(this)](const juce::FileChooser &fc) {
-			                       const auto folder = fc.getResult();
-			                       if (safe == nullptr || !folder.isDirectory())
+		                       [safe = juce::Component::SafePointer<RomsPopover>(this)](const juce::FileChooser &fc) {
+			                       const auto chosen = fc.getResult();
+			                       if (safe == nullptr || !chosen.isDirectory())
 				                       return;
-			                       changeRomFolder(folder);
-			                       safe->m_folder = folder;
+			                       changeRomFolder(chosen);
 			                       safe->rescan();
 		                       });
 	}
 
 	LemusProcessor &m_proc;
+	const lemus::MachineInfo &m_info;
 	std::function<void(const juce::String &)> m_onReloaded;
 	juce::SharedResourcePointer<LemusLook> m_look;
-	std::vector<lemus::RomSpec> m_roms;
-	juce::File m_folder;
+	std::vector<Line> m_roms, m_art;
+	bool m_romMissing = false;
+	Pill m_show{"Show"}, m_change{utf8("Change\xe2\x80\xa6")}, m_rescan{"Rescan", Pill::Kind::Primary};
+	Pill m_showArt{"Show its folder"};
+	int m_buttonsY = 0, m_showArtY = 0;
 	juce::String m_status;
-	Pill m_show{"Show folder"}, m_change{utf8("Change\xe2\x80\xa6")}, m_rescan{"Rescan", Pill::Kind::Primary};
+	bool m_failed = false;
 	std::unique_ptr<juce::FileChooser> m_chooser;
-	int m_buttonsY = 0;
 };
 
 // The first time a machine starts without an optional ROM: what's missing and why (with the
@@ -575,7 +826,7 @@ public:
 	{
 		m_folder = lemus::romfolder::location();
 		const auto &art = m_info.artwork;
-		m_noArtwork = art.name.isNotEmpty() && lemus::romfolder::findArtwork(m_folder, art).data.isEmpty();
+		m_noArtwork = art.name.isNotEmpty() && lemus::romfolder::findAllArtwork(m_folder, art).empty();
 		m_voice.setButtonText("Use " + mode().toLowerCase());
 		m_locate.onClick = [this] { locate(); };
 		m_voice.onClick = [this] { close(); };
@@ -662,9 +913,11 @@ private:
 			                 r.what + utf8(" \xc2\xb7 ") + sizeText(r.size) + utf8(" \xc2\xb7 CRC ") + r.crc32 + utf8(" \xc2\xb7 SHA1 ") + r.sha1, {}});
 		if (m_noArtwork) {
 			const auto maker = m_info.name.upToFirstOccurrenceOf(" ", false, false);
-			files.push_back({m_info.artwork.name, "not found", utf8("Artwork \xc2\xb7 optional"),
-			                 maker + "'s logo and model names aren't included, so their places on the panel are blank. Put your own artwork in " +
-			                     m_info.artwork.name + " in the ROM folder to fill them."});
+			const auto &art = m_info.artwork;
+			files.push_back({art.places.empty() ? art.name : juce::String("Artwork"), "not found", utf8("Artwork \xc2\xb7 optional"),
+			                 maker + "'s logo and model names aren't included, so their places on the panel are blank. " +
+			                     (art.places.empty() ? "Put your own artwork in " + art.name + " in the ROM folder to fill them."
+			                                         : "Your own go in artwork/" + art.folder() + "/ in the ROM folder: ROMs on the bar lists them.")});
 		}
 		{
 			const float x = pad + 12, cw = iw - 24;
@@ -1071,7 +1324,7 @@ public:
 		}
 		for (const auto &m : lemus::machines())
 			m_entries.push_back({&m, LemusProcessor::missingRoms(m),
-			                     m.artwork.name.isNotEmpty() && !lemus::romfolder::findArtwork(m_folder, m.artwork).data.isEmpty()});
+			                     m.artwork.name.isNotEmpty() && !lemus::romfolder::findAllArtwork(m_folder, m.artwork).empty()});
 
 		m_search.setFont(mono(14.0f));
 		m_search.setIndents(14, 0);
@@ -1267,7 +1520,8 @@ private:
 			card(rom.name, found ? "found" : "not found", found ? col::ok : col::warn, meta, note);
 		}
 		if (e->info->artwork.name.isNotEmpty())
-			card(e->info->artwork.name, e->artwork ? "found" : "not found", e->artwork ? col::ok : col::muted, utf8("Artwork pack \xc2\xb7 optional"), {});
+			card(e->info->artwork.places.empty() ? e->info->artwork.name : juce::String("Artwork"), e->artwork ? "found" : "not found",
+			     e->artwork ? col::ok : col::muted, utf8(e->info->artwork.places.empty() ? "Artwork pack \xc2\xb7 optional" : "Your own, per place \xc2\xb7 optional"), {});
 		if (e->info->roms.empty() && e->info->artwork.name.isEmpty())
 			drawWrapped(g, "No ROMs needed.", mono(13.0f), col::inkSoft, {r.getX(), y, w, 40});
 	}
@@ -1356,18 +1610,22 @@ private:
 // box; and, after a reload, what happened.
 class LemusEditor::Bar final : public juce::Component, private juce::ChangeListener, private juce::Timer {
 public:
-	Bar(LemusProcessor &proc, const juce::String &notes, const juce::String &flash, int flashMs, std::function<void(const juce::String &)> onReloaded,
-	    std::function<void()> onWhatsNew)
-		: m_proc(proc), m_info(*proc.machine()), m_notes(notes), m_without(proc.romsWithout()), m_flash(flash), m_onReloaded(std::move(onReloaded)),
+	Bar(LemusProcessor &proc, const juce::String &flash, int flashMs, std::function<void(const juce::String &)> onReloaded, std::function<void()> onWhatsNew)
+		: m_proc(proc), m_info(*proc.machine()), m_without(proc.romsWithout()), m_flash(flash), m_onReloaded(std::move(onReloaded)),
 		  m_onWhatsNew(std::move(onWhatsNew))
 	{
 		m_about.onClick = [this] { showAbout(); };
 		addAndMakeVisible(m_about);
-
+		m_state.onClick = [this] { showState(); };
+		addAndMakeVisible(m_state);
+		// ROMs: the ROM folder, the machine's ROMs and its artwork. While it runs without an optional
+		// ROM, the same pill offers to add it, in the warning colour.
+		m_roms.onClick = [this] { showRoms(); };
+		addChildComponent(m_roms);
+		m_roms.setVisible(!m_info.roms.empty() || m_info.artwork.name.isNotEmpty());
 		if (!m_without.empty()) {
-			m_addRom.setButtonText("Add " + m_without.front().what + utf8("\xe2\x80\xa6"));
-			m_addRom.onClick = [this] { showAddRom(); };
-			addAndMakeVisible(m_addRom);
+			m_roms.setButtonText("Add " + m_without.front().what + utf8("\xe2\x80\xa6"));
+			m_roms.setStyle(Pill::Kind::Outline, col::warn);
 		}
 
 		m_update.onClick = [this] { m_onWhatsNew(); };
@@ -1443,7 +1701,8 @@ public:
 			b.removeFromRight(8);
 		};
 		place(m_about);
-		place(m_addRom);
+		place(m_state);
+		place(m_roms);
 		place(m_update);
 		m_buttonsLeft = b.getRight();
 	}
@@ -1479,18 +1738,30 @@ private:
 		box.setLookAndFeel(&m_look.get());
 	}
 
-	void showAbout() { launch(std::make_unique<AboutBox>(m_info, m_notes), m_about); }
-	void showAddRom() { launch(std::make_unique<RomPopover>(m_proc, m_onReloaded), m_addRom); }
+	void showAbout()
+	{
+		// The ROMs it runs without, its artwork.
+		juce::StringArray notes{m_proc.romNote(), m_proc.artworkNote()};
+		notes.removeEmptyStrings();
+		launch(std::make_unique<AboutBox>(m_info, notes.joinIntoString("\n\n")), m_about);
+	}
+	void showRoms()
+	{
+		// Within the window: below the bar, inside the call-out's border.
+		const auto *top = getTopLevelComponent();
+		launch(std::make_unique<Scroller>(std::make_unique<RomsPopover>(m_proc, m_onReloaded), top->getHeight() - getHeight() - 60), m_roms);
+	}
+	void showState() { launch(std::make_unique<StatePopover>(m_proc), m_state); }
 
 	LemusProcessor &m_proc;
 	const lemus::MachineInfo &m_info;
-	juce::String m_notes; // the ROMs it runs without, its artwork pack
 	std::vector<lemus::RomSpec> m_without;
 	juce::String m_flash;
 	std::function<void(const juce::String &)> m_onReloaded;
 	std::function<void()> m_onWhatsNew;
 	Pill m_about{"About"};
-	Pill m_addRom{"Add ROM", Pill::Kind::Outline, col::warn};
+	Pill m_state{"State"};
+	Pill m_roms{"ROMs"};
 	Pill m_update{"Update", Pill::Kind::Outline, col::accent};
 	int m_buttonsLeft = 0;
 	juce::SharedResourcePointer<LemusLook> m_look;
@@ -1537,8 +1808,11 @@ void LemusEditor::changeListenerCallback(juce::ChangeBroadcaster *)
 void LemusEditor::showCurrentMachine()
 {
 	auto *machine = m_proc.machineProcessor();
-	if (machine != nullptr && machine == m_innerFor)
+	if (machine != nullptr && machine == m_innerFor) {
+		if (m_proc.artworkVersion() != m_innerArtwork)
+			showMachineEditor(); // its artwork changed: the panel is drawn again
 		return;
+	}
 	if (m_inner != nullptr)
 		m_inner->removeComponentListener(this);
 	m_inner.reset();
@@ -1560,11 +1834,10 @@ void LemusEditor::showCurrentMachine()
 		return;
 	}
 
+	m_innerArtwork = m_proc.artworkVersion();
 	m_inner.reset(machine->createEditorIfNeeded());
 	if (m_inner == nullptr)
 		m_inner = std::make_unique<juce::GenericAudioProcessorEditor>(*machine);
-	juce::StringArray notes{m_proc.romNote(), m_proc.artworkNote()};
-	notes.removeEmptyStrings();
 	const auto left = m_flashUntil - juce::Time::currentTimeMillis();
 	const auto flash = [safe = juce::Component::SafePointer<LemusEditor>(this)](const juce::String &text) {
 		if (safe != nullptr) {
@@ -1572,7 +1845,7 @@ void LemusEditor::showCurrentMachine()
 			safe->m_flashUntil = juce::Time::currentTimeMillis() + 8000;
 		}
 	};
-	m_bar = std::make_unique<Bar>(m_proc, notes.joinIntoString("\n\n"), left > 0 ? m_flash : juce::String(), int(left), flash, [this] { showWhatsNew(); });
+	m_bar = std::make_unique<Bar>(m_proc, left > 0 ? m_flash : juce::String(), int(left), flash, [this] { showWhatsNew(); });
 	addAndMakeVisible(*m_bar);
 	addAndMakeVisible(*m_inner);
 	m_inner->addComponentListener(this);
@@ -1595,6 +1868,22 @@ void LemusEditor::showCurrentMachine()
 	resized();
 	if (lemus::updates::popUpDue(lemus::updates::newer()))
 		showWhatsNew();
+}
+
+void LemusEditor::showMachineEditor()
+{
+	// The same machine, its editor built again (behind the bar's pop-ups and the prompts).
+	auto *machine = m_proc.machineProcessor();
+	m_innerArtwork = m_proc.artworkVersion();
+	if (m_inner != nullptr)
+		m_inner->removeComponentListener(this);
+	m_inner.reset();
+	m_inner.reset(machine->createEditorIfNeeded());
+	if (m_inner == nullptr)
+		m_inner = std::make_unique<juce::GenericAudioProcessorEditor>(*machine);
+	addAndMakeVisible(*m_inner, 0);
+	m_inner->addComponentListener(this);
+	resized();
 }
 
 void LemusEditor::showWhatsNew()

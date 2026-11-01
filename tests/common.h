@@ -133,11 +133,12 @@ struct RomFolder {
 	}
 };
 
-// --snapshot <machine>|picker <png> [about|addrom|prompt|service] [noroms|noart] [2x]: the machine's
+// --snapshot <machine>|picker <png> [about|roms|state|prompt|service] [noroms|noart] [2x]: the machine's
 // editor in Lemus (or the machine picker), with the private ROM folder (for a look at the panel with
 // its ROMs and artwork pack), an empty one, or the machine's ROMs without its artwork pack (noart: the
-// panel as users get it, for screenshots), with the About box, the Add ROM pop-up, the first-start
-// ROM prompt or the machine's SERVICE view open if asked, at twice the size if asked.
+// panel as users get it, for screenshots), with the About box, the ROMs pop-up (addrom: the same),
+// the State pop-up, the first-start ROM prompt or the machine's SERVICE view open if asked, at twice
+// the size if asked.
 // LEMUS_SNAPSHOT_PARAMS sets machine parameters first: id=value pairs separated by commas, each
 // value as the parameter shows it (mode=Pattern Write, tempo=120). LEMUS_SNAPSHOT_CLICKS clicks the
 // editor before the shot: x,y points in the editor (at 1x) separated by semicolons, each with ",right"
@@ -202,8 +203,11 @@ inline int snapshot(const juce::String &machine, const juce::String &png, const 
 		target->mouseUp(down.withNewPosition(local));
 		pump(50);
 	}
-	if (open == "about" || open == "addrom" || open == "service") {
-		if (auto *b = findButton(*e, open == "about" ? "About" : open == "service" ? "SERVICE" : "Add "))
+	if (open == "about" || open == "addrom" || open == "roms" || open == "state" || open == "service") {
+		auto *b = findButton(*e, open == "about" ? "About" : open == "state" ? "State" : open == "service" ? "SERVICE" : "ROMs");
+		if (b == nullptr && (open == "roms" || open == "addrom"))
+			b = findButton(*e, "Add "); // the ROMs pill while a ROM is missing
+		if (b != nullptr)
 			b->triggerClick();
 		pump(50); // a call-out box closes itself within 200 ms when the process isn't in front
 

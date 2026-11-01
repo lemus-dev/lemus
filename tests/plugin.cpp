@@ -3,7 +3,7 @@
 // lemustest_fx); these check what is different here: the machine is there from the start, and a
 // session can't swap it for another.
 //   lemustest_<id>                                        run the checks
-//   lemustest_<id> --snapshot <png> [about|addrom|prompt|service] [noroms|noart] [2x]   the plugin's editor, as a PNG
+//   lemustest_<id> --snapshot <png> [about|roms|state|prompt|service] [noroms|noart] [2x]   the plugin's editor, as a PNG
 #include "common.h"
 
 namespace {
@@ -110,6 +110,24 @@ void testSessions()
 	other.writeToStream(out);
 	b.setStateInformation(out.getData(), int(out.getDataSize()));
 	check(b.machine() != nullptr && b.machine()->id == kId && b.slot(0).getValue() == set, "another machine's session leaves it as it was");
+
+	// The bar's State pop-up: the same bytes in a file, which the standalone app's Options menu
+	// saves and loads too.
+	juce::TemporaryFile file;
+	check(a.saveStateTo(file.getFile()).isEmpty() && file.getFile().loadFileAsString().length() > 0, "it saves its state to a file");
+	juce::MemoryBlock written;
+	file.getFile().loadFileAsData(written);
+	check(written == saved, "the session's bytes, as the standalone app saves them");
+	LemusProcessor c;
+	check(c.loadStateFrom(file.getFile()).isEmpty() && c.slot(0).getValue() == set, "and a new instance loads the file, its settings with it");
+	juce::TemporaryFile otherFile;
+	otherFile.getFile().replaceWithData(out.getData(), out.getDataSize());
+	const auto otherError = c.loadStateFrom(otherFile.getFile());
+	check(otherError.contains("lemustest-other") && c.machine()->id == kId && c.slot(0).getValue() == set,
+	      "another machine's file is refused (\"" + otherError + "\"), leaving it as it was");
+	juce::TemporaryFile junk;
+	junk.getFile().replaceWithText("not a state");
+	check(c.loadStateFrom(junk.getFile()).isNotEmpty() && c.slot(0).getValue() == set, "and so is a file that isn't a state");
 }
 
 } // namespace
@@ -121,7 +139,7 @@ int main(int argc, char **argv)
 		juce::StringArray opts;
 		for (int i = 3; i < argc; ++i)
 			opts.add(argv[i]);
-		return snapshot(kId, argv[2], opts.contains("about") ? "about" : opts.contains("addrom") ? "addrom" : opts.contains("prompt") ? "prompt" : opts.contains("service") ? "service" : "",
+		return snapshot(kId, argv[2], opts.contains("about") ? "about" : opts.contains("addrom") ? "addrom" : opts.contains("roms") ? "roms" : opts.contains("state") ? "state" : opts.contains("prompt") ? "prompt" : opts.contains("service") ? "service" : "",
 		                opts.contains("noroms"), opts.contains("noart"), opts.contains("2x") ? 2.0f : 1.0f);
 	}
 	testMachine();

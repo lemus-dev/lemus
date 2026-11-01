@@ -189,10 +189,11 @@ HardwareView::HardwareView(TB303Processor &p) : m_proc(p)
 	led("led_accent", Machine::Led::Accent);
 	led("led_slide", Machine::Led::Slide);
 
-	// The brand marks come from the artwork pack (tb303.svg in the ROM folder); without it the
-	// panel has none. Pack ids are the panel's logo ids without "logo_".
+	// The brand marks come from the user's artwork (the Artwork pop-up's files, or an older
+	// tb303.svg pack); without it the panel has none. Their ids are the panel's logo ids without
+	// "logo_".
 	for (const auto &mark : p.artwork().marks())
-		m_logos["logo_" + mark.id.toStdString()] = mark.outline;
+		m_logos["logo_" + mark.id.toStdString()] = mark;
 
 	m_trim = juce::jlimit(0, 5, int(p.params().state.getProperty("serviceTrim", m_trim)));
 	setService(bool(p.params().state.getProperty("service", false)));
@@ -303,7 +304,7 @@ void HardwareView::drawElement(juce::Graphics &g, int index)
 		break;
 	case PType::Line: {
 		// The rule between the tb303 and computer_controlled marks goes with them: without either
-		// (no artwork pack) it would stand on its own.
+		// (no artwork for them) it would stand on its own.
 		if (std::string_view(e.id) == "rule_tb303" && m_logos.count("logo_tb303") == 0 && m_logos.count("logo_computer_controlled") == 0)
 			break;
 		juce::Path p;
@@ -447,10 +448,16 @@ void HardwareView::drawElement(juce::Graphics &g, int index)
 		break;
 	}
 	case PType::Logo: {
+		// A place's own file as it looks, fitted to the mark's box; a pack's outline where it is,
+		// in the print colour.
 		auto it = m_logos.find(e.id);
 		if (it != m_logos.end()) {
-			g.setColour(col(e.colour));
-			g.fillPath(it->second);
+			if (it->second.picture != nullptr) {
+				it->second.picture->drawWithin(g, box);
+			} else {
+				g.setColour(col(e.colour));
+				g.fillPath(it->second.outline);
+			}
 		}
 		break;
 	}
@@ -892,7 +899,8 @@ void HardwareView::drawHelp(juce::Graphics &g)
 		"Mouse: drag knobs (shift = fine, double-click = default), click switches, press keys.",
 		"Right-click (ctrl-click) a key: it stays down until clicked again. Escape lets go of all.",
 		"FUNCTION won't end PITCH MODE while TAP is down. For TAP + ACCENT/SLIDE, hold Return and click them.",
-		"MIDI notes play the voice directly: velocity >= 100 accents, overlapping notes slide.",
+		"MIDI notes play the voice directly: velocity >= 100 accents, overlapping notes slide (the same pitch too),",
+		"and with the sustain pedal down every note slides: an accented slide into the same note.",
 		"SYNC: HOST runs the sequencer from the DAW transport (DIN sync: run + 24 ppqn clock).",
 		"CUT OFF MAX: how high full CUT OFF reaches, 1.2 to 3 kHz: drag it (double-click: the fitted unit's).",
 		"SERVICE: the panel off. Pick a trimmer on the right (up/down), turn it there or on the board (left/right).",

@@ -5,6 +5,7 @@
 #include "common.h"
 #include "machines/drivers.h"
 #include "tb303/blank_artwork.h"
+#include "tb303/core/midi.h"
 #include "tb303/core/patterns.h"
 #include "tb303/plugin/PanelData.h"
 #include "tb303/plugin/PluginProcessor.h"
@@ -157,21 +158,49 @@ void testTb303()
 	check(differences(render(r, in, line), viaHost) == 0, "and it sounds the same");
 }
 
-void testArtwork()
+juce::MemoryBlock block(const juce::String &s)
 {
-	std::printf("\nArtwork pack\n");
+	return juce::MemoryBlock(s.toRawUTF8(), s.getNumBytesAsUTF8());
+}
+
+// A PNG of w x h pixels, transparent but for an opaque `fill` rectangle (none: all opaque, no alpha).
+juce::MemoryBlock pngOf(int w, int h, juce::Rectangle<int> fill)
+{
+	juce::Image image(fill.isEmpty() ? juce::Image::RGB : juce::Image::ARGB, w, h, true);
+	juce::Graphics g(image);
+	g.setColour(juce::Colours::red);
+	g.fillRect(fill.isEmpty() ? image.getBounds() : fill);
+	juce::MemoryOutputStream out;
+	juce::PNGImageFormat().writeImageToStream(image, out);
+	return out.getMemoryBlock();
+}
+
+const Artwork &artworkOf(LemusProcessor &p)
+{
+	return dynamic_cast<TB303Processor &>(*p.machineProcessor()).artwork();
+}
+
+// The mark's picture, if it has one: 1 an SVG, 2 a PNG; 0 none (or no such mark).
+int pictureOf(LemusProcessor &p, const char *id)
+{
+	const auto *m = artworkOf(p).find(id);
+	return m == nullptr || m->picture == nullptr ? 0 : m->picture->isSvg() ? 1 : 2;
+}
+
+// The older single-SVG pack: still read, and its blank one no longer written.
+void testArtworkPack()
+{
+	std::printf("\nArtwork pack (the older kind)\n");
 	checkPack(drivers::tb303(), {"roland", "bass_line", "tb303", "computer_controlled"});
-	auto artworkOf = [](LemusProcessor &p) -> const Artwork & { return dynamic_cast<TB303Processor &>(*p.machineProcessor()).artwork(); };
-	auto block = [](const juce::String &s) { return juce::MemoryBlock(s.toRawUTF8(), s.getNumBytesAsUTF8()); };
 	const RomFolder folder;
 	folder.add("d650c-133.ic8", g_rom);
 	LemusProcessor plain;
-	check(plain.selectMachine("tb303") && artworkOf(plain).empty(), "without a pack the 303 loads, with no marks");
-	check(plain.artworkNote().startsWith("No artwork pack"), "and the About box says where the marks come from");
-
-	// The blank pack: written into the folder, drawing nothing until its slots are filled in.
+	check(plain.selectMachine("tb303") && artworkOf(plain).empty(), "without artwork the 303 loads, with no marks");
+	check(plain.artworkNote().startsWith("No artwork"), "and the About box says where the marks come from");
 	const auto blankFile = folder.dir.getChildFile("tb303.svg");
-	check(blankFile.loadFileAsString() == juce::String(tb303::kBlankArtwork), "and the blank pack is written into the ROM folder as tb303.svg");
+	check(!blankFile.exists() && !folder.dir.getChildFile("artwork").exists(), "and nothing is written into the ROM folder");
+
+	// The blank pack earlier releases wrote: its slots are the panel's logo boxes, and it goes.
 	const auto blank = block(tb303::kBlankArtwork);
 	check(Artwork::parse(&blank).empty(), "the blank pack draws nothing (its slots are commented out)");
 	juce::StringArray lines, open;
@@ -190,15 +219,14 @@ void testArtwork()
 			        std::abs(b.getRight() - e.x1) < 0.01f && std::abs(b.getBottom() - e.y1) < 0.01f;
 		}
 	check(boxes, "uncommented, its four slots are the panel's logo boxes");
+	blankFile.replaceWithText(tb303::kBlankArtwork, false, false, "\n");
+	LemusProcessor cleaned;
+	check(cleaned.selectMachine("tb303") && !blankFile.exists(), "an untouched blank tb303.svg an earlier release wrote is taken out when the 303 loads");
 	const juce::String mine = R"svg(<svg xmlns="http://www.w3.org/2000/svg"><!-- my own, not finished --></svg>)svg";
 	blankFile.replaceWithText(mine);
 	LemusProcessor again;
 	check(again.selectMachine("tb303") && blankFile.loadFileAsString() == mine && artworkOf(again).empty(),
-	      "an existing tb303.svg is never overwritten, and one with no marks counts as no pack");
-	check(!romfolder::removeBlankArtwork(folder.dir, drivers::tb303().artwork) && blankFile.existsAsFile(),
-	      "leaving a ROM folder, a tb303.svg someone changed stays");
-	blankFile.replaceWithText(tb303::kBlankArtwork, false, false, "\n");
-	check(romfolder::removeBlankArtwork(folder.dir, drivers::tb303().artwork) && !blankFile.exists(), "and the untouched blank one goes");
+	      "a tb303.svg someone changed stays, and one with no marks counts as none");
 	blankFile.deleteFile();
 
 	// Drawn by hand in an editor: a layer with a transform, a curve, a rectangle in a group.
@@ -213,7 +241,8 @@ void testArtwork()
 	hand.selectMachine("tb303");
 	const auto *roland = artworkOf(hand).find("roland");
 	const auto *bassLine = artworkOf(hand).find("bass_line");
-	check(roland != nullptr && bassLine != nullptr, "a hand-drawn pack (any SVG with the marks' ids, any case of name) is used");
+	check(roland != nullptr && bassLine != nullptr && roland->picture == nullptr,
+	      "a hand-drawn pack (any SVG with the marks' ids, any case of name) is used, as outlines");
 	check(roland != nullptr && roland->outline.getBounds().getTopLeft() == juce::Point<float>(10, 5) && bassLine != nullptr &&
 	          bassLine->outline.getBounds() == juce::Rectangle<float>(210, 15, 40, 8),
 	      "in its own units (mm), with its transforms, curves and shapes");
@@ -230,7 +259,6 @@ void testArtwork()
 	LemusProcessor zipped;
 	zipped.selectMachine("tb303");
 	check(artworkOf(zipped).find("roland") != nullptr, "an SVG in tb303.zip, under any name, is used");
-	check(!folder.dir.getChildFile("tb303.svg").exists(), "and with a pack in place, no blank one is written");
 	folder.add("tb303.svg", block(tb303::kBlankArtwork));
 	LemusProcessor zippedBlank;
 	zippedBlank.selectMachine("tb303");
@@ -249,6 +277,135 @@ void testArtwork()
 	both.selectMachine("tb303");
 	check(artworkOf(both).find("tb303") == nullptr && both.artworkNote() == "Artwork: my artwork/TB303.svg.",
 	      "with several packs, the first by path is used");
+}
+
+// A file per place: drawn as it looks, fitted to the place.
+void testArtworkPlaces()
+{
+	std::printf("\nArtwork places\n");
+	const auto &spec = drivers::tb303().artwork;
+	{
+		bool same = spec.places.size() == 4 && spec.sharpPxPerMm == 16.0f;
+		int logos = 0;
+		for (const auto &e : panel::elements)
+			if (e.type == panel::PType::Logo) {
+				++logos;
+				const auto id = juce::String(e.id).fromFirstOccurrenceOf("logo_", false, false);
+				const auto it = std::find_if(spec.places.begin(), spec.places.end(), [&](const ArtworkPlace &p) { return p.mark == id; });
+				same = same && it != spec.places.end() && std::abs(it->width - (e.x1 - e.x0)) < 0.01f && std::abs(it->height - (e.y1 - e.y0)) < 0.01f &&
+				       it->label.isNotEmpty();
+			}
+		check(same && logos == 4, "its four places are the panel's logo boxes");
+		juce::StringArray names;
+		for (const auto &place : spec.places)
+			names.add(place.id);
+		check(names.joinIntoString(" ") == "maker name model tagline", "their files have plain names: maker, name, model, tagline");
+	}
+
+	// An editor's SVG: a viewBox, a page bigger than the mark, an invisible page frame.
+	const juce::String svg = R"svg(<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297">
+<rect x="0" y="0" width="210" height="297" fill="none"/>
+<g transform="translate(20,30)"><rect x="10" y="20" width="100" height="14" fill="#c00000"/><circle cx="105" cy="27" r="3" fill="#ffffff"/></g>
+</svg>)svg";
+	{
+		const auto pic = Picture::load(block(svg));
+		const auto c = pic != nullptr ? pic->content() : juce::Rectangle<float>();
+		check(pic != nullptr && pic->isSvg() && std::abs(c.getX() - 30) < 0.15f && std::abs(c.getY() - 50) < 0.15f && std::abs(c.getWidth() - 100) < 0.3f &&
+		          std::abs(c.getHeight() - 14) < 0.3f,
+		      "an SVG's picture is what it draws, without the page or an invisible frame");
+		juce::Image out(juce::Image::ARGB, 120, 40, true);
+		{
+			juce::Graphics g(out);
+			pic->drawWithin(g, {10, 10, 100, 20});
+		}
+		// 100 x 14 into 100 x 20: full width, centred in height (13 to 27).
+		const auto at = [&](int x, int y) { return out.getPixelAt(x, y); };
+		check(at(12, 20).getRed() > 150 && at(12, 20).getAlpha() == 255 && at(12, 11).getAlpha() == 0 && at(8, 20).getAlpha() == 0 &&
+		          at(107, 20).getAlpha() == 255 && at(112, 20).getAlpha() == 0 && at(104, 20) == juce::Colours::white,
+		      "drawn as it looks, its colours kept, fitted to the place with its proportions, centred");
+	}
+	{
+		const auto pic = Picture::load(pngOf(200, 60, {20, 10, 160, 40}));
+		check(pic != nullptr && !pic->isSvg() && pic->content() == juce::Rectangle<float>(0, 0, 160, 40),
+		      "a PNG's picture leaves out its transparent border");
+		const auto opaque = Picture::load(pngOf(50, 20, {}));
+		check(opaque != nullptr && opaque->content() == juce::Rectangle<float>(0, 0, 50, 20), "a PNG with no transparency is all picture");
+		{
+			juce::Image clear(juce::Image::ARGB, 40, 40, true);
+			juce::MemoryOutputStream out;
+			juce::PNGImageFormat().writeImageToStream(clear, out);
+			check(Picture::load(out.getMemoryBlock()) == nullptr, "a PNG that's all transparent draws nothing, so it isn't a picture");
+		}
+		check(Picture::load(block("<svg xmlns=\"http://www.w3.org/2000/svg\"/>")) == nullptr && Picture::load(block("not a picture")) == nullptr,
+		      "an empty SVG or another file isn't a picture");
+		juce::MemoryBlock big = pngOf(8, 8, {1, 1, 2, 2});
+		static_cast<uint8_t *>(big.getData())[18] = 0x7f; // the header says 0x7f00.. pixels wide
+		check(Picture::load(big) == nullptr, "nor is a PNG over 8192 pixels a side");
+	}
+
+	const RomFolder folder;
+	folder.add("d650c-133.ic8", g_rom);
+	folder.add("artwork/tb303/maker.svg", block(svg));
+	folder.add("artwork/tb303/Name.PNG", pngOf(200, 60, {20, 10, 160, 40}));
+	folder.add("artwork/tb303/notes.txt", block("not artwork"));
+	LemusProcessor p;
+	p.selectMachine("tb303");
+	check(pictureOf(p, "roland") == 1 && pictureOf(p, "bass_line") == 2 && artworkOf(p).marks().size() == 2,
+	      "each place takes its own file from artwork/tb303/ in the ROM folder (SVG or PNG, any case of name)");
+	check(p.artworkNote() == "Artwork: 2 of 4 places from artwork/tb303/.", "and the About box says so");
+
+	// The older pack fills the places without a file.
+	const juce::String drawn = R"svg(<svg xmlns="http://www.w3.org/2000/svg"><path id="roland" d="M 0 0 L 9 0 L 9 9 Z"/><path id="tb303" d="M 1 1 L 9 1 L 9 9 Z"/></svg>)svg";
+	folder.add("my artwork/tb303.svg", block(drawn));
+	folder.add("artwork/tb303/model.svg", block(svg));
+	LemusProcessor mixed;
+	mixed.selectMachine("tb303");
+	check(pictureOf(mixed, "roland") == 1 && pictureOf(mixed, "tb303") == 1 && artworkOf(mixed).marks().size() == 3,
+	      "a place's own file wins over the pack's mark");
+	folder.dir.getChildFile("artwork/tb303/model.svg").deleteFile();
+	LemusProcessor packed;
+	packed.selectMachine("tb303");
+	const auto *tb = artworkOf(packed).find("tb303");
+	check(tb != nullptr && tb->picture == nullptr && !tb->outline.isEmpty() &&
+	          packed.artworkNote() == "Artwork: 2 of 4 places from artwork/tb303/, the others from my artwork/tb303.svg.",
+	      "and places without a file of their own take the pack's outline");
+	folder.dir.getChildFile("my artwork").deleteRecursively();
+
+	// A zip of the folder, for moving a set between computers: loose files win, and it's never a pack.
+	{
+		juce::ZipFile::Builder zip;
+		zip.addEntry(new juce::MemoryInputStream(block(drawn), true), 9, "tb303/tagline.svg", juce::Time::getCurrentTime());
+		zip.addEntry(new juce::MemoryInputStream(pngOf(30, 10, {}), true), 9, "tb303/maker.png", juce::Time::getCurrentTime());
+		juce::FileOutputStream out(folder.dir.getChildFile("artwork/tb303.zip"));
+		zip.writeToStream(out, nullptr);
+	}
+	LemusProcessor zipped;
+	zipped.selectMachine("tb303");
+	check(pictureOf(zipped, "computer_controlled") == 1 && pictureOf(zipped, "roland") == 1 && artworkOf(zipped).find("tb303") == nullptr,
+	      "artwork/tb303.zip gives the places it has, the folder's own files win, and its one SVG isn't taken for a pack");
+
+	// Files added while it runs: the ROMs pop-up's Rescan (and opening it) reads the folder again.
+	folder.clear();
+	folder.add("d650c-133.ic8", g_rom);
+	LemusProcessor live;
+	live.selectMachine("tb303");
+	std::unique_ptr<juce::AudioProcessorEditor> e(live.createEditorIfNeeded());
+	auto *editor = dynamic_cast<LemusEditor *>(e.get());
+	if (editor != nullptr && editor->machineEditor() != nullptr)
+		editor->machineEditor()->getProperties().set("built before", true); // a new one can reuse its address
+	check(editor != nullptr && findButton(*editor, "ROMs") != nullptr, "the bar has ROMs");
+	const int version = live.artworkVersion();
+	check(!live.reloadArtwork() && live.artworkVersion() == version, "reading the folder again with nothing new changes nothing");
+	folder.add("artwork/tb303/maker.png", pngOf(200, 60, {20, 10, 160, 40}));
+	check(live.reloadArtwork() && pictureOf(live, "roland") == 2 && live.artworkVersion() == version + 1, "a file added since: the machine has it");
+	pump(100);
+	check(editor->machineEditor() != nullptr && !editor->machineEditor()->getProperties().contains("built before"), "and the panel is built again with it");
+	folder.dir.getChildFile("artwork/tb303/maker.png").deleteFile();
+	folder.add("artwork/tb303/maker.svg", block(svg));
+	check(live.reloadArtwork() && pictureOf(live, "roland") == 1, "a file changed: the new one");
+	folder.dir.getChildFile("artwork/tb303/maker.svg").deleteFile();
+	check(live.reloadArtwork() && artworkOf(live).empty() && live.artworkNote().startsWith("No artwork"), "a file taken out: the place is blank again");
+	e.reset();
 }
 
 void testEditor()
@@ -271,6 +428,69 @@ void testEditor()
 	e.reset();
 }
 
+// MIDI notes to the voice's lines: accents, slides, and slides into the same pitch.
+void testMidi()
+{
+	std::printf("\nMIDI notes\n");
+	using tb303::MidiDriver;
+	auto starts = [](const MidiDriver &m, unsigned before) { return m.triggers() - before; };
+	{
+		MidiDriver m;
+		m.noteOn(36, 90);
+		const unsigned t = m.triggers();
+		m.noteOn(38, 110);
+		m.noteOff(36);
+		const auto &l = m.lines();
+		check(l.gate && l.slide && l.accent && l.note == 38 && starts(m, t) == 0, "an accented note overlapping the one before slides to it");
+		m.noteOff(38);
+		check(!m.lines().gate, "and its note-off ends it");
+	}
+	{
+		MidiDriver m;
+		m.noteOn(36, 90);
+		const unsigned t = m.triggers();
+		m.noteOn(36, 110);
+		m.noteOff(36);
+		const auto &l = m.lines();
+		check(l.gate && l.slide && l.accent && l.note == 36 && starts(m, t) == 0,
+		      "overlapping the same pitch, it slides, accented, and the first note's note-off doesn't cut it");
+		m.noteOff(36);
+		check(!m.lines().gate, "its own note-off ends it");
+	}
+	{
+		MidiDriver m;
+		m.noteOn(36, 90);
+		m.noteOn(38, 90);
+		m.noteOn(36, 90);
+		m.noteOff(36);
+		check(m.lines().gate && m.lines().note == 36, "with the same pitch held twice, a note-off ends the older one");
+		m.noteOff(36);
+		check(m.lines().gate && m.lines().note == 38 && m.lines().slide, "and releasing the newest slides back to the one before");
+	}
+	{
+		MidiDriver m;
+		m.noteOn(36, 90);
+		const unsigned t = m.triggers();
+		m.noteOff(36);
+		m.noteOn(36, 110);
+		check(m.lines().gate && !m.lines().slide && starts(m, t) == 1, "touching notes of one pitch (note-off, then note-on) retrigger");
+	}
+	{
+		MidiDriver m;
+		m.setSustain(true);
+		m.noteOn(36, 90);
+		const unsigned t = m.triggers();
+		m.noteOff(36);
+		m.noteOn(36, 110);
+		const auto &l = m.lines();
+		check(l.gate && l.slide && l.accent && starts(m, t) == 0, "with the sustain pedal down they slide instead: an accented slide into the same note");
+		m.noteOff(36);
+		check(m.lines().gate, "note-offs wait while the pedal is down");
+		m.setSustain(false);
+		check(!m.lines().gate, "and end the note when it comes up");
+	}
+}
+
 } // namespace
 
 LEMUS_HOST_TEST(tb303)
@@ -283,6 +503,8 @@ LEMUS_HOST_TEST(tb303)
 	testRom();
 	testRomFolder();
 	testTb303();
-	testArtwork();
+	testMidi();
+	testArtworkPack();
+	testArtworkPlaces();
 	testEditor();
 }

@@ -17,12 +17,19 @@ Without the ROM the TB-303 loads in **voice mode**: the voice, played from MIDI,
 no sequencer, and the panel's keys do nothing. A session keeps its patterns in voice mode, and
 gets the full 303 back when it is reopened with the ROM in the folder.
 
-The panel's brand marks come from an optional artwork pack, `tb303.svg` (or an SVG in
-`tb303.zip`), in the same folder. Any SVG works; the marks are the elements with these ids, in
-panel millimetres (origin at the panel's top-left corner, as in `docs/panel.json`): `roland`,
-`bass_line`, `tb303`, `computer_controlled`. Lemus ships no pack. When the folder has no
-`tb303.svg`, Lemus writes a blank one (`blank_artwork.h`): the four slots with their boxes,
-commented out, so it draws nothing until they are filled in.
+The panel's brand marks come from your own artwork; Lemus ships none. As MAME keeps artwork, each
+of the four places has a file of its own in `artwork/tb303/` in the ROM folder (or in
+`artwork/tb303.zip`), an SVG or PNG with a plain name: `maker` (the Roland logo), `name` (Bass
+Line), `model` (TB-303), `tagline` (Computer Controlled), e.g. `maker.png`. The places are the
+panel's logo boxes in `docs/panel.json`. Each file is drawn as it looks, fitted to its box with its
+proportions kept and centred; only what it draws counts (not a page's margins or a PNG's
+transparent border), and transparent parts show the panel. A PNG at 16 px/mm stays sharp in the
+largest window. Artwork on the bar lists the places with their sizes and what each has, opens the
+folder, and reads it again (Rescan), so the panel changes without a restart. The older single-SVG
+pack, `tb303.svg` (or an SVG in `tb303.zip`) anywhere in the folder with the ids `roland`,
+`bass_line`, `tb303`, `computer_controlled` in panel millimetres, still fills the places without a
+file, as outlines in the print colour. Releases up to 0.1.4 wrote a blank one (`blank_artwork.h`)
+into the ROM folder; an untouched copy is taken out when the 303 loads.
 
 ## Building and tools
 
@@ -52,7 +59,7 @@ The machine builds into Lemus from the repo root (see the top-level README). Its
 ## Using it
 
 The editor is the top panel drawn from measurements of a straight-on photo (every legend,
-keyline and control placed to about 0.3 mm), brand marks from the artwork pack (`tb303.svg`) when your ROM folder has one, knurled knobs,
+keyline and control placed to about 0.3 mm), brand marks from your own artwork when your ROM folder has some, knurled knobs,
 bar-knob rotary switches, key caps and LEDs driven by the firmware. Drag knobs (shift for
 fine, double-click resets), click or drag the MODE and TRACK/PATT.GROUP switches, press the
 keys. The WAVEFORM switch, which is on the rear of the real unit, sits at the rear edge above

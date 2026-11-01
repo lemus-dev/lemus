@@ -152,7 +152,7 @@ RomSet load(const juce::File &folder, const std::vector<RomSpec> &roms, std::vec
 	size_t remaining = roms.size();
 	// Only data of a wanted size is read and hashed, so a large folder (a whole MAME set) is cheap
 	// to look through.
-	auto offer = [&](const juce::MemoryBlock &data) {
+	auto offer = [&](const juce::MemoryBlock &data, const juce::File &where) {
 		juce::String sha1;
 		for (const auto &spec : roms) {
 			if (spec.size != data.getSize() || found.has(spec.name))
@@ -160,7 +160,7 @@ RomSet load(const juce::File &folder, const std::vector<RomSpec> &roms, std::vec
 			if (sha1.isEmpty())
 				sha1 = sha1Hex(data.getData(), data.getSize());
 			if (sha1 == spec.sha1) {
-				found.add(spec.name, data);
+				found.add(spec.name, data, where);
 				--remaining;
 			}
 		}
@@ -179,7 +179,7 @@ RomSet load(const juce::File &folder, const std::vector<RomSpec> &roms, std::vec
 			if (wanted(entry.getFileSize())) {
 				juce::MemoryBlock data;
 				if (file.loadFileAsData(data))
-					offer(data);
+					offer(data, file);
 			} else if (file.hasFileExtension("zip") && entry.getFileSize() < 256 * 1024 * 1024) {
 				zips.push_back(file);
 			}
@@ -193,7 +193,7 @@ RomSet load(const juce::File &folder, const std::vector<RomSpec> &roms, std::vec
 					if (std::unique_ptr<juce::InputStream> in(zip.createStreamForEntry(i)); in != nullptr) {
 						juce::MemoryBlock data;
 						in->readIntoMemoryBlock(data);
-						offer(data);
+						offer(data, zips[z].getChildFile(e->filename));
 					}
 		}
 	}
@@ -231,10 +231,15 @@ ArtworkFile findArtwork(const juce::File &folder, const ArtworkSpec &spec)
 	if (spec.name.isEmpty() || !folder.isDirectory())
 		return {};
 	std::vector<ArtworkFile> found;
-	const auto stem = spec.name.upToLastOccurrenceOf(".", false, false);
+	const auto stem = spec.folder();
+	const auto places = placeFolder(folder, spec);
+	const auto placesZip = places.withFileExtension("zip");
 	for (const auto &entry : juce::RangedDirectoryIterator(folder, true, "*", juce::File::findFiles)) {
 		const auto file = entry.getFile();
 		const auto where = file.getRelativePathFrom(folder);
+		// The places' own files are never a pack (the TB-303 has a place called tb303).
+		if (!spec.places.empty() && (file.isAChildOf(places) || file == placesZip))
+			continue;
 		if (file.getFileName().equalsIgnoreCase(spec.name)) {
 			ArtworkFile a;
 			if (file.loadFileAsData(a.data) && hasMarks(a.data)) {
@@ -269,9 +274,70 @@ ArtworkFile findArtwork(const juce::File &folder, const ArtworkSpec &spec)
 	return found.front();
 }
 
+juce::File placeFolder(const juce::File &folder, const ArtworkSpec &spec)
+{
+	return folder.getChildFile("artwork").getChildFile(spec.folder());
+}
+
+std::vector<PlaceFile> findPlaceFiles(const juce::File &folder, const ArtworkSpec &spec)
+{
+	std::vector<PlaceFile> found;
+	if (spec.places.empty() || !folder.isDirectory())
+		return found;
+	const auto dir = placeFolder(folder, spec);
+	const auto loose = dir.isDirectory() ? dir.findChildFiles(juce::File::findFiles, false) : juce::Array<juce::File>();
+	std::unique_ptr<juce::ZipFile> zip;
+	if (const auto z = dir.withFileExtension("zip"); z.existsAsFile())
+		zip = std::make_unique<juce::ZipFile>(z);
+	for (const auto &place : spec.places) {
+		PlaceFile pf;
+		pf.place = place.id;
+		for (const char *ext : {".svg", ".png"}) {
+			for (const auto &f : loose)
+				if (f.getFileName().equalsIgnoreCase(place.id + ext) && f.loadFileAsData(pf.data)) {
+					pf.where = f.getRelativePathFrom(folder);
+					pf.file = f;
+					break;
+				}
+			if (!pf.data.isEmpty())
+				break;
+		}
+		if (pf.data.isEmpty() && zip != nullptr)
+			for (const char *ext : {".svg", ".png"}) {
+				for (int i = 0; i < zip->getNumEntries() && pf.data.isEmpty(); ++i) {
+					const auto *e = zip->getEntry(i);
+					if (!e->filename.fromLastOccurrenceOf("/", false, false).equalsIgnoreCase(place.id + ext))
+						continue;
+					if (std::unique_ptr<juce::InputStream> in(zip->createStreamForEntry(i)); in != nullptr) {
+						in->readIntoMemoryBlock(pf.data);
+						pf.where = dir.withFileExtension("zip").getRelativePathFrom(folder) + "/" + e->filename;
+					}
+				}
+				if (!pf.data.isEmpty())
+					break;
+			}
+		if (!pf.data.isEmpty())
+			found.push_back(std::move(pf));
+	}
+	return found;
+}
+
+ArtworkFound findAllArtwork(const juce::File &folder, const ArtworkSpec &spec)
+{
+	return {findArtwork(folder, spec), findPlaceFiles(folder, spec)};
+}
+
+void addArtwork(RomSet &roms, const ArtworkSpec &spec, const ArtworkFound &found)
+{
+	if (!found.pack.data.isEmpty())
+		roms.add(spec.name, found.pack.data);
+	for (const auto &p : found.places)
+		roms.add(ArtworkSpec::key(p.place), p.data);
+}
+
 bool installBlankArtwork(const juce::File &folder, const ArtworkSpec &spec)
 {
-	if (spec.name.isEmpty() || spec.blank == nullptr)
+	if (spec.name.isEmpty() || spec.blank == nullptr || !spec.places.empty())
 		return false;
 	// Never create a folder the user named: it may be on a drive that isn't mounted.
 	if (!folder.isDirectory() && (folder != defaultLocation() || !folder.createDirectory()))

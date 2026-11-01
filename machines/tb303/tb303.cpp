@@ -18,10 +18,20 @@ const MachineInfo &tb303()
 		  {"The complete voice: the same sound as with the ROM", "MIDI notes: velocity 100 or more accents, overlapping notes slide",
 		   "Every knob, with automation"},
 		  {"No sequencer: pattern write, track and tap need the ROM", "The panel's keys and RUN/STOP don't respond"}}},
-		// The panel's brand marks (optional, from the user): roland, bass_line, tb303,
-		// computer_controlled, in panel mm. The blank pack has their slots, commented out.
-		{"tb303.svg", tb303::kBlankArtwork},
-		[](const RomSet &roms) { return std::make_unique<TB303Processor>(roms.find("d650c-133.ic8"), roms.find("tb303.svg")); }};
+		// The panel's brand marks (optional, from the user): a file per place in artwork/tb303/, each
+		// the panel's logo box (docs/panel.json; the tests check they match), or an older tb303.svg
+		// pack. Earlier releases wrote the blank pack into the ROM folder: untouched copies are taken
+		// out. The panel is drawn at up to 16 px/mm (4 px/mm, a window twice the size, a Retina screen).
+		{"tb303.svg",
+		 tb303::kBlankArtwork,
+		 {{"maker", "roland", "Roland logo", 51.75f, 7.36f},
+		  {"name", "bass_line", "Bass Line", 56.72f, 7.18f},
+		  {"model", "tb303", "TB-303", 28.74f, 6.08f},
+		  {"tagline", "computer_controlled", "Computer Controlled", 56.54f, 6.44f}},
+		 16.0f},
+		[](const RomSet &roms) {
+			return std::make_unique<TB303Processor>(roms.find("d650c-133.ic8"), Artwork::load(roms, tb303().artwork));
+		}};
 	return info;
 }
 

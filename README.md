@@ -40,25 +40,29 @@ it: put the ROM in the folder, press Rescan, and the machine reloads with it, ke
 ## Artwork
 
 Like MAME, Lemus ships no copyrighted artwork. The panels are drawn from our own measurements, and
-the brand marks on them (logos, wordmarks) come from an optional artwork pack: an SVG named after
-the machine (`tb303.svg`), anywhere in the ROM folder or in a zip of the same name. Without one the
-panel has no marks. When the folder has no pack, Lemus writes a blank one there to fill in: the
-machine's mark slots, commented out, so it draws nothing as it is.
+the brand marks on them (logos, wordmarks) come from the user's own files in the ROM folder.
+Without them the panel has no marks.
 
-Any SVG works as a pack: traced, redrawn by hand in an editor, or made by someone else. Each mark is
-the element whose id is the mark's name (a path, shape, text or group, with any transforms and
-curves), in the SVG's own units, which are the panel's millimetres; colours come from the panel. Each
-machine's README lists its mark ids and their coordinate frames. If there are several packs, the
-first by path is used, and the About box says which.
+As MAME keeps artwork, each machine has a folder of it, `artwork/<machine>/` in the ROM folder (or
+a zip, `artwork/<machine>.zip`), with an SVG or PNG for each mark's place on the panel, named
+plainly (`maker.png`, `model.svg`...). It's drawn as it looks, scaled to fit the place with its
+proportions kept and centred; only what it draws counts, and transparent parts show the panel.
+Artwork on the bar lists each place's file name and size, opens the folder and reads it again.
+Artwork stays in the ROM folder: sessions and state files don't carry it.
 
-Packs contain trademarks. They never go in this repo, the project doesn't distribute them or say
-where to get them, and it ships no tools or recipes for recreating them.
+The older kind, an artwork pack, still works: one SVG named after the machine (`tb303.svg`),
+anywhere in the ROM folder or in a zip of the same name, where each mark is the element whose id is
+the mark's name, in the panel's millimetres, filled in the panel's colours. It fills the places that
+have no file of their own. Each machine's README lists its places.
+
+Artwork contains trademarks. It never goes in this repo, the project doesn't distribute it or say
+where to get it, and it ships no tools or recipes for recreating it.
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `host/` | The host plugins: `LemusProcessor` runs the machine inside the plugin (audio, MIDI, transport, state and editor pass straight through); `SlotParameter` gives hosts 128 fixed parameters (`p001`-`p128`) that take the machine's names, so automation survives; `Roms` finds ROMs and artwork packs; `Artwork` reads packs; `LemusEditor` is the machine picker and the bar above a machine's editor, in `Style`; `Updates` is the update check |
+| `host/` | The host plugins: `LemusProcessor` runs the machine inside the plugin (audio, MIDI, transport, state and editor pass straight through); `SlotParameter` gives hosts 128 fixed parameters (`p001`-`p128`) that take the machine's names, so automation survives; `Roms` finds ROMs and artwork; `Artwork` reads it; `LemusEditor` is the machine picker and the bar above a machine's editor, in `Style`; `Updates` is the update check |
 | `machines/<id>/` | One machine each, all of it: `machine.cmake` (registers it), `<id>.cpp` (the driver), `core/` (the emulation, no JUCE), `plugin/` (its processor and editor), `tests/host.cpp` (its checks through the host), `host/` (its test-host sources and scenes), `tools/`, `docs/`, `README.md` |
 | `tests/` | Headless checks of the host (`lemustest_instrument`): its own, and each machine's through it from `machines/<id>/tests/host.cpp`, including that audio through the host is bit-identical to the machine on its own |
 | `third_party/` | JUCE (submodule), fonts (SIL OFL) |
@@ -95,8 +99,8 @@ A name and its plugin code never change once the plugin ships: sessions find the
 ## Contributing
 
 Contributions are under the AGPL-3.0, with a `Signed-off-by:` line on each commit; there is no
-CLA. Questions, reports and recordings of real units: GitHub Discussions and Issues, or
-hello@lemusdev.org.
+CLA. Questions, reports and recordings of real units: the forum, https://lemus.discourse.group.
+Bugs can also go to GitHub Issues.
 
 ## Licence and names
 

@@ -131,7 +131,7 @@ private:
 	std::vector<Switch> m_switches;
 	std::vector<Key> m_keys;
 	std::vector<Led> m_leds;
-	std::map<std::string, juce::Path> m_logos;
+	std::map<std::string, lemus::Mark> m_logos; // by the panel's logo id
 
 	juce::Image m_static;
 	float m_staticScale = 0;

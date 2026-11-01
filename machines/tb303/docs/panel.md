@@ -95,7 +95,7 @@ Render values are white-balanced suggestions. "Measured" values are medians from
   pack; the blank pack (`blank_artwork.h`) holds them. Slots (ids as in the pack): `roland` x 13.34–65.09,
   y 14.09–21.45; `bass_line` x 226.80–283.52, y 14.27–21.45; `tb303` x 207.63–236.37, y 44.48–50.56;
   `computer_controlled` x 179.83–236.37, y 52.58–59.02.
-- **Rule:** a 0.45 mm printed rule at y = 51.86 runs x 179.6–236.6, between the tb303 and computer_controlled slots. It goes with those marks, so Lemus draws it only when the artwork pack has one of them.
+- **Rule:** a 0.45 mm printed rule at y = 51.86 runs x 179.6–236.6, between the tb303 and computer_controlled slots. It goes with those marks, so Lemus draws it only when the artwork has one of them.
 
 ## 6. Knobs and rotary switches
 

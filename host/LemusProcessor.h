@@ -49,6 +49,12 @@ public:
 	void getStateInformation(juce::MemoryBlock &destData) override;
 	void setStateInformation(const void *data, int sizeInBytes) override;
 
+	// The state in a file of the user's (message thread): the bytes a session keeps, which is also
+	// what the standalone app's Options menu saves and loads. Each returns the empty string, or
+	// what went wrong. A load into a playing instance holds the audio for the moment it takes.
+	juce::String saveStateTo(const juce::File &file);
+	juce::String loadStateFrom(const juce::File &file);
+
 	// The loaded machine, or nullptr while the instance is empty. Message thread.
 	const lemus::MachineInfo *machine() const { return m_info; }
 	juce::AudioProcessor *machineProcessor() const { return m_machine.get(); }
@@ -68,8 +74,14 @@ public:
 	const juce::String &missingMachine() const { return m_missingId; }
 	bool retryMissing();
 
-	// Which artwork pack the loaded machine got, for the About box.
+	// Which artwork the loaded machine got, for the About box.
 	const juce::String &artworkNote() const { return m_artworkNote; }
+	// Reads the loaded machine's artwork from the ROM folder again (message thread). If it changed,
+	// hands it to the machine and sends a change message, so the editor builds the machine's editor
+	// again, and returns true.
+	bool reloadArtwork();
+	// Goes up each time the artwork changes.
+	int artworkVersion() const { return m_artworkVersion; }
 	// The optional ROMs the loaded machine runs without, and what it lacks, for the About box.
 	const juce::String &romNote() const { return m_romNote; }
 	// The same ROMs, for the bar: while there are any it shows the mode and offers to add them.
@@ -81,6 +93,8 @@ public:
 private:
 	static BusesProperties buses();
 	std::unique_ptr<juce::AudioProcessor> createMachine(const lemus::MachineInfo &info);
+	static juce::String artworkNote(const lemus::ArtworkSpec &spec, const lemus::romfolder::ArtworkFound &art);
+	static juce::String fingerprint(const lemus::romfolder::ArtworkFound &art);
 	void install(const lemus::MachineInfo &info, std::unique_ptr<juce::AudioProcessor> machine, bool announceValues);
 	void configure(juce::AudioProcessor &machine);
 
@@ -99,6 +113,8 @@ private:
 	juce::String m_missingId;
 	juce::MemoryBlock m_missingState;
 	juce::String m_artworkNote;
+	int m_artworkVersion = 0;
+	juce::String m_artworkPrint; // what the loaded artwork was read from (fingerprint)
 	juce::String m_romNote;
 	std::vector<lemus::RomSpec> m_without;
 

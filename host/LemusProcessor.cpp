@@ -1,4 +1,5 @@
 #include "LemusProcessor.h"
+#include "Artwork.h"
 #include "LemusEditor.h"
 
 #include <algorithm>
@@ -136,23 +137,75 @@ std::unique_ptr<juce::AudioProcessor> LemusProcessor::createMachine(const lemus:
 	// With every ROM, the answer to the prompt is forgotten: if one goes missing later, it shows again.
 	if (!info.roms.empty() && missing.empty() && lemus::romPromptAnswered(info.id))
 		lemus::setRomPromptAnswered(info.id, false);
-	// The artwork pack, if there is one: any pack is used. Without one, the machine's blank pack
-	// goes in the folder for the user to fill in.
-	const auto art = lemus::romfolder::findArtwork(folder, info.artwork);
-	if (!art.data.isEmpty())
-		roms.add(info.artwork.name, art.data);
-	else
-		lemus::romfolder::installBlankArtwork(folder, info.artwork);
+	// The artwork: any pack is used, and a machine with places takes their own files too. Without
+	// places and without a pack, the machine's blank pack goes in the folder for the user to fill in;
+	// with places, a blank one an earlier release wrote comes out.
+	const auto &spec = info.artwork;
+	const auto art = lemus::romfolder::findAllArtwork(folder, spec);
+	lemus::romfolder::addArtwork(roms, spec, art);
+	if (!spec.places.empty())
+		lemus::romfolder::removeBlankArtwork(folder, spec);
+	else if (art.pack.data.isEmpty())
+		lemus::romfolder::installBlankArtwork(folder, spec);
 	auto machine = info.create(roms);
 	juce::StringArray without;
 	for (const auto &r : missing)
 		without.add("Without " + r.name + ": " + r.without + ".");
 	m_romNote = without.joinIntoString("\n");
 	m_without = missing;
-	m_artworkNote = info.artwork.name.isEmpty() ? juce::String()
-	                : art.data.isEmpty()        ? "No artwork pack: the panel's brand marks come from " + info.artwork.name + " in your ROM folder."
-	                                            : "Artwork: " + art.where + ".";
+	m_artworkNote = artworkNote(spec, art);
+	m_artworkPrint = fingerprint(art);
 	return machine;
+}
+
+juce::String LemusProcessor::artworkNote(const lemus::ArtworkSpec &spec, const lemus::romfolder::ArtworkFound &art)
+{
+	if (spec.name.isEmpty())
+		return {};
+	if (spec.places.empty())
+		return art.pack.data.isEmpty() ? "No artwork pack: the panel's brand marks come from " + spec.name + " in your ROM folder."
+		                               : "Artwork: " + art.pack.where + ".";
+	if (art.empty())
+		return "No artwork: the panel's brand marks come from your own files, in artwork/" + spec.folder() + "/ in your ROM folder (ROMs on the bar lists them).";
+	if (art.places.empty())
+		return "Artwork: " + art.pack.where + ".";
+	juce::StringArray from; // the folder, the zip, or both
+	for (const auto &p : art.places)
+		from.addIfNotAlreadyThere(p.file != juce::File() ? p.where.upToLastOccurrenceOf("/", true, false) : p.where.upToFirstOccurrenceOf(".zip", true, true));
+	juce::String note = "Artwork: " + juce::String(int(art.places.size())) + " of " + juce::String(int(spec.places.size())) + " places from " +
+	                    from.joinIntoString(" and ");
+	return note + (art.pack.data.isEmpty() || art.places.size() == spec.places.size() ? "." : ", the others from " + art.pack.where + ".");
+}
+
+// What artwork the folder had: each file's path and checksum.
+juce::String LemusProcessor::fingerprint(const lemus::romfolder::ArtworkFound &art)
+{
+	juce::StringArray print{art.pack.where + " " + lemus::sha1Hex(art.pack.data.getData(), art.pack.data.getSize())};
+	for (const auto &p : art.places)
+		print.add(p.where + " " + lemus::sha1Hex(p.data.getData(), p.data.getSize()));
+	return print.joinIntoString("\n");
+}
+
+bool LemusProcessor::reloadArtwork()
+{
+	JUCE_ASSERT_MESSAGE_THREAD
+	if (m_info == nullptr || m_machine == nullptr)
+		return false;
+	const auto &spec = m_info->artwork;
+	const auto art = lemus::romfolder::findAllArtwork(lemus::romfolder::location(), spec);
+	const auto print = fingerprint(art);
+	if (print == m_artworkPrint)
+		return false;
+	m_artworkPrint = print;
+	if (auto *user = dynamic_cast<lemus::ArtworkUser *>(m_machine.get())) {
+		lemus::RomSet roms;
+		lemus::romfolder::addArtwork(roms, spec, art);
+		user->setArtwork(lemus::Artwork::load(roms, spec));
+	}
+	m_artworkNote = artworkNote(spec, art);
+	++m_artworkVersion;
+	sendChangeMessage();
+	return true;
 }
 
 bool LemusProcessor::selectMachine(const juce::String &id)
@@ -323,6 +376,56 @@ void LemusProcessor::setStateInformation(const void *data, int sizeInBytes)
 		m_missingState = machineState;
 		sendChangeMessage();
 	}
+}
+
+juce::String LemusProcessor::saveStateTo(const juce::File &file)
+{
+	JUCE_ASSERT_MESSAGE_THREAD
+	juce::MemoryBlock data;
+	getStateInformation(data);
+	if (!file.replaceWithData(data.getData(), data.getSize()))
+		return "Couldn't write " + file.getFullPathName() + ".";
+	return {};
+}
+
+juce::String LemusProcessor::loadStateFrom(const juce::File &file)
+{
+	JUCE_ASSERT_MESSAGE_THREAD
+	const juce::String notOurs = file.getFileName() + " isn't a saved " + JucePlugin_Name + " state.";
+	if (file.getSize() > 256 * 1024 * 1024)
+		return notOurs;
+	juce::MemoryBlock data;
+	if (!file.loadFileAsData(data))
+		return "Couldn't read " + file.getFullPathName() + ".";
+	// The tree's type comes first, as a terminated string: anything else isn't ours.
+	const auto type = kStateType.toString();
+	if (data.getSize() <= size_t(type.length()) || std::memcmp(data.getData(), type.toRawUTF8(), size_t(type.length()) + 1) != 0)
+		return notOurs;
+	const auto state = juce::ValueTree::readFromData(data.getData(), data.getSize());
+	const juce::String id = state[kMachine];
+	if (!state.hasType(kStateType) || id.isEmpty())
+		return notOurs;
+	const auto *info = lemus::findMachine(id);
+	if (info == nullptr)
+		return file.getFileName() + " is a state of another machine (" + id + "), which " + JucePlugin_Name + " doesn't have.";
+	juce::MemoryBlock machineState;
+	if (const auto *block = state[kMachineState].getBinaryData())
+		machineState = *block;
+
+	if (m_info == info) {
+		const bool wasSuspended = isSuspended();
+		suspendProcessing(true);
+		m_machine->setStateInformation(machineState.getData(), int(machineState.getSize()));
+		suspendProcessing(wasSuspended);
+		updateHostDisplay(juce::AudioProcessorListener::ChangeDetails().withNonParameterStateChanged(true));
+		return {};
+	}
+	auto machine = createMachine(*info);
+	if (machine == nullptr)
+		return file.getFileName() + " is a state of the " + info->name + ", whose ROMs aren't in your ROM folder.";
+	machine->setStateInformation(machineState.getData(), int(machineState.getSize()));
+	install(*info, std::move(machine), true);
+	return {};
 }
 
 juce::AudioProcessor *JUCE_CALLTYPE createPluginFilter()

@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.22)
-project(LEMUS VERSION 0.1.4 LANGUAGES C CXX)
+# The oldest macOS the builds run on, as the download page says. It has to be set before project():
+# project() leaves an empty entry in the cache, and an empty target means the SDK's own version, so
+# releases up to 0.1.4 needed the macOS they were built on (27: lemus-dev/lemus#2). FORCE fills in
+# that empty entry in build folders made before this; a value given with -D is kept.
+if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Oldest macOS the builds run on" FORCE)
+endif()
+set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
+project(LEMUS VERSION 0.1.5 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
-set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "")
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -34,6 +40,8 @@ option(LEMUS_TOOLS "Build the test host and the hosts' tests" ON)
 set(LEMUS_SITE "https://lemusdev.org")
 # Where the source is published (AGPLv3): the About box links to it.
 set(LEMUS_SOURCE "https://github.com/lemus-dev/lemus")
+# The project's forum, for help and reports: the About box links to it.
+set(LEMUS_FORUM "https://lemus.discourse.group")
 
 # Machines register themselves, so adding or changing one touches only machines/<id>/: every
 # machines/<id>/machine.cmake is included, calls lemus_machine(<id> instrument|fx) and defines
@@ -284,7 +292,7 @@ foreach(id ${LEMUS_PLUGIN_MACHINES})
 endforeach()
 
 foreach(target ${LEMUS_PLUGINS})
-  target_compile_definitions(${target} PUBLIC ${LEMUS_DEFINITIONS} LEMUS_SITE="${LEMUS_SITE}" LEMUS_SOURCE="${LEMUS_SOURCE}" LEMUS_UPDATE_CHECK=1)
+  target_compile_definitions(${target} PUBLIC ${LEMUS_DEFINITIONS} LEMUS_SITE="${LEMUS_SITE}" LEMUS_SOURCE="${LEMUS_SOURCE}" LEMUS_FORUM="${LEMUS_FORUM}" LEMUS_UPDATE_CHECK=1)
   target_compile_options(${target} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
   target_link_libraries(${target} PUBLIC
     juce::juce_recommended_config_flags
@@ -310,7 +318,8 @@ function(lemus_add_check target source list is_synth name)
     LEMUS_PRIVATE_DIR="${LEMUS_PRIVATE_DIR}"
     LEMUS_ROOT_DIR="${LEMUS_ROOT_DIR}"
     LEMUS_SITE="${LEMUS_SITE}"
-    LEMUS_SOURCE="${LEMUS_SOURCE}")
+    LEMUS_SOURCE="${LEMUS_SOURCE}"
+    LEMUS_FORUM="${LEMUS_FORUM}")
   target_compile_options(${target} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
   target_link_libraries(${target} PRIVATE juce::juce_recommended_config_flags)
 endfunction()

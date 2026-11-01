@@ -18,6 +18,13 @@ struct CpuLines {
 // velocity 100 or more is an accent (velocity is otherwise ignored), and a note that starts
 // while another is held slides to its pitch without retriggering, with GATE kept high.
 // Releasing the newest of several held notes slides back to the previous one.
+//
+// Two held notes of the same pitch count as two, and a note-off ends the older one, so an
+// overlapping note of the same pitch slides (ties) instead of being cut by the first note's
+// note-off (the TD-3 fixed the same in firmware 1.2.6). While the sustain pedal (CC 64) is down,
+// note-offs wait until it comes up, so every note slides from the one before, the same pitch
+// included: that's how a DAW that can't overlap two notes of one pitch writes an accented slide
+// into the same note, and what D16's Phoscyon sends for one.
 class MidiDriver {
 public:
 	static constexpr int kAccentVelocity = 100;
@@ -31,7 +38,6 @@ public:
 			return;
 		}
 		const bool legato = !m_held.empty();
-		m_held.erase(std::remove(m_held.begin(), m_held.end(), note), m_held.end());
 		m_held.push_back(note);
 		m_lines.note = note;
 		m_lines.accent = velocity >= kAccentVelocity;
@@ -43,19 +49,29 @@ public:
 
 	void noteOff(int note)
 	{
-		const bool wasCurrent = !m_held.empty() && m_held.back() == note;
-		m_held.erase(std::remove(m_held.begin(), m_held.end(), note), m_held.end());
-		if (m_held.empty()) {
-			m_lines.gate = false;
-		} else if (wasCurrent) {
-			m_lines.note = m_held.back();
-			m_lines.slide = true;
+		if (m_sustain)
+			m_waiting.push_back(note);
+		else
+			release(note);
+	}
+
+	void setSustain(bool down)
+	{
+		if (down == m_sustain)
+			return;
+		m_sustain = down;
+		if (!down) {
+			for (const int note : m_waiting)
+				release(note);
+			m_waiting.clear();
 		}
 	}
 
 	void allNotesOff()
 	{
 		m_held.clear();
+		m_waiting.clear();
+		m_sustain = false;
 		m_lines.gate = false;
 	}
 
@@ -64,8 +80,26 @@ public:
 	unsigned triggers() const { return m_triggers; }
 
 private:
+	// Ends the oldest held note of that pitch.
+	void release(int note)
+	{
+		const auto it = std::find(m_held.begin(), m_held.end(), note);
+		if (it == m_held.end())
+			return;
+		const bool wasCurrent = it == m_held.end() - 1;
+		m_held.erase(it);
+		if (m_held.empty()) {
+			m_lines.gate = false;
+		} else if (wasCurrent) {
+			m_lines.note = m_held.back();
+			m_lines.slide = true;
+		}
+	}
+
 	CpuLines m_lines;
-	std::vector<int> m_held;
+	std::vector<int> m_held;    // oldest first; a pitch can be there more than once
+	std::vector<int> m_waiting; // note-offs held back by the sustain pedal
+	bool m_sustain = false;
 	unsigned m_triggers = 0;
 };
 

@@ -124,9 +124,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout TB303Processor::createLayout
 	return {p.begin(), p.end()};
 }
 
-TB303Processor::TB303Processor(const juce::MemoryBlock *rom, const juce::MemoryBlock *artwork)
+TB303Processor::TB303Processor(const juce::MemoryBlock *rom, lemus::Artwork artwork)
 	: AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true)),
-	  m_params(*this, nullptr, "TB303", createLayout()), m_artwork(lemus::Artwork::parse(artwork))
+	  m_params(*this, nullptr, "TB303", createLayout()), m_artwork(std::move(artwork))
 {
 	auto get = [this](const char *id) { return m_params.getRawParameterValue(id); };
 	m_tuning = get("tuning");
@@ -321,6 +321,8 @@ void TB303Processor::handleMidi(const juce::MidiMessage &m)
 		m_midi.noteOff(m.getNoteNumber());
 	else if (m.isAllNotesOff() || m.isAllSoundOff())
 		m_midi.allNotesOff();
+	else if (m.isSustainPedalOn() || m.isSustainPedalOff())
+		m_midi.setSustain(m.isSustainPedalOn());
 	else if (m.isController()) {
 		// Roland's TB-03 / TB-303 software control map.
 		const char *id = nullptr;
