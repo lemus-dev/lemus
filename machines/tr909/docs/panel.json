@@ -1,0 +1,9890 @@
+{
+ "source_image": "private/docs/photos/soundgas/sn282297_Roland-TR-909-Rhythm-Composer-SN282297-Ed-Obrien-2.jpg",
+ "source_note": "Soundgas studio photo of TR-909 #282297 (reference only, (c) Soundgas). Straight-on, 2400x1473 px, 4.50 px/mm. Cross-checked on private/docs/photos/commons_tr909_front_909bd.jpg, private/docs/photos/soundgas/dm_Roland-TR-909-Rhythm-Composer-Drum-Machine-3.jpg, private/docs/photos/commons_tr909_large_bdaniel.jpg, each mapped onto the master by SIFT + RANSAC and dense refinement (tools/panel/crosscheck.py).",
+ "sources": [
+  {
+   "path": "private/docs/photos/soundgas/sn282297_Roland-TR-909-Rhythm-Composer-SN282297-Ed-Obrien-2.jpg",
+   "role": "geometry master",
+   "licence": "reference only (c) Soundgas"
+  },
+  {
+   "name": "909bd",
+   "path": "private/docs/photos/commons_tr909_front_909bd.jpg",
+   "unit": "serial not known (Commons \"RolandTR-909-front.jpg\", 2006)",
+   "licence": "CC BY-SA 3.0, User:909 bd",
+   "size": [
+    2272,
+    1333
+   ],
+   "sift_matches": 961,
+   "sift_inliers": 503,
+   "patches": 2426,
+   "lens_k": [
+    -0.006,
+    -0.00147
+   ],
+   "rms_mm": 0.227,
+   "median_mm": 0.17,
+   "p90_mm": 0.335,
+   "rms_px": 1.81,
+   "sheet_k": 0.25,
+   "sheet_k_lens": 0.5,
+   "pots": 0.229
+  },
+  {
+   "name": "dm3",
+   "path": "private/docs/photos/soundgas/dm_Roland-TR-909-Rhythm-Composer-Drum-Machine-3.jpg",
+   "unit": "#403957 (Soundgas listing, 2016)",
+   "licence": "reference only, (c) Soundgas",
+   "size": [
+    2048,
+    1231
+   ],
+   "sift_matches": 1197,
+   "sift_inliers": 695,
+   "patches": 2675,
+   "lens_k": [
+    -0.01352,
+    -0.0008
+   ],
+   "rms_mm": 0.21,
+   "median_mm": 0.12,
+   "p90_mm": 0.34,
+   "rms_px": 1.68,
+   "sheet_k": 0.5,
+   "sheet_k_lens": 0.75,
+   "pots": 0.243
+  },
+  {
+   "name": "bdaniel",
+   "path": "private/docs/photos/commons_tr909_large_bdaniel.jpg",
+   "unit": "serial not known (Brandon Daniel, 2009; a perspective-corrected derivative of an oblique shot)",
+   "licence": "CC BY-SA 2.0, Brandon Daniel",
+   "size": [
+    2284,
+    1349
+   ],
+   "sift_matches": 1267,
+   "sift_inliers": 336,
+   "patches": 2496,
+   "lens_k": [
+    0.00225,
+    -6e-05
+   ],
+   "rms_mm": 0.279,
+   "median_mm": 0.202,
+   "p90_mm": 0.438,
+   "rms_px": 2.23,
+   "sheet_k": 1.25,
+   "sheet_k_lens": 0.75,
+   "pots": null
+  }
+ ],
+ "units": "mm",
+ "origin": "top-left (rear-left) corner of the top view (outer edge of the left side cheek); x right, y towards the player",
+ "frame": {
+  "px_per_mm_in_source": 4.4962,
+  "source_corners_px": {
+   "tl": [
+    106.82309613678449,
+    106.79011365266848
+   ],
+   "tr": [
+    2289.9245979096036,
+    109.515399804724
+   ],
+   "br": [
+    2294.601559626396,
+    1367.4866728299617
+   ],
+   "bl": [
+    107.43176414046111,
+    1362.0938254491411
+   ]
+  },
+  "homography_source_to_master_px": [
+   [
+    1.785190715552932,
+    -0.0008655944296512079,
+    -190.6071644508316
+   ],
+   [
+    -0.0022282566077272367,
+    1.7849574727519968,
+    -190.37778514927643
+   ],
+   [
+    9.681392133755174e-07,
+    1.4808533618443622e-06,
+    1.0
+   ]
+  ],
+  "master_image": "build/tr909-panel/panel/master_reg.png (8 px/mm; tools/panel/build_panel.sh)",
+  "regularisation": {
+   "method": "rubber-sheeting on straight keylines + 23.0 mm key grid (tools/panel/regularise.py)",
+   "max_abs_dx_mm": 0.71,
+   "max_abs_dy_mm": 0.67
+  },
+  "decision": "regularised (regularise.py, as the first measurement): the master rectified by its outline, then the rubber sheet that puts the dividers on the 23.0 mm key-pair grid and straightens the long bars",
+  "why": [
+   "the printed tick-ring centres fit the small pots of the 1:1 voicing-board artwork to 0.087 mm rms in x on the regularised master, 0.375 mm on the master as rectified",
+   "the master's bow is the pattern of a pincushion lens about the picture's middle (lines above it bend up at the ends, lines below it down; sections near the middle narrow, outer ones wide)",
+   "the two other straight-on photos (909bd, dm3) show the same pattern with about 60 % of the amplitude (their bars' sagitta -0.5 mm against the master's -0.9), so a homography from them to the master cannot see it: alone it favours k = 0.25, 0.5; with a radial lens term of their own, k = 0.5, 0.75; their own rings miss the pots by 0.229, 0.243 mm rms",
+   "the bdaniel photo, perspective-corrected from an oblique view (its distortion lies elsewhere), has the sections regular to 0.1 mm"
+  ],
+  "size_mm": [
+   486.0,
+   279.49
+  ]
+ },
+ "panel": {
+  "w": 486.0,
+  "h": 279.49,
+  "official_dimensions_mm": {
+   "w": 486,
+   "d": 300,
+   "h": 105,
+   "weight_kg": 4.5
+  },
+  "aspect": 1.7389,
+  "top_plate_x": [
+   8.24,
+   478.03
+  ],
+  "note": "official: 486 (W) x 300 (D) x 105 (H) mm, 4.5 kg (owner's manual p. 39, service notes p. 1)"
+ },
+ "design_grid": {
+  "key_pitch": 23.0,
+  "key1_x": 82.28,
+  "section_pitch": 46.0,
+  "small_button_pitch": 12.0,
+  "knob_rows_y": [
+   119.93,
+   139.82
+  ],
+  "note": "step keys at x = key1_x + 23.0*(k-1); instrument sections and step dividers on the key-pair boundaries; small buttons on a 12.0 mm pitch (switch-board artwork)"
+ },
+ "accuracy": "knob centres +-0.1 mm in x, +-0.15 in y (25 pots of the 1:1 voicing-board artwork, SN p. 10: 0.087 / 0.17 mm rms); printed lines, bars, boxes and legends +-0.15 mm relative (three other photos mapped onto the master), +-0.3 mm absolute in the 486 mm frame (+-0.5 within 40 mm of the case ends); raised parts as the photos see them +-0.5 mm (parallax: the file has panel-plane positions); display digits +-0.5 mm; 3-D sizes +-1 mm. See accuracy_table and docs/panel.md.",
+ "accuracy_table": [
+  {
+   "what": "Knob centres (printed tick rings), x",
+   "estimate": "+-0.1 mm",
+   "evidence": "25 small pots of the 1:1 voicing-board artwork (SN p. 10): 0.087 mm rms, max 0.43 (similarity, 15.725 px/mm); the master as rectified, without the rubber sheet: 0.375 mm"
+  },
+  {
+   "what": "Knob centres, y",
+   "estimate": "+-0.15 mm",
+   "evidence": "the same pots: 0.169 mm rms (similarity); the page is 1.2 % taller than wide (an affine fit takes it out), the knob rows are 19.86 mm apart on the panel and 20.11 on the page at its x scale"
+  },
+  {
+   "what": "Knob centres against the other photos",
+   "estimate": "0.1 mm",
+   "evidence": "rms x/y 0.07-0.10 / 0.12 mm (locally 0.04-0.06 / 0.08)"
+  },
+  {
+   "what": "Printed lines, bars and boxes, relative",
+   "estimate": "+-0.15 mm",
+   "evidence": "dividers and keylines rms x 0.10-0.13, y 0.01-0.03; bars 0.08 / 0.09-0.16; header bars and orange boxes 0.10-0.23 / 0.07-0.08 mm, against two other photos"
+  },
+  {
+   "what": "Legends (ink boxes), relative",
+   "estimate": "+-0.15 mm (sizes +-0.2)",
+   "evidence": "0.12-0.14 / 0.10-0.15 mm rms, 0.07-0.11 / 0.06-0.08 locally (the legends both photos found alike)"
+  },
+  {
+   "what": "Absolute, in the 486 mm frame",
+   "estimate": "+-0.3 mm (+-0.5 within 40 mm of the case ends)",
+   "evidence": "the photos still differ from the master by 0.34/0.34 mm (90th percentile) after a homography and a radial lens term, most at the panel ends; the outline sets the frame"
+  },
+  {
+   "what": "Raised parts (key cut-outs as seen, small caps, LED domes)",
+   "estimate": "+-0.5 mm",
+   "evidence": "key cut-outs 0.27-0.35 / 0.30-0.37, small caps 0.33-0.34 / 0.29-0.39, scale LEDs 0.34-0.40 / 0.48-0.55 mm rms between photos: each camera leans them differently"
+  },
+  {
+   "what": "Logo boxes",
+   "estimate": "+-0.3 mm",
+   "evidence": "0.12-0.29 / 0.08 mm rms against the other photos"
+  },
+  {
+   "what": "Display digits",
+   "estimate": "+-0.5 mm",
+   "evidence": "one photo (bdaniel), faint segments; the part type for the pitch"
+  },
+  {
+   "what": "3-D sizes (heights, key tops, knob bodies)",
+   "estimate": "+-1 mm (key tops +-0.3)",
+   "evidence": "estimates; key tops from profiles"
+  }
+ ],
+ "small_knob_tick_stats": {
+  "n": 147,
+  "r_outer_regular": 7.77,
+  "r_outer_long": 8.68,
+  "r_inner_min": 5.63
+ },
+ "colours": {
+  "panel": {
+   "hex": "#E6E3D9",
+   "note": "top panel paint, warm off-white. master #E2DFD2, close-up #E4E5EA, 909bd #E4DCD2, bdaniel #E5E5DB"
+  },
+  "side_panel": {
+   "hex": "#6C6650",
+   "note": "olive / khaki grey side cheeks. master #6F6753, 909bd #585239"
+  },
+  "print_dark": {
+   "hex": "#4B505B",
+   "note": "dark print (header bars, scale bars, number bar, keylines, legends, TR-909 and RHYTHM COMPOSER): slate grey with a blue cast. master #323230 (studio curve crushes it), close-up #4E525B..#5B5F6A, 909bd #5E6374, bdaniel #56617A"
+  },
+  "header_bar": {
+   "hex": "#4B505B",
+   "note": "header bars: same ink as print_dark. master #393939"
+  },
+  "print_white": {
+   "hex": "#F2F0EA",
+   "note": "white in the dark bars (notes, brackets, SHIFT legends): the panel paint left open"
+  },
+  "orange_print": {
+   "hex": "#EE7F32",
+   "note": "orange text in the header bars and the pointer line on every knob; thin strokes read darker in photos"
+  },
+  "orange_box": {
+   "hex": "#F0883A",
+   "note": "orange label boxes (TRACK WRITE ... TEMPO MODE, SHIFT). master #BE6423, close-up #CA8A54 (in shade), 909bd #DC955E, bdaniel #FF7D05"
+  },
+  "logo_orange": {
+   "hex": "#EC7A30",
+   "note": "Roland logo. master #DA8356"
+  },
+  "display": {
+   "hex": "#4A141B",
+   "note": "red display filter, unlit (dark maroon). master #3F131B, 909bd #854A50 (reflection)"
+  },
+  "led_lit": {
+   "hex": "#FF2A1E",
+   "note": "lit red LED / display segment; add a soft glow"
+  },
+  "led_unlit": {
+   "hex": "#4A0A10",
+   "note": "unlit 3 mm red LED in the scale bars (dark red dome, small highlight)"
+  },
+  "led_window": {
+   "hex": "#3A3A3C",
+   "note": "unlit rectangular LED lens in a key top (dark grey; red when lit)"
+  },
+  "knob": {
+   "hex": "#46443F",
+   "note": "knob plastic: charcoal, very slightly warm, satin. master #39362F, close-up #53524E, 909bd #4B4441"
+  },
+  "knob_skirt_shade": {
+   "hex": "#2A2826",
+   "note": "shaded side of the knob body"
+  },
+  "key_cap": {
+   "hex": "#CDC9BC",
+   "note": "step and CARTRIDGE/ENTER key tops (2247029100): light warm grey. master #B6AA94, close-up #C4C3C1, 909bd #B9B7A8, bdaniel #C9C3AD"
+  },
+  "key_cap_top": {
+   "hex": "#DCD8CC",
+   "note": "dished top face of the grey keys (lighter than the sloped sides)"
+  },
+  "key_cap_side": {
+   "hex": "#A6A194",
+   "note": "sloped sides of the grey keys"
+  },
+  "ivory_cap": {
+   "hex": "#F1E6C6",
+   "note": "START and STOP/CONT key tops (2247029200), ivory. master #FFF6C9 (over-exposed), 909bd #EADECA"
+  },
+  "small_btn": {
+   "hex": "#77726F",
+   "note": "small tact-switch caps (2247029300): smoky translucent grey, a frosted lighter square on top. Master #3E3C3B (studio light), close-up rim #989694 (daylight), bdaniel #7A706E"
+  },
+  "small_btn_centre": {
+   "hex": "#C9C2C0",
+   "note": "frosted centre of the small caps, unlit (close-up #9E8A8A in shade); lit: #F0606A..#FF3040"
+  },
+  "key_hole": {
+   "hex": "#141414",
+   "note": "dark gap / shadow in the panel cut-outs round the keys"
+  },
+  "small_btn_centre_red": {
+   "hex": "#7E6A62",
+   "note": "centre of the 14 lit-row caps with their LED off: tinted by the red LED behind it (master #7E6A62; the six left-box caps, with no LED, #ADA292)"
+  },
+  "small_btn_centre_plain": {
+   "hex": "#ADA292",
+   "note": "the frosted centre of the six left-box caps, which have no LED behind them (master #ADA292)"
+  },
+  "cheek_gap": {
+   "hex": "#524942",
+   "note": "dark seam between a side cheek and the top plate, in shade (master #524942 at its darkest, left)"
+  },
+  "side_panel_edge": {
+   "hex": "#605847",
+   "note": "rounded outer edge of the side cheeks, turned away from the light (master #605847, left)"
+  },
+  "plate_edge": {
+   "hex": "#F3EDE8",
+   "note": "rounded edge of the top plate along the cheeks, catching the light (master #F3EDE8, left)"
+  },
+  "rear_bend": {
+   "hex": "#DCDCD3",
+   "note": "the plate's bend down at the rear, seen edge-on (master #DCDCD3)"
+  },
+  "front_bend": {
+   "hex": "#BBB4AA",
+   "note": "the top plate turning down at the front, upper half of the band (master #BBB4AA)"
+  },
+  "front_bend_dark": {
+   "hex": "#9B968E",
+   "note": "the same, lower half, turned furthest from the light (master #9B968E)"
+  }
+ },
+ "fonts": {
+  "panel_legends": "Helvetica Medium caps (Neue Haas / Helvetica). Header bars, step numbers, SHIFT legends and the instrument names in the legend boxes are Helvetica Bold.",
+  "serif": "\"I\" and \"II\" (BANK) are serif roman numerals (Times Roman).",
+  "logos": "Brand marks (roland, tr909, rhythm_composer) are slots only and are never drawn from the photos; fill them from the artwork pack (tr909.svg)."
+ },
+ "conventions": {
+  "coordinates": "mm from the rear-left corner of the top view (the outer edge of the left side cheek), x to the right, y towards the player; nx = x / panel.w, ny = y / panel.h",
+  "text": "bbox = ink bounding box (cap height to baseline for caps-only legends); x, y = bbox centre; cap_h = capital height. Legends printed on a label_box or inside an outline_box are their own text elements.",
+  "label_box": "a filled box (header bar, orange box); bbox = its edges; its legend is the text elements inside it",
+  "outline_box": "bbox = outer edge of the keyline; points = the keyline's centre line where it isn't a rectangle (the tab over the left key); stroke = keyline width; corner_r = corner radius",
+  "line": "points = stroke centre line; stroke = width",
+  "fill": "a printed area: bbox, corner_r",
+  "symbol": "note glyphs in the scale bars: bbox = the glyph's ink box (head at the lower left, stem up from its right side, one flag on the eighth notes)",
+  "knob": "x, y = centre of the printed tick ring (= the pot shaft); knob_d = knob top seen from above; base_d = the skirt; scale = the printed ticks (angles from 12 o'clock, clockwise positive)",
+  "key": "x, y = centre of the panel cut-out (photo parallax removed); bbox = the cut-out for the large keys, the visible cap for the small buttons; cap_top = the flat top face; led = the id of the LED element in or behind the cap",
+  "led": "led = the tr909::Machine::Led it shows (the processor's snapshot leds[]); shape rect (lens in a key top), round (3 mm LED in a scale bar) or backlight (the centre of a lit small button's frosted window: bbox = that square, window = the window's side)",
+  "display": "bbox = the red filter window; digit = the 7-segment module's geometry; the digits are the processor's snapshot digits[] (BCD, 10-15 blank), left to right",
+  "logo": "a brand-mark slot: bbox only, never traced shapes; logo = the artwork pack's element id",
+  "param": "every interactive element carries param: a knob its parameter id (TR909Processor::knobs(), tempo), a key its tr909::Machine::Key enumerator (Step1 ... EnterAccent), as TR909Processor::setKey takes it"
+ },
+ "elements": [
+  {
+   "id": "case_outline",
+   "type": "case",
+   "x": 243.0,
+   "y": 139.75,
+   "w": 486.0,
+   "h": 279.49,
+   "corner_r": 1.0,
+   "colour": "side_panel",
+   "note": "top view of the whole unit: 486.0 mm (official width) x 279.5 mm. The depth is the length of the sloping top measured square-on; the official 300 mm depth is the footprint (the base and its front lip reach further forward than the sloping top). Corners rounded r ~1 mm.",
+   "bbox": [
+    0.0,
+    0.0,
+    486.0,
+    279.49
+   ],
+   "nx": 0.5,
+   "ny": 0.5
+  },
+  {
+   "id": "side_panel_left",
+   "type": "region",
+   "bbox": [
+    0.0,
+    0.0,
+    8.24,
+    279.49
+   ],
+   "colour": "side_panel",
+   "corner_r": 1.0,
+   "note": "top edge of the left side cheek (part 2112017600), olive grey; its outer face is not visible from above",
+   "x": 4.12,
+   "y": 139.75,
+   "w": 8.24,
+   "h": 279.49,
+   "nx": 0.0085,
+   "ny": 0.5
+  },
+  {
+   "id": "side_panel_right",
+   "type": "region",
+   "bbox": [
+    478.03,
+    0.0,
+    486.0,
+    279.49
+   ],
+   "colour": "side_panel",
+   "corner_r": 1.0,
+   "note": "right side cheek (2112017700)",
+   "x": 482.01,
+   "y": 139.75,
+   "w": 7.97,
+   "h": 279.49,
+   "nx": 0.9918,
+   "ny": 0.5
+  },
+  {
+   "id": "top_plate",
+   "type": "region",
+   "bbox": [
+    8.24,
+    0.0,
+    478.03,
+    279.49
+   ],
+   "colour": "panel",
+   "corner_r": 0.8,
+   "note": "painted steel top panel (2221039300), warm off-white; all print sits on it. Very slight darker shading (~0.6 mm) along the rear and front bends.",
+   "x": 243.13,
+   "y": 139.75,
+   "w": 469.79,
+   "h": 279.49,
+   "nx": 0.5003,
+   "ny": 0.5
+  },
+  {
+   "id": "logo_roland",
+   "type": "logo",
+   "bbox": [
+    34.72,
+    14.22,
+    115.22,
+    26.85
+   ],
+   "label": "Roland",
+   "colour": "logo_orange",
+   "note": "brand mark slot, not drawn: the Roland logo (R emblem of three parallel strokes + wordmark) in orange. Filled from the artwork pack (id roland).",
+   "x": 74.97,
+   "y": 20.54,
+   "w": 80.5,
+   "h": 12.63,
+   "nx": 0.1543,
+   "ny": 0.0735,
+   "logo": "roland"
+  },
+  {
+   "id": "logo_tr909",
+   "type": "logo",
+   "bbox": [
+    34.9,
+    74.9,
+    142.78,
+    90.52
+   ],
+   "label": "TR-909",
+   "colour": "print_dark",
+   "note": "brand mark slot, not drawn: the TR-909 logotype (heavy, extended, rounded-square letters) in the dark print. Filled from the artwork pack (id tr909).",
+   "x": 88.84,
+   "y": 82.71,
+   "w": 107.88,
+   "h": 15.62,
+   "nx": 0.1828,
+   "ny": 0.2959,
+   "logo": "tr909"
+  },
+  {
+   "id": "logo_rhythm_composer",
+   "type": "logo",
+   "bbox": [
+    305.9,
+    83.5,
+    441.4,
+    90.38
+   ],
+   "label": "RHYTHM COMPOSER",
+   "colour": "print_dark",
+   "note": "brand mark slot, not drawn: the RHYTHM COMPOSER logotype (wide capitals with cut M, E, S, R) in the dark print. Filled from the artwork pack (id rhythm_composer).",
+   "x": 373.65,
+   "y": 86.94,
+   "w": 135.5,
+   "h": 6.88,
+   "nx": 0.7688,
+   "ny": 0.3111,
+   "logo": "rhythm_composer"
+  },
+  {
+   "id": "line_inst_div_0",
+   "type": "line",
+   "points": [
+    [
+     35.26,
+     97.38
+    ],
+    [
+     35.26,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 35.26,
+   "y": 125.12,
+   "note": "left edge of the instrument section",
+   "nx": 0.0726,
+   "ny": 0.4477
+  },
+  {
+   "id": "line_inst_div_1",
+   "type": "line",
+   "points": [
+    [
+     70.7,
+     103.13
+    ],
+    [
+     70.7,
+     153.12
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 70.7,
+   "y": 128.12,
+   "note": "section divider",
+   "nx": 0.1455,
+   "ny": 0.4584
+  },
+  {
+   "id": "line_inst_div_2",
+   "type": "line",
+   "points": [
+    [
+     116.78,
+     103.13
+    ],
+    [
+     116.78,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 116.78,
+   "y": 128.0,
+   "note": "section divider",
+   "nx": 0.2403,
+   "ny": 0.458
+  },
+  {
+   "id": "line_inst_div_3",
+   "type": "line",
+   "points": [
+    [
+     162.78,
+     103.13
+    ],
+    [
+     162.78,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 162.78,
+   "y": 128.0,
+   "note": "section divider",
+   "nx": 0.3349,
+   "ny": 0.458
+  },
+  {
+   "id": "line_inst_div_4",
+   "type": "line",
+   "points": [
+    [
+     208.78,
+     103.38
+    ],
+    [
+     208.78,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 208.78,
+   "y": 128.12,
+   "note": "section divider",
+   "nx": 0.4296,
+   "ny": 0.4584
+  },
+  {
+   "id": "line_inst_div_5",
+   "type": "line",
+   "points": [
+    [
+     254.78,
+     103.13
+    ],
+    [
+     254.78,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 254.78,
+   "y": 128.0,
+   "note": "section divider",
+   "nx": 0.5242,
+   "ny": 0.458
+  },
+  {
+   "id": "line_inst_div_6",
+   "type": "line",
+   "points": [
+    [
+     300.78,
+     103.38
+    ],
+    [
+     300.78,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 300.78,
+   "y": 128.12,
+   "note": "section divider",
+   "nx": 0.6189,
+   "ny": 0.4584
+  },
+  {
+   "id": "line_inst_div_7",
+   "type": "line",
+   "points": [
+    [
+     346.78,
+     103.38
+    ],
+    [
+     346.78,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 346.78,
+   "y": 128.12,
+   "note": "section divider",
+   "nx": 0.7135,
+   "ny": 0.4584
+  },
+  {
+   "id": "line_inst_div_8",
+   "type": "line",
+   "points": [
+    [
+     392.78,
+     103.38
+    ],
+    [
+     392.78,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 392.78,
+   "y": 128.12,
+   "note": "section divider",
+   "nx": 0.8082,
+   "ny": 0.4584
+  },
+  {
+   "id": "line_inst_div_9",
+   "type": "line",
+   "points": [
+    [
+     440.73,
+     97.38
+    ],
+    [
+     440.73,
+     152.87
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 440.73,
+   "y": 125.12,
+   "note": "right edge of the instrument section",
+   "nx": 0.9069,
+   "ny": 0.4477
+  },
+  {
+   "id": "hdr_total_accent",
+   "type": "label_box",
+   "bbox": [
+    36.46,
+    97.38,
+    70.17,
+    102.9
+   ],
+   "label": "TOTAL ACCENT",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 53.31,
+   "y": 100.14,
+   "w": 33.71,
+   "h": 5.52,
+   "nx": 0.1097,
+   "ny": 0.3583
+  },
+  {
+   "id": "hdr_bass_drum",
+   "type": "label_box",
+   "bbox": [
+    71.16,
+    97.38,
+    116.17,
+    102.9
+   ],
+   "label": "BASS DRUM",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 93.66,
+   "y": 100.14,
+   "w": 45.01,
+   "h": 5.52,
+   "nx": 0.1927,
+   "ny": 0.3583
+  },
+  {
+   "id": "hdr_snare_drum",
+   "type": "label_box",
+   "bbox": [
+    117.27,
+    97.38,
+    162.14,
+    102.9
+   ],
+   "label": "SNARE DRUM",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 139.7,
+   "y": 100.14,
+   "w": 44.87,
+   "h": 5.52,
+   "nx": 0.2874,
+   "ny": 0.3583
+  },
+  {
+   "id": "hdr_low_tom",
+   "type": "label_box",
+   "bbox": [
+    163.15,
+    97.38,
+    208.18,
+    102.9
+   ],
+   "label": "LOW TOM",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 185.67,
+   "y": 100.14,
+   "w": 45.03,
+   "h": 5.52,
+   "nx": 0.382,
+   "ny": 0.3583
+  },
+  {
+   "id": "hdr_mid_tom",
+   "type": "label_box",
+   "bbox": [
+    209.24,
+    97.38,
+    254.21,
+    102.9
+   ],
+   "label": "MID TOM",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 231.73,
+   "y": 100.14,
+   "w": 44.97,
+   "h": 5.52,
+   "nx": 0.4768,
+   "ny": 0.3583
+  },
+  {
+   "id": "hdr_hi_tom",
+   "type": "label_box",
+   "bbox": [
+    255.32,
+    97.38,
+    300.18,
+    102.9
+   ],
+   "label": "HI TOM",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 277.75,
+   "y": 100.14,
+   "w": 44.86,
+   "h": 5.52,
+   "nx": 0.5715,
+   "ny": 0.3583
+  },
+  {
+   "id": "hdr_rimshot_handclap",
+   "type": "label_box",
+   "bbox": [
+    301.33,
+    97.38,
+    346.25,
+    102.9
+   ],
+   "label": "RIM SHOT  HAND CLAP",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 323.79,
+   "y": 100.14,
+   "w": 44.92,
+   "h": 5.52,
+   "nx": 0.6662,
+   "ny": 0.3583
+  },
+  {
+   "id": "hdr_hi_hat",
+   "type": "label_box",
+   "bbox": [
+    347.37,
+    97.38,
+    392.08,
+    102.9
+   ],
+   "label": "HI HAT",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 369.73,
+   "y": 100.14,
+   "w": 44.71,
+   "h": 5.52,
+   "nx": 0.7608,
+   "ny": 0.3583
+  },
+  {
+   "id": "hdr_cymbal",
+   "type": "label_box",
+   "bbox": [
+    393.33,
+    97.38,
+    439.32,
+    102.9
+   ],
+   "label": "CYMBAL",
+   "colour": "header_bar",
+   "text_colour": "orange_print",
+   "font": "Helvetica Bold, caps",
+   "corner_r": 0.3,
+   "x": 416.32,
+   "y": 100.14,
+   "w": 45.99,
+   "h": 5.52,
+   "nx": 0.8566,
+   "ny": 0.3583
+  },
+  {
+   "id": "txt_hdr_total_accent",
+   "type": "text",
+   "bbox": [
+    40.44,
+    98.88,
+    66.44,
+    101.5
+   ],
+   "label": "TOTAL ACCENT",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 53.44,
+   "y": 100.19,
+   "w": 26.0,
+   "h": 2.62,
+   "nx": 0.11,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_bass_drum",
+   "type": "text",
+   "bbox": [
+    83.64,
+    98.88,
+    103.88,
+    101.5
+   ],
+   "label": "BASS DRUM",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 93.76,
+   "y": 100.19,
+   "w": 20.24,
+   "h": 2.62,
+   "nx": 0.1929,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_snare_drum",
+   "type": "text",
+   "bbox": [
+    128.74,
+    98.88,
+    151.12,
+    101.5
+   ],
+   "label": "SNARE DRUM",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 139.93,
+   "y": 100.19,
+   "w": 22.38,
+   "h": 2.62,
+   "nx": 0.2879,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_low_tom",
+   "type": "text",
+   "bbox": [
+    177.62,
+    98.88,
+    194.12,
+    101.5
+   ],
+   "label": "LOW TOM",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 185.87,
+   "y": 100.19,
+   "w": 16.5,
+   "h": 2.62,
+   "nx": 0.3824,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_mid_tom",
+   "type": "text",
+   "bbox": [
+    224.59,
+    98.88,
+    239.22,
+    101.5
+   ],
+   "label": "MID TOM",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 231.91,
+   "y": 100.19,
+   "w": 14.63,
+   "h": 2.62,
+   "nx": 0.4772,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_hi_tom",
+   "type": "text",
+   "bbox": [
+    271.92,
+    98.88,
+    283.67,
+    101.5
+   ],
+   "label": "HI TOM",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 277.8,
+   "y": 100.19,
+   "w": 11.75,
+   "h": 2.62,
+   "nx": 0.5716,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_rimshot_handclap_1",
+   "type": "text",
+   "bbox": [
+    304.73,
+    98.88,
+    320.48,
+    101.5
+   ],
+   "label": "RIM SHOT",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 312.61,
+   "y": 100.19,
+   "w": 15.75,
+   "h": 2.62,
+   "nx": 0.6432,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_rimshot_handclap_2",
+   "type": "text",
+   "bbox": [
+    323.56,
+    98.88,
+    342.94,
+    101.5
+   ],
+   "label": "HAND CLAP",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 333.25,
+   "y": 100.19,
+   "w": 19.38,
+   "h": 2.62,
+   "nx": 0.6857,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_hi_hat",
+   "type": "text",
+   "bbox": [
+    364.6,
+    98.88,
+    375.22,
+    101.5
+   ],
+   "label": "HI HAT",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 369.91,
+   "y": 100.19,
+   "w": 10.62,
+   "h": 2.62,
+   "nx": 0.7611,
+   "ny": 0.3585
+  },
+  {
+   "id": "txt_hdr_cymbal",
+   "type": "text",
+   "bbox": [
+    408.93,
+    98.88,
+    422.68,
+    101.5
+   ],
+   "label": "CYMBAL",
+   "cap_h": 2.62,
+   "font": "Helvetica Bold, caps",
+   "colour": "orange_print",
+   "x": 415.81,
+   "y": 100.19,
+   "w": 13.75,
+   "h": 2.62,
+   "nx": 0.8556,
+   "ny": 0.3585
+  },
+  {
+   "id": "knob_accent",
+   "type": "knob",
+   "label": "TOTAL ACCENT",
+   "x": 53.07,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "total_accent",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    47.67,
+    134.42,
+    58.47,
+    145.22
+   ],
+   "nx": 0.1092,
+   "ny": 0.5003,
+   "param": "accent",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_bd_tune",
+   "type": "knob",
+   "label": "BD TUNE",
+   "x": 83.23,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "bass_drum",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    77.83,
+    114.53,
+    88.63,
+    125.33
+   ],
+   "nx": 0.1713,
+   "ny": 0.4291,
+   "param": "bd_tune",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_bd_level",
+   "type": "knob",
+   "label": "BD LEVEL",
+   "x": 104.27,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "bass_drum",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    98.87,
+    114.53,
+    109.67,
+    125.33
+   ],
+   "nx": 0.2145,
+   "ny": 0.4291,
+   "param": "bd_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_bd_attack",
+   "type": "knob",
+   "label": "BD ATTACK",
+   "x": 83.22,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "bass_drum",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    77.82,
+    134.42,
+    88.62,
+    145.22
+   ],
+   "nx": 0.1712,
+   "ny": 0.5003,
+   "param": "bd_attack",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_bd_decay",
+   "type": "knob",
+   "label": "BD DECAY",
+   "x": 104.27,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "bass_drum",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    98.87,
+    134.42,
+    109.67,
+    145.22
+   ],
+   "nx": 0.2145,
+   "ny": 0.5003,
+   "param": "bd_decay",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_sd_tune",
+   "type": "knob",
+   "label": "SD TUNE",
+   "x": 129.31,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "snare_drum",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    123.91,
+    114.53,
+    134.71,
+    125.33
+   ],
+   "nx": 0.2661,
+   "ny": 0.4291,
+   "param": "sd_tune",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_sd_level",
+   "type": "knob",
+   "label": "SD LEVEL",
+   "x": 150.3,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "snare_drum",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    144.9,
+    114.53,
+    155.7,
+    125.33
+   ],
+   "nx": 0.3093,
+   "ny": 0.4291,
+   "param": "sd_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_sd_tone",
+   "type": "knob",
+   "label": "SD TONE",
+   "x": 129.3,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "snare_drum",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    123.9,
+    134.42,
+    134.7,
+    145.22
+   ],
+   "nx": 0.266,
+   "ny": 0.5003,
+   "param": "sd_tone",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_sd_snappy",
+   "type": "knob",
+   "label": "SD SNAPPY",
+   "x": 150.31,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "snare_drum",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    144.91,
+    134.42,
+    155.71,
+    145.22
+   ],
+   "nx": 0.3093,
+   "ny": 0.5003,
+   "param": "sd_snappy",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_lt_tune",
+   "type": "knob",
+   "label": "LT TUNE",
+   "x": 175.34,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "low_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    169.94,
+    114.53,
+    180.74,
+    125.33
+   ],
+   "nx": 0.3608,
+   "ny": 0.4291,
+   "param": "lt_tune",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_lt_level",
+   "type": "knob",
+   "label": "LT LEVEL",
+   "x": 196.35,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "low_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    190.95,
+    114.53,
+    201.75,
+    125.33
+   ],
+   "nx": 0.404,
+   "ny": 0.4291,
+   "param": "lt_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_lt_decay",
+   "type": "knob",
+   "label": "LT DECAY",
+   "x": 175.36,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "low_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    169.96,
+    134.42,
+    180.76,
+    145.22
+   ],
+   "nx": 0.3608,
+   "ny": 0.5003,
+   "param": "lt_decay",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_mt_tune",
+   "type": "knob",
+   "label": "MT TUNE",
+   "x": 221.31,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "mid_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    215.91,
+    114.53,
+    226.71,
+    125.33
+   ],
+   "nx": 0.4554,
+   "ny": 0.4291,
+   "param": "mt_tune",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_mt_level",
+   "type": "knob",
+   "label": "MT LEVEL",
+   "x": 242.32,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "mid_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    236.92,
+    114.53,
+    247.72,
+    125.33
+   ],
+   "nx": 0.4986,
+   "ny": 0.4291,
+   "param": "mt_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_mt_decay",
+   "type": "knob",
+   "label": "MT DECAY",
+   "x": 221.33,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "mid_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    215.93,
+    134.42,
+    226.73,
+    145.22
+   ],
+   "nx": 0.4554,
+   "ny": 0.5003,
+   "param": "mt_decay",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_ht_tune",
+   "type": "knob",
+   "label": "HT TUNE",
+   "x": 267.28,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "hi_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    261.88,
+    114.53,
+    272.68,
+    125.33
+   ],
+   "nx": 0.55,
+   "ny": 0.4291,
+   "param": "ht_tune",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_ht_level",
+   "type": "knob",
+   "label": "HT LEVEL",
+   "x": 288.28,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "hi_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    282.88,
+    114.53,
+    293.68,
+    125.33
+   ],
+   "nx": 0.5932,
+   "ny": 0.4291,
+   "param": "ht_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_ht_decay",
+   "type": "knob",
+   "label": "HT DECAY",
+   "x": 267.26,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "hi_tom",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    261.86,
+    134.42,
+    272.66,
+    145.22
+   ],
+   "nx": 0.5499,
+   "ny": 0.5003,
+   "param": "ht_decay",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_rs_level",
+   "type": "knob",
+   "label": "RIM SHOT LEVEL",
+   "x": 313.23,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "rimshot_handclap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    307.83,
+    114.53,
+    318.63,
+    125.33
+   ],
+   "nx": 0.6445,
+   "ny": 0.4291,
+   "param": "rs_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_hc_level",
+   "type": "knob",
+   "label": "HAND CLAP LEVEL",
+   "x": 334.25,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "rimshot_handclap",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    328.85,
+    114.53,
+    339.65,
+    125.33
+   ],
+   "nx": 0.6878,
+   "ny": 0.4291,
+   "param": "hc_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_hh_level",
+   "type": "knob",
+   "label": "HI HAT LEVEL",
+   "x": 380.24,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "hi_hat",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    374.84,
+    114.53,
+    385.64,
+    125.33
+   ],
+   "nx": 0.7824,
+   "ny": 0.4291,
+   "param": "hh_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_hh_ch_decay",
+   "type": "knob",
+   "label": "CLOSED HAT DECAY",
+   "x": 359.28,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "hi_hat",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    353.88,
+    134.42,
+    364.68,
+    145.22
+   ],
+   "nx": 0.7393,
+   "ny": 0.5003,
+   "param": "ch_decay",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_hh_oh_decay",
+   "type": "knob",
+   "label": "OPEN HAT DECAY",
+   "x": 380.25,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "hi_hat",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    374.85,
+    134.42,
+    385.65,
+    145.22
+   ],
+   "nx": 0.7824,
+   "ny": 0.5003,
+   "param": "oh_decay",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_crash_level",
+   "type": "knob",
+   "label": "CRASH LEVEL",
+   "x": 405.35,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "cymbal",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    399.95,
+    114.53,
+    410.75,
+    125.33
+   ],
+   "nx": 0.8341,
+   "ny": 0.4291,
+   "param": "cr_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_ride_level",
+   "type": "knob",
+   "label": "RIDE LEVEL",
+   "x": 426.46,
+   "y": 119.93,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "cymbal",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    421.06,
+    114.53,
+    431.86,
+    125.33
+   ],
+   "nx": 0.8775,
+   "ny": 0.4291,
+   "param": "rd_level",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_crash_tune",
+   "type": "knob",
+   "label": "CRASH TUNE",
+   "x": 405.34,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "cymbal",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    399.94,
+    134.42,
+    410.74,
+    145.22
+   ],
+   "nx": 0.834,
+   "ny": 0.5003,
+   "param": "cr_tune",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "knob_ride_tune",
+   "type": "knob",
+   "label": "RIDE TUNE",
+   "x": 426.47,
+   "y": 139.82,
+   "d": 10.8,
+   "knob_d": 10.8,
+   "base_d": 11.6,
+   "height": 15.0,
+   "knob_style": "small",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "section": "cymbal",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "r_inner": 5.8,
+    "r_outer": 7.8,
+    "r_outer_long": 8.7,
+    "long_at_deg": [
+     -150,
+     0,
+     150
+    ],
+    "tick_w": 0.42
+   },
+   "note": "knob part 2247030300 on a 16 mm pot; centre = centre of the printed tick ring (x from the 0-degree tick, row y from the 9 and 3 o'clock ticks); agrees with the pot positions on the 1:1 voicing-board artwork to 0.09 mm rms in x",
+   "bbox": [
+    421.07,
+    134.42,
+    431.87,
+    145.22
+   ],
+   "nx": 0.8775,
+   "ny": 0.5003,
+   "param": "rd_tune",
+   "w": 10.8,
+   "h": 10.8
+  },
+  {
+   "id": "txt_bd_tune",
+   "type": "text",
+   "bbox": [
+    80.08,
+    108.48,
+    86.96,
+    110.6
+   ],
+   "label": "TUNE",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 83.52,
+   "y": 109.54,
+   "w": 6.88,
+   "h": 2.12,
+   "nx": 0.1719,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_bd_level",
+   "type": "text",
+   "bbox": [
+    100.17,
+    108.48,
+    108.42,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 104.3,
+   "y": 109.54,
+   "w": 8.25,
+   "h": 2.12,
+   "nx": 0.2146,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_sd_tune",
+   "type": "text",
+   "bbox": [
+    126.16,
+    108.48,
+    133.16,
+    110.6
+   ],
+   "label": "TUNE",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 129.66,
+   "y": 109.54,
+   "w": 7.0,
+   "h": 2.12,
+   "nx": 0.2668,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_sd_level",
+   "type": "text",
+   "bbox": [
+    146.2,
+    108.48,
+    154.33,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 150.26,
+   "y": 109.54,
+   "w": 8.13,
+   "h": 2.12,
+   "nx": 0.3092,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_lt_tune",
+   "type": "text",
+   "bbox": [
+    172.19,
+    108.48,
+    179.19,
+    110.6
+   ],
+   "label": "TUNE",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 175.69,
+   "y": 109.54,
+   "w": 7.0,
+   "h": 2.12,
+   "nx": 0.3615,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_lt_level",
+   "type": "text",
+   "bbox": [
+    192.36,
+    108.48,
+    200.49,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 196.43,
+   "y": 109.54,
+   "w": 8.13,
+   "h": 2.12,
+   "nx": 0.4042,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_mt_tune",
+   "type": "text",
+   "bbox": [
+    218.16,
+    108.48,
+    225.04,
+    110.6
+   ],
+   "label": "TUNE",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 221.6,
+   "y": 109.54,
+   "w": 6.88,
+   "h": 2.12,
+   "nx": 0.456,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_mt_level",
+   "type": "text",
+   "bbox": [
+    238.34,
+    108.48,
+    246.47,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 242.41,
+   "y": 109.54,
+   "w": 8.13,
+   "h": 2.12,
+   "nx": 0.4988,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_ht_tune",
+   "type": "text",
+   "bbox": [
+    264.13,
+    108.48,
+    271.0,
+    110.6
+   ],
+   "label": "TUNE",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 267.56,
+   "y": 109.54,
+   "w": 6.87,
+   "h": 2.12,
+   "nx": 0.5505,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_ht_level",
+   "type": "text",
+   "bbox": [
+    284.3,
+    108.48,
+    292.3,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 288.3,
+   "y": 109.54,
+   "w": 8.0,
+   "h": 2.12,
+   "nx": 0.5932,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_rs_level",
+   "type": "text",
+   "bbox": [
+    309.13,
+    108.48,
+    317.26,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 313.19,
+   "y": 109.54,
+   "w": 8.13,
+   "h": 2.12,
+   "nx": 0.6444,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_hc_level",
+   "type": "text",
+   "bbox": [
+    330.22,
+    108.48,
+    338.35,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 334.29,
+   "y": 109.54,
+   "w": 8.13,
+   "h": 2.12,
+   "nx": 0.6878,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_hh_level",
+   "type": "text",
+   "bbox": [
+    376.15,
+    108.48,
+    384.28,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 380.21,
+   "y": 109.54,
+   "w": 8.13,
+   "h": 2.12,
+   "nx": 0.7823,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_crash_level",
+   "type": "text",
+   "bbox": [
+    401.25,
+    108.48,
+    409.38,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 405.31,
+   "y": 109.54,
+   "w": 8.13,
+   "h": 2.12,
+   "nx": 0.834,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_ride_level",
+   "type": "text",
+   "bbox": [
+    422.48,
+    108.48,
+    430.72,
+    110.6
+   ],
+   "label": "LEVEL",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 426.6,
+   "y": 109.54,
+   "w": 8.24,
+   "h": 2.12,
+   "nx": 0.8778,
+   "ny": 0.3919
+  },
+  {
+   "id": "txt_bd_attack",
+   "type": "text",
+   "bbox": [
+    78.17,
+    128.23,
+    88.17,
+    130.38
+   ],
+   "label": "ATTACK",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 83.17,
+   "y": 129.31,
+   "w": 10.0,
+   "h": 2.15,
+   "nx": 0.1711,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_bd_decay",
+   "type": "text",
+   "bbox": [
+    100.17,
+    128.23,
+    108.54,
+    130.38
+   ],
+   "label": "DECAY",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 104.36,
+   "y": 129.31,
+   "w": 8.37,
+   "h": 2.15,
+   "nx": 0.2147,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_sd_tone",
+   "type": "text",
+   "bbox": [
+    125.65,
+    128.23,
+    132.78,
+    130.38
+   ],
+   "label": "TONE",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 129.22,
+   "y": 129.31,
+   "w": 7.13,
+   "h": 2.15,
+   "nx": 0.2659,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_sd_snappy",
+   "type": "text",
+   "bbox": [
+    145.27,
+    128.23,
+    155.52,
+    130.38
+   ],
+   "label": "SNAPPY",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 150.4,
+   "y": 129.31,
+   "w": 10.25,
+   "h": 2.15,
+   "nx": 0.3095,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_lt_decay",
+   "type": "text",
+   "bbox": [
+    171.14,
+    128.23,
+    179.64,
+    130.38
+   ],
+   "label": "DECAY",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 175.39,
+   "y": 129.31,
+   "w": 8.5,
+   "h": 2.15,
+   "nx": 0.3609,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_mt_decay",
+   "type": "text",
+   "bbox": [
+    217.23,
+    128.23,
+    225.73,
+    130.38
+   ],
+   "label": "DECAY",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 221.48,
+   "y": 129.31,
+   "w": 8.5,
+   "h": 2.15,
+   "nx": 0.4557,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_ht_decay",
+   "type": "text",
+   "bbox": [
+    263.16,
+    128.23,
+    271.53,
+    130.38
+   ],
+   "label": "DECAY",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 267.35,
+   "y": 129.31,
+   "w": 8.37,
+   "h": 2.15,
+   "nx": 0.5501,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_hh_ch_decay",
+   "type": "text",
+   "bbox": [
+    352.32,
+    128.23,
+    366.08,
+    130.38
+   ],
+   "label": "CH DECAY",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 359.2,
+   "y": 129.31,
+   "w": 13.76,
+   "h": 2.15,
+   "nx": 0.7391,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_hh_oh_decay",
+   "type": "text",
+   "bbox": [
+    373.62,
+    128.23,
+    386.75,
+    130.38
+   ],
+   "label": "OH DECAY",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 380.19,
+   "y": 129.31,
+   "w": 13.13,
+   "h": 2.15,
+   "nx": 0.7823,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_crash_tune",
+   "type": "text",
+   "bbox": [
+    396.02,
+    128.23,
+    414.4,
+    130.38
+   ],
+   "label": "CRASH TUNE",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "note": "two words with a wide space",
+   "x": 405.21,
+   "y": 129.31,
+   "w": 18.38,
+   "h": 2.15,
+   "nx": 0.8338,
+   "ny": 0.4627
+  },
+  {
+   "id": "txt_ride_tune",
+   "type": "text",
+   "bbox": [
+    419.22,
+    128.23,
+    433.84,
+    130.38
+   ],
+   "label": "RIDE TUNE",
+   "cap_h": 2.15,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "note": "two words with a wide space",
+   "x": 426.53,
+   "y": 129.31,
+   "w": 14.62,
+   "h": 2.15,
+   "nx": 0.8776,
+   "ny": 0.4627
+  },
+  {
+   "id": "key_start",
+   "type": "key",
+   "label": "START",
+   "bbox": [
+    41.02,
+    169.42,
+    60.01,
+    188.39
+   ],
+   "colour": "ivory_cap",
+   "cap_top": [
+    15.0,
+    15.0
+   ],
+   "height": 8.0,
+   "note": "ivory key top (2247029200) on a KHJ10902 switch; bbox = panel cut-out as seen from above",
+   "x": 50.52,
+   "y": 178.9,
+   "w": 18.99,
+   "h": 18.97,
+   "nx": 0.104,
+   "ny": 0.6401,
+   "shape": "large",
+   "key_style": "ivory",
+   "param": "Start",
+   "cutout_bbox": [
+    41.02,
+    169.42,
+    60.01,
+    188.39
+   ]
+  },
+  {
+   "id": "key_stop_cont",
+   "type": "key",
+   "label": "STOP/CONT",
+   "bbox": [
+    66.18,
+    169.46,
+    85.02,
+    188.43
+   ],
+   "colour": "ivory_cap",
+   "cap_top": [
+    15.0,
+    15.0
+   ],
+   "height": 8.0,
+   "note": "ivory key top (2247029200) on a KHJ10902 switch; bbox = panel cut-out as seen from above",
+   "x": 75.6,
+   "y": 178.94,
+   "w": 18.84,
+   "h": 18.97,
+   "nx": 0.1556,
+   "ny": 0.6402,
+   "shape": "large",
+   "key_style": "ivory",
+   "param": "StopCont",
+   "cutout_bbox": [
+    66.18,
+    169.46,
+    85.02,
+    188.43
+   ]
+  },
+  {
+   "id": "display",
+   "type": "display",
+   "bbox": [
+    95.75,
+    168.88,
+    135.62,
+    188.62
+   ],
+   "label": "MEAS/TEMPO",
+   "colour": "display",
+   "digits": 3,
+   "segment_colour": "led_lit",
+   "note": "red filter window (2222030700) over the 3-digit 7-segment LED D636 (LB-603VK); it shows the tempo (37-290) or the measure number",
+   "x": 115.69,
+   "y": 178.75,
+   "w": 39.87,
+   "h": 19.74,
+   "nx": 0.238,
+   "ny": 0.6396,
+   "digit": {
+    "digit_h": 14.32,
+    "digit_w": 7.45,
+    "pitch": 12.7,
+    "segment_w": 1.45,
+    "slant_deg": 12.2,
+    "x": [
+     101.32,
+     114.02,
+     126.72
+    ],
+    "y": 179.5,
+    "note": "from the Commons bdaniel photo, where the unlit segments show faintly and the right digit shows a lit 1 (segments b and c, centres (130.39, 175.94) and (129.05, 182.14)): segment rows a, g, d at the y given, slant from b and c, pitch 12.25 by autocorrelation (the 0.5 in pitch of a 3-digit 0.56 in module is 12.7 mm, taken), each digit's centre 3.0 mm left of its b-c line at mid height. +-0.5 mm.",
+    "segment_rows_y": [
+     173.07,
+     179.19,
+     185.94
+    ]
+   }
+  },
+  {
+   "id": "knob_tempo",
+   "type": "knob",
+   "label": "TEMPO",
+   "x": 160.3,
+   "y": 178.66,
+   "d": 20.0,
+   "knob_d": 20.0,
+   "base_d": 21.0,
+   "height": 17.0,
+   "knob_style": "large",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -144,
+     -138,
+     -132,
+     -126,
+     -120,
+     -114,
+     -108,
+     -102,
+     -96,
+     -90,
+     -84,
+     -78,
+     -72,
+     -66,
+     -60,
+     -54,
+     -48,
+     -42,
+     -36,
+     -30,
+     -24,
+     -18,
+     -12,
+     -6,
+     0,
+     6,
+     12,
+     18,
+     24,
+     30,
+     36,
+     42,
+     48,
+     54,
+     60,
+     66,
+     72,
+     78,
+     84,
+     90,
+     96,
+     102,
+     108,
+     114,
+     120,
+     126,
+     132,
+     138,
+     144,
+     150
+    ],
+    "r_inner": 10.8,
+    "r_outer": 14.8,
+    "r_outer_long": 15.9,
+    "long_at_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "tick_w": 0.4
+   },
+   "note": "knob part 2247029000 (tempo, volume); 51 ticks every 6 degrees, every 5th (multiples of 30 degrees) longer",
+   "bbox": [
+    150.3,
+    168.66,
+    170.3,
+    188.66
+   ],
+   "nx": 0.3298,
+   "ny": 0.6392,
+   "param": "tempo",
+   "w": 20.0,
+   "h": 20.0
+  },
+  {
+   "id": "knob_volume",
+   "type": "knob",
+   "label": "VOLUME",
+   "x": 425.46,
+   "y": 178.66,
+   "d": 20.0,
+   "knob_d": 20.0,
+   "base_d": 21.0,
+   "height": 17.0,
+   "knob_style": "large",
+   "colour": "knob",
+   "pointer_colour": "orange_print",
+   "rotation": {
+    "min_deg": -150,
+    "max_deg": 150,
+    "zero": "top",
+    "clockwise_positive": true
+   },
+   "scale": {
+    "type": "ticks",
+    "angles_deg": [
+     -150,
+     -144,
+     -138,
+     -132,
+     -126,
+     -120,
+     -114,
+     -108,
+     -102,
+     -96,
+     -90,
+     -84,
+     -78,
+     -72,
+     -66,
+     -60,
+     -54,
+     -48,
+     -42,
+     -36,
+     -30,
+     -24,
+     -18,
+     -12,
+     -6,
+     0,
+     6,
+     12,
+     18,
+     24,
+     30,
+     36,
+     42,
+     48,
+     54,
+     60,
+     66,
+     72,
+     78,
+     84,
+     90,
+     96,
+     102,
+     108,
+     114,
+     120,
+     126,
+     132,
+     138,
+     144,
+     150
+    ],
+    "r_inner": 10.8,
+    "r_outer": 14.8,
+    "r_outer_long": 15.9,
+    "long_at_deg": [
+     -150,
+     -120,
+     -90,
+     -60,
+     -30,
+     0,
+     30,
+     60,
+     90,
+     120,
+     150
+    ],
+    "tick_w": 0.4
+   },
+   "note": "knob part 2247029000 on the master volume pot; same 51-tick scale as TEMPO",
+   "bbox": [
+    415.46,
+    168.66,
+    435.46,
+    188.66
+   ],
+   "nx": 0.8754,
+   "ny": 0.6392,
+   "param": "volume",
+   "w": 20.0,
+   "h": 20.0
+  },
+  {
+   "id": "btn_track_play_1",
+   "type": "key",
+   "label": "TRACK PLAY 1",
+   "x": 193.58,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    189.28,
+    169.31,
+    197.88,
+    177.91
+   ],
+   "nx": 0.3983,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Track1",
+   "led": "led_track_play_1",
+   "lit": true
+  },
+  {
+   "id": "btn_track_play_2",
+   "type": "key",
+   "label": "TRACK PLAY 2",
+   "x": 205.58,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    201.28,
+    169.31,
+    209.88,
+    177.91
+   ],
+   "nx": 0.423,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Track2",
+   "led": "led_track_play_2",
+   "lit": true
+  },
+  {
+   "id": "btn_track_play_3",
+   "type": "key",
+   "label": "TRACK PLAY 3",
+   "x": 217.58,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    213.28,
+    169.31,
+    221.88,
+    177.91
+   ],
+   "nx": 0.4477,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Track3",
+   "led": "led_track_play_3",
+   "lit": true
+  },
+  {
+   "id": "btn_track_play_4",
+   "type": "key",
+   "label": "TRACK PLAY 4",
+   "x": 229.58,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    225.28,
+    169.31,
+    233.88,
+    177.91
+   ],
+   "nx": 0.4724,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Track4",
+   "led": "led_track_play_4",
+   "lit": true
+  },
+  {
+   "id": "btn_pattern_play_1",
+   "type": "key",
+   "label": "PATTERN PLAY 1",
+   "x": 247.41,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    243.11,
+    169.31,
+    251.71,
+    177.91
+   ],
+   "nx": 0.5091,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Pattern1",
+   "led": "led_pattern_play_1",
+   "lit": true
+  },
+  {
+   "id": "btn_pattern_play_2",
+   "type": "key",
+   "label": "PATTERN PLAY 2",
+   "x": 259.41,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    255.11,
+    169.31,
+    263.71,
+    177.91
+   ],
+   "nx": 0.5338,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Pattern2",
+   "led": "led_pattern_play_2",
+   "lit": true
+  },
+  {
+   "id": "btn_pattern_play_3",
+   "type": "key",
+   "label": "PATTERN PLAY 3",
+   "x": 271.41,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    267.11,
+    169.31,
+    275.71,
+    177.91
+   ],
+   "nx": 0.5585,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Pattern3",
+   "led": "led_pattern_play_3",
+   "lit": true
+  },
+  {
+   "id": "btn_ext_inst",
+   "type": "key",
+   "label": "EXT INST",
+   "x": 283.41,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    279.11,
+    169.31,
+    287.71,
+    177.91
+   ],
+   "nx": 0.5831,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "ExtInst",
+   "led": "led_ext_inst",
+   "lit": true
+  },
+  {
+   "id": "btn_tempo_step",
+   "type": "key",
+   "label": "TEMPO / STEP",
+   "x": 301.33,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    297.03,
+    169.31,
+    305.63,
+    177.91
+   ],
+   "nx": 0.62,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Tempo",
+   "led": "led_tempo_step",
+   "lit": true
+  },
+  {
+   "id": "btn_back_tap",
+   "type": "key",
+   "label": "BACK / TAP",
+   "x": 313.33,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    309.03,
+    169.31,
+    317.63,
+    177.91
+   ],
+   "nx": 0.6447,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Back",
+   "led": "led_back_tap",
+   "lit": true
+  },
+  {
+   "id": "btn_fwd_bank1",
+   "type": "key",
+   "label": "FWD / BANK I",
+   "x": 325.33,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    321.03,
+    169.31,
+    329.63,
+    177.91
+   ],
+   "nx": 0.6694,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Fwd",
+   "led": "led_fwd_bank1",
+   "lit": true
+  },
+  {
+   "id": "btn_avail_meas_bank2",
+   "type": "key",
+   "label": "AVAILABLE MEAS / BANK II",
+   "x": 337.33,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    333.03,
+    169.31,
+    341.63,
+    177.91
+   ],
+   "nx": 0.6941,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "AvailableMeas",
+   "led": "led_avail_meas_bank2",
+   "lit": true
+  },
+  {
+   "id": "btn_cycle_guide",
+   "type": "key",
+   "label": "CYCLE/GUIDE / LAST MEAS",
+   "x": 351.24,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    346.94,
+    169.31,
+    355.54,
+    177.91
+   ],
+   "nx": 0.7227,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Cycle",
+   "led": "led_cycle_guide",
+   "lit": true
+  },
+  {
+   "id": "btn_tape_sync",
+   "type": "key",
+   "label": "TAPE SYNC / TEMPO MODE",
+   "x": 363.24,
+   "y": 173.61,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "clear/grey translucent cap (2247029300) over a tact switch KHJ11901 with a red LED behind it (D618-D631); bbox = visible cap incl. its sloped sides",
+   "bbox": [
+    358.94,
+    169.31,
+    367.54,
+    177.91
+   ],
+   "nx": 0.7474,
+   "ny": 0.6212,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "TapeSync",
+   "led": "led_tape_sync",
+   "lit": true
+  },
+  {
+   "id": "key_cartridge_enter",
+   "type": "key",
+   "label": "CARTRIDGE/ENTER",
+   "bbox": [
+    376.71,
+    169.22,
+    395.6,
+    188.05
+   ],
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "note": "grey key top with LED window (KFL10903 switch with LED D617); also TOTAL ACCENT in step write",
+   "x": 386.15,
+   "y": 178.63,
+   "w": 18.89,
+   "h": 18.83,
+   "nx": 0.7945,
+   "ny": 0.6391,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "EnterAccent",
+   "cutout_bbox": [
+    376.71,
+    169.22,
+    395.6,
+    188.05
+   ],
+   "led": "led_cartridge_enter"
+  },
+  {
+   "id": "led_cartridge_enter",
+   "type": "led",
+   "shape": "rect",
+   "x": 386.15,
+   "y": 174.19,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "rectangular LED lens in the key top (seen with perspective lean; drawn at the key centre line)",
+   "bbox": [
+    383.45,
+    173.04,
+    388.85,
+    175.34
+   ],
+   "nx": 0.7945,
+   "ny": 0.6232,
+   "led": "Enter",
+   "in": "key_cartridge_enter"
+  },
+  {
+   "id": "obox_track_write",
+   "type": "label_box",
+   "bbox": [
+    188.59,
+    184.6,
+    234.37,
+    191.07
+   ],
+   "label": "TRACK WRITE",
+   "colour": "orange_box",
+   "text_colour": "print_dark",
+   "font": "Helvetica Medium, caps",
+   "corner_r": 0.2,
+   "lines": [
+    "TRACK WRITE"
+   ],
+   "x": 211.48,
+   "y": 187.83,
+   "w": 45.78,
+   "h": 6.47,
+   "nx": 0.4351,
+   "ny": 0.672
+  },
+  {
+   "id": "txt_track_write",
+   "type": "text",
+   "bbox": [
+    202.09,
+    186.72,
+    220.84,
+    188.85
+   ],
+   "label": "TRACK  WRITE",
+   "cap_h": 2.13,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 211.47,
+   "y": 187.78,
+   "w": 18.75,
+   "h": 2.13,
+   "nx": 0.4351,
+   "ny": 0.6719
+  },
+  {
+   "id": "obox_pattern_write",
+   "type": "label_box",
+   "bbox": [
+    242.46,
+    184.6,
+    276.3,
+    191.07
+   ],
+   "label": "PATTERN WRITE",
+   "colour": "orange_box",
+   "text_colour": "print_dark",
+   "font": "Helvetica Medium, caps",
+   "corner_r": 0.2,
+   "lines": [
+    "PATTERN WRITE"
+   ],
+   "x": 259.38,
+   "y": 187.83,
+   "w": 33.84,
+   "h": 6.47,
+   "nx": 0.5337,
+   "ny": 0.672
+  },
+  {
+   "id": "txt_pattern_write",
+   "type": "text",
+   "bbox": [
+    248.96,
+    186.72,
+    269.34,
+    188.85
+   ],
+   "label": "PATTERN WRITE",
+   "cap_h": 2.13,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 259.15,
+   "y": 187.78,
+   "w": 20.38,
+   "h": 2.13,
+   "nx": 0.5332,
+   "ny": 0.6719
+  },
+  {
+   "id": "obox_ext_inst",
+   "type": "label_box",
+   "bbox": [
+    278.29,
+    184.6,
+    288.37,
+    191.07
+   ],
+   "label": "EXT INST",
+   "colour": "orange_box",
+   "text_colour": "print_dark",
+   "font": "Helvetica Medium, caps",
+   "corner_r": 0.2,
+   "lines": [
+    "EXT",
+    "INST"
+   ],
+   "x": 283.33,
+   "y": 187.83,
+   "w": 10.08,
+   "h": 6.47,
+   "nx": 0.583,
+   "ny": 0.672
+  },
+  {
+   "id": "txt_ext_inst_1",
+   "type": "text",
+   "bbox": [
+    280.69,
+    185.45,
+    285.82,
+    187.58
+   ],
+   "label": "EXT",
+   "cap_h": 2.13,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 283.25,
+   "y": 186.51,
+   "w": 5.13,
+   "h": 2.13,
+   "nx": 0.5828,
+   "ny": 0.6673
+  },
+  {
+   "id": "txt_ext_inst_2",
+   "type": "text",
+   "bbox": [
+    279.94,
+    188.26,
+    286.06,
+    190.38
+   ],
+   "label": "INST",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 283.0,
+   "y": 189.32,
+   "w": 6.12,
+   "h": 2.12,
+   "nx": 0.5823,
+   "ny": 0.6774
+  },
+  {
+   "id": "obox_pattern_write_mode",
+   "type": "label_box",
+   "bbox": [
+    296.36,
+    184.6,
+    318.23,
+    191.07
+   ],
+   "label": "PATTERN WRITE MODE",
+   "colour": "orange_box",
+   "text_colour": "print_dark",
+   "font": "Helvetica Medium, caps",
+   "corner_r": 0.2,
+   "lines": [
+    "PATTERN WRITE",
+    "MODE"
+   ],
+   "x": 307.3,
+   "y": 187.83,
+   "w": 21.87,
+   "h": 6.47,
+   "nx": 0.6323,
+   "ny": 0.672
+  },
+  {
+   "id": "txt_pattern_write_mode_1",
+   "type": "text",
+   "bbox": [
+    296.76,
+    185.58,
+    317.26,
+    187.58
+   ],
+   "label": "PATTERN WRITE",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 307.01,
+   "y": 186.58,
+   "w": 20.5,
+   "h": 2.0,
+   "nx": 0.6317,
+   "ny": 0.6676
+  },
+  {
+   "id": "txt_pattern_write_mode_2",
+   "type": "text",
+   "bbox": [
+    303.26,
+    188.01,
+    310.88,
+    190.14
+   ],
+   "label": "MODE",
+   "cap_h": 2.13,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 307.07,
+   "y": 189.07,
+   "w": 7.62,
+   "h": 2.13,
+   "nx": 0.6318,
+   "ny": 0.6765
+  },
+  {
+   "id": "obox_bank",
+   "type": "label_box",
+   "bbox": [
+    320.3,
+    184.6,
+    342.24,
+    191.07
+   ],
+   "label": "BANK",
+   "colour": "orange_box",
+   "text_colour": "print_dark",
+   "font": "Helvetica Medium, caps",
+   "corner_r": 0.2,
+   "lines": [
+    "BANK"
+   ],
+   "x": 331.27,
+   "y": 187.83,
+   "w": 21.94,
+   "h": 6.47,
+   "nx": 0.6816,
+   "ny": 0.672
+  },
+  {
+   "id": "txt_bank",
+   "type": "text",
+   "bbox": [
+    327.55,
+    186.85,
+    334.68,
+    188.98
+   ],
+   "label": "BANK",
+   "cap_h": 2.13,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 331.12,
+   "y": 187.91,
+   "w": 7.13,
+   "h": 2.13,
+   "nx": 0.6813,
+   "ny": 0.6723
+  },
+  {
+   "id": "obox_last_meas",
+   "type": "label_box",
+   "bbox": [
+    346.27,
+    184.6,
+    356.26,
+    191.07
+   ],
+   "label": "LAST MEAS",
+   "colour": "orange_box",
+   "text_colour": "print_dark",
+   "font": "Helvetica Medium, caps",
+   "corner_r": 0.2,
+   "lines": [
+    "LAST",
+    "MEAS"
+   ],
+   "x": 351.26,
+   "y": 187.83,
+   "w": 9.99,
+   "h": 6.47,
+   "nx": 0.7228,
+   "ny": 0.672
+  },
+  {
+   "id": "txt_last_meas_1",
+   "type": "text",
+   "bbox": [
+    347.92,
+    185.7,
+    354.54,
+    187.7
+   ],
+   "label": "LAST",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 351.23,
+   "y": 186.7,
+   "w": 6.62,
+   "h": 2.0,
+   "nx": 0.7227,
+   "ny": 0.668
+  },
+  {
+   "id": "txt_last_meas_2",
+   "type": "text",
+   "bbox": [
+    347.67,
+    188.26,
+    354.92,
+    190.14
+   ],
+   "label": "MEAS",
+   "cap_h": 1.88,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 351.3,
+   "y": 189.2,
+   "w": 7.25,
+   "h": 1.88,
+   "nx": 0.7228,
+   "ny": 0.6769
+  },
+  {
+   "id": "obox_tempo_mode",
+   "type": "label_box",
+   "bbox": [
+    358.21,
+    184.6,
+    368.29,
+    191.07
+   ],
+   "label": "TEMPO MODE",
+   "colour": "orange_box",
+   "text_colour": "print_dark",
+   "font": "Helvetica Medium, caps",
+   "corner_r": 0.2,
+   "lines": [
+    "TEMPO",
+    "MODE"
+   ],
+   "x": 363.25,
+   "y": 187.83,
+   "w": 10.08,
+   "h": 6.47,
+   "nx": 0.7474,
+   "ny": 0.672
+  },
+  {
+   "id": "txt_tempo_mode_1",
+   "type": "text",
+   "bbox": [
+    358.98,
+    185.7,
+    367.86,
+    187.58
+   ],
+   "label": "TEMPO",
+   "cap_h": 1.88,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 363.42,
+   "y": 186.64,
+   "w": 8.88,
+   "h": 1.88,
+   "nx": 0.7478,
+   "ny": 0.6678
+  },
+  {
+   "id": "txt_tempo_mode_2",
+   "type": "text",
+   "bbox": [
+    359.48,
+    188.14,
+    366.98,
+    190.14
+   ],
+   "label": "MODE",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 363.23,
+   "y": 189.14,
+   "w": 7.5,
+   "h": 2.0,
+   "nx": 0.7474,
+   "ny": 0.6767
+  },
+  {
+   "id": "txt_start",
+   "type": "text",
+   "bbox": [
+    45.35,
+    162.48,
+    55.22,
+    164.98
+   ],
+   "label": "START",
+   "cap_h": 2.5,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 50.28,
+   "y": 163.73,
+   "w": 9.87,
+   "h": 2.5,
+   "nx": 0.1035,
+   "ny": 0.5858
+  },
+  {
+   "id": "txt_stop_cont",
+   "type": "text",
+   "bbox": [
+    65.9,
+    162.02,
+    84.52,
+    165.15
+   ],
+   "label": "STOP/CONT",
+   "cap_h": 2.5,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "note": "bbox includes the slash, which overshoots the cap height",
+   "x": 75.21,
+   "y": 163.59,
+   "w": 18.62,
+   "h": 3.13,
+   "nx": 0.1548,
+   "ny": 0.5853
+  },
+  {
+   "id": "txt_meas_tempo",
+   "type": "text",
+   "bbox": [
+    104.22,
+    162.0,
+    126.48,
+    164.62
+   ],
+   "label": "MEAS/TEMPO",
+   "cap_h": 2.5,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "note": "bbox includes the slash, which overshoots the cap height",
+   "x": 115.35,
+   "y": 163.31,
+   "w": 22.26,
+   "h": 2.62,
+   "nx": 0.2373,
+   "ny": 0.5843
+  },
+  {
+   "id": "txt_tempo",
+   "type": "text",
+   "bbox": [
+    154.85,
+    159.32,
+    165.85,
+    161.7
+   ],
+   "label": "TEMPO",
+   "cap_h": 2.38,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 160.35,
+   "y": 160.51,
+   "w": 11.0,
+   "h": 2.38,
+   "nx": 0.3299,
+   "ny": 0.5743
+  },
+  {
+   "id": "txt_slow",
+   "type": "text",
+   "bbox": [
+    143.77,
+    191.7,
+    151.27,
+    193.82
+   ],
+   "label": "SLOW",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 147.52,
+   "y": 192.76,
+   "w": 7.5,
+   "h": 2.12,
+   "nx": 0.3035,
+   "ny": 0.6897
+  },
+  {
+   "id": "txt_fast",
+   "type": "text",
+   "bbox": [
+    169.7,
+    191.7,
+    175.95,
+    193.82
+   ],
+   "label": "FAST",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 172.82,
+   "y": 192.76,
+   "w": 6.25,
+   "h": 2.12,
+   "nx": 0.3556,
+   "ny": 0.6897
+  },
+  {
+   "id": "txt_track_play",
+   "type": "text",
+   "bbox": [
+    203.4,
+    162.45,
+    219.4,
+    164.45
+   ],
+   "label": "TRACK PLAY",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 211.4,
+   "y": 163.45,
+   "w": 16.0,
+   "h": 2.0,
+   "nx": 0.435,
+   "ny": 0.5848
+  },
+  {
+   "id": "txt_pattern_play",
+   "type": "text",
+   "bbox": [
+    250.0,
+    162.52,
+    268.5,
+    164.4
+   ],
+   "label": "PATTERN PLAY",
+   "cap_h": 1.88,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 259.25,
+   "y": 163.46,
+   "w": 18.5,
+   "h": 1.88,
+   "nx": 0.5334,
+   "ny": 0.5849
+  },
+  {
+   "id": "txt_tempo_btn",
+   "type": "text",
+   "bbox": [
+    296.95,
+    162.45,
+    305.95,
+    164.45
+   ],
+   "label": "TEMPO",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 301.45,
+   "y": 163.45,
+   "w": 9.0,
+   "h": 2.0,
+   "nx": 0.6203,
+   "ny": 0.5848
+  },
+  {
+   "id": "txt_back",
+   "type": "text",
+   "bbox": [
+    309.82,
+    162.32,
+    316.82,
+    164.45
+   ],
+   "label": "BACK",
+   "cap_h": 2.13,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 313.32,
+   "y": 163.38,
+   "w": 7.0,
+   "h": 2.13,
+   "nx": 0.6447,
+   "ny": 0.5846
+  },
+  {
+   "id": "txt_fwd",
+   "type": "text",
+   "bbox": [
+    322.32,
+    162.4,
+    328.32,
+    164.4
+   ],
+   "label": "FWD",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 325.32,
+   "y": 163.4,
+   "w": 6.0,
+   "h": 2.0,
+   "nx": 0.6694,
+   "ny": 0.5846
+  },
+  {
+   "id": "txt_available",
+   "type": "text",
+   "bbox": [
+    329.82,
+    161.22,
+    343.45,
+    163.22
+   ],
+   "label": "AVAILABLE",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 336.63,
+   "y": 162.22,
+   "w": 13.63,
+   "h": 2.0,
+   "nx": 0.6927,
+   "ny": 0.5804
+  },
+  {
+   "id": "txt_meas",
+   "type": "text",
+   "bbox": [
+    332.9,
+    163.82,
+    340.28,
+    165.82
+   ],
+   "label": "MEAS",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 336.59,
+   "y": 164.82,
+   "w": 7.38,
+   "h": 2.0,
+   "nx": 0.6926,
+   "ny": 0.5897
+  },
+  {
+   "id": "txt_cycle",
+   "type": "text",
+   "bbox": [
+    347.32,
+    161.22,
+    355.7,
+    163.22
+   ],
+   "label": "CYCLE",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 351.51,
+   "y": 162.22,
+   "w": 8.38,
+   "h": 2.0,
+   "nx": 0.7233,
+   "ny": 0.5804
+  },
+  {
+   "id": "txt_guide",
+   "type": "text",
+   "bbox": [
+    346.0,
+    163.72,
+    355.88,
+    165.85
+   ],
+   "label": "/ GUIDE",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "note": "bbox includes the slash, which overshoots the cap height",
+   "x": 350.94,
+   "y": 164.78,
+   "w": 9.88,
+   "h": 2.13,
+   "nx": 0.7221,
+   "ny": 0.5896
+  },
+  {
+   "id": "txt_tape",
+   "type": "text",
+   "bbox": [
+    360.32,
+    161.22,
+    366.45,
+    163.22
+   ],
+   "label": "TAPE",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 363.38,
+   "y": 162.22,
+   "w": 6.13,
+   "h": 2.0,
+   "nx": 0.7477,
+   "ny": 0.5804
+  },
+  {
+   "id": "txt_sync",
+   "type": "text",
+   "bbox": [
+    359.85,
+    163.7,
+    366.85,
+    165.82
+   ],
+   "label": "SYNC",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 363.35,
+   "y": 164.76,
+   "w": 7.0,
+   "h": 2.12,
+   "nx": 0.7476,
+   "ny": 0.5895
+  },
+  {
+   "id": "txt_cartridge",
+   "type": "text",
+   "bbox": [
+    377.0,
+    160.72,
+    395.38,
+    163.22
+   ],
+   "label": "CARTRIDGE",
+   "cap_h": 2.5,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 386.19,
+   "y": 161.97,
+   "w": 18.38,
+   "h": 2.5,
+   "nx": 0.7946,
+   "ny": 0.5795
+  },
+  {
+   "id": "txt_enter",
+   "type": "text",
+   "bbox": [
+    380.22,
+    163.5,
+    392.6,
+    166.38
+   ],
+   "label": "/ENTER",
+   "cap_h": 2.5,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "note": "bbox includes the slash, which overshoots the cap height",
+   "x": 386.41,
+   "y": 164.94,
+   "w": 12.38,
+   "h": 2.88,
+   "nx": 0.7951,
+   "ny": 0.5901
+  },
+  {
+   "id": "txt_total_accent",
+   "type": "text",
+   "bbox": [
+    375.95,
+    191.1,
+    396.82,
+    193.35
+   ],
+   "label": "TOTAL  ACCENT",
+   "cap_h": 2.25,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 386.38,
+   "y": 192.22,
+   "w": 20.87,
+   "h": 2.25,
+   "nx": 0.795,
+   "ny": 0.6878
+  },
+  {
+   "id": "txt_volume",
+   "type": "text",
+   "bbox": [
+    418.9,
+    159.25,
+    431.9,
+    161.75
+   ],
+   "label": "VOLUME",
+   "cap_h": 2.5,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 425.4,
+   "y": 160.5,
+   "w": 13.0,
+   "h": 2.5,
+   "nx": 0.8753,
+   "ny": 0.5743
+  },
+  {
+   "id": "txt_min",
+   "type": "text",
+   "bbox": [
+    411.4,
+    191.65,
+    416.15,
+    193.52
+   ],
+   "label": "MIN",
+   "cap_h": 1.87,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 413.77,
+   "y": 192.59,
+   "w": 4.75,
+   "h": 1.87,
+   "nx": 0.8514,
+   "ny": 0.6891
+  },
+  {
+   "id": "txt_step",
+   "type": "text",
+   "bbox": [
+    298.12,
+    180.5,
+    304.88,
+    182.75
+   ],
+   "label": "STEP",
+   "cap_h": 2.25,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 301.5,
+   "y": 181.62,
+   "w": 6.76,
+   "h": 2.25,
+   "nx": 0.6204,
+   "ny": 0.6498
+  },
+  {
+   "id": "txt_tap",
+   "type": "text",
+   "bbox": [
+    311.02,
+    180.5,
+    315.77,
+    182.5
+   ],
+   "label": "TAP",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 313.39,
+   "y": 181.5,
+   "w": 4.75,
+   "h": 2.0,
+   "nx": 0.6448,
+   "ny": 0.6494
+  },
+  {
+   "id": "txt_bank_1",
+   "type": "text",
+   "bbox": [
+    324.98,
+    180.5,
+    325.6,
+    182.62
+   ],
+   "label": "I",
+   "cap_h": 2.12,
+   "font": "Times Roman (serif numerals)",
+   "colour": "print_dark",
+   "x": 325.29,
+   "y": 181.56,
+   "w": 0.62,
+   "h": 2.12,
+   "nx": 0.6693,
+   "ny": 0.6496
+  },
+  {
+   "id": "txt_bank_2",
+   "type": "text",
+   "bbox": [
+    336.45,
+    180.62,
+    338.08,
+    182.75
+   ],
+   "label": "II",
+   "cap_h": 2.13,
+   "font": "Times Roman (serif numerals)",
+   "colour": "print_dark",
+   "x": 337.26,
+   "y": 181.69,
+   "w": 1.63,
+   "h": 2.13,
+   "nx": 0.694,
+   "ny": 0.6501
+  },
+  {
+   "id": "txt_max",
+   "type": "text",
+   "bbox": [
+    435.13,
+    191.65,
+    440.37,
+    193.52
+   ],
+   "label": "MAX",
+   "cap_h": 1.87,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "note": "x from 909bd, bdaniel (the VOLUME knob hides the M in the master), offset by MIN beside it; y as MIN",
+   "x": 437.75,
+   "y": 192.59,
+   "w": 5.25,
+   "h": 1.87,
+   "nx": 0.9007,
+   "ny": 0.6891
+  },
+  {
+   "id": "txt_track_play_1",
+   "type": "text",
+   "bbox": [
+    193.0,
+    180.85,
+    193.75,
+    182.72
+   ],
+   "label": "1",
+   "cap_h": 1.87,
+   "font": "Helvetica Medium",
+   "colour": "print_dark",
+   "x": 193.38,
+   "y": 181.78,
+   "w": 0.75,
+   "h": 1.87,
+   "nx": 0.3979,
+   "ny": 0.6504
+  },
+  {
+   "id": "txt_track_play_2",
+   "type": "text",
+   "bbox": [
+    204.62,
+    180.6,
+    206.0,
+    182.72
+   ],
+   "label": "2",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium",
+   "colour": "print_dark",
+   "x": 205.31,
+   "y": 181.66,
+   "w": 1.38,
+   "h": 2.12,
+   "nx": 0.4224,
+   "ny": 0.65
+  },
+  {
+   "id": "txt_track_play_3",
+   "type": "text",
+   "bbox": [
+    216.62,
+    180.6,
+    218.12,
+    182.72
+   ],
+   "label": "3",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium",
+   "colour": "print_dark",
+   "x": 217.37,
+   "y": 181.66,
+   "w": 1.5,
+   "h": 2.12,
+   "nx": 0.4473,
+   "ny": 0.65
+  },
+  {
+   "id": "txt_track_play_4",
+   "type": "text",
+   "bbox": [
+    228.62,
+    180.72,
+    230.0,
+    182.6
+   ],
+   "label": "4",
+   "cap_h": 1.88,
+   "font": "Helvetica Medium",
+   "colour": "print_dark",
+   "x": 229.31,
+   "y": 181.66,
+   "w": 1.38,
+   "h": 1.88,
+   "nx": 0.4718,
+   "ny": 0.65
+  },
+  {
+   "id": "txt_pattern_play_1",
+   "type": "text",
+   "bbox": [
+    246.98,
+    180.72,
+    247.85,
+    182.6
+   ],
+   "label": "1",
+   "cap_h": 1.88,
+   "font": "Helvetica Medium",
+   "colour": "print_dark",
+   "x": 247.41,
+   "y": 181.66,
+   "w": 0.87,
+   "h": 1.88,
+   "nx": 0.5091,
+   "ny": 0.65
+  },
+  {
+   "id": "txt_pattern_play_2",
+   "type": "text",
+   "bbox": [
+    258.73,
+    180.72,
+    260.1,
+    182.72
+   ],
+   "label": "2",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium",
+   "colour": "print_dark",
+   "x": 259.42,
+   "y": 181.72,
+   "w": 1.37,
+   "h": 2.0,
+   "nx": 0.5338,
+   "ny": 0.6502
+  },
+  {
+   "id": "txt_pattern_play_3",
+   "type": "text",
+   "bbox": [
+    270.6,
+    180.6,
+    272.1,
+    182.72
+   ],
+   "label": "3",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium",
+   "colour": "print_dark",
+   "x": 271.35,
+   "y": 181.66,
+   "w": 1.5,
+   "h": 2.12,
+   "nx": 0.5583,
+   "ny": 0.65
+  },
+  {
+   "id": "line_leftbox",
+   "type": "line",
+   "points": [
+    [
+     67.59,
+     195.71
+    ],
+    [
+     35.49,
+     195.71
+    ],
+    [
+     35.49,
+     268.48
+    ],
+    [
+     68.57,
+     268.48
+    ],
+    [
+     68.57,
+     225.4
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 52.03,
+   "y": 232.1,
+   "note": "keyline frame round LAST STEP ... SHIFT; open at the top right, where the four scale bars begin",
+   "nx": 0.1071,
+   "ny": 0.8304
+  },
+  {
+   "id": "btn_last_step",
+   "type": "key",
+   "label": "LAST STEP",
+   "x": 45.65,
+   "y": 206.89,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "same translucent cap as the middle-row buttons, no LED behind it (SW17-SW24 have none on the switch board)",
+   "bbox": [
+    41.35,
+    202.59,
+    49.95,
+    211.19
+   ],
+   "nx": 0.0939,
+   "ny": 0.7402,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "LastStep"
+  },
+  {
+   "id": "btn_scale",
+   "type": "key",
+   "label": "SCALE",
+   "x": 60.69,
+   "y": 206.89,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "same translucent cap as the middle-row buttons, no LED behind it (SW17-SW24 have none on the switch board)",
+   "bbox": [
+    56.39,
+    202.59,
+    64.99,
+    211.19
+   ],
+   "nx": 0.1249,
+   "ny": 0.7402,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Scale"
+  },
+  {
+   "id": "btn_shuffle_flam",
+   "type": "key",
+   "label": "SHUFFLE/FLAM",
+   "x": 45.65,
+   "y": 224.94,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "same translucent cap as the middle-row buttons, no LED behind it (SW17-SW24 have none on the switch board)",
+   "bbox": [
+    41.35,
+    220.64,
+    49.95,
+    229.24
+   ],
+   "nx": 0.0939,
+   "ny": 0.8048,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "ShuffleFlam"
+  },
+  {
+   "id": "btn_clear",
+   "type": "key",
+   "label": "CLEAR",
+   "x": 60.69,
+   "y": 224.94,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "same translucent cap as the middle-row buttons, no LED behind it (SW17-SW24 have none on the switch board)",
+   "bbox": [
+    56.39,
+    220.64,
+    64.99,
+    229.24
+   ],
+   "nx": 0.1249,
+   "ny": 0.8048,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Clear"
+  },
+  {
+   "id": "btn_instrument_select",
+   "type": "key",
+   "label": "INSTRUMENT SELECT",
+   "x": 45.65,
+   "y": 243.0,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "same translucent cap as the middle-row buttons, no LED behind it (SW17-SW24 have none on the switch board)",
+   "bbox": [
+    41.35,
+    238.7,
+    49.95,
+    247.3
+   ],
+   "nx": 0.0939,
+   "ny": 0.8694,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "InstSelect"
+  },
+  {
+   "id": "btn_shift",
+   "type": "key",
+   "label": "SHIFT",
+   "x": 60.69,
+   "y": 243.0,
+   "w": 8.6,
+   "h": 8.6,
+   "colour": "small_btn",
+   "cap_top": [
+    6.6,
+    6.6
+   ],
+   "height": 5.0,
+   "note": "same translucent cap as the middle-row buttons, no LED behind it (SW17-SW24 have none on the switch board)",
+   "bbox": [
+    56.39,
+    238.7,
+    64.99,
+    247.3
+   ],
+   "nx": 0.1249,
+   "ny": 0.8694,
+   "shape": "small",
+   "key_style": "smoky",
+   "param": "Shift"
+  },
+  {
+   "id": "txt_last_step",
+   "type": "text",
+   "bbox": [
+    38.15,
+    212.82,
+    52.52,
+    214.82
+   ],
+   "label": "LAST STEP",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 45.34,
+   "y": 213.82,
+   "w": 14.37,
+   "h": 2.0,
+   "nx": 0.0933,
+   "ny": 0.765
+  },
+  {
+   "id": "txt_scale",
+   "type": "text",
+   "bbox": [
+    56.05,
+    212.82,
+    64.55,
+    214.82
+   ],
+   "label": "SCALE",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 60.3,
+   "y": 213.82,
+   "w": 8.5,
+   "h": 2.0,
+   "nx": 0.1241,
+   "ny": 0.765
+  },
+  {
+   "id": "txt_shuffle",
+   "type": "text",
+   "bbox": [
+    39.38,
+    231.3,
+    51.12,
+    233.42
+   ],
+   "label": "SHUFFLE",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 45.25,
+   "y": 232.36,
+   "w": 11.74,
+   "h": 2.12,
+   "nx": 0.0931,
+   "ny": 0.8314
+  },
+  {
+   "id": "txt_flam",
+   "type": "text",
+   "bbox": [
+    40.17,
+    233.8,
+    48.92,
+    235.92
+   ],
+   "label": "/FLAM",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 44.55,
+   "y": 234.86,
+   "w": 8.75,
+   "h": 2.12,
+   "nx": 0.0917,
+   "ny": 0.8403
+  },
+  {
+   "id": "txt_clear",
+   "type": "text",
+   "bbox": [
+    56.05,
+    231.3,
+    64.68,
+    233.42
+   ],
+   "label": "CLEAR",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 60.37,
+   "y": 232.36,
+   "w": 8.63,
+   "h": 2.12,
+   "nx": 0.1242,
+   "ny": 0.8314
+  },
+  {
+   "id": "txt_instrument",
+   "type": "text",
+   "bbox": [
+    36.55,
+    248.9,
+    53.8,
+    250.9
+   ],
+   "label": "INSTRUMENT",
+   "cap_h": 2.0,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 45.17,
+   "y": 249.9,
+   "w": 17.25,
+   "h": 2.0,
+   "nx": 0.0929,
+   "ny": 0.8941
+  },
+  {
+   "id": "txt_select",
+   "type": "text",
+   "bbox": [
+    40.17,
+    251.38,
+    50.3,
+    253.5
+   ],
+   "label": "SELECT",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 45.23,
+   "y": 252.44,
+   "w": 10.13,
+   "h": 2.12,
+   "nx": 0.0931,
+   "ny": 0.9032
+  },
+  {
+   "id": "obox_shift",
+   "type": "label_box",
+   "bbox": [
+    55.84,
+    249.01,
+    65.27,
+    253.42
+   ],
+   "label": "SHIFT",
+   "colour": "orange_box",
+   "text_colour": "print_dark",
+   "font": "Helvetica Medium, caps",
+   "corner_r": 0.2,
+   "x": 60.55,
+   "y": 251.21,
+   "w": 9.43,
+   "h": 4.41,
+   "nx": 0.1246,
+   "ny": 0.8988
+  },
+  {
+   "id": "txt_shift",
+   "type": "text",
+   "bbox": [
+    56.62,
+    250.16,
+    63.99,
+    252.28
+   ],
+   "label": "SHIFT",
+   "cap_h": 2.12,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 60.3,
+   "y": 251.22,
+   "w": 7.37,
+   "h": 2.12,
+   "nx": 0.1241,
+   "ny": 0.8989
+  },
+  {
+   "id": "bar_scale1_1",
+   "type": "fill",
+   "bbox": [
+    68.22,
+    195.31,
+    208.26,
+    201.8
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 1",
+   "x": 138.24,
+   "y": 198.56,
+   "w": 140.04,
+   "h": 6.49,
+   "nx": 0.2844,
+   "ny": 0.7104
+  },
+  {
+   "id": "bar_scale1_2",
+   "type": "fill",
+   "bbox": [
+    209.22,
+    195.31,
+    346.29,
+    201.8
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 1",
+   "x": 277.75,
+   "y": 198.56,
+   "w": 137.07,
+   "h": 6.49,
+   "nx": 0.5715,
+   "ny": 0.7104
+  },
+  {
+   "id": "bar_scale1_3",
+   "type": "fill",
+   "bbox": [
+    347.48,
+    195.31,
+    439.16,
+    201.8
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 1",
+   "x": 393.32,
+   "y": 198.56,
+   "w": 91.68,
+   "h": 6.49,
+   "nx": 0.8093,
+   "ny": 0.7104
+  },
+  {
+   "id": "led_scale_1",
+   "type": "led",
+   "shape": "round",
+   "x": 73.1,
+   "y": 198.55,
+   "d": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED D632 set into the left end of the scale bar, lit when its scale is selected (Machine::Led::Scale4, scale 4: the owner's manual, p. 24, numbers the scales from the bottom row up, 16th notes, 32nd notes, 8th-note triplets, 16th-note sextuplets)",
+   "bbox": [
+    71.6,
+    197.05,
+    74.6,
+    200.05
+   ],
+   "nx": 0.1504,
+   "ny": 0.7104,
+   "led": "Scale4",
+   "w": 3.0,
+   "h": 3.0
+  },
+  {
+   "id": "bar_scale2_1",
+   "type": "fill",
+   "bbox": [
+    68.23,
+    202.86,
+    139.31,
+    209.38
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 2",
+   "x": 103.77,
+   "y": 206.12,
+   "w": 71.08,
+   "h": 6.52,
+   "nx": 0.2135,
+   "ny": 0.7375
+  },
+  {
+   "id": "bar_scale2_2",
+   "type": "fill",
+   "bbox": [
+    140.3,
+    202.86,
+    208.33,
+    209.38
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 2",
+   "x": 174.31,
+   "y": 206.12,
+   "w": 68.03,
+   "h": 6.52,
+   "nx": 0.3587,
+   "ny": 0.7375
+  },
+  {
+   "id": "bar_scale2_3",
+   "type": "fill",
+   "bbox": [
+    209.22,
+    202.86,
+    277.14,
+    209.38
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 2",
+   "x": 243.18,
+   "y": 206.12,
+   "w": 67.92,
+   "h": 6.52,
+   "nx": 0.5004,
+   "ny": 0.7375
+  },
+  {
+   "id": "bar_scale2_4",
+   "type": "fill",
+   "bbox": [
+    278.24,
+    202.86,
+    346.23,
+    209.38
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 2",
+   "x": 312.24,
+   "y": 206.12,
+   "w": 67.99,
+   "h": 6.52,
+   "nx": 0.6425,
+   "ny": 0.7375
+  },
+  {
+   "id": "bar_scale2_5",
+   "type": "fill",
+   "bbox": [
+    347.58,
+    202.86,
+    439.17,
+    209.38
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 2",
+   "x": 393.38,
+   "y": 206.12,
+   "w": 91.59,
+   "h": 6.52,
+   "nx": 0.8094,
+   "ny": 0.7375
+  },
+  {
+   "id": "led_scale_2",
+   "type": "led",
+   "shape": "round",
+   "x": 73.1,
+   "y": 206.12,
+   "d": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED D633 set into the left end of the scale bar, lit when its scale is selected (Machine::Led::Scale3, scale 3: the owner's manual, p. 24, numbers the scales from the bottom row up, 16th notes, 32nd notes, 8th-note triplets, 16th-note sextuplets)",
+   "bbox": [
+    71.6,
+    204.62,
+    74.6,
+    207.62
+   ],
+   "nx": 0.1504,
+   "ny": 0.7375,
+   "led": "Scale3",
+   "w": 3.0,
+   "h": 3.0
+  },
+  {
+   "id": "bar_scale3_1",
+   "type": "fill",
+   "bbox": [
+    68.22,
+    210.39,
+    254.24,
+    216.92
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 3",
+   "x": 161.23,
+   "y": 213.65,
+   "w": 186.02,
+   "h": 6.53,
+   "nx": 0.3317,
+   "ny": 0.7644
+  },
+  {
+   "id": "bar_scale3_2",
+   "type": "fill",
+   "bbox": [
+    255.38,
+    210.39,
+    439.25,
+    216.92
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 3",
+   "x": 347.31,
+   "y": 213.65,
+   "w": 183.87,
+   "h": 6.53,
+   "nx": 0.7146,
+   "ny": 0.7644
+  },
+  {
+   "id": "led_scale_3",
+   "type": "led",
+   "shape": "round",
+   "x": 73.1,
+   "y": 213.65,
+   "d": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED D634 set into the left end of the scale bar, lit when its scale is selected (Machine::Led::Scale2, scale 2: the owner's manual, p. 24, numbers the scales from the bottom row up, 16th notes, 32nd notes, 8th-note triplets, 16th-note sextuplets)",
+   "bbox": [
+    71.6,
+    212.15,
+    74.6,
+    215.15
+   ],
+   "nx": 0.1504,
+   "ny": 0.7644,
+   "led": "Scale2",
+   "w": 3.0,
+   "h": 3.0
+  },
+  {
+   "id": "bar_scale4_1",
+   "type": "fill",
+   "bbox": [
+    68.32,
+    217.88,
+    162.28,
+    224.42
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 4",
+   "x": 115.3,
+   "y": 221.15,
+   "w": 93.96,
+   "h": 6.54,
+   "nx": 0.2372,
+   "ny": 0.7913
+  },
+  {
+   "id": "bar_scale4_2",
+   "type": "fill",
+   "bbox": [
+    163.23,
+    217.88,
+    254.26,
+    224.42
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 4",
+   "x": 208.75,
+   "y": 221.15,
+   "w": 91.03,
+   "h": 6.54,
+   "nx": 0.4295,
+   "ny": 0.7913
+  },
+  {
+   "id": "bar_scale4_3",
+   "type": "fill",
+   "bbox": [
+    255.35,
+    217.88,
+    346.07,
+    224.42
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 4",
+   "x": 300.71,
+   "y": 221.15,
+   "w": 90.72,
+   "h": 6.54,
+   "nx": 0.6187,
+   "ny": 0.7913
+  },
+  {
+   "id": "bar_scale4_4",
+   "type": "fill",
+   "bbox": [
+    347.29,
+    217.88,
+    439.23,
+    224.42
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "scale indicator bar, row 4",
+   "x": 393.26,
+   "y": 221.15,
+   "w": 91.94,
+   "h": 6.54,
+   "nx": 0.8092,
+   "ny": 0.7913
+  },
+  {
+   "id": "led_scale_4",
+   "type": "led",
+   "shape": "round",
+   "x": 73.1,
+   "y": 221.15,
+   "d": 3.0,
+   "colour": "led_unlit",
+   "colour_lit": "led_lit",
+   "note": "3 mm red LED D635 set into the left end of the scale bar, lit when its scale is selected (Machine::Led::Scale1, scale 1: the owner's manual, p. 24, numbers the scales from the bottom row up, 16th notes, 32nd notes, 8th-note triplets, 16th-note sextuplets)",
+   "bbox": [
+    71.6,
+    219.65,
+    74.6,
+    222.65
+   ],
+   "nx": 0.1504,
+   "ny": 0.7913,
+   "led": "Scale1",
+   "w": 3.0,
+   "h": 3.0
+  },
+  {
+   "id": "bracket_scale1_1_6",
+   "type": "line",
+   "points": [
+    [
+     75.58,
+     197.67
+    ],
+    [
+     78.78,
+     196.07
+    ],
+    [
+     200.78,
+     196.07
+    ],
+    [
+     203.98,
+     197.67
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 139.78,
+   "y": 196.07,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.2876,
+   "ny": 0.7015
+  },
+  {
+   "id": "bracket_scale1_7_12",
+   "type": "line",
+   "points": [
+    [
+     214.08,
+     197.68
+    ],
+    [
+     217.28,
+     196.08
+    ],
+    [
+     339.03,
+     196.08
+    ],
+    [
+     342.23,
+     197.68
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 278.15,
+   "y": 196.08,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.5723,
+   "ny": 0.7016
+  },
+  {
+   "id": "bracket_scale1_13_16",
+   "type": "line",
+   "points": [
+    [
+     352.08,
+     198.29
+    ],
+    [
+     355.28,
+     196.69
+    ],
+    [
+     437.03,
+     196.69
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 396.15,
+   "y": 196.69,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.8151,
+   "ny": 0.7037
+  },
+  {
+   "id": "bracket_scale2_1_3",
+   "type": "line",
+   "points": [
+    [
+     76.08,
+     205.27
+    ],
+    [
+     79.28,
+     203.67
+    ],
+    [
+     131.53,
+     203.67
+    ],
+    [
+     134.73,
+     205.27
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 105.41,
+   "y": 203.67,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.2169,
+   "ny": 0.7287
+  },
+  {
+   "id": "bracket_scale2_4_6",
+   "type": "line",
+   "points": [
+    [
+     144.83,
+     205.28
+    ],
+    [
+     148.03,
+     203.68
+    ],
+    [
+     200.78,
+     203.68
+    ],
+    [
+     203.98,
+     205.28
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 174.41,
+   "y": 203.68,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.3589,
+   "ny": 0.7288
+  },
+  {
+   "id": "bracket_scale2_7_9",
+   "type": "line",
+   "points": [
+    [
+     214.58,
+     205.27
+    ],
+    [
+     217.78,
+     203.67
+    ],
+    [
+     269.53,
+     203.67
+    ],
+    [
+     272.73,
+     205.27
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 243.65,
+   "y": 203.67,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.5013,
+   "ny": 0.7287
+  },
+  {
+   "id": "bracket_scale2_10_12",
+   "type": "line",
+   "points": [
+    [
+     282.83,
+     205.29
+    ],
+    [
+     286.03,
+     203.69
+    ],
+    [
+     338.53,
+     203.69
+    ],
+    [
+     341.73,
+     205.29
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 312.28,
+   "y": 203.69,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.6426,
+   "ny": 0.7288
+  },
+  {
+   "id": "bracket_scale2_13_15",
+   "type": "line",
+   "points": [
+    [
+     352.08,
+     205.93
+    ],
+    [
+     355.28,
+     204.33
+    ],
+    [
+     408.03,
+     204.33
+    ],
+    [
+     411.23,
+     205.93
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 381.65,
+   "y": 204.33,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.7853,
+   "ny": 0.7311
+  },
+  {
+   "id": "bracket_scale2_16_16",
+   "type": "line",
+   "points": [
+    [
+     420.33,
+     205.91
+    ],
+    [
+     423.53,
+     204.31
+    ],
+    [
+     436.78,
+     204.31
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 430.15,
+   "y": 204.31,
+   "note": "white beam/bracket line over the notes of one beat group",
+   "nx": 0.8851,
+   "ny": 0.731
+  },
+  {
+   "id": "line_scale2_div_15_16",
+   "type": "line",
+   "points": [
+    [
+     415.81,
+     203.41
+    ],
+    [
+     415.81,
+     208.66
+    ]
+   ],
+   "stroke": 0.35,
+   "colour": "print_white",
+   "x": 415.81,
+   "y": 206.12,
+   "note": "white divider inside scale bar 2",
+   "nx": 0.8556,
+   "ny": 0.7375
+  },
+  {
+   "id": "note_scale1_1",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    81.21,
+    197.06,
+    83.58,
+    201.5
+   ],
+   "colour": "print_white",
+   "step": 1,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 82.39,
+   "y": 199.28,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.1695,
+   "ny": 0.713
+  },
+  {
+   "id": "note_scale1_3",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    127.21,
+    197.06,
+    129.58,
+    201.5
+   ],
+   "colour": "print_white",
+   "step": 3,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 128.4,
+   "y": 199.28,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.2642,
+   "ny": 0.713
+  },
+  {
+   "id": "note_scale1_5",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    173.21,
+    197.06,
+    175.58,
+    201.5
+   ],
+   "colour": "print_white",
+   "step": 5,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 174.4,
+   "y": 199.28,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.3588,
+   "ny": 0.713
+  },
+  {
+   "id": "note_scale1_7",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    219.21,
+    197.06,
+    221.58,
+    201.5
+   ],
+   "colour": "print_white",
+   "step": 7,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 220.4,
+   "y": 199.28,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.4535,
+   "ny": 0.713
+  },
+  {
+   "id": "note_scale1_9",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    265.21,
+    197.06,
+    267.58,
+    201.5
+   ],
+   "colour": "print_white",
+   "step": 9,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 266.39,
+   "y": 199.28,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.5481,
+   "ny": 0.713
+  },
+  {
+   "id": "note_scale1_11",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    311.21,
+    197.06,
+    313.58,
+    201.5
+   ],
+   "colour": "print_white",
+   "step": 11,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 312.39,
+   "y": 199.28,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.6428,
+   "ny": 0.713
+  },
+  {
+   "id": "note_scale1_13",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    357.21,
+    197.06,
+    359.58,
+    201.5
+   ],
+   "colour": "print_white",
+   "step": 13,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 358.39,
+   "y": 199.28,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.7374,
+   "ny": 0.713
+  },
+  {
+   "id": "note_scale1_15",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    403.21,
+    197.06,
+    405.58,
+    201.5
+   ],
+   "colour": "print_white",
+   "step": 15,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 404.39,
+   "y": 199.28,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.8321,
+   "ny": 0.713
+  },
+  {
+   "id": "note_scale2_1",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    81.21,
+    204.61,
+    83.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 1,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 82.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.1695,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_2",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    104.21,
+    204.61,
+    106.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 2,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 105.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.2169,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_3",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    127.21,
+    204.61,
+    129.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 3,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 128.4,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.2642,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_4",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    150.21,
+    204.61,
+    152.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 4,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 151.4,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.3115,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_5",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    173.21,
+    204.61,
+    175.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 5,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 174.4,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.3588,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_6",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    196.21,
+    204.61,
+    198.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 6,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 197.4,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.4062,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_7",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    219.21,
+    204.61,
+    221.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 7,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 220.4,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.4535,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_8",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    242.21,
+    204.61,
+    244.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 8,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 243.4,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.5008,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_9",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    265.21,
+    204.61,
+    267.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 9,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 266.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.5481,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_10",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    288.21,
+    204.61,
+    290.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 10,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 289.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.5955,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_11",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    311.21,
+    204.61,
+    313.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 11,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 312.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.6428,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_12",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    334.21,
+    204.61,
+    336.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 12,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 335.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.6901,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_13",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    357.21,
+    204.61,
+    359.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 13,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 358.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.7374,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_14",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    380.21,
+    204.61,
+    382.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 14,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 381.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.7848,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_15",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    403.21,
+    204.61,
+    405.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 15,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 404.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.8321,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale2_16",
+   "type": "symbol",
+   "label": "eighth_note",
+   "bbox": [
+    426.21,
+    204.61,
+    428.58,
+    209.05
+   ],
+   "colour": "print_white",
+   "step": 16,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side, one flag curling down to the right",
+   "x": 427.39,
+   "y": 206.83,
+   "w": 2.37,
+   "h": 4.44,
+   "nx": 0.8794,
+   "ny": 0.74
+  },
+  {
+   "id": "note_scale3_1",
+   "type": "symbol",
+   "label": "quarter_note",
+   "bbox": [
+    81.33,
+    211.89,
+    82.71,
+    216.01
+   ],
+   "colour": "print_white",
+   "step": 1,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side",
+   "x": 82.02,
+   "y": 213.95,
+   "w": 1.38,
+   "h": 4.12,
+   "nx": 0.1688,
+   "ny": 0.7655
+  },
+  {
+   "id": "note_scale3_9",
+   "type": "symbol",
+   "label": "quarter_note",
+   "bbox": [
+    265.33,
+    211.89,
+    266.71,
+    216.01
+   ],
+   "colour": "print_white",
+   "step": 9,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side",
+   "x": 266.02,
+   "y": 213.95,
+   "w": 1.38,
+   "h": 4.12,
+   "nx": 0.5474,
+   "ny": 0.7655
+  },
+  {
+   "id": "note_scale4_1",
+   "type": "symbol",
+   "label": "quarter_note",
+   "bbox": [
+    81.33,
+    219.38,
+    82.71,
+    223.5
+   ],
+   "colour": "print_white",
+   "step": 1,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side",
+   "x": 82.02,
+   "y": 221.44,
+   "w": 1.38,
+   "h": 4.12,
+   "nx": 0.1688,
+   "ny": 0.7923
+  },
+  {
+   "id": "note_scale4_5",
+   "type": "symbol",
+   "label": "quarter_note",
+   "bbox": [
+    173.33,
+    219.38,
+    174.71,
+    223.5
+   ],
+   "colour": "print_white",
+   "step": 5,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side",
+   "x": 174.02,
+   "y": 221.44,
+   "w": 1.38,
+   "h": 4.12,
+   "nx": 0.3581,
+   "ny": 0.7923
+  },
+  {
+   "id": "note_scale4_9",
+   "type": "symbol",
+   "label": "quarter_note",
+   "bbox": [
+    265.33,
+    219.38,
+    266.71,
+    223.5
+   ],
+   "colour": "print_white",
+   "step": 9,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side",
+   "x": 266.02,
+   "y": 221.44,
+   "w": 1.38,
+   "h": 4.12,
+   "nx": 0.5474,
+   "ny": 0.7923
+  },
+  {
+   "id": "note_scale4_13",
+   "type": "symbol",
+   "label": "quarter_note",
+   "bbox": [
+    357.33,
+    219.38,
+    358.71,
+    223.5
+   ],
+   "colour": "print_white",
+   "step": 13,
+   "note": "white note glyph: filled oval head (lower left, tilted), stem up from its right side",
+   "x": 358.02,
+   "y": 221.44,
+   "w": 1.38,
+   "h": 4.12,
+   "nx": 0.7367,
+   "ny": 0.7923
+  },
+  {
+   "id": "line_steps_75_240",
+   "type": "line",
+   "points": [
+    [
+     80.25,
+     226.51
+    ],
+    [
+     222.25,
+     226.51
+    ]
+   ],
+   "stroke": 0.4,
+   "colour": "print_dark",
+   "x": 151.25,
+   "y": 226.51,
+   "nx": 0.3112,
+   "ny": 0.8104
+  },
+  {
+   "id": "line_steps_250_436",
+   "type": "line",
+   "points": [
+    [
+     264.25,
+     226.51
+    ],
+    [
+     429.25,
+     226.51
+    ]
+   ],
+   "stroke": 0.4,
+   "colour": "print_dark",
+   "x": 346.75,
+   "y": 226.51,
+   "nx": 0.7135,
+   "ny": 0.8104
+  },
+  {
+   "id": "line_step_div_2_3",
+   "type": "line",
+   "points": [
+    [
+     116.78,
+     227.63
+    ],
+    [
+     116.78,
+     255.12
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 116.78,
+   "y": 241.38,
+   "nx": 0.2403,
+   "ny": 0.8636
+  },
+  {
+   "id": "line_step_div_4_5",
+   "type": "line",
+   "points": [
+    [
+     162.78,
+     227.63
+    ],
+    [
+     162.78,
+     255.12
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 162.78,
+   "y": 241.38,
+   "nx": 0.3349,
+   "ny": 0.8636
+  },
+  {
+   "id": "line_step_div_6_7",
+   "type": "line",
+   "points": [
+    [
+     208.78,
+     227.63
+    ],
+    [
+     208.78,
+     255.12
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 208.78,
+   "y": 241.38,
+   "nx": 0.4296,
+   "ny": 0.8636
+  },
+  {
+   "id": "line_step_div_8_9",
+   "type": "line",
+   "points": [
+    [
+     254.78,
+     227.63
+    ],
+    [
+     254.78,
+     255.12
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 254.78,
+   "y": 241.38,
+   "nx": 0.5242,
+   "ny": 0.8636
+  },
+  {
+   "id": "line_step_div_10_11",
+   "type": "line",
+   "points": [
+    [
+     300.78,
+     227.63
+    ],
+    [
+     300.78,
+     255.12
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 300.78,
+   "y": 241.38,
+   "nx": 0.6189,
+   "ny": 0.8636
+  },
+  {
+   "id": "line_step_div_12_13",
+   "type": "line",
+   "points": [
+    [
+     346.78,
+     227.63
+    ],
+    [
+     346.78,
+     255.12
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 346.78,
+   "y": 241.38,
+   "nx": 0.7135,
+   "ny": 0.8636
+  },
+  {
+   "id": "line_step_div_14_15",
+   "type": "line",
+   "points": [
+    [
+     392.78,
+     227.63
+    ],
+    [
+     392.78,
+     255.12
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 392.78,
+   "y": 241.38,
+   "nx": 0.8082,
+   "ny": 0.8636
+  },
+  {
+   "id": "line_step_right",
+   "type": "line",
+   "points": [
+    [
+     440.73,
+     195.23
+    ],
+    [
+     440.73,
+     268.97
+    ]
+   ],
+   "stroke": 0.5,
+   "colour": "print_dark",
+   "x": 440.73,
+   "y": 232.1,
+   "note": "right edge line of the step section",
+   "nx": 0.9069,
+   "ny": 0.8304
+  },
+  {
+   "id": "txt_step_1",
+   "type": "text",
+   "bbox": [
+    81.7,
+    227.98,
+    82.95,
+    230.85
+   ],
+   "label": "1",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 82.33,
+   "y": 229.41,
+   "w": 1.25,
+   "h": 2.87,
+   "nx": 0.1694,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_2",
+   "type": "text",
+   "bbox": [
+    104.45,
+    227.98,
+    106.45,
+    230.85
+   ],
+   "label": "2",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 105.45,
+   "y": 229.41,
+   "w": 2.0,
+   "h": 2.87,
+   "nx": 0.217,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_3",
+   "type": "text",
+   "bbox": [
+    127.45,
+    227.98,
+    129.45,
+    230.85
+   ],
+   "label": "3",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 128.45,
+   "y": 229.41,
+   "w": 2.0,
+   "h": 2.87,
+   "nx": 0.2643,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_4",
+   "type": "text",
+   "bbox": [
+    150.33,
+    227.98,
+    152.45,
+    230.85
+   ],
+   "label": "4",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 151.39,
+   "y": 229.41,
+   "w": 2.12,
+   "h": 2.87,
+   "nx": 0.3115,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_5",
+   "type": "text",
+   "bbox": [
+    173.33,
+    227.98,
+    175.33,
+    230.85
+   ],
+   "label": "5",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 174.33,
+   "y": 229.41,
+   "w": 2.0,
+   "h": 2.87,
+   "nx": 0.3587,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_6",
+   "type": "text",
+   "bbox": [
+    196.33,
+    227.98,
+    198.45,
+    230.85
+   ],
+   "label": "6",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 197.39,
+   "y": 229.41,
+   "w": 2.12,
+   "h": 2.87,
+   "nx": 0.4062,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_7",
+   "type": "text",
+   "bbox": [
+    219.45,
+    227.98,
+    221.33,
+    230.85
+   ],
+   "label": "7",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 220.39,
+   "y": 229.41,
+   "w": 1.88,
+   "h": 2.87,
+   "nx": 0.4535,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_8",
+   "type": "text",
+   "bbox": [
+    242.33,
+    227.98,
+    244.45,
+    230.85
+   ],
+   "label": "8",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 243.39,
+   "y": 229.41,
+   "w": 2.12,
+   "h": 2.87,
+   "nx": 0.5008,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_9",
+   "type": "text",
+   "bbox": [
+    265.33,
+    227.98,
+    267.45,
+    230.85
+   ],
+   "label": "9",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 266.39,
+   "y": 229.41,
+   "w": 2.12,
+   "h": 2.87,
+   "nx": 0.5481,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_10",
+   "type": "text",
+   "bbox": [
+    287.45,
+    227.98,
+    291.2,
+    230.85
+   ],
+   "label": "10",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 289.32,
+   "y": 229.41,
+   "w": 3.75,
+   "h": 2.87,
+   "nx": 0.5953,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_11",
+   "type": "text",
+   "bbox": [
+    310.83,
+    227.98,
+    313.95,
+    230.85
+   ],
+   "label": "11",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 312.39,
+   "y": 229.41,
+   "w": 3.12,
+   "h": 2.87,
+   "nx": 0.6428,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_12",
+   "type": "text",
+   "bbox": [
+    333.58,
+    227.98,
+    336.95,
+    230.85
+   ],
+   "label": "12",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 335.26,
+   "y": 229.41,
+   "w": 3.37,
+   "h": 2.87,
+   "nx": 0.6898,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_13",
+   "type": "text",
+   "bbox": [
+    356.58,
+    227.98,
+    360.2,
+    230.85
+   ],
+   "label": "13",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 358.39,
+   "y": 229.41,
+   "w": 3.62,
+   "h": 2.87,
+   "nx": 0.7374,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_14",
+   "type": "text",
+   "bbox": [
+    379.45,
+    227.98,
+    383.2,
+    230.85
+   ],
+   "label": "14",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 381.32,
+   "y": 229.41,
+   "w": 3.75,
+   "h": 2.87,
+   "nx": 0.7846,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_15",
+   "type": "text",
+   "bbox": [
+    402.58,
+    227.98,
+    406.2,
+    230.85
+   ],
+   "label": "15",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 404.39,
+   "y": 229.41,
+   "w": 3.62,
+   "h": 2.87,
+   "nx": 0.8321,
+   "ny": 0.8208
+  },
+  {
+   "id": "txt_step_16",
+   "type": "text",
+   "bbox": [
+    425.58,
+    227.98,
+    429.33,
+    230.85
+   ],
+   "label": "16",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold",
+   "colour": "print_dark",
+   "x": 427.45,
+   "y": 229.41,
+   "w": 3.75,
+   "h": 2.87,
+   "nx": 0.8795,
+   "ny": 0.8208
+  },
+  {
+   "id": "key_step_1",
+   "type": "key",
+   "label": "1",
+   "x": 82.28,
+   "y": 242.91,
+   "w": 18.85,
+   "h": 19.05,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 1,
+   "functions": {
+    "step": 1,
+    "instrument_select": "BD",
+    "shift": "1"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    72.86,
+    233.38,
+    91.7,
+    252.44
+   ],
+   "nx": 0.1693,
+   "ny": 0.8691,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step1",
+   "cutout_bbox": [
+    72.86,
+    233.38,
+    91.7,
+    252.44
+   ],
+   "led": "led_step_1"
+  },
+  {
+   "id": "led_step_1",
+   "type": "led",
+   "shape": "rect",
+   "x": 82.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -1.68 mm here)",
+   "bbox": [
+    79.58,
+    238.01,
+    84.98,
+    240.31
+   ],
+   "nx": 0.1693,
+   "ny": 0.8557,
+   "led": "Step1",
+   "in": "key_step_1"
+  },
+  {
+   "id": "key_step_2",
+   "type": "key",
+   "label": "2",
+   "x": 105.28,
+   "y": 242.87,
+   "w": 18.85,
+   "h": 19.1,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 2,
+   "functions": {
+    "step": 2,
+    "instrument_select": "BD",
+    "shift": "2"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    95.86,
+    233.32,
+    114.7,
+    252.42
+   ],
+   "nx": 0.2166,
+   "ny": 0.869,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step2",
+   "cutout_bbox": [
+    95.86,
+    233.32,
+    114.7,
+    252.42
+   ],
+   "led": "led_step_2"
+  },
+  {
+   "id": "led_step_2",
+   "type": "led",
+   "shape": "rect",
+   "x": 105.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -1.19 mm here)",
+   "bbox": [
+    102.58,
+    238.01,
+    107.98,
+    240.31
+   ],
+   "nx": 0.2166,
+   "ny": 0.8557,
+   "led": "Step2",
+   "in": "key_step_2"
+  },
+  {
+   "id": "key_step_3",
+   "type": "key",
+   "label": "3",
+   "x": 128.28,
+   "y": 242.85,
+   "w": 18.85,
+   "h": 19.12,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 3,
+   "functions": {
+    "step": 3,
+    "instrument_select": "SD",
+    "shift": "3"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    118.86,
+    233.29,
+    137.71,
+    252.41
+   ],
+   "nx": 0.264,
+   "ny": 0.8689,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step3",
+   "cutout_bbox": [
+    118.86,
+    233.29,
+    137.71,
+    252.41
+   ],
+   "led": "led_step_3"
+  },
+  {
+   "id": "led_step_3",
+   "type": "led",
+   "shape": "rect",
+   "x": 128.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -1.30 mm here)",
+   "bbox": [
+    125.58,
+    238.01,
+    130.98,
+    240.31
+   ],
+   "nx": 0.264,
+   "ny": 0.8557,
+   "led": "Step3",
+   "in": "key_step_3"
+  },
+  {
+   "id": "key_step_4",
+   "type": "key",
+   "label": "4",
+   "x": 151.28,
+   "y": 242.83,
+   "w": 18.85,
+   "h": 19.08,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 4,
+   "functions": {
+    "step": 4,
+    "instrument_select": "SD",
+    "shift": "4"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    141.85,
+    233.29,
+    160.71,
+    252.37
+   ],
+   "nx": 0.3113,
+   "ny": 0.8688,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step4",
+   "cutout_bbox": [
+    141.85,
+    233.29,
+    160.71,
+    252.37
+   ],
+   "led": "led_step_4"
+  },
+  {
+   "id": "led_step_4",
+   "type": "led",
+   "shape": "rect",
+   "x": 151.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -0.94 mm here)",
+   "bbox": [
+    148.58,
+    238.01,
+    153.98,
+    240.31
+   ],
+   "nx": 0.3113,
+   "ny": 0.8557,
+   "led": "Step4",
+   "in": "key_step_4"
+  },
+  {
+   "id": "key_step_5",
+   "type": "key",
+   "label": "5",
+   "x": 174.28,
+   "y": 242.78,
+   "w": 18.85,
+   "h": 19.17,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 5,
+   "functions": {
+    "step": 5,
+    "instrument_select": "LT",
+    "shift": "5"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    164.85,
+    233.19,
+    183.71,
+    252.37
+   ],
+   "nx": 0.3586,
+   "ny": 0.8687,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step5",
+   "cutout_bbox": [
+    164.85,
+    233.19,
+    183.71,
+    252.37
+   ],
+   "led": "led_step_5"
+  },
+  {
+   "id": "led_step_5",
+   "type": "led",
+   "shape": "rect",
+   "x": 174.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -0.77 mm here)",
+   "bbox": [
+    171.58,
+    238.01,
+    176.98,
+    240.31
+   ],
+   "nx": 0.3586,
+   "ny": 0.8557,
+   "led": "Step5",
+   "in": "key_step_5"
+  },
+  {
+   "id": "key_step_6",
+   "type": "key",
+   "label": "6",
+   "x": 197.28,
+   "y": 242.81,
+   "w": 18.85,
+   "h": 19.07,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 6,
+   "functions": {
+    "step": 6,
+    "instrument_select": "LT",
+    "shift": "6"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    187.85,
+    233.28,
+    206.71,
+    252.34
+   ],
+   "nx": 0.4059,
+   "ny": 0.8688,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step6",
+   "cutout_bbox": [
+    187.85,
+    233.28,
+    206.71,
+    252.34
+   ],
+   "led": "led_step_6"
+  },
+  {
+   "id": "led_step_6",
+   "type": "led",
+   "shape": "rect",
+   "x": 197.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -0.29 mm here)",
+   "bbox": [
+    194.58,
+    238.01,
+    199.98,
+    240.31
+   ],
+   "nx": 0.4059,
+   "ny": 0.8557,
+   "led": "Step6",
+   "in": "key_step_6"
+  },
+  {
+   "id": "key_step_7",
+   "type": "key",
+   "label": "7",
+   "x": 220.28,
+   "y": 242.81,
+   "w": 18.85,
+   "h": 19.06,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 7,
+   "functions": {
+    "step": 7,
+    "instrument_select": "MT",
+    "shift": "7"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    210.85,
+    233.28,
+    229.71,
+    252.34
+   ],
+   "nx": 0.4533,
+   "ny": 0.8688,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step7",
+   "cutout_bbox": [
+    210.85,
+    233.28,
+    229.71,
+    252.34
+   ],
+   "led": "led_step_7"
+  },
+  {
+   "id": "led_step_7",
+   "type": "led",
+   "shape": "rect",
+   "x": 220.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -0.28 mm here)",
+   "bbox": [
+    217.58,
+    238.01,
+    222.98,
+    240.31
+   ],
+   "nx": 0.4533,
+   "ny": 0.8557,
+   "led": "Step7",
+   "in": "key_step_7"
+  },
+  {
+   "id": "key_step_8",
+   "type": "key",
+   "label": "8",
+   "x": 243.28,
+   "y": 242.8,
+   "w": 18.85,
+   "h": 19.08,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 8,
+   "functions": {
+    "step": 8,
+    "instrument_select": "MT",
+    "shift": "8"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    233.85,
+    233.26,
+    252.71,
+    252.34
+   ],
+   "nx": 0.5006,
+   "ny": 0.8687,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step8",
+   "cutout_bbox": [
+    233.85,
+    233.26,
+    252.71,
+    252.34
+   ],
+   "led": "led_step_8"
+  },
+  {
+   "id": "led_step_8",
+   "type": "led",
+   "shape": "rect",
+   "x": 243.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -0.47 mm here)",
+   "bbox": [
+    240.58,
+    238.01,
+    245.98,
+    240.31
+   ],
+   "nx": 0.5006,
+   "ny": 0.8557,
+   "led": "Step8",
+   "in": "key_step_8"
+  },
+  {
+   "id": "key_step_9",
+   "type": "key",
+   "label": "9",
+   "x": 266.28,
+   "y": 242.82,
+   "w": 18.85,
+   "h": 19.07,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 9,
+   "functions": {
+    "step": 9,
+    "instrument_select": "HT",
+    "shift": "9"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    256.85,
+    233.28,
+    275.7,
+    252.35
+   ],
+   "nx": 0.5479,
+   "ny": 0.8688,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step9",
+   "cutout_bbox": [
+    256.85,
+    233.28,
+    275.7,
+    252.35
+   ],
+   "led": "led_step_9"
+  },
+  {
+   "id": "led_step_9",
+   "type": "led",
+   "shape": "rect",
+   "x": 266.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, -0.02 mm here)",
+   "bbox": [
+    263.58,
+    238.01,
+    268.98,
+    240.31
+   ],
+   "nx": 0.5479,
+   "ny": 0.8557,
+   "led": "Step9",
+   "in": "key_step_9"
+  },
+  {
+   "id": "key_step_10",
+   "type": "key",
+   "label": "10",
+   "x": 289.28,
+   "y": 242.79,
+   "w": 18.85,
+   "h": 19.02,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 10,
+   "functions": {
+    "step": 10,
+    "instrument_select": "HT",
+    "shift": "0"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    279.85,
+    233.28,
+    298.7,
+    252.3
+   ],
+   "nx": 0.5952,
+   "ny": 0.8687,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step10",
+   "cutout_bbox": [
+    279.85,
+    233.28,
+    298.7,
+    252.3
+   ],
+   "led": "led_step_10"
+  },
+  {
+   "id": "led_step_10",
+   "type": "led",
+   "shape": "rect",
+   "x": 289.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, 0.09 mm here)",
+   "bbox": [
+    286.58,
+    238.01,
+    291.98,
+    240.31
+   ],
+   "nx": 0.5952,
+   "ny": 0.8557,
+   "led": "Step10",
+   "in": "key_step_10"
+  },
+  {
+   "id": "key_step_11",
+   "type": "key",
+   "label": "11",
+   "x": 312.28,
+   "y": 242.77,
+   "w": 18.85,
+   "h": 19.05,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 11,
+   "functions": {
+    "step": 11,
+    "instrument_select": "RS",
+    "shift": "COPY"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    302.85,
+    233.25,
+    321.7,
+    252.3
+   ],
+   "nx": 0.6426,
+   "ny": 0.8686,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step11",
+   "cutout_bbox": [
+    302.85,
+    233.25,
+    321.7,
+    252.3
+   ],
+   "led": "led_step_11"
+  },
+  {
+   "id": "led_step_11",
+   "type": "led",
+   "shape": "rect",
+   "x": 312.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, 0.72 mm here)",
+   "bbox": [
+    309.58,
+    238.01,
+    314.98,
+    240.31
+   ],
+   "nx": 0.6426,
+   "ny": 0.8557,
+   "led": "Step11",
+   "in": "key_step_11"
+  },
+  {
+   "id": "key_step_12",
+   "type": "key",
+   "label": "12",
+   "x": 335.28,
+   "y": 242.8,
+   "w": 18.85,
+   "h": 19.01,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 12,
+   "functions": {
+    "step": 12,
+    "instrument_select": "HC",
+    "shift": "INS"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    325.85,
+    233.3,
+    344.7,
+    252.31
+   ],
+   "nx": 0.6899,
+   "ny": 0.8687,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step12",
+   "cutout_bbox": [
+    325.85,
+    233.3,
+    344.7,
+    252.31
+   ],
+   "led": "led_step_12"
+  },
+  {
+   "id": "led_step_12",
+   "type": "led",
+   "shape": "rect",
+   "x": 335.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, 0.92 mm here)",
+   "bbox": [
+    332.58,
+    238.01,
+    337.98,
+    240.31
+   ],
+   "nx": 0.6899,
+   "ny": 0.8557,
+   "led": "Step12",
+   "in": "key_step_12"
+  },
+  {
+   "id": "key_step_13",
+   "type": "key",
+   "label": "13",
+   "x": 358.28,
+   "y": 242.76,
+   "w": 18.85,
+   "h": 19.1,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 13,
+   "functions": {
+    "step": 13,
+    "instrument_select": "CH",
+    "shift": "DEL"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    348.85,
+    233.21,
+    367.7,
+    252.31
+   ],
+   "nx": 0.7372,
+   "ny": 0.8686,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step13",
+   "cutout_bbox": [
+    348.85,
+    233.21,
+    367.7,
+    252.31
+   ],
+   "led": "led_step_13"
+  },
+  {
+   "id": "led_step_13",
+   "type": "led",
+   "shape": "rect",
+   "x": 358.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, 1.31 mm here)",
+   "bbox": [
+    355.58,
+    238.01,
+    360.98,
+    240.31
+   ],
+   "nx": 0.7372,
+   "ny": 0.8557,
+   "led": "Step13",
+   "in": "key_step_13"
+  },
+  {
+   "id": "key_step_14",
+   "type": "key",
+   "label": "14",
+   "x": 381.28,
+   "y": 242.76,
+   "w": 18.85,
+   "h": 19.11,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 14,
+   "functions": {
+    "step": 14,
+    "instrument_select": "OH",
+    "shift": "SAVE"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    371.85,
+    233.2,
+    390.7,
+    252.31
+   ],
+   "nx": 0.7845,
+   "ny": 0.8686,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step14",
+   "cutout_bbox": [
+    371.85,
+    233.2,
+    390.7,
+    252.31
+   ],
+   "led": "led_step_14"
+  },
+  {
+   "id": "led_step_14",
+   "type": "led",
+   "shape": "rect",
+   "x": 381.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, 1.54 mm here)",
+   "bbox": [
+    378.58,
+    238.01,
+    383.98,
+    240.31
+   ],
+   "nx": 0.7845,
+   "ny": 0.8557,
+   "led": "Step14",
+   "in": "key_step_14"
+  },
+  {
+   "id": "key_step_15",
+   "type": "key",
+   "label": "15",
+   "x": 404.28,
+   "y": 242.78,
+   "w": 18.85,
+   "h": 19.04,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 15,
+   "functions": {
+    "step": 15,
+    "instrument_select": "CRASH",
+    "shift": "VERIFY"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    394.85,
+    233.26,
+    413.7,
+    252.3
+   ],
+   "nx": 0.8319,
+   "ny": 0.8687,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step15",
+   "cutout_bbox": [
+    394.85,
+    233.26,
+    413.7,
+    252.3
+   ],
+   "led": "led_step_15"
+  },
+  {
+   "id": "led_step_15",
+   "type": "led",
+   "shape": "rect",
+   "x": 404.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, 1.59 mm here)",
+   "bbox": [
+    401.58,
+    238.01,
+    406.98,
+    240.31
+   ],
+   "nx": 0.8319,
+   "ny": 0.8557,
+   "led": "Step15",
+   "in": "key_step_15"
+  },
+  {
+   "id": "key_step_16",
+   "type": "key",
+   "label": "16",
+   "x": 427.28,
+   "y": 242.72,
+   "w": 18.85,
+   "h": 19.08,
+   "colour": "key_cap",
+   "cap_top": [
+    12.62,
+    12.62
+   ],
+   "height": 9.0,
+   "step": 16,
+   "functions": {
+    "step": 16,
+    "instrument_select": "RIDE",
+    "shift": "LOAD"
+   },
+   "note": "grey key top (2247029100) on a KFL11904 switch with built-in LED; bbox = panel cut-out; x on the 23.0 mm grid",
+   "bbox": [
+    417.85,
+    233.18,
+    436.7,
+    252.26
+   ],
+   "nx": 0.8792,
+   "ny": 0.8684,
+   "shape": "large",
+   "key_style": "grey",
+   "param": "Step16",
+   "cutout_bbox": [
+    417.85,
+    233.18,
+    436.7,
+    252.26
+   ],
+   "led": "led_step_16"
+  },
+  {
+   "id": "led_step_16",
+   "type": "led",
+   "shape": "rect",
+   "x": 427.28,
+   "y": 239.16,
+   "w": 5.4,
+   "h": 2.3,
+   "colour": "led_window",
+   "colour_lit": "led_lit",
+   "note": "LED window in the key top, centred on the key (photo shows it shifted by perspective lean, 1.66 mm here)",
+   "bbox": [
+    424.58,
+    238.01,
+    429.98,
+    240.31
+   ],
+   "nx": 0.8792,
+   "ny": 0.8557,
+   "led": "Step16",
+   "in": "key_step_16"
+  },
+  {
+   "id": "bar_numbers",
+   "type": "fill",
+   "bbox": [
+    72.59,
+    255.87,
+    437.11,
+    261.42
+   ],
+   "colour": "print_dark",
+   "corner_r": 0.15,
+   "note": "bar under the step keys carrying the SHIFT functions in white",
+   "x": 254.85,
+   "y": 258.64,
+   "w": 364.52,
+   "h": 5.55,
+   "nx": 0.5244,
+   "ny": 0.9254
+  },
+  {
+   "id": "txt_shift_1",
+   "type": "text",
+   "bbox": [
+    81.8,
+    257.35,
+    83.05,
+    260.22
+   ],
+   "label": "1",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 82.42,
+   "y": 258.79,
+   "w": 1.25,
+   "h": 2.87,
+   "nx": 0.1696,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_2",
+   "type": "text",
+   "bbox": [
+    104.3,
+    257.35,
+    106.3,
+    260.22
+   ],
+   "label": "2",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 105.3,
+   "y": 258.79,
+   "w": 2.0,
+   "h": 2.87,
+   "nx": 0.2167,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_3",
+   "type": "text",
+   "bbox": [
+    127.3,
+    257.35,
+    129.43,
+    260.22
+   ],
+   "label": "3",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 128.37,
+   "y": 258.79,
+   "w": 2.13,
+   "h": 2.87,
+   "nx": 0.2641,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_4",
+   "type": "text",
+   "bbox": [
+    150.18,
+    257.35,
+    152.3,
+    260.22
+   ],
+   "label": "4",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 151.24,
+   "y": 258.79,
+   "w": 2.12,
+   "h": 2.87,
+   "nx": 0.3112,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_5",
+   "type": "text",
+   "bbox": [
+    173.18,
+    257.35,
+    175.43,
+    260.22
+   ],
+   "label": "5",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 174.31,
+   "y": 258.79,
+   "w": 2.25,
+   "h": 2.87,
+   "nx": 0.3587,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_6",
+   "type": "text",
+   "bbox": [
+    196.18,
+    257.35,
+    198.43,
+    260.22
+   ],
+   "label": "6",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 197.31,
+   "y": 258.79,
+   "w": 2.25,
+   "h": 2.87,
+   "nx": 0.406,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_7",
+   "type": "text",
+   "bbox": [
+    219.43,
+    257.35,
+    221.18,
+    260.22
+   ],
+   "label": "7",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 220.31,
+   "y": 258.79,
+   "w": 1.75,
+   "h": 2.87,
+   "nx": 0.4533,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_8",
+   "type": "text",
+   "bbox": [
+    242.3,
+    257.35,
+    244.55,
+    260.22
+   ],
+   "label": "8",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 243.43,
+   "y": 258.79,
+   "w": 2.25,
+   "h": 2.87,
+   "nx": 0.5009,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_9",
+   "type": "text",
+   "bbox": [
+    265.3,
+    257.35,
+    267.55,
+    260.22
+   ],
+   "label": "9",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 266.43,
+   "y": 258.79,
+   "w": 2.25,
+   "h": 2.87,
+   "nx": 0.5482,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_10",
+   "type": "text",
+   "bbox": [
+    288.18,
+    257.35,
+    290.55,
+    260.22
+   ],
+   "label": "0",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 289.37,
+   "y": 258.79,
+   "w": 2.37,
+   "h": 2.87,
+   "nx": 0.5954,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_11",
+   "type": "text",
+   "bbox": [
+    307.73,
+    257.35,
+    316.98,
+    260.22
+   ],
+   "label": "COPY",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 312.36,
+   "y": 258.79,
+   "w": 9.25,
+   "h": 2.87,
+   "nx": 0.6427,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_12",
+   "type": "text",
+   "bbox": [
+    332.4,
+    257.35,
+    338.03,
+    260.22
+   ],
+   "label": "INS",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 335.21,
+   "y": 258.79,
+   "w": 5.63,
+   "h": 2.87,
+   "nx": 0.6897,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_13",
+   "type": "text",
+   "bbox": [
+    354.9,
+    257.35,
+    361.4,
+    260.22
+   ],
+   "label": "DEL",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 358.15,
+   "y": 258.79,
+   "w": 6.5,
+   "h": 2.87,
+   "nx": 0.7369,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_14",
+   "type": "text",
+   "bbox": [
+    376.85,
+    257.35,
+    385.35,
+    260.22
+   ],
+   "label": "SAVE",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 381.1,
+   "y": 258.79,
+   "w": 8.5,
+   "h": 2.87,
+   "nx": 0.7842,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_15",
+   "type": "text",
+   "bbox": [
+    398.63,
+    257.35,
+    410.5,
+    260.22
+   ],
+   "label": "VERIFY",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 404.56,
+   "y": 258.79,
+   "w": 11.87,
+   "h": 2.87,
+   "nx": 0.8324,
+   "ny": 0.9259
+  },
+  {
+   "id": "txt_shift_16",
+   "type": "text",
+   "bbox": [
+    422.98,
+    257.35,
+    432.23,
+    260.22
+   ],
+   "label": "LOAD",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_white",
+   "x": 427.61,
+   "y": 258.79,
+   "w": 9.25,
+   "h": 2.87,
+   "nx": 0.8799,
+   "ny": 0.9259
+  },
+  {
+   "id": "box_bass_drum",
+   "type": "outline_box",
+   "points": [
+    [
+     72.85,
+     262.73
+    ],
+    [
+     92.75,
+     262.73
+    ],
+    [
+     94.75,
+     263.68
+    ],
+    [
+     114.72,
+     263.68
+    ],
+    [
+     114.72,
+     268.47
+    ],
+    [
+     72.85,
+     268.47
+    ]
+   ],
+   "closed": true,
+   "stroke": 0.45,
+   "corner_r": 0.9,
+   "colour": "print_dark",
+   "bbox": [
+    72.85,
+    262.73,
+    114.72,
+    268.47
+   ],
+   "label": "BASS DRUM",
+   "note": "rounded keyline box; the top edge has a raised tab over the left key",
+   "x": 93.78,
+   "y": 265.6,
+   "w": 41.87,
+   "h": 5.74,
+   "nx": 0.193,
+   "ny": 0.9503
+  },
+  {
+   "id": "txt_bass_drum",
+   "type": "text",
+   "bbox": [
+    83.7,
+    264.4,
+    103.95,
+    267.27
+   ],
+   "label": "BASS DRUM",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_dark",
+   "x": 93.83,
+   "y": 265.83,
+   "w": 20.25,
+   "h": 2.87,
+   "nx": 0.1931,
+   "ny": 0.9511
+  },
+  {
+   "id": "box_snare_drum",
+   "type": "outline_box",
+   "points": [
+    [
+     118.79,
+     262.75
+    ],
+    [
+     138.69,
+     262.75
+    ],
+    [
+     140.69,
+     263.69
+    ],
+    [
+     160.66,
+     263.69
+    ],
+    [
+     160.66,
+     268.5
+    ],
+    [
+     118.79,
+     268.5
+    ]
+   ],
+   "closed": true,
+   "stroke": 0.45,
+   "corner_r": 0.9,
+   "colour": "print_dark",
+   "bbox": [
+    118.79,
+    262.75,
+    160.66,
+    268.5
+   ],
+   "label": "SNARE DRUM",
+   "note": "rounded keyline box; the top edge has a raised tab over the left key",
+   "x": 139.72,
+   "y": 265.62,
+   "w": 41.87,
+   "h": 5.75,
+   "nx": 0.2875,
+   "ny": 0.9504
+  },
+  {
+   "id": "txt_snare_drum",
+   "type": "text",
+   "bbox": [
+    128.51,
+    264.55,
+    151.01,
+    267.3
+   ],
+   "label": "SNARE DRUM",
+   "cap_h": 2.75,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_dark",
+   "x": 139.76,
+   "y": 265.93,
+   "w": 22.5,
+   "h": 2.75,
+   "nx": 0.2876,
+   "ny": 0.9515
+  },
+  {
+   "id": "box_low_tom",
+   "type": "outline_box",
+   "points": [
+    [
+     164.74,
+     262.73
+    ],
+    [
+     184.64,
+     262.73
+    ],
+    [
+     186.64,
+     263.66
+    ],
+    [
+     206.68,
+     263.66
+    ],
+    [
+     206.68,
+     268.48
+    ],
+    [
+     164.74,
+     268.48
+    ]
+   ],
+   "closed": true,
+   "stroke": 0.45,
+   "corner_r": 0.9,
+   "colour": "print_dark",
+   "bbox": [
+    164.74,
+    262.73,
+    206.68,
+    268.48
+   ],
+   "label": "LOW TOM",
+   "note": "rounded keyline box; the top edge has a raised tab over the left key",
+   "x": 185.71,
+   "y": 265.61,
+   "w": 41.94,
+   "h": 5.75,
+   "nx": 0.3821,
+   "ny": 0.9503
+  },
+  {
+   "id": "txt_low_tom",
+   "type": "text",
+   "bbox": [
+    176.84,
+    264.41,
+    193.46,
+    267.28
+   ],
+   "label": "LOW TOM",
+   "cap_h": 2.87,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_dark",
+   "x": 185.15,
+   "y": 265.85,
+   "w": 16.62,
+   "h": 2.87,
+   "nx": 0.381,
+   "ny": 0.9512
+  },
+  {
+   "id": "box_mid_tom",
+   "type": "outline_box",
+   "points": [
+    [
+     210.79,
+     262.75
+    ],
+    [
+     230.69,
+     262.75
+    ],
+    [
+     232.69,
+     263.68
+    ],
+    [
+     252.71,
+     263.68
+    ],
+    [
+     252.71,
+     268.48
+    ],
+    [
+     210.79,
+     268.48
+    ]
+   ],
+   "closed": true,
+   "stroke": 0.45,
+   "corner_r": 0.9,
+   "colour": "print_dark",
+   "bbox": [
+    210.79,
+    262.75,
+    252.71,
+    268.48
+   ],
+   "label": "MID TOM",
+   "note": "rounded keyline box; the top edge has a raised tab over the left key",
+   "x": 231.75,
+   "y": 265.62,
+   "w": 41.92,
+   "h": 5.73,
+   "nx": 0.4769,
+   "ny": 0.9504
+  },
+  {
+   "id": "txt_mid_tom",
+   "type": "text",
+   "bbox": [
+    224.52,
+    264.53,
+    239.14,
+    267.28
+   ],
+   "label": "MID TOM",
+   "cap_h": 2.75,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_dark",
+   "x": 231.83,
+   "y": 265.9,
+   "w": 14.62,
+   "h": 2.75,
+   "nx": 0.477,
+   "ny": 0.9514
+  },
+  {
+   "id": "box_hi_tom",
+   "type": "outline_box",
+   "points": [
+    [
+     256.83,
+     262.75
+    ],
+    [
+     276.73,
+     262.75
+    ],
+    [
+     278.73,
+     263.69
+    ],
+    [
+     298.75,
+     263.69
+    ],
+    [
+     298.75,
+     268.52
+    ],
+    [
+     256.83,
+     268.52
+    ]
+   ],
+   "closed": true,
+   "stroke": 0.45,
+   "corner_r": 0.9,
+   "colour": "print_dark",
+   "bbox": [
+    256.83,
+    262.75,
+    298.75,
+    268.52
+   ],
+   "label": "HI TOM",
+   "note": "rounded keyline box; the top edge has a raised tab over the left key",
+   "x": 277.79,
+   "y": 265.63,
+   "w": 41.92,
+   "h": 5.77,
+   "nx": 0.5716,
+   "ny": 0.9504
+  },
+  {
+   "id": "txt_hi_tom",
+   "type": "text",
+   "bbox": [
+    272.06,
+    264.44,
+    283.68,
+    267.32
+   ],
+   "label": "HI TOM",
+   "cap_h": 2.88,
+   "font": "Helvetica Bold, caps",
+   "colour": "print_dark",
+   "x": 277.87,
+   "y": 265.88,
+   "w": 11.62,
+   "h": 2.88,
+   "nx": 0.5717,
+   "ny": 0.9513
+  },
+  {
+   "id": "box_rim_hand",
+   "type": "outline_box",
+   "points": [
+    [
+     302.86,
+     262.75
+    ],
+    [
+     344.69,
+     262.75
+    ],
+    [
+     344.69,
+     268.57
+    ],
+    [
+     302.86,
+     268.57
+    ]
+   ],
+   "closed": true,
+   "stroke": 0.45,
+   "corner_r": 0.9,
+   "colour": "print_dark",
+   "bbox": [
+    302.86,
+    262.75,
+    344.69,
+    268.57
+   ],
+   "label": "RIM SHOT / HAND CLAP",
+   "note": "rounded keyline box",
+   "x": 323.77,
+   "y": 265.66,
+   "w": 41.83,
+   "h": 5.82,
+   "nx": 0.6662,
+   "ny": 0.9505
+  },
+  {
+   "id": "txt_rim_hand_rim_shot",
+   "type": "text",
+   "bbox": [
+    306.86,
+    264.77,
+    319.74,
+    267.02
+   ],
+   "label": "RIM SHOT",
+   "cap_h": 2.25,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 313.3,
+   "y": 265.89,
+   "w": 12.88,
+   "h": 2.25,
+   "nx": 0.6447,
+   "ny": 0.9513
+  },
+  {
+   "id": "txt_rim_hand_hand_clap",
+   "type": "text",
+   "bbox": [
+    326.11,
+    264.77,
+    341.74,
+    267.02
+   ],
+   "label": "HAND CLAP",
+   "cap_h": 2.25,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 333.93,
+   "y": 265.89,
+   "w": 15.63,
+   "h": 2.25,
+   "nx": 0.6871,
+   "ny": 0.9513
+  },
+  {
+   "id": "box_hihat",
+   "type": "outline_box",
+   "points": [
+    [
+     348.78,
+     262.75
+    ],
+    [
+     368.68,
+     262.75
+    ],
+    [
+     370.68,
+     263.69
+    ],
+    [
+     390.66,
+     263.69
+    ],
+    [
+     390.66,
+     268.61
+    ],
+    [
+     348.78,
+     268.61
+    ]
+   ],
+   "closed": true,
+   "stroke": 0.45,
+   "corner_r": 0.9,
+   "colour": "print_dark",
+   "bbox": [
+    348.78,
+    262.75,
+    390.66,
+    268.61
+   ],
+   "label": "CLOSED / OPEN / CLOSED",
+   "note": "rounded keyline box; the top edge has a raised tab over the left key",
+   "x": 369.72,
+   "y": 265.68,
+   "w": 41.88,
+   "h": 5.86,
+   "nx": 0.7607,
+   "ny": 0.9506
+  },
+  {
+   "id": "txt_hihat_closed",
+   "type": "text",
+   "bbox": [
+    351.16,
+    264.81,
+    362.53,
+    267.18
+   ],
+   "label": "CLOSED",
+   "cap_h": 2.37,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 356.85,
+   "y": 266.0,
+   "w": 11.37,
+   "h": 2.37,
+   "nx": 0.7343,
+   "ny": 0.9517
+  },
+  {
+   "id": "txt_hihat_open",
+   "type": "text",
+   "bbox": [
+    366.03,
+    264.81,
+    373.66,
+    267.06
+   ],
+   "label": "OPEN",
+   "cap_h": 2.25,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 369.85,
+   "y": 265.94,
+   "w": 7.63,
+   "h": 2.25,
+   "nx": 0.761,
+   "ny": 0.9515
+  },
+  {
+   "id": "txt_hihat_closed2",
+   "type": "text",
+   "bbox": [
+    377.03,
+    264.94,
+    388.4,
+    267.18
+   ],
+   "label": "CLOSED",
+   "cap_h": 2.24,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 382.71,
+   "y": 266.06,
+   "w": 11.37,
+   "h": 2.24,
+   "nx": 0.7875,
+   "ny": 0.9519
+  },
+  {
+   "id": "box_cymbal",
+   "type": "outline_box",
+   "points": [
+    [
+     394.84,
+     262.69
+    ],
+    [
+     436.92,
+     262.69
+    ],
+    [
+     436.92,
+     268.57
+    ],
+    [
+     394.84,
+     268.57
+    ]
+   ],
+   "closed": true,
+   "stroke": 0.45,
+   "corner_r": 0.9,
+   "colour": "print_dark",
+   "bbox": [
+    394.84,
+    262.69,
+    436.92,
+    268.57
+   ],
+   "label": "CRASH / RIDE",
+   "note": "rounded keyline box",
+   "x": 415.88,
+   "y": 265.63,
+   "w": 42.08,
+   "h": 5.88,
+   "nx": 0.8557,
+   "ny": 0.9504
+  },
+  {
+   "id": "txt_cymbal_crash",
+   "type": "text",
+   "bbox": [
+    399.72,
+    264.9,
+    409.34,
+    267.14
+   ],
+   "label": "CRASH",
+   "cap_h": 2.24,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 404.53,
+   "y": 266.02,
+   "w": 9.62,
+   "h": 2.24,
+   "nx": 0.8324,
+   "ny": 0.9518
+  },
+  {
+   "id": "txt_cymbal_ride",
+   "type": "text",
+   "bbox": [
+    424.34,
+    264.77,
+    430.59,
+    267.02
+   ],
+   "label": "RIDE",
+   "cap_h": 2.25,
+   "font": "Helvetica Medium, caps",
+   "colour": "print_dark",
+   "x": 427.46,
+   "y": 265.89,
+   "w": 6.25,
+   "h": 2.25,
+   "nx": 0.8795,
+   "ny": 0.9513
+  },
+  {
+   "id": "cheek_left_edge",
+   "type": "fill",
+   "bbox": [
+    0.0,
+    0.0,
+    0.62,
+    279.49
+   ],
+   "colour": "side_panel_edge",
+   "note": "rounded outer edge of the left cheek, darker than its top face",
+   "x": 0.31,
+   "y": 139.75,
+   "w": 0.62,
+   "h": 279.49,
+   "nx": 0.0006,
+   "ny": 0.5
+  },
+  {
+   "id": "seam_left",
+   "type": "fill",
+   "bbox": [
+    7.88,
+    0.0,
+    8.12,
+    279.49
+   ],
+   "colour": "cheek_gap",
+   "note": "dark seam between the left cheek and the top plate (darkest at mid depth, lighter towards the rear)",
+   "x": 8.0,
+   "y": 139.75,
+   "w": 0.24,
+   "h": 279.49,
+   "nx": 0.0165,
+   "ny": 0.5
+  },
+  {
+   "id": "plate_edge_left",
+   "type": "line",
+   "points": [
+    [
+     8.69,
+     0.0
+    ],
+    [
+     8.69,
+     279.49
+    ]
+   ],
+   "stroke": 0.38,
+   "colour": "plate_edge",
+   "note": "highlight on the rounded left edge of the top plate",
+   "x": 8.69,
+   "y": 139.75,
+   "bbox": [
+    8.5,
+    0.0,
+    8.88,
+    279.49
+   ],
+   "nx": 0.0179,
+   "ny": 0.5
+  },
+  {
+   "id": "cheek_right_edge",
+   "type": "fill",
+   "bbox": [
+    485.38,
+    0.0,
+    486.0,
+    279.49
+   ],
+   "colour": "side_panel_edge",
+   "note": "rounded outer edge of the right cheek, darker than its top face",
+   "x": 485.69,
+   "y": 139.75,
+   "w": 0.62,
+   "h": 279.49,
+   "nx": 0.9994,
+   "ny": 0.5
+  },
+  {
+   "id": "seam_right",
+   "type": "fill",
+   "bbox": [
+    478.12,
+    0.0,
+    479.12,
+    279.49
+   ],
+   "colour": "cheek_gap",
+   "note": "dark seam between the right cheek and the top plate (darkest at mid depth, lighter towards the rear)",
+   "x": 478.62,
+   "y": 139.75,
+   "w": 1.0,
+   "h": 279.49,
+   "nx": 0.9848,
+   "ny": 0.5
+  },
+  {
+   "id": "plate_edge_right",
+   "type": "line",
+   "points": [
+    [
+     477.69,
+     0.0
+    ],
+    [
+     477.69,
+     279.49
+    ]
+   ],
+   "stroke": 0.38,
+   "colour": "plate_edge",
+   "note": "highlight on the rounded right edge of the top plate",
+   "x": 477.69,
+   "y": 139.75,
+   "bbox": [
+    477.5,
+    0.0,
+    477.88,
+    279.49
+   ],
+   "nx": 0.9829,
+   "ny": 0.5
+  },
+  {
+   "id": "rear_bend",
+   "type": "fill",
+   "bbox": [
+    8.24,
+    0.0,
+    478.03,
+    0.62
+   ],
+   "colour": "rear_bend",
+   "note": "the top plate turning down at the rear: a faint darker band (lighting; master and Commons 909bd, about 2 mm there)",
+   "x": 243.13,
+   "y": 0.31,
+   "w": 469.79,
+   "h": 0.62,
+   "nx": 0.5003,
+   "ny": 0.0011
+  },
+  {
+   "id": "front_bend",
+   "type": "fill",
+   "bbox": [
+    8.24,
+    278.12,
+    478.03,
+    278.81
+   ],
+   "colour": "front_bend",
+   "note": "the top plate turning down at the front (lighting: the bands darken towards the edge)",
+   "x": 243.13,
+   "y": 278.47,
+   "w": 469.79,
+   "h": 0.69,
+   "nx": 0.5003,
+   "ny": 0.9964
+  },
+  {
+   "id": "front_bend_edge",
+   "type": "fill",
+   "bbox": [
+    8.24,
+    278.81,
+    478.03,
+    279.49
+   ],
+   "colour": "front_bend_dark",
+   "note": "the front edge of the bend",
+   "x": 243.13,
+   "y": 279.15,
+   "w": 469.79,
+   "h": 0.68,
+   "nx": 0.5003,
+   "ny": 0.9988
+  },
+  {
+   "id": "led_track_play_1",
+   "type": "led",
+   "shape": "backlight",
+   "x": 193.58,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Track1",
+   "in": "btn_track_play_1",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    192.08,
+    172.11,
+    195.08,
+    175.11
+   ],
+   "nx": 0.3983,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_track_play_2",
+   "type": "led",
+   "shape": "backlight",
+   "x": 205.58,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Track2",
+   "in": "btn_track_play_2",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    204.08,
+    172.11,
+    207.08,
+    175.11
+   ],
+   "nx": 0.423,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_track_play_3",
+   "type": "led",
+   "shape": "backlight",
+   "x": 217.58,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Track3",
+   "in": "btn_track_play_3",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    216.08,
+    172.11,
+    219.08,
+    175.11
+   ],
+   "nx": 0.4477,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_track_play_4",
+   "type": "led",
+   "shape": "backlight",
+   "x": 229.58,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Track4",
+   "in": "btn_track_play_4",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    228.08,
+    172.11,
+    231.08,
+    175.11
+   ],
+   "nx": 0.4724,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_pattern_play_1",
+   "type": "led",
+   "shape": "backlight",
+   "x": 247.41,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Pattern1",
+   "in": "btn_pattern_play_1",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    245.91,
+    172.11,
+    248.91,
+    175.11
+   ],
+   "nx": 0.5091,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_pattern_play_2",
+   "type": "led",
+   "shape": "backlight",
+   "x": 259.41,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Pattern2",
+   "in": "btn_pattern_play_2",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    257.91,
+    172.11,
+    260.91,
+    175.11
+   ],
+   "nx": 0.5338,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_pattern_play_3",
+   "type": "led",
+   "shape": "backlight",
+   "x": 271.41,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Pattern3",
+   "in": "btn_pattern_play_3",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    269.91,
+    172.11,
+    272.91,
+    175.11
+   ],
+   "nx": 0.5585,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_ext_inst",
+   "type": "led",
+   "shape": "backlight",
+   "x": 283.41,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "ExtInst",
+   "in": "btn_ext_inst",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    281.91,
+    172.11,
+    284.91,
+    175.11
+   ],
+   "nx": 0.5831,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_tempo_step",
+   "type": "led",
+   "shape": "backlight",
+   "x": 301.33,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Tempo",
+   "in": "btn_tempo_step",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    299.83,
+    172.11,
+    302.83,
+    175.11
+   ],
+   "nx": 0.62,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_back_tap",
+   "type": "led",
+   "shape": "backlight",
+   "x": 313.33,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Back",
+   "in": "btn_back_tap",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    311.83,
+    172.11,
+    314.83,
+    175.11
+   ],
+   "nx": 0.6447,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_fwd_bank1",
+   "type": "led",
+   "shape": "backlight",
+   "x": 325.33,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Fwd",
+   "in": "btn_fwd_bank1",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    323.83,
+    172.11,
+    326.83,
+    175.11
+   ],
+   "nx": 0.6694,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_avail_meas_bank2",
+   "type": "led",
+   "shape": "backlight",
+   "x": 337.33,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "AvailableMeas",
+   "in": "btn_avail_meas_bank2",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    335.83,
+    172.11,
+    338.83,
+    175.11
+   ],
+   "nx": 0.6941,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_cycle_guide",
+   "type": "led",
+   "shape": "backlight",
+   "x": 351.24,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "Cycle",
+   "in": "btn_cycle_guide",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    349.74,
+    172.11,
+    352.74,
+    175.11
+   ],
+   "nx": 0.7227,
+   "ny": 0.6212
+  },
+  {
+   "id": "led_tape_sync",
+   "type": "led",
+   "shape": "backlight",
+   "x": 363.24,
+   "y": 173.61,
+   "w": 3.0,
+   "h": 3.0,
+   "window": 4.88,
+   "led": "TapeSync",
+   "in": "btn_tape_sync",
+   "colour": "small_btn_centre_red",
+   "colour_lit": "led_lit",
+   "note": "red LED (D618-D631) behind the frosted centre of the cap: the centre square glows; window = the frosted square with its bright rim, as seen on the cap",
+   "bbox": [
+    361.74,
+    172.11,
+    364.74,
+    175.11
+   ],
+   "nx": 0.7474,
+   "ny": 0.6212
+  }
+ ],
+ "rear_panel": {
+  "source": "private/private/docs/photos/soundgas/sn282297_Roland-TR-909-Rhythm-Composer-SN282297-Ed-Obrien-7.jpg (straight-on rear view); cross-checked with Commons RolandTR-909-rear.jpg and the jack-board artwork (service notes p. 12)",
+  "note": "Seen from behind, so left and right are swapped: x is given in TOP-PANEL coordinates (mm from the left side as seen from the front), y in mm down from the top edge of the rear face. Scale 4.47 px/mm from the 486 mm width. Accuracy about +-1 mm. The rear face is about 97 mm tall (case height 105 mm incl. feet). Legends are dark slate print like the top; MASTER OUT / MULTI OUT have keylines under their titles, EXT CONTROL / TAPE MEMORY/SYNC / MIDI have keylines above their titles, and a bracket joins the two MIDI OUT sockets.",
+  "items": [
+   {
+    "id": "rear_cartridge_slot",
+    "label": "CARTRIDGE (M-64C)",
+    "kind": "memory cartridge slot, black, 25.7 x 56 mm opening, long side vertical",
+    "x": 457.3,
+    "y": 35.7,
+    "w": 25.7,
+    "h": 56.4
+   },
+   {
+    "id": "rear_master_out_r",
+    "label": "MASTER OUT R(MONO)",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 399.4,
+    "y": 29.9,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_master_out_l",
+    "label": "MASTER OUT L",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 381.5,
+    "y": 30.0,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_ride",
+    "label": "MULTI OUT RIDE",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 359.5,
+    "y": 30.1,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_crash",
+    "label": "MULTI OUT CRASH",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 341.5,
+    "y": 30.2,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_hihat",
+    "label": "MULTI OUT HI HAT",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 322.5,
+    "y": 30.3,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_clap",
+    "label": "MULTI OUT CLAP",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 304.5,
+    "y": 30.4,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_rimshot",
+    "label": "MULTI OUT RIM SHOT",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 285.6,
+    "y": 30.5,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_hitom",
+    "label": "MULTI OUT HI TOM",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 267.8,
+    "y": 30.6,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_midtom",
+    "label": "MULTI OUT MID TOM",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 249.0,
+    "y": 30.6,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_lowtom",
+    "label": "MULTI OUT LOW TOM",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 231.1,
+    "y": 30.6,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_snare",
+    "label": "MULTI OUT SNARE",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 212.4,
+    "y": 30.6,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_out_bassdrum",
+    "label": "MULTI OUT BASS DRUM",
+    "kind": "6.3 mm (1/4\") mono jack, black bezel",
+    "x": 194.3,
+    "y": 30.5,
+    "w": 10.7,
+    "h": 10.5
+   },
+   {
+    "id": "rear_sync_in",
+    "label": "SYNC IN",
+    "kind": "5-pin DIN socket (DIN sync in), black, with 2 flange screws",
+    "x": 391.9,
+    "y": 54.1,
+    "w": 21.7,
+    "h": 15.0
+   },
+   {
+    "id": "rear_start_stop",
+    "label": "EXT CONTROL START/STOP",
+    "kind": "6.3 mm jack (foot switch DP-2)",
+    "x": 362.1,
+    "y": 57.8,
+    "w": 11.0,
+    "h": 10.7
+   },
+   {
+    "id": "rear_trig_out",
+    "label": "EXT CONTROL TRIG OUT (RIM SHOT)",
+    "kind": "6.3 mm jack (+14 V, 20 ms trigger)",
+    "x": 343.8,
+    "y": 58.0,
+    "w": 11.0,
+    "h": 10.5
+   },
+   {
+    "id": "rear_save_out",
+    "label": "TAPE MEMORY/SYNC SAVE/OUT",
+    "kind": "6.3 mm jack",
+    "x": 317.3,
+    "y": 58.0,
+    "w": 11.0,
+    "h": 10.7
+   },
+   {
+    "id": "rear_load_in",
+    "label": "TAPE MEMORY/SYNC LOAD/IN",
+    "kind": "6.3 mm jack",
+    "x": 299.1,
+    "y": 58.1,
+    "w": 11.0,
+    "h": 10.5
+   },
+   {
+    "id": "rear_midi_out_1",
+    "label": "MIDI OUT",
+    "kind": "5-pin DIN socket",
+    "x": 269.0,
+    "y": 54.6,
+    "w": 21.7,
+    "h": 15.0
+   },
+   {
+    "id": "rear_midi_out_2",
+    "label": "MIDI OUT",
+    "kind": "5-pin DIN socket (second OUT)",
+    "x": 236.9,
+    "y": 54.8,
+    "w": 21.5,
+    "h": 14.8
+   },
+   {
+    "id": "rear_midi_in",
+    "label": "MIDI IN",
+    "kind": "5-pin DIN socket",
+    "x": 204.9,
+    "y": 54.8,
+    "w": 21.5,
+    "h": 15.0
+   },
+   {
+    "id": "rear_vent",
+    "label": "(ventilation)",
+    "kind": "5 vertical slots, ~1.4 x 18 mm, pitch 5.0 mm",
+    "x": 165.4,
+    "y": 15.9,
+    "w": 21.7,
+    "h": 18.3
+   },
+   {
+    "id": "rear_power_switch",
+    "label": "POWER  ON / OFF",
+    "kind": "black rocker switch in a square bezel",
+    "x": 43.3,
+    "y": 24.8,
+    "w": 22.1,
+    "h": 14.5
+   },
+   {
+    "id": "rear_ac_inlet",
+    "label": "AC",
+    "kind": "IEC C14 inlet (3-pin) with screw flanges (export) / 2-pin on some units",
+    "x": 40.5,
+    "y": 54.5,
+    "w": 52.1,
+    "h": 23.5
+   },
+   {
+    "id": "rear_logo_roland",
+    "label": "Roland",
+    "kind": "large grey Roland wordmark, ~110 x 22 mm",
+    "x": 128.8,
+    "y": 54.4
+   }
+  ],
+  "legends": [
+   "CARTRIDGE",
+   "M-64C",
+   "MASTER OUT",
+   "R(MONO)",
+   "L",
+   "MULTI OUT",
+   "RIDE",
+   "CRASH",
+   "HI HAT",
+   "CLAP",
+   "RIM SHOT",
+   "HI TOM",
+   "MID TOM",
+   "LOW TOM",
+   "SNARE",
+   "BASS DRUM",
+   "SYNC  IN",
+   "START/STOP",
+   "TRIG OUT",
+   "(RIM SHOT)",
+   "SAVE/OUT",
+   "LOAD/IN",
+   "OUT",
+   "IN",
+   "EXT CONTROL",
+   "TAPE MEMORY/SYNC",
+   "MIDI",
+   "POWER",
+   "ON",
+   "OFF",
+   "AC",
+   "Roland (wordmark, grey)"
+  ]
+ },
+ "ui_suggestions": [
+  {
+   "id": "ui_small_button_led",
+   "type": "note",
+   "note": "The 14 middle-row buttons are lit from behind (D618-D631): draw the frosted centre square red/pink when on. The six left-box buttons have no LED."
+  },
+  {
+   "id": "ui_perspective",
+   "type": "note",
+   "note": "Positions are panel-plane (base) positions. In the master photo raised parts lean outwards from about (255, 140) mm: key tops by ~1 % of their distance from that point, knob tops by ~2 %. A top-down UI should draw knob caps and key tops centred on these positions (or with a small, consistent fake perspective)."
+  },
+  {
+   "id": "ui_brand_marks",
+   "type": "note",
+   "note": "The logo elements are empty slots: the editor draws the marks from the user's artwork pack (tr909.svg in the ROM folder, ids roland, tr909, rhythm_composer) and nothing without one."
+  }
+ ]
+}

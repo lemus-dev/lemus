@@ -1,0 +1,57 @@
+* TR-909 CRASH clock: the IC59b/c astable with TUNE, and the counters' reset differentiator, voicing
+* board 73133090 (service notes p.11, grid E-F 11-13, crop p11-cy-crash.png; docs/circuit/cymbals.md,
+* "Clock"). Cymbal (core/cymbals.*) runs it at its own rate to time the edges that clock IC60a/b
+* (oscb, osca) and the end of the counters' reset (rst); the board doesn't run it (its edges take
+* nanoseconds, its period needs 100 MHz steps to be right to 0.05 %: docs/circuit/cymbals.md, "Rates").
+* Inputs: trig, the crash output of TRIG latch IC10 (4174 on +5 V, 0/5 V); run, IC59d's output (NOT
+* counter bit 15: 5 V while the counter runs), the enable of IC59b.
+* Outputs: osca, IC59c pin 10 (clocks IC60b); oscb, IC59b pin 4 (clocks IC60a); rst, the reset line
+* of IC60a/b, IC61 and IC58a.
+* Controls: tune (VR25 10k B, a rheostat in the timing resistance, clockwise faster).
+* IC59c (inputs 8, 9 tied, from R442) and IC59b (pin 5 the run line, pin 6 osca) make the two-gate
+* astable: R443 + VR25 from osca and C131 from oscb meet at x, and the gate's input diodes clamp x's
+* swing past the rails through R442. With run low IC59b's output stays high and IC59c settles,
+* self-biased through R442/R443/VR25, at its threshold: the clock stops.
+* Defaults are the late board: R442 10k from SN 392600 (33k before; annotated on p.11).
+* rtrig: IC10's output resistance (HD14174B at 5 V, ~0.9 mA at 0.4 V drop).
+.param rtrig=450 r442=10k vr25=10k c131=470p r443=6.8k cg=5p ca=15p cb=15p cgd=1f
+VV5 v5 0 5
+VTRIG trig 0 input trig
+VRUN run 0 input run
+* TRIG's edge through C50 into R189: the reset pulse (about 7 us above the inputs' threshold); DRST
+* stands for those inputs' protection diodes, which clamp TRIG's falling edge
+RTRIG trig t {rtrig}
+C50 t rst 100p
+R189 rst 0 100k
+DRST 0 rst DCMOS
+* IC59c: P pair from +5 V, N pair in series, both inputs on g
+M59CP1 osca g v5 4011UB_P
+M59CP2 osca g v5 4011UB_P
+M59CN1 osca g c59c 4011UB_N
+M59CN2 c59c g 0 4011UB_N
+DG1 g v5 DCMOS
+DG2 0 g DCMOS
+* IC59b: pin 5 (run) and pin 6 (osca)
+M59BP1 oscb run v5 4011UB_P
+M59BP2 oscb osca v5 4011UB_P
+M59BN1 oscb osca c59b 4011UB_N
+M59BN2 c59b run 0 4011UB_N
+* the pins' capacitance: IC59c's input (C59G); IC59c's output with IC59b pin 6 and IC60b's clock
+* (C59A); IC59b's output with IC60a's clock (C59B): about 5 pF a pin
+C59G g 0 {cg}
+C59A osca 0 {ca}
+C59B oscb 0 {cb}
+* the gates' gate-drain (Miller) capacitance, IC59c's and IC59b's from osca: not on any sheet
+* (C_IN 5 pF typ is with the output at a rail); none by default, fitted with the gates' drive
+* (w4011n, w4011p) in the calibration (docs/circuit/cymbals.md, "Calibration")
+C59M g osca {cgd}
+C59N osca oscb {cgd}
+* the timing parts
+P25 x1 osca osca {vr25} tune
+R443 x1 x {r443}
+C131 x oscb {c131}
+R442 x g {r442}
+.control tune 0.5
+.output osca osca
+.output oscb oscb
+.output rst rst

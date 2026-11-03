@@ -206,6 +206,7 @@ Scene Scene::load(const juce::File &file, const Templates &templates, juce::Stri
 				out.names[k] = v.toString();
 			out.params = objectToMap(src["params"]);
 			out.gainDb = src.getProperty("gainDb", 0.0);
+			out.preroll = src.getProperty("preroll", 0.0);
 			if (const auto clip = src["clip"]; clip.isObject()) {
 				out.clipLevel = clip.getProperty("level", 0.0);
 				out.clipBias = clip.getProperty("bias", 0.0);

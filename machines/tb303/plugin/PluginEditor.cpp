@@ -19,7 +19,7 @@ TB303Editor::TB303Editor(TB303Processor &p) : AudioProcessorEditor(&p), m_proc(p
 
 TB303Editor::~TB303Editor() = default;
 
-// Standalone self-test: --snapshot out.png [--scale x] [--run] [--service [--step TM-1]] [--service-test]
+// Standalone self-test: --snapshot out.png [--scale x] [--run] [--keys] [--service [--step TM-1]] [--service-test]
 // Shows the view (with --service, the boards), waits for the LEDs to settle, writes a 2x PNG
 // and quits.
 void TB303Editor::runSnapshotIfAsked()
@@ -32,6 +32,8 @@ void TB303Editor::runSnapshotIfAsked()
 	const int s = args.indexOf("--scale");
 	const double scale = s >= 0 && s + 1 < args.size() ? args[s + 1].getDoubleValue() : 1.0;
 	setSize(juce::roundToInt(HardwareView::kWidth * scale), juce::roundToInt(HardwareView::kHeight * scale));
+	if (args.contains("--keys"))
+		m_view.showKeys(true);
 	if (args.contains("--run"))
 		m_proc.toggleRun();
 	if (args.contains("--service-test")) {

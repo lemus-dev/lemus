@@ -1,0 +1,50 @@
+# A Windows build of one machine's plugin before it ships (release.yml builds the shipping ones):
+# its VST3 and standalone app zipped as a release would be (tools/release/windows.ps1), the
+# instruments host's checks (the runner has no ROMs, so the machine's own ROM checks are skipped),
+# and for the TR-909 its bench in voice mode, for a CPU figure on the runner. With both compilers:
+# MSVC, as release.yml builds, and clang-cl, the compiler the macOS builds' solvers were tuned with.
+# Run by hand:
+#   gh workflow run windows-machine.yml -R lemus-dev/lemus-build -f machine=tr909
+name: windows-machine
+
+on:
+  workflow_dispatch:
+    inputs:
+      machine:
+        description: the machine's id (machines/<id>)
+        required: true
+        default: tr909
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        toolset: [msvc, clangcl]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Configure
+        shell: pwsh
+        run: |
+          $toolset = if ('${{ matrix.toolset }}' -eq 'clangcl') { @('-T', 'ClangCL') } else { @() }
+          cmake -S . -B build/win -G "Visual Studio 17 2022" -A x64 @toolset -DLEMUS_MACHINES=${{ inputs.machine }} -DLEMUS_COPY_PLUGINS=OFF
+      - name: Build
+        run: cmake --build build/win --config Release --parallel --target plugin_${{ inputs.machine }}_VST3 plugin_${{ inputs.machine }}_Standalone lemustest_instrument
+      - name: Test
+        run: build/win/lemustest_instrument_artefacts/Release/lemustest_instrument.exe
+      - name: Bench (voice mode)
+        if: inputs.machine == 'tr909'
+        continue-on-error: true
+        run: |
+          cmake --build build/win --config Release --parallel --target tr909bench
+          build/win/tr909bench_artefacts/Release/tr909bench.exe time 1
+      - name: Package
+        shell: pwsh
+        run: tools/release/windows.ps1 -Build build/win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.machine }}-windows-${{ matrix.toolset }}
+          path: dist/*.zip

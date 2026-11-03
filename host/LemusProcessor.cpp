@@ -251,6 +251,18 @@ bool LemusProcessor::reloadWithRoms()
 	return true;
 }
 
+bool LemusProcessor::resetMachine()
+{
+	JUCE_ASSERT_MESSAGE_THREAD
+	if (m_info == nullptr)
+		return false;
+	auto machine = createMachine(*m_info);
+	if (machine == nullptr)
+		return false;
+	install(*m_info, std::move(machine), true);
+	return true;
+}
+
 void LemusProcessor::install(const lemus::MachineInfo &info, std::unique_ptr<juce::AudioProcessor> machine, bool announceValues)
 {
 	jassert(machine != nullptr);

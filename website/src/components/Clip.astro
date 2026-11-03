@@ -5,9 +5,10 @@ interface Props {
   src: string;
   settings: [string, string][]; // knob, value
   note?: string;
+  plugin?: string; // whose clip it is, for the play button's label
 }
-const { src, settings, note } = Astro.props;
-const label = `Play ro-mono-303 at ${settings.map(([k, v]) => `${k} ${v}`).join(', ')}`;
+const { src, settings, note, plugin = 'ro-mono-303' } = Astro.props;
+const label = `Play ${plugin} at ${settings.map(([k, v]) => `${k} ${v}`).join(', ')}`;
 ---
 <div class="clip">
 <button type="button" class="play" aria-label={label}>
@@ -40,6 +41,8 @@ for (const clip of document.querySelectorAll<HTMLElement>('.clip')) {
     time.textContent = d ? `${clock(audio.currentTime)} / ${clock(d)}` : clock(audio.currentTime);
   };
   button.addEventListener('click', () => (audio.paused ? audio.play() : audio.pause()));
+  // one clip at a time: starting one pauses the others
+  audio.addEventListener('play', () => document.querySelectorAll('audio').forEach((a) => a !== audio && a.pause()));
   audio.addEventListener('play', show);
   audio.addEventListener('pause', show);
   audio.addEventListener('ended', () => { audio.currentTime = 0; show(); });

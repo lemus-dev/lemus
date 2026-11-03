@@ -1,0 +1,227 @@
+* TR-909 SNARE DRUM, voicing board 73133090 (service notes p.11, grid O-R 1-12; crop
+* p11-sd-snare-drum.png; theory p.6). Transcription notes: docs/circuit/sd.md.
+* Inputs: trig, the SD output of the TRIG latch IC1 (0/5 V for one 2 ms panel scan); acc, the SD
+* accent DAC into IC34b pin 5 (p.11 draws it from RA1, IC2's RM0621), its open-circuit voltage
+* 5 V * code / 63; noise, the noise bus (IC33 pin 9, 0/15 V) into R286.
+* Output: out, IC40b's output at the connector to the multi-jack board (CN-5 pin 34, R503).
+* Controls: tune (VR6 10k B), tone (VR7 500k B, a rheostat in ENV4's discharge), snappy (VR9 10k B,
+* a rheostat in IC39b's feedback), level (VR8 50k B, a rheostat in IC40b's feedback).
+* Drum: two triangle VCOs (comparator IC37a/IC38a, three 4069UB inverters each on IC36, whose
+* rails IC35 drives to +-(TUNE + ENV1), integrator IC37b/IC38b), reset by the PULSE line (Q40) for
+* the trigger, rounded by diode pairs into the VCAs Q50 (ENV3) and Q51 (ENV2). Snappy: the noise
+* through IC40a's low-pass into the VCA Q48 (ENV4, held by C68, TONE sets its decay) and through
+* IC39a's high-pass into Q47 (ENV5), summed by IC39b. IC40b sums both. No production changes on
+* the voicing board (SN p.7); the jack board's C502 is from SN 415300 (c502=1p before: no 0 F).
+.param rlatch=600 rdac=2.54k c502=0.01u
+* parts a unit's calibration may set (docs/circuit/sd.md, "Calibration"); the printed values
+.param c66=0.01u c67=0.47u c69=0.01u c71=0.0068u vr7=500k r248=470k r249=100k
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VTRIG trig 0 input trig
+VACC acc 0 input acc
+VNOISE noise 0 input noise
+* IC1's output resistance (HD14174 at +5 V, a stand-in), and the RM0621's 2.54k (5k || ... || 160k)
+RIC1 trig t {rlatch}
+RDAC acc ai {rdac}
+* --- trigger: Q39 pulls Q40's base down; Q40 (PNP) lifts the PULSE line to +15 V for the trigger
+R239 t q39b 22k
+R242 q39b 0 10k
+Q39 q39c q39b 0 2SC2603
+R246 q39c q40b 22k
+R244 b15 q40b 10k
+Q40 pulse q40b q40e 2SA1115
+R245 b15 q40e 100
+* --- accent: IC34b x3.13 (ac); IC34a -0.1 x ac, ENV4's discharge target. Q41 passes ac to the
+* gated accent line (ENV2, ENV3, ENV5) while Q39 is on; Q42 charges ENV4 through D60, its base held
+* down by C68 after the trigger (R256 runs it out, about 24 ms)
+R240 n34b 0 4.7k
+R241 n34b ac 10k
+X34B ai n34b ac opamp {gbw} 1e5 {opsat} {sr}
+R255 ac n34a 100k
+R243 n34a ac10 10k
+X34A 0 n34a ac10 opamp {gbw} 1e5
+R257 q41b d58a 100k
+D58 d58a q39c 1SS133
+Q41 gacc q41b ac 2SA1115
+R256 q42b c68n 1meg
+C68 ac c68n 0.0068u
+D61 c68n q39c 1SS133
+Q42 q42c q42b ac 2SA1115
+D60 q42c env4 1SS133
+* ENV4: C67 (0.47u bipolar), clamped at -0.6 V by D59, discharged through TONE (VR7) and R254
+* towards IC34a's output
+C67 env4 0 {c67}
+D59 0 env4 1SS133
+P7 vr7b vr7b env4 {vr7} tone
+R254 vr7b ac10 100k
+* --- ENV1 and the 4069 rails: the PULSE line charges C66 through D56/R247; IC35a buffers TUNE's
+* wiper (R249) plus ENV1 (R248) as VDD, IC35b inverts it as VSS, each sensed after its 1k.
+* D57 (RD18JB2, 18 V across VDD-VSS) is left out: VDD-VSS stays under 11 V.
+D56 pulse d56k 1SS133
+R247 d56k env1 47k
+C66 env1 0 {c66}
+R287 b15 tt 100k
+P6 tt tw tb 10k tune
+R284 tb 0 10k
+R249 tw p35a {r249}
+R248 env1 p35a {r248}
+X35A p35a vdd o35a opamp {gbw} 1e5
+R250 o35a vdd 1k
+R251 vdd n35b 100k
+R252 n35b vss 100k
+X35B 0 n35b o35b opamp {gbw} 1e5
+R253 o35b vss 1k
+* --- VCO-1: comparator IC37a (lightly loaded, it swings +-14 V: opsatlight; hysteresis R260/R262;
+* the PULSE line forces it high through D62/R275, and at rest, while it is low, D62 conducts from
+* the line and lifts its lower threshold: the two VCOs' coupling), IC36's inverters 9-8, 11-10,
+* 13-12 in parallel (R259 in, R261 out), integrator IC37b with C69; Q44 shorts C69 through R263 for
+* the trigger
+D62 pulse d62k 1SS133
+R275 d62k p37a 10k
+R262 p37a 0 100k
+R260 cmp1 p37a 100k
+R269 tri1 n37a 100k
+X37A p37a n37a cmp1 opamp {gbw} 1e5 {opsatlight} {sr}
+R259 cmp1 i1 100k
+* IC36's three inverters as one (models.cir 4069UB_N3/_P3, three 4069UB channels each: the N from
+* y1 to VSS, the P to VDD, the gates at i1), with their input diodes (DCMOS3) to the rails
+MN36A y1 i1 vss 4069UB_N3
+MP36A y1 i1 vdd 4069UB_P3
+D36AL vss i1 DCMOS3
+D36AH i1 vdd DCMOS3
+R261 y1 n37b 47k
+C69 n37b tri1 {c69}
+X37B 0 n37b tri1 opamp {gbw} 1e5
+R258 pulse q44b 1meg
+Q44 q44c q44b n37b 2SC2603
+R263 q44c tri1 10k
+* --- VCO-2: the same with IC38, IC36's inverters 1-2, 3-4, 5-6 (p.11 prints "1.3.6"), C71
+D63 pulse d63k 1SS133
+R274 d63k p38a 10k
+R271 p38a 0 100k
+R272 cmp2 p38a 100k
+R273 tri2 n38a 100k
+X38A p38a n38a cmp2 opamp {gbw} 1e5 {opsatlight} {sr}
+R270 cmp2 i2 100k
+MN36B y2 i2 vss 4069UB_N3
+MP36B y2 i2 vdd 4069UB_P3
+D36BL vss i2 DCMOS3
+D36BH i2 vdd DCMOS3
+R264 y2 n38b 47k
+C71 n38b tri2 {c71}
+X38B 0 n38b tri2 opamp {gbw} 1e5
+R267 pulse q45b 1meg
+Q45 q45c q45b n38b 2SC2603
+R268 q45c tri2 10k
+* --- VCO-1's shaper (R283 into D65/D66) and VCA Q50 (collector on the 47 ohm node, emitter into
+* IC40b's sum); ENV3: the gated accent through D68 onto C83, R291 onto C70, R290 into Q50's base.
+* Q46, from the PULSE line, holds C70 down for the trigger
+R283 tri1 sh1 10k
+D65 0 sh1 1SS133
+D66 sh1 0 1SS133
+R288 sh1 x50 1.5k
+R289 x50 0 47
+Q50 x50 q50b sum 2SC2603S
+D68 gacc env3 1SS133
+C83 env3 0 0.1u
+R291 env3 env3b 220k
+C70 env3b 0 0.0047u
+R290 env3b q50b 22k
+R281 pulse q46b 100k
+R282 q46b 0 22k
+Q46 env3b q46b 0 2SC2603
+* --- VCO-2's shaper (R305 into D69/D70) and VCA Q51; ENV2: D67 onto C82, R295 onto C79, R293 into
+* Q51's base; Q49 holds C79 down for the trigger
+R305 tri2 sh2 10k
+D69 0 sh2 1SS133
+D70 sh2 0 1SS133
+R304 sh2 x51 2.2k
+R303 x51 0 47
+Q51 x51 q51b sum 2SC2603S
+D67 gacc env2 1SS133
+C82 env2 0 0.047u
+R295 env2 env2b 220k
+C79 env2b 0 0.01u
+R293 env2b q51b 220k
+R292 pulse q49b 100k
+R296 q49b 0 22k
+Q49 env2b q49b 0 2SC2603
+* --- snappy: the noise through R286/R285 and C85 (R302) into IC40a's Sallen-Key low-pass (R301,
+* R300, C81, C84; 8.5 kHz)
+R286 noise nz1 10k
+R285 nz1 0 3.3k
+C85 nz1 nz2 0.015u
+R302 nz2 0 220k
+R301 nz2 nz3 22k
+R300 nz3 nz4 22k
+C81 nz3 lp 0.0033u
+C84 nz4 0 220p
+X40A nz4 lp lp opamp {gbw} 1e5
+* path A: C80 into R299/R298 and the VCA Q48 (2SD1469), ENV4 into its base through R297
+C80 lp c80b 0.022u
+R299 c80b x48 4.7k
+R298 x48 0 47
+R297 env4 q48b 220k
+Q48 x48 q48b ssum 2SD1469
+* path B: IC39a's Sallen-Key high-pass (C76, C75, R276, R277; 4 kHz) into R278/R279 and the VCA Q47
+* (2SD1469); ENV5: the gated accent through D64 onto C73, R280 into Q47's base, which Q43 holds down
+* for the trigger
+C76 lp hp1 0.0022u
+C75 hp1 hp2 0.0022u
+R277 hp2 0 47k
+R276 hp1 hp 6.8k
+X39A hp2 hp hp opamp {gbw} 1e5
+R278 hp x47 2.2k
+R279 x47 0 47
+D64 gacc env5 1SS133
+C73 env5 0 470p
+R280 env5 q47b 220k
+R266 pulse q43b 100k
+R265 q43b 0 22k
+Q43 q47b q43b 0 2SC2603
+Q47 x47 q47b ssum 2SD1469
+* IC39b sums Q47 and Q48; SNAPPY (VR9) is its feedback, with C77; C78/R294 into IC40b's sum
+P9 snap snap ssum 10k snappy
+C77 ssum snap 10p
+X39B 0 ssum snap opamp {gbw} 1e5 {opsat} {sr}
+C78 snap c78p 0.47u
+R294 c78p sum 47k
+* --- IC40b sums the drum VCAs and the snappy; LEVEL (VR8) is its feedback
+P8 out out sum 50k level
+X40B 0 sum out opamp {gbw} 1e5 {opsat} {sr}
+* the multi-jack board's load (p.12): R503 1k, C502 0.01u (SN 415300 up), and R504, R505 (12k
+* each) into the mix buses' virtual grounds while no plug is in the SD jack
+R503 out jk 1k
+C502 jk 0 {c502}
+R504 jk 0 12k
+R505 jk 0 12k
+.control tune 0.5
+.control tone 0.5
+.control snappy 0.5
+.control level 0.5
+.output out out
+.output tri1 tri1
+.output tri2 tri2
+.output vdd vdd
+.output env4 env4
+.output snap snap
+.output pulse pulse
+* Runtime partitions (tr808/docs/model.md, "Partitions"): run in this order; in= nodes come from the
+* others. A resistor or diode across a cut is listed on both sides.
+.part trig in=env1,p37a,p38a,q44b,q45b,q46b,q49b,q43b,d58a,c68n RIC1 R239 R242 Q39 R246 R244 Q40 R245
++ D56 R247 D62 R275 D63 R274 R258 R267 R281 R292 R266 D58 D61
+.part rails in=pulse D56 R247 C66 R287 P6 R284 R249 R248 X35A R250 R251 R252 X35B R253
+.part acc in=q39c,q48b,env3b,env2b,q47b RDAC R240 R241 X34B R255 R243 X34A R257 D58 Q41 R256 C68 D61
++ Q42 D60 C67 D59 P7 R254 R297 D68 C83 R291 D67 C82 R295 D64 C73 R280
+.part vco1 in=pulse,vdd,vss,sh1 D62 R275 R262 R260 R269 X37A R259 MN36A MP36A D36AL D36AH R261 C69 X37B R258 Q44 R263 R283
+.part vco2 in=pulse,vdd,vss,sh2 D63 R274 R271 R272 R273 X38A R270 MN36B MP36B D36BL D36BH R264 C71 X38B R267 Q45 R268 R305
+.part shape1 in=tri1,x50 R283 D65 D66 R288
+.part shape2 in=tri2,x51 R305 D69 D70 R304
+* The noise filter (C85/R302, IC40a) runs at twice the voice's rate: at the voice's, the trapezoidal
+* rule moves IC40a's 8.5 kHz peak down and its top octave 2-4 dB lower (docs/circuit/sd.md §13).
+* IC40a's output is the cut, an op-amp's.
+.part noise over=2 R286 R285 C85 R302 R301 R300 C81 C84 X40A
+.part snappy in=env4,env5,pulse,sum,lp sleep C80 R299 R298 Q48
++ R297 C76 C75 R277 R276 X39A R278 R279 Q47 R280 Q43 R266 R265 P9 C77 X39B C78 R294
+.part out in=sh1,sh2,pulse,env3,env2,c78p R288 R289 Q50 R290 C70 Q46 R281 R282 R291 R304 R303 Q51 R293
++ C79 Q49 R292 R296 R295 R294 P8 X40B R503 C502 R504 R505

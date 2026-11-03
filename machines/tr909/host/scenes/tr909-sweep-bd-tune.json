@@ -1,0 +1,255 @@
+{
+ "name": "tr909-sweep-bd-tune",
+ "bpm": 120,
+ "beats": 32,
+ "tail": 2.0,
+ "playing": false,
+ "params": {
+  "total_accent": 0.0,
+  "volume": 0.85,
+  "bd_tune": 0.0,
+  "bd_attack": 0.5,
+  "bd_decay": 0.75,
+  "sd_tune": 0.5,
+  "sd_tone": 0.5,
+  "sd_snappy": 0.5,
+  "lt_tune": 0.5,
+  "lt_decay": 0.5,
+  "mt_tune": 0.5,
+  "mt_decay": 0.5,
+  "ht_tune": 0.5,
+  "ht_decay": 0.5,
+  "ch_decay": 0.5,
+  "oh_decay": 0.5,
+  "cr_tune": 0.5,
+  "rd_tune": 0.5,
+  "bd_level": 0.75,
+  "sd_level": 0.75,
+  "lt_level": 0.75,
+  "mt_level": 0.75,
+  "ht_level": 0.75,
+  "rs_level": 0.75,
+  "hc_level": 0.75,
+  "hh_level": 0.75,
+  "oh_level": 0.75,
+  "cr_level": 0.75,
+  "rd_level": 0.75
+ },
+ "notes": [
+  {
+   "at": 0,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 1,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 2,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 3,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 4,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 5,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 6,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 7,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 8,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 9,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 10,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 11,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 12,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 13,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 14,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 15,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 16,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 17,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 18,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 19,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 20,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 21,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 22,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 23,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 24,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 25,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 26,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 27,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 28,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 29,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 30,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 31,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  }
+ ],
+ "automation": [
+  {
+   "param": "bd_tune",
+   "points": [
+    [
+     0,
+     0.0
+    ],
+    [
+     31,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "sources": [
+  {
+   "use": "tr909.lemus"
+  },
+  {
+   "use": "tr909.roland"
+  }
+ ]
+}

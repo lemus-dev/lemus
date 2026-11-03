@@ -1,0 +1,180 @@
+{
+ "name": "tr909-voices",
+ "bpm": 120,
+ "beats": 52,
+ "tail": 2.5,
+ "playing": false,
+ "params": {
+  "total_accent": 0.0,
+  "volume": 0.85,
+  "bd_tune": 0.5,
+  "bd_attack": 0.5,
+  "bd_decay": 0.5,
+  "sd_tune": 0.5,
+  "sd_tone": 0.5,
+  "sd_snappy": 0.5,
+  "lt_tune": 0.5,
+  "lt_decay": 0.5,
+  "mt_tune": 0.5,
+  "mt_decay": 0.5,
+  "ht_tune": 0.5,
+  "ht_decay": 0.5,
+  "ch_decay": 0.5,
+  "oh_decay": 0.5,
+  "cr_tune": 0.5,
+  "rd_tune": 0.5,
+  "bd_level": 0.75,
+  "sd_level": 0.75,
+  "lt_level": 0.75,
+  "mt_level": 0.75,
+  "ht_level": 0.75,
+  "rs_level": 0.75,
+  "hc_level": 0.75,
+  "hh_level": 0.75,
+  "oh_level": 0.75,
+  "cr_level": 0.75,
+  "rd_level": 0.75
+ },
+ "notes": [
+  {
+   "at": 0,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 2,
+   "note": 36,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 4,
+   "note": 38,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 6,
+   "note": 38,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 8,
+   "note": 43,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 10,
+   "note": 43,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 12,
+   "note": 47,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 14,
+   "note": 47,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 16,
+   "note": 50,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 18,
+   "note": 50,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 20,
+   "note": 37,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 22,
+   "note": 37,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 24,
+   "note": 39,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 26,
+   "note": 39,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 28,
+   "note": 42,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 30,
+   "note": 42,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 32,
+   "note": 46,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 34,
+   "note": 46,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 36,
+   "note": 49,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 40,
+   "note": 49,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 44,
+   "note": 51,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 48,
+   "note": 51,
+   "len": 0.1,
+   "vel": 80
+  }
+ ],
+ "sources": [
+  {
+   "use": "tr909.lemus"
+  },
+  {
+   "use": "tr909.roland"
+  }
+ ]
+}

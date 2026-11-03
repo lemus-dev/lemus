@@ -34,7 +34,9 @@ processing). `machines/tb303/tools/compare/roland_render.py` renders through it 
 
 (the path must be absolute: an app opened this way starts in `/`), or open it and use Open, or
 drop a scene on the window. Return plays and stops, Space goes to
-the next source, 1-9 pick one, B turns blind mode on and off. The other scenes in the same folder
+the next source, 1-9 pick one, B turns blind mode on and off. D turns dual mode on and off: two
+sources at once, each in mono, the selected one in the left ear and another in the right (picking
+the right one, or Space, swaps them). The other scenes in the same folder
 are in the list next to Play, and Up/Down step through them (it keeps playing, and blind mode
 reshuffles for each). Match levels (L) measures the sources again after you change one in its
 editor (a volume, say); blind mode keeps its order.
@@ -96,6 +98,7 @@ A **source** is a plugin or a recording:
 | `names` | generic parameter name -> the plugin's own (so one scene's `cutoff` reaches "Cut Off Freq" and "VCF CUTOFF") |
 | `params` | in the plugin's own names, after the scene's |
 | `gainDb` | added to the output |
+| `preroll` | seconds the plugin runs before the scene, the transport stopped and no notes, its output dropped: a machine switched on beforehand, past its power-on (the TR-909's muted master) |
 | `clip` | `{"level": L, "bias": b}`: a soft clip on a plugin's output, `L * (tanh(x / L + b) - tanh(b))`, standing in for a recording chain that squashed the peaks of a recording it is compared with; with `"hard": true` a hard clip instead (the same with tanh replaced by a limit at ±1), for one that cut them flat |
 | `audio` | instead of a plugin: a recording, played from the scene's start |
 

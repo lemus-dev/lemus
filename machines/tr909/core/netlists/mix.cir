@@ -1,0 +1,178 @@
+* TR-909 mixer and outputs: the multi-jack board JK-1 73133100 (service notes p.12, crop
+* p12-multi-jack-board-schematic.png) and the master section of the voicing board (p.11 grid A-B
+* 22-26, crop p11-master-volume-mix-out.png). Transcription notes: docs/circuit/mix.md.
+* Inputs: each voice's output at the voicing board's CN-5 (pins 33-42, W5), the voice netlists'
+* out: bd sd lt mt ht rs hc hh cr rd; pon, the +15 V rail at C143's positive end (+15 V while
+* running; see "power-on mute" below).
+* Each voice: R5xx 1k into its MULTI OUT jack (C5xx 0.01u to ground from SN 415300); the jack's
+* switching contact, closed while nothing is plugged in, feeds the voice's two mix resistors.
+* Plugging a jack takes the voice out of the mix and loads it with the cable's input (RX, rmulti).
+* The mix buses (pins 45 and 43) go through C153 / C154 into IC66b / IC66a, inverting summers with
+* MASTER VOLUME VR28 (50k B dual, each half a rheostat) as feedback; then R474 / R473 1k and C155 /
+* C152 10u to pins 47 / 48, and on JK-1 R530 / R532 2.2k, C511 / C512 0.01u, R531 / R533 10k to the
+* Left and Right/MONO jacks. Pin 45 is the voicing board's "MIX IN (L)" (JK-1 prints "RMIX") and
+* reaches the Left jack through IC66b: the upper resistor of each pair (R501, R504, ...) is the
+* left one. The Left jack's switching contact joins the two outputs while it is empty (mono at
+* Right/MONO).
+* Outputs: l, r (the Left and Right/MONO jacks, each loaded by rload); mbd ... mrd (each MULTI OUT
+* jack); busl, busr (the mix buses, probes).
+* Controls: volume (VR28, 50k B; 0 = no feedback, no output); plug_bd ... plug_rd (1 = a cable in
+* that MULTI OUT jack; default 0); plugl (1 = a cable in the Left jack: stereo; default 1).
+* Power-on mute: Q82 / Q83 (2SC2878) short pins 48 / 47 to ground through their bases' drive from
+* C143: while C143 is discharged (power-on) its negative end sits near +15 V and D194, R469 / R470
+* saturate both; R472 470k and the bases' current charge it (muted for about 1.8 s; afterwards the
+* reverse-conducting 2SC2878s hold the outputs' negative peaks above C143's negative end - 1.2 V
+* until it has charged: docs/circuit/mix.md). To start muted, solve the DC point with pon = -15 V
+* (C143 then holds 0 V) and step it to +15 V. Q79, C142, D193 and R468 (the mute at power-off, when
+* the +15 V rail falls) are not here.
+* Board: the late one (C500, C502-C512 from SN 415300); early units by .param cjack=1p.
+.param cjack=0.01u rmulti=100k rload=100k
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VPON pon 0 input pon
+VBD bd 0 input bd
+VSD sd 0 input sd
+VLT lt 0 input lt
+VMT mt 0 input mt
+VHT ht 0 input ht
+VRS rs 0 input rs
+VHC hc 0 input hc
+VHH hh 0 input hh
+VCR cr 0 input cr
+VRD rd 0 input rd
+* --- JK-1: per voice the series 1k, the 0.01u, the jack (S: its switching contact; SX and RX: a
+* cable's input while plugged), and the two mix resistors (left bus first)
+R500 bd mbd 1k
+C500 mbd 0 {cjack}
+SJ1 mbd nbd !plug_bd
+SX1 mbd xbd plug_bd
+RX1 xbd 0 {rmulti}
+R501 nbd busl 12k
+R502 nbd busr 12k
+R503 sd msd 1k
+C502 msd 0 {cjack}
+SJ2 msd nsd !plug_sd
+SX2 msd xsd plug_sd
+RX2 xsd 0 {rmulti}
+R504 nsd busl 12k
+R505 nsd busr 12k
+R506 lt mlt 1k
+C503 mlt 0 {cjack}
+SJ3 mlt nlt !plug_lt
+SX3 mlt xlt plug_lt
+RX3 xlt 0 {rmulti}
+R507 nlt busl 8.2k
+R508 nlt busr 15k
+R509 mt mmt 1k
+C504 mmt 0 {cjack}
+SJ4 mmt nmt !plug_mt
+SX4 mmt xmt plug_mt
+RX4 xmt 0 {rmulti}
+R510 nmt busl 12k
+R511 nmt busr 12k
+R512 ht mht 1k
+C505 mht 0 {cjack}
+SJ5 mht nht !plug_ht
+SX5 mht xht plug_ht
+RX5 xht 0 {rmulti}
+R513 nht busl 15k
+R514 nht busr 8.2k
+R515 rs mrs 1k
+C506 mrs 0 {cjack}
+SJ6 mrs nrs !plug_rs
+SX6 mrs xrs plug_rs
+RX6 xrs 0 {rmulti}
+R516 nrs busl 12k
+R517 nrs busr 12k
+R518 hc mhc 1k
+C507 mhc 0 {cjack}
+SJ7 mhc nhc !plug_hc
+SX7 mhc xhc plug_hc
+RX7 xhc 0 {rmulti}
+R519 nhc busl 12k
+R520 nhc busr 12k
+R521 hh mhh 1k
+C508 mhh 0 {cjack}
+SJ8 mhh nhh !plug_hh
+SX8 mhh xhh plug_hh
+RX8 xhh 0 {rmulti}
+R522 nhh busl 15k
+R523 nhh busr 8.2k
+R524 cr mcr 1k
+C509 mcr 0 {cjack}
+SJ9 mcr ncr !plug_cr
+SX9 mcr xcr plug_cr
+RX9 xcr 0 {rmulti}
+R525 ncr busl 12k
+R526 ncr busr 10k
+R527 rd mrd 1k
+C510 mrd 0 {cjack}
+SJ10 mrd nrd !plug_rd
+SX10 mrd xrd plug_rd
+RX10 xrd 0 {rmulti}
+R528 nrd busl 8.2k
+R529 nrd busr 15k
+* --- master section, voicing board: IC66b left (pin 45 in, pin 47 out), IC66a right (43, 48).
+* The summers clip at opsat but don't slew: a full-swing 20 kHz output needs 1.6 V/us, under the
+* M5218's 2.2, and the slewing input stage would keep the solver out of its linear mode.
+C153 busl n66b 1u
+X66B 0 n66b o66b opamp {gbw} 1e5 {opsat}
+P28B o66b o66b n66b 50k volume
+R474 o66b c155a 1k
+C155 c155a lout 10u
+C154 busr n66a 1u
+X66A 0 n66a o66a opamp {gbw} 1e5 {opsat}
+P28A o66a o66a n66a 50k volume
+R473 o66a c152a 1k
+C152 c152a rout 10u
+* --- power-on mute: C143 from the +15 V rail, R472 to -15 V, D195 and R471 (C143's discharge at
+* power-off), D194 into R469 / R470 and the bases of Q82 (pin 48) and Q83 (pin 47)
+C143 pon m1 47u
+R472 m1 nb15 470k
+D195 d195a m1 1SS133
+R471 d195a nb15 4.7k
+D194 m1 m2 1SS133
+* the leakage of D194 and Q79 (not on the schematic: the bases' only DC path while the mute is off,
+* which holds them near -15 V)
+RLK m2 m1 100meg
+R469 m2 q82b 22k
+R470 m2 q83b 22k
+Q82 rout q82b 0 2SC2878
+Q83 lout q83b 0 2SC2878
+* --- JK-1 master outputs; the Left jack's switching contact joins l to r while it is empty
+R530 lout l 2.2k
+C511 l 0 {cjack}
+R531 l 0 10k
+R532 rout r 2.2k
+C512 r 0 {cjack}
+R533 r 0 10k
+SJL l r !plugl
+* the inputs the master outputs go to (not on the schematic)
+RLL l 0 {rload}
+RLR r 0 {rload}
+.control volume 0.5
+.control plug_bd 0
+.control plug_sd 0
+.control plug_lt 0
+.control plug_mt 0
+.control plug_ht 0
+.control plug_rs 0
+.control plug_hc 0
+.control plug_hh 0
+.control plug_cr 0
+.control plug_rd 0
+.control plugl 1
+.output l l
+.output r r
+.output mbd mbd
+.output msd msd
+.output mlt mlt
+.output mmt mmt
+.output mht mht
+.output mrs mrs
+.output mhc mhc
+.output mhh mhh
+.output mcr mcr
+.output mrd mrd
+.output busl busl
+.output busr busr

@@ -10,6 +10,7 @@ using namespace panel;
 
 namespace {
 constexpr float kPi = juce::MathConstants<float>::pi;
+const lemus::panel::Mono kMono = [](float size, int weight) { return fonts::mono(size, fonts::Weight(weight)); };
 
 juce::Colour col(uint32_t argb) { return juce::Colour(argb); }
 
@@ -163,8 +164,20 @@ HardwareView::HardwareView(TB303Processor &p) : m_proc(p)
 	key("key_back", int(Machine::Key::Back));
 	key("key_tap", int(Machine::Key::Tap));
 	key("key_run_stop", -1);
-	m_keyDown.assign(m_keys.size(), false);
-	m_latched.assign(m_keys.size(), false);
+	m_held.reset(m_keys.size(), [this](int i, bool down) {
+		const int k = m_keys[size_t(i)].key;
+		if (k < 0) { // RUN/STOP acts on the press
+			if (down)
+				m_proc.toggleRun();
+		} else {
+			m_proc.setKey(Machine::Key(k), down);
+		}
+		repaint();
+	});
+	using Bar = lemus::panel::Bar;
+	m_barSync = m_bar.add(Bar::kSync, "OFF: the 303's own clock. HOST: run from the DAW's transport (DIN sync)");
+	m_barTop = m_bar.add(196);
+	m_barService = m_bar.add(Bar::kService);
 
 	auto led = [this](const char *id, Machine::Led l) { m_leds.push_back({findElement(id), l}); };
 	led("led_pitch_mode", Machine::Led::PitchMode);
@@ -230,28 +243,12 @@ juce::String HardwareView::paramText(const char *id) const
 
 void HardwareView::pressKey(int keyIndex, bool down)
 {
-	if (keyIndex < 0 || keyIndex >= int(m_keys.size()))
-		return;
-	if (!down)
-		m_latched[size_t(keyIndex)] = false;
-	if (m_keyDown[size_t(keyIndex)] == down)
-		return;
-	m_keyDown[size_t(keyIndex)] = down;
-	const int k = m_keys[size_t(keyIndex)].key;
-	if (k < 0) {
-		if (down)
-			m_proc.toggleRun();
-	} else {
-		m_proc.setKey(Machine::Key(k), down);
-	}
-	repaint();
+	m_held.set(keyIndex, down);
 }
 
 void HardwareView::releaseAllKeys()
 {
-	for (size_t i = 0; i < m_keys.size(); ++i)
-		pressKey(int(i), false);
-	m_computerKeys.clear();
+	m_held.releaseAll(true);
 }
 
 void HardwareView::timerCallback()
@@ -766,14 +763,11 @@ void HardwareView::drawWaveformSwitch(juce::Graphics &g, bool square)
 
 juce::Rectangle<float> HardwareView::barRect(BarItem i) const
 {
-	// Bar items in px (component coordinates), left to right. FACTORY TRIM is there in service.
-	const float y = kPanelHeight + 8, h = kBarHeight - 16;
 	switch (i) {
-	case BarItem::Sync: return {12, y, 100, h};
-	case BarItem::Top: return {120, y, 196, h};
-	case BarItem::Service: return {324, y, 96, h};
-	case BarItem::Factory: return m_service ? juce::Rectangle<float>(428, y, 120, h) : juce::Rectangle<float>();
-	case BarItem::Help: return {1150, y, 38, h};
+	case BarItem::Sync: return m_bar[m_barSync];
+	case BarItem::Top: return m_bar[m_barTop];
+	case BarItem::Service: return m_bar[m_barService];
+	case BarItem::Help: return m_bar.help();
 	}
 	return {};
 }
@@ -787,21 +781,9 @@ juce::Rectangle<float> HardwareView::sliderTrack() const
 
 void HardwareView::drawBar(juce::Graphics &g)
 {
-	const juce::Rectangle<float> bar(0, float(kPanelHeight), float(kWidth), float(kBarHeight));
-	g.setColour(juce::Colour(0xff1b1d21));
-	g.fillRect(bar);
-	g.setColour(juce::Colour(0xff2a2f37));
-	g.drawLine(0, float(kPanelHeight) + 0.5f, float(kWidth), float(kPanelHeight) + 0.5f, 1.0f);
-	auto pill = [&](BarItem i, const juce::String &text, bool on, bool hover) {
-		const auto r = barRect(i);
-		g.setColour(on ? juce::Colour(0xff2a1e12) : hover ? juce::Colour(0xff2c323b) : juce::Colour(0xff232830));
-		g.fillRoundedRectangle(r, 6);
-		g.setColour(on ? juce::Colour(0xffff8c1a) : juce::Colour(0xff2e343d));
-		g.drawRoundedRectangle(r.reduced(0.5f), 6, 1);
-		g.setColour(on ? juce::Colour(0xffffb866) : juce::Colour(0xffe9ecf1));
-		g.setFont(fonts::mono(12.0f, fonts::Weight::Medium));
-		g.drawText(text, r, juce::Justification::centred);
-	};
+	namespace lp = lemus::panel;
+	lp::drawBarBackground(g, m_bar);
+	auto pill = [&](BarItem i, const juce::String &text, bool on, bool hover) { lp::drawPill(g, barRect(i), text, on, hover, kMono); };
 	pill(BarItem::Sync, paramValue("sync") > 0.5f ? "SYNC: HOST" : "SYNC: OFF", paramValue("sync") > 0.5f, m_hover.kind == HitKind::BarSync);
 	auto slider = [&](BarItem i, HitKind kind, const char *label, const juce::String &value) {
 		const auto r = barRect(i);
@@ -837,13 +819,9 @@ void HardwareView::drawBar(juce::Graphics &g)
 			g.fillEllipse(r.getRight() - 13, r.getCentreY() - 3, 6, 6);
 		}
 	}
-	if (m_service)
-		pill(BarItem::Factory, "FACTORY TRIM", false, m_hover.kind == HitKind::BarFactory);
 	pill(BarItem::Help, "?", m_showHelp, m_hover.kind == HitKind::BarHelp);
 
 	// Status: clock source, tempo, what the voice is doing.
-	g.setFont(fonts::mono(11.0f));
-	g.setColour(juce::Colour(0xff9aa4b1));
 	juce::String status;
 	status << (m_snap.synced ? "HOST " : m_snap.running ? "RUN  " : "STOP ") << juce::String(m_snap.bpm, 1) << " BPM";
 	const auto &l = m_snap.lines;
@@ -851,69 +829,47 @@ void HardwareView::drawBar(juce::Graphics &g)
 	status << "  NOTE "<< names[l.note % 12] << (l.note / 12 - 1) << (l.gate ? "  GATE" : "      ") << (l.accent ? "  ACC" : "     ")
 	       << (l.slide && l.gate ? "  SLIDE" : "       ") << "  VCF " << TB303Processor::hzText(m_snap.probe.vcfHz);
 	if (!m_proc.romLoaded())
-		status = "VOICE ONLY (no CPU ROM)   NOTE " + juce::String(names[l.note % 12]) + juce::String(l.note / 12 - 1) + (l.gate ? "  GATE" : "      ") +
+		status = lp::voiceModeStatus("CPU ROM", false) + "   NOTE " + juce::String(names[l.note % 12]) + juce::String(l.note / 12 - 1) + (l.gate ? "  GATE" : "      ") +
 		         (l.accent ? "  ACC" : "     ") + (l.slide && l.gate ? "  SLIDE" : "       ");
 	// Keys held down by a right-click: easy to forget, and the firmware won't leave pitch mode while TAP
 	// is down, so they take over the status until let go.
 	static const char *keyNames[] = {"C",    "C#",   "D",      "D#",    "E",             "F",        "F#",         "G",
 	                                 "G#",   "A",    "A#",     "B",     "C'",            "DOWN",     "UP",         "ACCENT",
 	                                 "SLIDE", "PATTERN CLEAR", "FUNCTION", "PITCH MODE", "TIME MODE", "BACK", "TAP"};
-	juce::StringArray held;
-	for (size_t i = 0; i < m_keys.size(); ++i)
-		if (m_latched[i] && m_keys[i].key >= 0)
-			held.add(keyNames[m_keys[i].key]);
-	if (!held.isEmpty() && !m_service) {
-		status = held.joinIntoString(", ") + (held.size() > 1 ? " held: click them" : " held: click it") + " or Esc to release";
-		g.setColour(juce::Colour(0xffff8c1a));
-	}
+	const auto held = m_held.latchedNames([this](int i) { return juce::String(keyNames[m_keys[size_t(i)].key]); });
+	if (!held.isEmpty() && !m_service)
+		status = lp::heldStatus(held);
 	if (m_service)
 		status = juce::String::fromUTF8("PANEL OFF  pick a trimmer on the right \xc2\xb7 \xe2\x86\x91\xe2\x86\x93 pick, \xe2\x86\x90\xe2\x86\x92 turn \xc2\xb7 the keys play");
-	const float sx = barRect(m_service ? BarItem::Factory : BarItem::Service).getRight() + 14;
-	g.drawText(status, juce::Rectangle<float>(sx, float(kPanelHeight), barRect(BarItem::Help).getX() - 10 - sx, float(kBarHeight)),
-	           juce::Justification::centredLeft);
+	lp::drawStatus(g, m_bar.status(), status, kMono, held.isEmpty() || m_service ? lp::col::status : lp::col::accent);
 }
 
 void HardwareView::drawHelp(juce::Graphics &g)
 {
-	const juce::Rectangle<float> r(150, 48, 900, 504);
-	g.setColour(juce::Colour(0xf01b1f25));
-	g.fillRoundedRectangle(r, 12);
-	g.setColour(juce::Colour(0xff2e343d));
-	g.drawRoundedRectangle(r, 12, 1);
-	g.setColour(juce::Colour(0xffe9ecf1));
-	g.setFont(fonts::mono(15.0f, fonts::Weight::SemiBold));
-	g.drawText("TB-303 KEYS", r.reduced(24).removeFromTop(24), juce::Justification::topLeft);
-	const char *lines[] = {
-		"A W S E D F T G Y H U J K   note keys C C# D D# E F F# G G# A A# B C (patterns 1-8)",
-		"Z X C V                     DOWN  UP  ACCENT  SLIDE   (note / tie / rest in TIME MODE)",
-		"Q                           PITCH MODE",
-		"R                           TIME MODE",
-		"I                           FUNCTION (BAR)",
-		"Backspace                   PATTERN CLEAR (D.C. / BAR RESET)",
-		",                           BACK",
-		"Return                      WRITE/NEXT  (TAP)",
-		"Space                       RUN/STOP (standalone; in a DAW it is the DAW's transport)",
-		"1-7                         TRACK / PATT.GROUP switch",
-		"F1 F2 F3 F4                 MODE: track write, track play, pattern play, pattern write",
-		"",
-		"Mouse: drag knobs (shift = fine, double-click = default), click switches, press keys.",
-		"Right-click (ctrl-click) a key: it stays down until clicked again. Escape lets go of all.",
-		"FUNCTION won't end PITCH MODE while TAP is down. For TAP + ACCENT/SLIDE, hold Return and click them.",
-		"MIDI notes play the voice directly: velocity >= 100 accents, overlapping notes slide (the same pitch too),",
-		"and with the sustain pedal down every note slides: an accented slide into the same note.",
-		"SYNC: HOST runs the sequencer from the DAW transport (DIN sync: run + 24 ppqn clock).",
-		"CUT OFF MAX: how high full CUT OFF reaches, 1.2 to 3 kHz: drag it (double-click: the fitted unit's).",
-		"SERVICE: the panel off. Pick a trimmer on the right (up/down), turn it there or on the board (left/right).",
-		"Programming follows the original manual: PATTERN WRITE, pick A/B and 1-8, hold the",
-		"pattern key + PATTERN CLEAR, PITCH MODE to enter notes, TIME MODE for note/tie/rest.",
-	};
-	g.setFont(fonts::mono(12.5f));
-	g.setColour(juce::Colour(0xffc8ced6));
-	float y = r.getY() + 64;
-	for (const auto *l : lines) {
-		g.drawText(l, juce::Rectangle<float>(r.getX() + 24, y, r.getWidth() - 48, 20), juce::Justification::centredLeft);
-		y += 21;
-	}
+	lemus::panel::drawHelp(g, {0, 0, float(kWidth), float(kPanelHeight)}, "TB-303",
+	                       {
+	                           "A W S E D F T G Y H U J K   note keys C C# D D# E F F# G G# A A# B C (patterns 1-8)",
+	                           "Z X C V                     DOWN  UP  ACCENT  SLIDE   (note / tie / rest in TIME MODE)",
+	                           "Q                           PITCH MODE",
+	                           "R                           TIME MODE",
+	                           "I                           FUNCTION (BAR)",
+	                           "Backspace, Delete           PATTERN CLEAR (D.C. / BAR RESET)",
+	                           ",                           BACK",
+	                           "Return                      WRITE/NEXT  (TAP)",
+	                           "Space                       RUN/STOP",
+	                           "1-7                         TRACK / PATT.GROUP switch",
+	                           "F1 F2 F3 F4                 MODE: track write, track play, pattern play, pattern write",
+	                           "",
+	                           "FUNCTION won't end PITCH MODE while TAP is down. For TAP + ACCENT/SLIDE, latch TAP and click them.",
+	                           "MIDI notes play the voice directly: velocity >= 100 accents, overlapping notes slide (the same pitch too),",
+	                           "and with the sustain pedal down every note slides: an accented slide into the same note.",
+	                           "SYNC: HOST runs the sequencer from the DAW transport (DIN sync: run + 24 ppqn clock).",
+	                           "CUT OFF MAX: how high full CUT OFF reaches, 1.2 to 3 kHz: drag it (double-click: the fitted unit's).",
+	                           "SERVICE: the panel off. Pick a trimmer on the right (up/down), turn it there or on the board (left/right).",
+	                           "Programming follows the original manual: PATTERN WRITE, pick A/B and 1-8, hold the",
+	                           "pattern key + PATTERN CLEAR, PITCH MODE to enter notes, TIME MODE for note/tie/rest.",
+	                       },
+	                       kMono);
 }
 
 void HardwareView::drawTooltip(juce::Graphics &g)
@@ -934,17 +890,19 @@ void HardwareView::drawTooltip(juce::Graphics &g)
 	} else if (h.kind == HitKind::Waveform) {
 		text = paramText("waveform");
 		at = {35.2f * kPxPerMm, 10 * kPxPerMm};
-	} else if (h.kind == HitKind::BarTop) {
+	} else if (h.kind == HitKind::BarSync || h.kind == HitKind::BarTop || h.kind == HitKind::BarService || h.kind == HitKind::BarHelp) {
 		auto *p = m_proc.params().getParameter("fullcutoff");
-		text = "Full CUT OFF reaches " + p->getCurrentValueAsText() + "; drag to set, double-click for " +
-		       p->getText(p->getDefaultValue(), 16);
-		at = {barRect(BarItem::Top).getCentreX(), barRect(BarItem::Top).getY() - 30};
-	} else if (h.kind == HitKind::BarService) {
-		text = m_service ? "Put the panel back" : "Take the panel off: the trimmers, and the service notes' adjustments";
-		at = {barRect(BarItem::Service).getCentreX(), barRect(BarItem::Service).getY() - 30};
-	} else if (h.kind == HitKind::BarFactory) {
-		text = "Every trimmer back to the factory's trim";
-		at = {barRect(BarItem::Factory).getCentreX(), barRect(BarItem::Factory).getY() - 30};
+		m_bar.setTip(m_barTop, "Full CUT OFF reaches " + p->getCurrentValueAsText() + "; drag to set, double-click for " +
+		                           p->getText(p->getDefaultValue(), 16));
+		m_bar.setTip(m_barService, m_service ? "Put the panel back" : "Take the panel off: the trimmers, and the service notes' adjustments");
+		if (!m_showHelp)
+			lemus::panel::drawBarTip(g, m_bar,
+			                         h.kind == HitKind::BarSync  ? m_barSync
+			                         : h.kind == HitKind::BarTop ? m_barTop
+			                         : h.kind == HitKind::BarService ? m_barService
+			                                                         : lemus::panel::Bar::kHelp,
+			                         getLocalBounds().toFloat(), kMono);
+		return;
 	} else if (h.kind == HitKind::Trimmer) {
 		text = trimmerText(h.index);
 		const auto c = trimmerPos(h.index);
@@ -956,16 +914,7 @@ void HardwareView::drawTooltip(juce::Graphics &g)
 		                                           : waveformPos();
 		at = {c.x, c.y + 32};
 	}
-	if (text.isEmpty())
-		return;
-	g.setFont(fonts::mono(12.0f, fonts::Weight::Medium));
-	const float w = g.getCurrentFont().getStringWidthFloat(text) + 16;
-	juce::Rectangle<float> r(at.x - w / 2, at.y, w, 22);
-	r = r.constrainedWithin(getLocalBounds().toFloat().reduced(4));
-	g.setColour(juce::Colour(0xe8101317));
-	g.fillRoundedRectangle(r, 5);
-	g.setColour(juce::Colour(0xffffb866));
-	g.drawText(text, r, juce::Justification::centred);
+	lemus::panel::drawTooltip(g, text, at, getLocalBounds().toFloat(), kMono);
 }
 
 // ====================================================================== paint
@@ -1025,7 +974,7 @@ void HardwareView::paint(juce::Graphics &g)
 			drawSwitch(g, m_switches[i], pos, m_hover.kind == HitKind::Switch && m_hover.index == int(i));
 		}
 		for (size_t i = 0; i < m_keys.size(); ++i)
-			drawKey(g, m_keys[i], m_keyDown[i]);
+			drawKey(g, m_keys[i], m_held.down(int(i)));
 		for (const auto &l : m_leds)
 			drawLed(g, l, m_snap.leds[size_t(l.led)]);
 	}
@@ -1040,12 +989,15 @@ void HardwareView::paint(juce::Graphics &g)
 HardwareView::Hit HardwareView::hitTest(juce::Point<float> p) const
 {
 	if (p.y >= kPanelHeight) {
-		const std::pair<BarItem, HitKind> items[] = {{BarItem::Sync, HitKind::BarSync},       {BarItem::Top, HitKind::BarTop},
-		                                             {BarItem::Service, HitKind::BarService}, {BarItem::Factory, HitKind::BarFactory},
-		                                             {BarItem::Help, HitKind::BarHelp}};
-		for (const auto &[i, kind] : items)
-			if (barRect(i).contains(p))
-				return {kind, int(i)};
+		const int i = m_bar.hit(p);
+		if (i == lemus::panel::Bar::kHelp)
+			return {HitKind::BarHelp, int(BarItem::Help)};
+		if (i == m_barSync)
+			return {HitKind::BarSync, int(BarItem::Sync)};
+		if (i == m_barTop)
+			return {HitKind::BarTop, int(BarItem::Top)};
+		if (i == m_barService)
+			return {HitKind::BarService, int(BarItem::Service)};
 		return {};
 	}
 	if (m_service)
@@ -1107,20 +1059,10 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 		break;
 	}
 	case HitKind::Key: {
-		// A right-click (ctrl-click on a Mac) holds a key down until it's clicked again, so steps
-		// that need two keys at once, such as TAP with ACCENT, work with the mouse alone. RUN/STOP
-		// acts on the press, so it doesn't latch.
-		const auto i = size_t(m_drag.index);
-		if (m_latched[i]) {
-			pressKey(m_drag.index, false);
+		// A right-click (ctrl-click on a Mac) latches it, so steps that need two keys at once, such
+		// as TAP with ACCENT, work with the mouse alone. RUN/STOP acts on the press: it doesn't latch.
+		if (!m_held.mouseDown(m_drag.index, e.mods, m_keys[size_t(m_drag.index)].key >= 0))
 			m_drag = {};
-		} else if (e.mods.isPopupMenu() && m_keys[i].key >= 0) {
-			pressKey(m_drag.index, true);
-			m_latched[i] = true;
-			m_drag = {};
-		} else {
-			pressKey(m_drag.index, true);
-		}
 		break;
 	}
 	case HitKind::Waveform:
@@ -1137,9 +1079,6 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 		break;
 	case HitKind::BarService:
 		setService(!m_service);
-		break;
-	case HitKind::BarFactory:
-		factoryTrim();
 		break;
 	case HitKind::Trimmer:
 	case HitKind::TrimSlider:
@@ -1198,7 +1137,7 @@ void HardwareView::mouseDrag(const juce::MouseEvent &e)
 void HardwareView::mouseUp(const juce::MouseEvent &e)
 {
 	if (m_drag.kind == HitKind::Key) {
-		pressKey(m_drag.index, false);
+		m_held.mouseUp(m_drag.index);
 	} else if (m_drag.kind == HitKind::Knob) {
 		if (auto *p = m_proc.params().getParameter(m_knobs[size_t(m_drag.index)].param))
 			p->endChangeGesture();
@@ -1289,16 +1228,18 @@ int keyIndexForChar(juce::juce_wchar c)
 bool HardwareView::keyPressed(const juce::KeyPress &k)
 {
 	const auto c = k.getTextCharacter();
-	if (c == '?') {
+	switch (lemus::panel::commonKey(k)) {
+	case lemus::panel::Common::Help:
 		m_showHelp = !m_showHelp;
 		repaint();
 		return true;
-	}
-	if (k.getKeyCode() == juce::KeyPress::escapeKey) {
+	case lemus::panel::Common::Escape:
 		m_showHelp = false;
-		releaseAllKeys();
+		m_held.releaseAll(true);
 		repaint();
 		return true;
+	case lemus::panel::Common::None:
+		break;
 	}
 	if (m_service) {
 		// Up/down pick a trimmer, left/right turn it (shift: a tenth as far).
@@ -1322,41 +1263,24 @@ bool HardwareView::keyPressed(const juce::KeyPress &k)
 			return true;
 		}
 	int idx = keyIndexForChar(c);
-	if (k.getKeyCode() == juce::KeyPress::backspaceKey)
+	if (lemus::panel::isClear(k))
 		idx = 20; // PATTERN CLEAR
 	else if (k.getKeyCode() == juce::KeyPress::returnKey)
 		idx = 22; // TAP
-	else if (k.getKeyCode() == juce::KeyPress::spaceKey && juce::JUCEApplicationBase::isStandaloneApp())
-		idx = 23; // RUN/STOP; in a plugin, Space goes on to the host's transport
+	else if (lemus::panel::spaceIsOurs(k))
+		idx = 23; // RUN/STOP
 	if (idx < 0)
 		return false;
-	if (m_computerKeys.count(k.getKeyCode()) == 0) {
-		m_computerKeys[k.getKeyCode()] = idx;
-		pressKey(idx, true);
-	}
+	m_held.keyDown(k.getKeyCode(), idx);
 	return true;
 }
 
 bool HardwareView::keyStateChanged(bool)
 {
-	bool handled = false;
-	for (auto it = m_computerKeys.begin(); it != m_computerKeys.end();) {
-		if (!juce::KeyPress::isKeyCurrentlyDown(it->first)) {
-			pressKey(it->second, false);
-			it = m_computerKeys.erase(it);
-			handled = true;
-		} else {
-			++it;
-		}
-	}
-	return handled;
+	return m_held.keysChanged();
 }
 
 void HardwareView::focusLost(FocusChangeType)
 {
-	// Keys held on the computer keyboard won't see their key-up now; latched keys stay down.
-	for (const auto &[code, idx] : m_computerKeys)
-		if (!m_latched[size_t(idx)])
-			pressKey(idx, false);
-	m_computerKeys.clear();
+	m_held.focusLost();
 }

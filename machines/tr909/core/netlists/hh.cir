@@ -1,0 +1,130 @@
+* TR-909 HI-HAT (closed and open), voicing board 73133090, analog half (service notes p.11, grid
+* B-D 5-12; p.5 "DIGITAL VOICE GENERATORS"; docs/circuit/hh.md). The digital half (oscillator,
+* counters IC70/IC71, address logic D196-D199, ROM IC69, latch IC68) is core/hihat.*: it gives this
+* netlist IC68's six outputs and IC72a's RUN/STOP.
+* Inputs: d0..d5, IC68's outputs (4174 on +5 V, 0/5 V, each step band-limited by HiHat) into RA9's
+* 32R .. R, i.e. the ROM byte's bits 2..7 (the public images are descrambled: bit 7 is the MSB);
+* run, IC72a's output (RUN/STOP, 5 V while the counter runs); trig, the HH output of TRIG latch IC10
+* (Q3, pin 7); ohsel, IC10's CLOSED/OPEN (Q1, pin 2, 5 V for a closed hat); acc, the open-circuit
+* voltage of accent DAC IC8 (RA7, address 4007; 5 V code/63).
+* Outputs: out, IC65b at the voicing board's connector W5 to the multi-jack board; jack, the
+* MULTI OUT jack's contact behind R521/C508 with nothing plugged in (the mix resistors on it).
+* Controls: level (VR22 50k B, a rheostat in IC65b's feedback), chdecay (VR21 100k B) and ohdecay
+* (VR23 1M A), rheostats charging C135.
+* RA9 (RM0621, R = 5k binary weighted) through C157 drives the 22 ohm R482: a current into the
+* VCA Q85, a saturated NPN between that node and IC67b's virtual ground whose conductance follows
+* its base current. That current is the anti-log pair Q84's: IC67a forces Q84's reference
+* collector to the envelope current (5 V - C135)/R453, and the accent (R481), RUN/STOP (R488) and
+* R489 set the reference base against R490's, so the gain is exponential in the accent. Q74
+* empties C135 while TRIG is high; it charges through R452 + OH DECAY, and through R451 + CH DECAY
+* as well while Q73 (Q72, CLOSED) is on. Then two unity-gain Sallen-Key low-passes with emitter
+* followers Q80, Q81 (about 4th-order Butterworth at 27 kHz), C134 and the LEVEL stage IC65b.
+* Defaults are the late board: C134 0.01u from SN 415300 (10u before, SN p.7).
+* Rate: twice the board's (176.4 / 192 kHz), for the D/A's first image band, which the filters
+* pass, and their corners near 27 kHz (docs/circuit/hh.md, "Rates and the D/A's timing").
+* rtrig, rlatch: IC10's and IC68's output resistance (HD14174B at 5 V, ~0.9 mA at 0.4 V drop), also
+* taken for IC72a (4011UB); rdac: IC8's RM0621 Thevenin resistance (5k || 10k || ... || 160k).
+.param rtrig=450 rlatch=450 rdac=2.54k c134=0.01u c135=1u
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VV5 v5 0 5
+VTRIG trig 0 input trig
+VOHSEL ohsel 0 input ohsel
+VACC acc 0 input acc
+VRUN run 0 input run
+VD0 d0 0 input d0
+VD1 d1 0 input d1
+VD2 d2 0 input d2
+VD3 d3 0 input d3
+VD4 d4 0 input d4
+VD5 d5 0 input d5
+RTRIG trig t {rtrig}
+ROHSEL ohsel cl {rtrig}
+RDAC acc a {rdac}
+RRUN run rn {rlatch}
+* the D/A: IC68's outputs through RA9 (R = 5k: d5 into R, d0 into 32R) to C157
+RL0 d0 l0 {rlatch}
+RL1 d1 l1 {rlatch}
+RL2 d2 l2 {rlatch}
+RL3 d3 l3 {rlatch}
+RL4 d4 l4 {rlatch}
+RL5 d5 l5 {rlatch}
+RA9F l0 da 160k
+RA9E l1 da 80k
+RA9D l2 da 40k
+RA9C l3 da 20k
+RA9B l4 da 10k
+RA9A l5 da 5k
+C157 da vn 10u
+R482 vn 0 22
+* the VCA: Q85 (S) from the 22 ohm node into IC67b's virtual ground, R483 the I-V
+Q85 vn q85b n67b 2SC2603S
+X67B 0 n67b o67b opamp {gbw}
+R483 n67b o67b 47k
+* the anti-log pair Q84 (2SA798): IC67a holds Q84's reference collector at its - input (+5 V) and
+* so the reference current at R453's, (5 V - C135) / 220k; the other collector feeds Q85's base
+R453 c135 n67a 220k
+X67A v5 n67a o67a opamp {gbw}
+C156 n67a o67a 1000p
+R484 o67a q84e 2.2k
+Q84A n67a q84b2 q84e 2SA798
+Q84B q84c q84b1 q84e 2SA798
+R485 q84c q85b 10k
+R490 v5 q84b1 100
+R489 v5 q84b2 150
+R481 a q84b2 4.7k
+R488 rn q84b2 2.2k
+* the envelope: Q74 (TRIG) empties C135; R452 + VR23 (OH DECAY) charge it always, R451 + VR21
+* (CH DECAY) through Q73 while Q72 (CLOSED) is on
+R454 t q74b 22k
+R455 q74b 0 10k
+Q74 c135 q74b 0 2SC2603
+C135 c135 0 {c135}
+R452 v5 r452 100k
+P23 c135 c135 r452 1meg ohdecay a0.15
+R447 cl q72b 22k
+R448 q72b 0 10k
+Q72 q72c q72b 0 2SC2603
+R449 q72c q73b 22k
+R450 v5 q73b 10k
+Q73 q73c q73b v5 2SA1115
+R451 q73c r451 10k
+P21 c135 c135 r451 100k chdecay
+* the filter: two unity-gain Sallen-Key low-passes, emitter followers Q80, Q81
+R480 o67b s1 5.6k
+C148 s1 q80e 1200p
+R475 s1 q80b 5.6k
+C149 q80b 0 1000p
+Q80 b15 q80b q80e 2SC2603
+R476 q80e nb15 10k
+R477 q80e s2 5.6k
+C150 s2 q81e 2700p
+R479 s2 q81b 5.6k
+C151 q81b 0 390p
+Q81 b15 q81b q81e 2SC2603
+R478 q81e nb15 10k
+* LEVEL: C134, R444 into IC65b with VR22 in its feedback
+C134 q81e c134 {c134}
+R444 c134 n65b 22k
+X65B 0 n65b out opamp {gbw} 1e5 {opsat}
+P22 out out n65b 50k level
+* the multi-jack board's load on W5 (JK-1, SN p.12): R521, C508 (from SN 415300) and the mix
+* resistors R522 15k, R523 8.2k into the mix amplifiers' virtual grounds (mix.cir has them)
+R521 out jack 1k
+C508 jack 0 0.01u
+R522 jack 0 15k
+R523 jack 0 8.2k
+.control level 0.5
+.control chdecay 0.5
+.control ohdecay 0.5
+.output out out
+.output jack jack
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+* The envelope (cut at IC67a's virtual node, R453 in both), the anti-log pair with the D/A and the
+* VCA to IC67b (Q85's base moves with the signal, so Q84 stays with it), then the filter and LEVEL;
+* the last two sleep on their own while the VCA is shut.
+.part env in=n67a RTRIG ROHSEL R454 R455 Q74 C135 R452 P23 R447 R448 Q72 R449 R450 Q73 R451 P21 R453
+.part vca in=c135 sleep RDAC RRUN R453 X67A C156 R484 Q84A Q84B R485 R490 R489 R481 R488 RL0 RL1 RL2
++ RL3 RL4 RL5 RA9F RA9E RA9D RA9C RA9B RA9A C157 R482 Q85 X67B R483
+.part out in=o67b sleep R480 C148 R475 C149 Q80 R476 R477 C150 R479 C151 Q81 R478 C134 R444 X65B P22
++ R521 C508 R522 R523

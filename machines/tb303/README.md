@@ -92,8 +92,8 @@ CLEAR leaves it (16 steps, all rest). Pattern memory is saved with the session.
   frequency counter on the VCO and the meter on CV OUT are hooked onto its check point with the
   notes' procedure underneath. Drag along a control to turn its trimmer (shift: a tenth as far;
   left/right keys; the wheel), or the trimmer on the board; green on the track is where it is in
-  spec, the tick is the factory's trim, a double-click puts it back, FACTORY TRIM puts all six
-  back. A dot on SERVICE shows a unit out of its factory trim. The pots,
+  spec, the tick is the factory's trim and a double-click puts it back (the host's State: Reset puts
+  the whole instance back, as new). A dot on SERVICE shows a unit out of its factory trim. The pots,
   switches and keys work on the boards too, and the trims are saved with the session. How each
   trimmer acts is in `docs/model.md` ("Service trimmers").
 - **CUT OFF MAX** (FULL CUT OFF): how high full CUT OFF reaches (the ring at full RESONANCE, no

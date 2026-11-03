@@ -1,0 +1,144 @@
+* TR-909 HAND CLAP, voicing board 73133090 (service notes p.11, grid G-J 11-16; docs/circuit/rshc.md).
+* Inputs: trig, the HC output of TRIG latch IC10 (4174; TRIG2 bit 6; 0/5 V for one 2 ms scan tick);
+* acc, the open-circuit voltage of accent DAC IC7 (RA6, RM0621; 5 V * code / 63), which the rim shot
+* shares; noise, the noise generator's output (IC33 pin 9, 0-15 V) into R208.
+* Output: out, IC28a at the voicing board's connector W5 pin 39 to the multi-jack board.
+* Controls: level (VR20 50k B, a rheostat in IC28a's feedback); tm (TM 10k B, the service trim,
+* default the .param tm: set per the ADJUSTMENT note, LEVEL at centre, 2 Vp-p at MULTI OUT;
+* docs/circuit/rshc.md, "TM").
+* The noise is band-passed by IC26b (MFB, ~960 Hz) and goes two ways into IC28a: through the OTA
+* IC30 (BA662A), whose I_ABC the dual PNP Q38 takes from R235 by the sawtooth envelope ENV1 (C65,
+* slammed down four times by Q86 under the AN6912 IC29) against TM, the clap's four pulses; and
+* through C55/R204/C57 (~80-440 Hz) into the transistor attenuator Q37, whose base C59/C61 feed
+* from the trigger through D52, the "reverb" tail. IC26a buffers ACC (x 3.23, +1.5 V from R496)
+* for Q36, which passes it to C59 during the trigger, and for R235.
+* Q40 in this circuit is the one later boards call Q86 (SN p.10); the drawing joins its base to
+* R222 (shorting R221): the netlist follows the 808's topology and the Nava copy of the board
+* (R221 in series with the base, R222 at comparator d's output).
+* rlatch: IC10's output resistance (as rs.cir); rdac: IC7's Thevenin resistance. The DAC node's
+* other load, the rim shot's IC48b (+), is an op-amp input and takes no current. c65: C65 0.47u/50,
+* an electrolytic (the units' tooth spacings: docs/circuit/rshc.md). c507: the jack board's C507,
+* from SN 415300 (c507=1p before).
+* tm: TM's wiper (0 at the -15 V end, 1 at ground), a .param so the board's Calibration can set it;
+* 0.255 is the service notes' adjustment done on the model. c42, c43, c57, c59, c61, c62, c64, r226:
+* printed values, for the Calibration (docs/circuit/rshc.md, "Calibration").
+.param rlatch=600 rdac=2.54k cmpvg=0.5m c65=0.47u c507=0.01u tm=0.255 c62=0.027u c64=0.001u r226=68k
++ c59=0.1u c61=0.1u c42=0.0047u c43=0.0047u c57=0.47u
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VTRIG trig 0 input trig
+VACC acc 0 input acc
+VNOISE noise 0 input noise
+RLATCH trig t {rlatch}
+RDAC acc a {rdac}
+* accent buffer IC26a: ACC x (1 + R212/R206 + R212/R496) + 15 V x R212/R496
+X26A a n26a o26a opamp {gbw} 1e5 {opsat} {sr}
+R206 n26a 0 4.7k
+R212 n26a o26a 10k
+R496 n26a nb15 100k
+* trigger gate: Q35 pulls Q36's base down; Q36 passes IC26a's output to R213/R218 (comparator a)
+* and through D52 to C59
+R215 t q35b 22k
+R216 q35b 0 10k
+Q35 q35c q35b 0 2SC2603
+R210 q35c q36b 22k
+R211 q36b o26a 10k
+Q36 q36c q36b o26a 2SA1115
+R213 q36c n4 22k
+R218 n4 nb15 22k
+* IC29 AN6912 on -15 V only (pin 3 ground, pin 12 -15 V), open collectors to -15 V; the ladder
+* R219/R217/R214 sets -5 V (m5) and -10 V (m10)
+R219 0 m5 4.7k
+R217 m5 m10 4.7k
+R214 m10 nb15 4.7k
+* a (4-, 5+, out 2): sinks while the trigger lifts pin 4 above -10 V; C62/R229 hold it ~30 ms
+BC29A m10 n4 oa nb15 comparator vg={cmpvg} vcm=-1.5 vos=-2m
+R229 oa 0 1meg
+C62 oa 0 {c62}
+* b (8-, 9+, out 14): the window, low while C62 is under -5 V; R227/R228 set the sawtooth's
+* threshold p (-10.1 V in the window, 0 V after)
+BC29B oa m5 ob nb15 comparator vg={cmpvg} vcm=-1.5 vos=-2m
+R227 ob p 2.7k
+R228 p 0 5.6k
+* c (6-, 7+, out 1): released in the window, so R220/D54 pull ENV1 up
+BC29C m5 ob oc nb15 comparator vg={cmpvg} vcm=-1.5 vos=-2m
+R220 oc 0 82k
+D54 oc env1 1SS133
+C65 0 env1 {c65}
+* d (10-, 11+, out 13): released once ENV1 (through R225, C63 its hold) rises past p; R222 then
+* lifts Q86's base through R221, and Q86 slams C65 to -15 V through R223. At the window's end
+* C64/R226 kick Q86 once more (the fourth tooth)
+R225 env1 dp 1meg
+BC29D dp p od nb15 comparator vg={cmpvg} vcm=-1.5 vos=-2m
+C63 od dp 220p
+R222 0 od 10k
+R221 od q86b 18k
+C64 ob x64 {c64}
+D55 nb15 x64 1SS133
+R226 x64 q86b {r226}
+Q86 q86c q86b nb15 2SC2603
+R223 q86c env1 330
+* Q38 (2SA798 pair): R235's current from IC26a split by ENV1 (R224/R238) against TM (R494/R230);
+* the left collector is IC30's I_ABC
+R224 q86c q38l 470k
+R238 q38l 0 15k
+R235 o26a e38 15k
+Q38A abc q38l e38 2SA798
+Q38B nb15 q38r e38 2SA798
+R230 q38r 0 2.2k
+R494 tmw q38r 47k
+PTM 0 tmw nb15 10k tm
+* the noise band-pass IC26b (multiple feedback): R208, R209, C42, C43, R207
+R208 noise nbp 47k
+R209 nbp 0 10k
+C42 nbp n26b {c42}
+C43 nbp o26b {c43}
+R207 n26b o26b 150k
+X26B 0 n26b o26b opamp {gbw}
+* IC30 BA662A: (-) pin 2 through C56/R202/R201, (+) pin 3 R236 to ground; pin 6 into R237 and,
+* through C58, IC28a's virtual ground (pins 4 and 7 grounded, pin 8 open: the buffer unused)
+C56 o26b c56 0.022u
+R202 c56 ota_n 39k
+R201 ota_n 0 1k
+R236 ota_p 0 1k
+B30 abc nb15 ota_p ota_n o30 ota rs=450
+R237 o30 0 82k
+C58 o30 x28 0.001u
+* the reverb path: C55, R204, C57, then R205/R203 into the collector of Q37 (marked S), whose
+* emitter is at IC28a's virtual ground
+C55 o26b c55 0.47u
+R204 c55 c57 1k
+C57 c57 0 {c57}
+R205 c57 q37c 3.3k
+R203 q37c 0 47
+Q37 q37c q37b x28 2SC2603S
+* its envelope: D52 charges C59 during the trigger; R233 into C61 (D53 its clamp), R234 to the base
+D52 q36c c59 1SS133
+C59 c59 0 {c59}
+R233 c59 c61 470k
+C61 c61 0 {c61}
+D53 0 c61 1SS133
+R234 c61 q37b 470k
+* IC28a with LEVEL (VR20) in its feedback
+X28A 0 x28 out opamp {gbw}
+P20 out out x28 50k level
+* the multi-jack board's load (p.12; mix.cir runs it): R518 and C507 (SN 415300 up) to the jack,
+* whose normal contact takes R519/R520 to the mix buses (AC ground)
+R518 out jk 1k
+C507 jk 0 {c507}
+R519 jk 0 12k
+R520 jk 0 12k
+.control level 0.5
+.control tm {tm}
+.output out out
+* Runtime partitions (tr808/docs/model.md, "Partitions"): run in this order; in= nodes come from the
+* others. C58 and R224, R234 are across cuts, listed on both sides.
+* The noise band-pass runs at twice the voice's rate (its top octave, as the snare's filter).
+.part noise over=2 R208 R209 C42 C43 R207 X26B
+.part trig in=q37b RLATCH RDAC X26A R206 R212 R496 R215 R216 Q35 R210 R211 Q36 R213 R218 D52 C59
++ R233 C61 D53 R234
+.part env in=n4,q38l R219 R217 R214 BC29A R229 C62 BC29B R227 R228 BC29C R220 D54 C65 R225 BC29D C63
++ R222 R221 C64 D55 R226 Q86 R223 R224
+.part ota in=q86c,o26a,o26b,x28 sleep R224 R238 R235 Q38A Q38B R230 R494 PTM C56 R202 R201 R236 B30
++ R237 C58
+.part out in=o26b,c61,o30 sleep C55 R204 C57 R205 R203 Q37 R234 C58 X28A P20 R518 C507 R519 R520

@@ -13,11 +13,10 @@ const MachineInfo &tb303()
 		// its voice, played from MIDI, with no sequencer ("voice mode").
 		{{"d650c-133.ic8", 2048, "7a4236b2bc9a5cd4c80c63ca1a193e03becfcb4c", "268a8d8b", true,
 		  "voice only, played from MIDI, no sequencer", "CPU ROM", "Voice mode",
-		  "The TB-303's sequencer is a program in its CPU's 2 KB mask ROM. It's Roland's copyrighted work, so Lemus doesn't "
-		  "include it: it uses your own dump.",
-		  {"The complete voice: the same sound as with the ROM", "MIDI notes: velocity 100 or more accents, overlapping notes slide",
-		   "Every knob, with automation"},
-		  {"No sequencer: pattern write, track and tap need the ROM", "The panel's keys and RUN/STOP don't respond"}}},
+		  "The sequencer program, in the CPU's 2 KB mask ROM (IC8). Roland's copyrighted work, not included: Lemus uses your own dump.",
+		  {"Sound: the same as with the ROM", "MIDI: notes; velocity 100 or more accents; overlapping notes slide",
+		   "Controls: every knob, with automation"},
+		  {"Sequencer: none (pattern and track write and play, tap)", "Panel keys and RUN/STOP: no response", "Sync: none"}}},
 		// The panel's brand marks (optional, from the user): a file per place in artwork/tb303/, each
 		// the panel's logo box (docs/panel.json; the tests check they match), or an older tb303.svg
 		// pack. Earlier releases wrote the blank pack into the ROM folder: untouched copies are taken

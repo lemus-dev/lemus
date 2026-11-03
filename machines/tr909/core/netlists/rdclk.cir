@@ -1,0 +1,58 @@
+* TR-909 RIDE clock: the IC57b/c astable with TUNE, and the counters' reset differentiator, voicing
+* board 73133090 (service notes p.11, grid E-F 18-20, crop p11-cy-ride.png; docs/circuit/cymbals.md,
+* "Clock"). Cymbal (core/cymbals.*) runs it at its own rate to time the edges that clock IC56a/b
+* (oscb, osca) and the end of the counters' reset (rst); the board doesn't run it (its edges take
+* nanoseconds, its period needs 100 MHz steps to be right to 0.05 %: docs/circuit/cymbals.md, "Rates").
+* Inputs: trig, the ride output of TRIG latch IC10 (4174 on +5 V, 0/5 V); run, IC57a's output (NOT
+* counter bit 15: 5 V while the counter runs), the enable of IC57c.
+* Outputs: osca, IC57b pin 4 (clocks IC56b); oscb, IC57c pin 10 (clocks IC56a); rst, the reset line
+* of IC56a/b, IC58b and IC55.
+* Controls: tune (VR27 10k B, a rheostat in the timing resistance, clockwise faster).
+* IC57b (inputs 5, 6 tied, from R440) and IC57c (pin 9 the run line, pin 8 osca) make the two-gate
+* astable: R441 + VR27 from osca and C130 from oscb meet at x, and the gate's input diodes clamp x's
+* swing past the rails through R440. With run low IC57c's output stays high and IC57b settles,
+* self-biased through R440/R441/VR27, at its threshold: the clock stops. The same circuit as the
+* crash's (crclk.cir), part for part.
+* Defaults are the late board: R440 10k from SN 392600 (33k before; annotated on p.11).
+* rtrig: IC10's output resistance (HD14174B at 5 V, ~0.9 mA at 0.4 V drop).
+.param rtrig=450 r440=10k vr27=10k c130=470p r441=6.8k cg=5p ca=15p cb=15p cgd=1f
+VV5 v5 0 5
+VTRIG trig 0 input trig
+VRUN run 0 input run
+* TRIG's edge through C40 into R188: the reset pulse (about 7 us above the inputs' threshold); DRST
+* stands for those inputs' protection diodes, which clamp TRIG's falling edge
+RTRIG trig t {rtrig}
+C40 t rst 100p
+R188 rst 0 100k
+DRST 0 rst DCMOS
+* IC57b: P pair from +5 V, N pair in series, both inputs on g
+M57BP1 osca g v5 4011UB_P
+M57BP2 osca g v5 4011UB_P
+M57BN1 osca g c57b 4011UB_N
+M57BN2 c57b g 0 4011UB_N
+DG1 g v5 DCMOS
+DG2 0 g DCMOS
+* IC57c: pin 9 (run) and pin 8 (osca)
+M57CP1 oscb run v5 4011UB_P
+M57CP2 oscb osca v5 4011UB_P
+M57CN1 oscb osca c57c 4011UB_N
+M57CN2 c57c run 0 4011UB_N
+* the pins' capacitance: IC57b's input (C57G); IC57b's output with IC57c pin 8 and IC56b's clock
+* (C57A); IC57c's output with IC56a's clock (C57B): about 5 pF a pin
+C57G g 0 {cg}
+C57A osca 0 {ca}
+C57B oscb 0 {cb}
+* the gates' gate-drain (Miller) capacitance, IC57b's and IC57c's from osca: not on any sheet
+* (C_IN 5 pF typ is with the output at a rail); none by default, fitted with the gates' drive
+* (w4011n, w4011p) in the calibration (docs/circuit/cymbals.md, "Calibration")
+C57M g osca {cgd}
+C57N osca oscb {cgd}
+* the timing parts
+P27 x1 osca osca {vr27} tune
+R441 x1 x {r441}
+C130 x oscb {c130}
+R440 x g {r440}
+.control tune 0.5
+.output osca osca
+.output oscb oscb
+.output rst rst

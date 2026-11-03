@@ -1,0 +1,736 @@
+---
+import Base from '../../layouts/Base.astro';
+import Shot from '../../components/Shot.astro';
+import Num from '../../components/Num.astro';
+import panel from '../../assets/ro-drums-909/panel.webp';
+import prompt from '../../assets/ro-drums-909/prompt.webp';
+import roms from '../../assets/ro-drums-909/roms.webp';
+import rear from '../../assets/ro-drums-909/rear.webp';
+import state from '../../assets/ro-drums-909/state.webp';
+import service from '../../assets/ro-drums-909/service.webp';
+
+// The plugin window at its default size, 1215 × 771: the top bar y 0–32, the panel y 32–731
+// (2.5 px a millimetre), the bottom bar y 731–771. Every shot is the whole window.
+const base = { w: 1215, h: 771 };
+const upper = { x: 0, y: 32, w: 1215, h: 250 };
+const lower = { x: 0, y: 420, w: 1215, h: 292 };
+const at = {
+  accent: { x: 89, y: 271, w: 88, h: 138 },
+  voices: { x: 177, y: 271, w: 924, h: 138 },
+  startStop: { x: 100, y: 453, w: 115, h: 52 },
+  start: { x: 100, y: 453, w: 52, h: 52 },
+  display: { x: 237, y: 452, w: 104, h: 54 },
+  tempo: { x: 362, y: 428, w: 78, h: 96 },
+  track: { x: 470, y: 436, w: 117, h: 76 },
+  pattern: { x: 605, y: 436, w: 117, h: 76 },
+  extInst: { x: 694, y: 452, w: 28, h: 28 },
+  fn4: { x: 740, y: 433, w: 117, h: 79 },
+  tempoKey: { x: 739, y: 452, w: 28, h: 28 },
+  backKey: { x: 769, y: 452, w: 28, h: 28 },
+  bankKeys: { x: 799, y: 452, w: 58, h: 28 },
+  cycle: { x: 864, y: 433, w: 58, h: 79 },
+  cycleKey: { x: 864, y: 452, w: 28, h: 28 },
+  enter: { x: 938, y: 432, w: 55, h: 86 },
+  volume: { x: 1024, y: 428, w: 82, h: 94 },
+  lastStep: { x: 100, y: 535, w: 28, h: 28 },
+  scale: { x: 138, y: 535, w: 28, h: 28 },
+  shuffle: { x: 100, y: 580, w: 28, h: 28 },
+  clear: { x: 138, y: 580, w: 28, h: 28 },
+  inst: { x: 100, y: 625, w: 28, h: 28 },
+  shift: { x: 138, y: 625, w: 28, h: 28 },
+  fnBlock: { x: 88, y: 520, w: 84, h: 184 },
+  scaleRows: { x: 170, y: 520, w: 928, h: 74 },
+  steps: { x: 180, y: 600, w: 914, h: 66 },
+  shuffleSteps: { x: 180, y: 600, w: 401, h: 66 },
+  flamSteps: { x: 640, y: 600, w: 454, h: 66 },
+  legends: { x: 180, y: 668, w: 914, h: 38 },
+  digits: { x: 180, y: 668, w: 572, h: 19 },
+  voiceLegends: { x: 180, y: 687, w: 914, h: 19 },
+  bar: { x: 8, y: 735, w: 590, h: 32 },
+};
+
+// The sections and their headings, for the contents at the top and the sidebar. Keep in step
+// with the ids and headings below.
+type Entry = { id: string; title: string; sub?: Entry[] };
+const toc: Entry[] = [
+  { id: 'start', title: 'Getting started', sub: [
+    { id: 'first-start', title: 'The first start' },
+    { id: 'roms', title: 'The ROMs' },
+    { id: 'voice-mode', title: 'Voice mode' },
+    { id: 'add-rom', title: 'Adding ROMs later' },
+    { id: 'factory', title: 'The factory patterns' },
+    { id: 'artwork', title: 'Panel artwork' },
+    { id: 'first-sound', title: 'Your first sound' },
+  ] },
+  { id: 'panel', title: 'The panel at a glance' },
+  { id: 'sequencer', title: 'The sequencer', sub: [
+    { id: 'organised', title: 'How it’s organised' },
+    { id: 'two-keys', title: 'Two keys at once' },
+    { id: 'play', title: 'Play patterns' },
+    { id: 'write', title: 'Write a pattern' },
+    { id: 'accents', title: 'Accents' },
+    { id: 'scale', title: 'Scale and last step' },
+    { id: 'shuffle', title: 'Shuffle and flam' },
+    { id: 'tap-write', title: 'Tap write' },
+    { id: 'clear-copy', title: 'Clear, copy, chain' },
+    { id: 'ext-inst', title: 'External instruments' },
+  ] },
+  { id: 'tracks', title: 'Tracks', sub: [
+    { id: 'banks', title: 'Banks' },
+    { id: 'track-play', title: 'Play a track' },
+    { id: 'track-write', title: 'Write a track' },
+    { id: 'track-edit', title: 'Edit a track' },
+    { id: 'tempo-memory', title: 'Tempo memory' },
+    { id: 'manual', title: 'Where the firmware differs' },
+  ] },
+  { id: 'rear', title: 'The rear', sub: [
+    { id: 'multi-out', title: 'MULTI OUT' },
+    { id: 'power', title: 'POWER' },
+  ] },
+  { id: 'bars', title: 'The bars and SERVICE', sub: [
+    { id: 'top-bar', title: 'The top bar' },
+    { id: 'state', title: 'State' },
+    { id: 'bottom-bar', title: 'The bottom bar' },
+    { id: 'service', title: 'SERVICE' },
+  ] },
+  { id: 'midi', title: 'MIDI and your DAW', sub: [
+    { id: 'midi-notes', title: 'MIDI notes' },
+    { id: 'cc', title: 'Controllers' },
+    { id: 'midi-out', title: 'MIDI out' },
+    { id: 'channels', title: 'MIDI channels' },
+    { id: 'sync', title: 'Sync' },
+    { id: 'automation', title: 'Automation and sessions' },
+  ] },
+  { id: 'keyboard', title: 'Keyboard and mouse', sub: [
+    { id: 'keys', title: 'Computer keys' },
+    { id: 'mouse', title: 'Mouse' },
+  ] },
+];
+---
+<Base title="ro-drums-909 user guide · Lemus" description="How to use ro-drums-909: the ROMs and voice mode, the factory patterns, panel artwork, writing and playing patterns and tracks on the TR-909's own sequencer, MULTI OUT and POWER on the rear, SERVICE, MIDI and DAW sync." current="ro-drums-909">
+
+<div class="sheet">
+<div class="col guide">
+
+<!-- Beside the guide on a wide window; on a narrow one, a drawer behind the Contents button. -->
+<nav class="side" id="contents" aria-label="Contents">
+<div class="label">Contents</div>
+<ol>
+{toc.map((s, i) => (
+<li>
+<a href={`#${s.id}`} class="top"><span class="n">{i + 1}</span>{s.title}</a>
+{s.sub && <ol>
+{s.sub.map((h) => (
+<li>
+<a href={`#${h.id}`}>{h.title}</a>
+{h.sub && <ol>{h.sub.map((g) => <li><a href={`#${g.id}`} class="deep">{g.title}</a></li>)}</ol>}
+</li>
+))}
+</ol>}
+</li>
+))}
+</ol>
+</nav>
+<button type="button" class="toc-button" aria-controls="contents" aria-expanded="false" hidden>
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h8"></path></svg>
+<span>Contents</span>
+</button>
+
+<div class="main">
+<header class="intro">
+<nav aria-label="Breadcrumb" class="crumbs"><a href="/ro-drums-909">ro-drums-909</a> / User guide</nav>
+<h1><span class="nowrap">ro-drums-909</span> user guide</h1>
+<p class="lede">ro-drums-909 runs the TR-909's own sequencer program: what you know from a TR-909 applies here, and the procedures below are the owner's manual's. Installing is on the <a href="/download#installing">download page</a>; the ROM folder, artwork files, the update check and contact are on <a href="/support">Support</a>.</p>
+<ol class="toc">
+{toc.map(({ id, title }) => <li><a href={`#${id}`}>{title}</a></li>)}
+</ol>
+</header>
+
+<!-- ===================================================================== -->
+<section id="start">
+<div class="eyebrow">1</div>
+<h2>Getting started</h2>
+
+<h3 id="first-start">The first start</h3>
+<p>The sequencer program and the hi-hat's, crash's and ride's samples are in ROMs, Roland's copyrighted work, so Lemus doesn't include them. The first time ro-drums-909 starts without its program ROM, it asks how to continue.</p>
+<Shot src={prompt} base={base} alt="The first-start prompt over the dimmed panel: the five ROMs and the artwork not found, where Lemus looked, and two choices, I have the ROM with Locate ROM… and Use voice mode with what voice mode keeps and loses" crop={{ x: 314, y: 8, w: 588, h: 756 }} caption="The prompt the first time ro-drums-909 starts without its ROMs." />
+<ul>
+<li><span class="k">I have the ROM</span> (Locate ROM…) takes a ROM image, a zip holding them such as MAME's tr909.zip, or a folder. A file is checked and copied into the ROM folder; a folder becomes the ROM folder. The full TR-909 starts at once, settings kept.</li>
+<li><span class="k">Use voice mode</span> carries on without it.</li>
+</ul>
+<p>The prompt doesn't come back, unless the program ROM goes missing after ro-drums-909 has run with it. In voice mode the top bar keeps <span class="k">Add Program ROM…</span>.</p>
+
+<h3 id="roms">The ROMs</h3>
+<p>The five images in MAME's tr909 set, each found by checksum anywhere in the <a href="/support#rom">ROM folder</a>. All are optional.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">What</th><th scope="col">Without it</th></tr></thead>
+<tbody>
+<tr><td class="mono">tr909_v4.ic609</td><td>The sequencer program, version 4.0 (IC609, 8 KB)</td><td><a href="#voice-mode">Voice mode</a></td></tr>
+<tr><td class="mono">hn61256p__c43.ic69</td><td>The hi-hat's samples (IC69, 32 KB)</td><td>No hi-hats, closed or open</td></tr>
+<tr><td class="mono">hn61256p__c42.ic62</td><td>The crash's (IC62, 32 KB)</td><td>No crash</td></tr>
+<tr><td class="mono">hn61256p__c44.ic54</td><td>The ride's (IC54, 32 KB)</td><td>No ride</td></tr>
+<tr><td class="mono">tr909_v1.ic609</td><td>The sequencer program, version 1.0 (8 KB): it makes the factory patterns</td><td>No <a href="#factory">factory patterns</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="card">
+<div class="label">The ROMs Lemus looks for</div>
+<p class="mono">tr909_v4.ic609 · 8,192 bytes · CRC a9b45f30<br>SHA1 b94374e2cd6b5a6c405da4fa7793c98c0a6015c4</p>
+<p class="mono">hn61256p__c43.ic69 · 32,768 bytes · CRC 2aaae11b<br>SHA1 22a34d603e78673bb096f5e56a8971afe14d8fee</p>
+<p class="mono">hn61256p__c42.ic62 · 32,768 bytes · CRC dc61cf1a<br>SHA1 bc730107b0c391f4879c9777a3e85f3e57f3aad6</p>
+<p class="mono">hn61256p__c44.ic54 · 32,768 bytes · CRC 01a9b435<br>SHA1 daa54c58c7e3ae3398f125568537ec82d5bd1dfd</p>
+<p class="mono">tr909_v1.ic609 · 8,192 bytes · CRC bfb9682b<br>SHA1 bcd754900574d1861034af8056574ffa77db3067</p>
+</div>
+
+<h3 id="voice-mode">Voice mode</h3>
+<p>Without the program ROM, ro-drums-909 is the TR-909's voicing board, played from MIDI: the same sound, without anything the CPU does.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col"></th><th scope="col">With the program ROM</th><th scope="col">Voice mode</th></tr></thead>
+<tbody>
+<tr><th scope="row">Sound</th><td>The voicing board</td><td>The same</td></tr>
+<tr><th scope="row">MIDI notes</th><td>Through the firmware's MIDI IN</td><td>Straight to the voices, with the firmware's velocity laws</td></tr>
+<tr><th scope="row">Knobs, controllers, automation</th><td>Yes</td><td>Yes</td></tr>
+<tr><th scope="row">Sequencer and display</th><td>The original firmware</td><td>No</td></tr>
+<tr><th scope="row">Panel keys and LEDs</th><td>Work as on the unit</td><td>No effect</td></tr>
+<tr><th scope="row">SYNC, MIDI out</th><td>Yes</td><td>No</td></tr>
+</tbody>
+</table>
+</div>
+<p>A session keeps its pattern memory in voice mode. Adding the program ROM later switches it to the full machine, keeping its knobs and memory. Without a sample ROM, its voice is silent, and the status line says which: <span class="k">no HI HAT/CRASH/RIDE ROM</span>.</p>
+
+<h3 id="add-rom">Adding ROMs later</h3>
+<Shot src={roms} base={base} alt="The ROMs pop-up under the top bar in voice mode: the ROM folder's path with Show, Change… and Rescan, the five ROMs not found with their checksums, and the artwork" crop={{ x: 540, y: 0, w: 675, h: 625 }} marks={[{ x: 920, y: 3, w: 146, h: 26, n: 1 }]} caption="Add Program ROM… in the top bar, while ro-drums-909 is in voice mode." />
+<ol>
+<li>Click <span class="k">Add Program ROM…</span> <Num n="1" /> in the top bar (with the program ROM in place, the same button is <span class="k">ROMs</span>).</li>
+<li>Put the ROMs in the folder shown, or choose your own with <span class="k">Change…</span>.</li>
+<li>Click <span class="k">Rescan</span>. ro-drums-909 reloads with them.</li>
+</ol>
+
+<h3 id="factory">The factory patterns</h3>
+<p>A new TR-909 held a demonstration in Bank I: patterns 1 to 8 of pattern group 1, and track 1, 65 measures from pattern 5, with a stored tempo of 110 BPM. Version 4.0 of the program dropped it. With <span class="mono">tr909_v1.ic609</span> in the ROM folder, Lemus makes that memory as the service notes say, by starting the 1.0 program with TRACK 1 and PATTERN 1 held, and plays it on 4.0.</p>
+<ul>
+<li>A new instance holds them, and so does State: Reset. Without the 1.0 ROM, a new instance's memory is empty.</li>
+<li>START plays track 1. TEMPO + TRACK 1 selects it at its stored 110 BPM.</li>
+</ul>
+
+<h3 id="artwork">Panel artwork</h3>
+<p>The four blank places take an SVG or PNG of your own each, named as below, in <span class="path">artwork/tr909/</span> in the ROM folder (<a href="/support#artwork">how artwork files work</a>). <span class="k">ROMs</span> in the top bar lists them with what each has, opens the folder with Show its folder, and reads it again with Rescan.</p>
+<Shot src={panel} base={base} alt="The top of the panel with the three blank artwork places outlined: maker at top left, model under it, name at the right" crop={upper} marks={[{ x: 87, y: 68, w: 201, h: 32, n: 'maker' }, { x: 87, y: 219, w: 270, h: 39, n: 'model' }, { x: 765, y: 241, w: 339, h: 17, n: 'name' }]} caption="The three places on the top panel." />
+<Shot src={rear} base={base} alt="The rear panel with the blank place of its Roland logo outlined, between MIDI IN and the AC inlet" crop={{ x: 0, y: 40, w: 1215, h: 280 }} marks={[{ x: 756, y: 216, w: 275, h: 55, n: 'rear_maker' }]} caption="The place on the rear panel (REAR in the bottom bar)." />
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Place</th><th scope="col">Size</th><th scope="col">A sharp PNG</th></tr></thead>
+<tbody>
+<tr><td class="mono">maker.svg or .png</td><td>Roland logo</td><td>80.5 × 12.6 mm</td><td>805 × 126 px</td></tr>
+<tr><td class="mono">model.svg or .png</td><td>TR-909</td><td>107.9 × 15.6 mm</td><td>1079 × 156 px</td></tr>
+<tr><td class="mono">name.svg or .png</td><td>Rhythm Composer</td><td>135.5 × 6.9 mm</td><td>1355 × 69 px</td></tr>
+<tr><td class="mono">rear_maker.svg or .png</td><td>Roland logo, rear panel</td><td>110.0 × 22.0 mm</td><td>1100 × 220 px</td></tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><span class="mono">artwork/tr909.zip</span> holding the same files works too.</li>
+<li>A <span class="mono">tr909.svg</span> still fills the places without a file: its elements <span class="mono">roland</span>, <span class="mono">tr909</span> and <span class="mono">rhythm_composer</span>, in panel millimetres, filled in the print colour. The rear place takes its <span class="mono">roland</span>, in the rear's grey.</li>
+</ul>
+
+<h3 id="first-sound">Your first sound</h3>
+<ul>
+<li><span class="k">From MIDI</span>, in both modes: see <a href="#midi-notes">MIDI notes</a>.</li>
+<li><span class="k">From the sequencer</span>, with the program ROM: with the factory patterns, START plays track 1. Without them the memory is empty, as on a new unit with version 4.0: <a href="#write">write a pattern</a> first. With SYNC: HOST, START does nothing: the DAW's transport runs it.</li>
+</ul>
+
+</section>
+
+<!-- ===================================================================== -->
+<section id="panel">
+<div class="eyebrow">2</div>
+<h2>The panel at a glance</h2>
+<p>Drawn from photos of the original and the service notes' board artwork, to within about 0.3 mm.</p>
+<Shot src={panel} base={base} alt="The whole ro-drums-909 window with its controls numbered 1 to 16" marks={[
+  { ...at.accent, n: 1 }, { ...at.voices, n: 2 }, { ...at.startStop, n: 3 }, { ...at.display, n: 4 }, { ...at.tempo, n: 5 }, { ...at.track, n: 6 },
+  { ...at.pattern, n: 7 }, { ...at.fn4, n: 8 }, { ...at.cycle, n: 9 }, { ...at.enter, n: 10 }, { ...at.volume, n: 11 }, { ...at.fnBlock, n: 12 },
+  { ...at.scaleRows, n: 13 }, { ...at.steps, n: 14 }, { ...at.legends, n: 15 }, { ...at.bar, n: 16 },
+]} />
+<dl class="legend">
+<div><dt><Num n="1" /> TOTAL ACCENT</dt><dd>How much a step with TOTAL ACCENT raises every voice on it, read as the step plays.</dd></div>
+<div><dt><Num n="2" /> Voice knobs</dt><dd>BASS DRUM: TUNE, LEVEL, ATTACK, DECAY. SNARE DRUM: TUNE, LEVEL, TONE, SNAPPY. Each tom: TUNE, LEVEL, DECAY. RIM SHOT and HAND CLAP: LEVEL. HI HAT: LEVEL, CH DECAY, OH DECAY. CYMBAL: CRASH and RIDE, LEVEL and TUNE. All 0 to 10; the LEVELs start at 7.5, the others at 5.</dd></div>
+<div><dt><Num n="3" /> START, STOP/CONT</dt><dd>START plays from the top. STOP/CONT stops, and pressed again continues where it stopped. Neither works in MIDI sync.</dd></div>
+<div><dt><Num n="4" /> MEAS/TEMPO</dt><dd>The measure of a track; the tempo while TEMPO is held; the measures left while AVAILABLE MEAS is.</dd></div>
+<div><dt><Num n="5" /> TEMPO</dt><dd>36 to 290 BPM, about 120 by default. Ignored in MIDI sync, and while a track's <a href="#tempo-memory">stored tempo</a> is in use.</dd></div>
+<div><dt><Num n="6" /> TRACK PLAY 1–4</dt><dd>Selects a track of the bank. With SHIFT: TRACK WRITE.</dd></div>
+<div><dt><Num n="7" /> PATTERN PLAY 1–3, EXT INST</dt><dd>Selects a pattern group; a step key then picks the pattern. With SHIFT: PATTERN WRITE in that group, and EXT INST switches the step keys to the <a href="#ext-inst">external instruments</a>.</dd></div>
+<div><dt><Num n="8" /> TEMPO, BACK, FWD, AVAILABLE MEAS</dt><dd>TEMPO shows the tempo and stores it in a track; BACK and FWD step through a track's measures; AVAILABLE MEAS shows the measures left. With SHIFT: STEP and TAP, the pattern write modes; BANK I and II.</dd></div>
+<div><dt><Num n="9" /> CYCLE/GUIDE, TAPE SYNC</dt><dd>CYCLE repeats a track; in tap write, GUIDE is the metronome. TAPE SYNC makes START wait for a tape's sync tone: there is no tape input, so nothing plays until STOP/CONT leaves it. With SHIFT: LAST MEAS, and TEMPO MODE.</dd></div>
+<div><dt><Num n="10" /> CARTRIDGE/ENTER</dt><dd>ENTER for measure numbers, chains, copies and track writing. With INSTRUMENT SELECT: TOTAL ACCENT. No cartridge is emulated: the 909 finds none inserted.</dd></div>
+<div><dt><Num n="11" /> VOLUME</dt><dd>The master outputs' level, 7 by default.</dd></div>
+<div><dt><Num n="12" /> LAST STEP, SCALE, SHUFFLE/FLAM, CLEAR, INSTRUMENT SELECT, SHIFT</dt><dd>SCALE steps the pattern's scale. The others are held while another key is pressed.</dd></div>
+<div><dt><Num n="13" /> Scales</dt><dd>16th, 32nd, 8th triplet and 16th triplet; the lamp at the left shows the pattern's.</dd></div>
+<div><dt><Num n="14" /> Step keys 1–16</dt><dd>Write steps, and pick a pattern, a voice, a shuffle or flam setting, a last step or a MIDI channel. Their LEDs show the steps: dim for a normal note, bright for an accent.</dd></div>
+<div><dt><Num n="15" /> Under the step keys</dt><dd>The digits 1 to 9 and 0 for measure numbers; COPY, INS and DEL for editing; SAVE, VERIFY and LOAD for the tape; and which keys write which voice.</dd></div>
+<div><dt><Num n="16" /> Bottom bar</dt><dd>SYNC, REAR and SERVICE: see <a href="#bottom-bar">the bottom bar</a>.</dd></div>
+</dl>
+<p>SAVE runs with no tape. VERIFY and LOAD wait for a tape's pilot tone that never comes, MIDI frozen meanwhile: step key 1 cancels, the memory untouched.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="sequencer">
+<div class="eyebrow">3</div>
+<h2>The sequencer</h2>
+
+<h3 id="organised">How it's organised</h3>
+<ul>
+<li><span class="k">2 banks,</span> I and II, each of 3 pattern groups of 16 patterns: 48 patterns a bank.</li>
+<li><span class="k">A pattern</span> has 1 to 16 steps at one of four scales. It holds the eleven voices (BD, SD, the toms and the closed hat with normal and accent, BD to HT with flam; RS, HC, the open hat, crash and ride on or off), TOTAL ACCENT for each step, 16 external instruments, and its shuffle and flam.</li>
+<li><span class="k">4 tracks</span> a bank, 896 measures in all, one pattern a measure, each track with a stored tempo: see <a href="#tracks">Tracks</a>.</li>
+<li>The memory is saved with the session. There is no clearing it all, as on the unit: State: Reset makes a new instance, the factory patterns with it.</li>
+</ul>
+
+<h3 id="two-keys">Two keys at once</h3>
+<ul>
+<li>A key that modifies another (SHIFT, INSTRUMENT SELECT, CLEAR, SHUFFLE/FLAM, LAST STEP) goes down first: pressed in the same scan, the other key may act unmodified.</li>
+<li>A PATTERN PLAY key and the pattern's step key are pressed one after the other, not together; TRACK PLAY too.</li>
+<li>Right-click (ctrl-click on a Mac) a key to hold it until it's clicked again; the status bar names it. The computer's Shift holds SHIFT, and the other <a href="#keys">computer keys</a> stay down while held.</li>
+</ul>
+
+<h3 id="play">Play patterns</h3>
+<Shot src={panel} base={base} alt="The PATTERN PLAY keys, the step keys, and START and STOP/CONT outlined" crop={lower} marks={[{ ...at.pattern, n: 1 }, { ...at.steps, n: 2 }, { ...at.startStop, n: 3 }]} />
+<ol>
+<li>Press a PATTERN PLAY key <Num n="1" /> for the group, then a step key <Num n="2" /> for the pattern.</li>
+<li>Press START <Num n="3" />. STOP/CONT stops it; pressed again, it continues where it stopped.</li>
+</ol>
+<ul>
+<li>A pattern chosen while one plays starts at the next bar.</li>
+<li>Two step keys pressed together play the patterns between them in turn.</li>
+</ul>
+
+<h3 id="write">Write a pattern (step write)</h3>
+<Shot src={panel} base={base} alt="SHIFT, the PATTERN PLAY keys, CLEAR, START, INSTRUMENT SELECT, the step keys and the voice legends under them outlined" crop={lower} marks={[{ ...at.shift, n: 1 }, { ...at.pattern, n: 2 }, { ...at.clear, n: 3 }, { ...at.start, n: 4 }, { ...at.inst, n: 5 }, { ...at.steps, n: 6 }, { ...at.voiceLegends, n: 7 }]} />
+<ol>
+<li>Stopped, hold SHIFT <Num n="1" /> and press a PATTERN PLAY key <Num n="2" />. Its LED blinks: pattern write, in that group.</li>
+<li>Hold CLEAR <Num n="3" /> and press a step key: that pattern is erased and selected.</li>
+<li>Press START <Num n="4" />. The step LEDs run.</li>
+<li>Hold INSTRUMENT SELECT <Num n="5" /> and press a key of the voice to write, as the legends under the keys show <Num n="7" />.</li>
+<li>Press the step keys <Num n="6" /> to write it.</li>
+</ol>
+<ul>
+<li><span class="k">BD, SD, the toms and the closed hat:</span> a step key goes none, normal, accent, none, with either key of the voice. The LED is dim for normal, bright for an accent.</li>
+<li><span class="k">RS, HC, the open hat, crash and ride:</span> on or off. The open hat is the two hi-hat keys together.</li>
+<li><span class="k">Flam:</span> INSTRUMENT SELECT with both keys of BD, SD or a tom selects its flam for writing.</li>
+<li><span class="k">TOTAL ACCENT:</span> INSTRUMENT SELECT with ENTER selects it for writing.</li>
+</ul>
+
+<h3 id="accents">Accents</h3>
+<p>A voice's own accent is a fixed level. TOTAL ACCENT on a step raises every voice on it by the TOTAL ACCENT knob, read when the step plays. With the knob high a voice's accent may not be heard: a normal note at full TOTAL ACCENT is at the accent's level.</p>
+
+<h3 id="scale">Scale and last step</h3>
+<p>In pattern write, while it runs:</p>
+<ul>
+<li><span class="k">SCALE</span> steps 16th, 32nd, 8th triplet, 16th triplet and back, and sets the last step to 16, 16, 12 and 12.</li>
+<li><span class="k">LAST STEP</span> held with step key n: the pattern has n steps.</li>
+</ul>
+
+<h3 id="shuffle">Shuffle and flam</h3>
+<Shot src={panel} base={base} alt="SHUFFLE/FLAM, step keys 1 to 7 and step keys 9 to 16 outlined" crop={lower} marks={[{ ...at.shuffle, n: 1 }, { ...at.shuffleSteps, n: 2 }, { ...at.flamSteps, n: 3 }]} />
+<p>In pattern write, while it runs, hold SHUFFLE/FLAM <Num n="1" /> and press:</p>
+<ul>
+<li><span class="k">Step keys 1 to 7</span> <Num n="2" /> for the shuffle: every second 16th is late by the key's number less one, in 48ths of a beat. 1 is none, 7 is a 75 % swing. In 32nds, 1 and 2, 3 and 4, 5 and 6 are the same. No shuffle on triplets, and an odd last step keeps its length.</li>
+<li><span class="k">Step keys 9 to 16</span> <Num n="3" /> for the flam's interval: 16–20 ms at 9 to 44–49 ms at 16, the same at any tempo. The grace note is on the step at normal level, the main note after it at accent level.</li>
+</ul>
+<p>Held, SHUFFLE/FLAM lights the keys of both settings. A flam's interval takes one of two values about 4 ms apart, from how the step falls against the CPU's scan; the high tom always has the longer.</p>
+
+<h3 id="tap-write">Tap write</h3>
+<Shot src={panel} base={base} alt="SHIFT, BACK (TAP), CYCLE/GUIDE, CLEAR and the step keys outlined" crop={lower} marks={[{ ...at.shift, n: 1 }, { ...at.backKey, n: 2 }, { ...at.cycleKey, n: 3 }, { ...at.steps, n: 4 }, { ...at.clear, n: 5 }]} />
+<ol>
+<li>In pattern write, hold SHIFT <Num n="1" /> and press BACK (TAP) <Num n="2" />. BACK lights instead of TEMPO; SHIFT with TEMPO (STEP) goes back to step write.</li>
+<li>Choose the pattern with CLEAR and its step key, and press START.</li>
+<li>CYCLE/GUIDE <Num n="3" /> turns the guide on: a rim shot on every beat, louder on the bar's first.</li>
+<li>Press a voice's key <Num n="4" /> in time: it is written at the nearest step, accented from the voice's left key, normal from its right one.</li>
+</ol>
+<p>Held with a voice's key, CLEAR <Num n="5" /> erases that voice as the steps pass, for as long as both are held: with the left key its accented notes, with the right key its normal ones.</p>
+
+<h3 id="clear-copy">Clear, copy, chain</h3>
+<ul>
+<li><span class="k">Clear:</span> CLEAR with a step key erases that pattern's voices and TOTAL ACCENT, and resets it to 16 steps, 16ths, no shuffle and flam key 13. In EXT INST mode it erases the external instruments and their accent only.</li>
+<li><span class="k">Copy:</span> in pattern write, choose the destination with SHIFT, its PATTERN PLAY key and its step key. Then, with SHIFT held: COPY, the source's bank (BANK I or II), its PATTERN PLAY key, its step key, ENTER. Everything of the pattern is copied, from either bank.</li>
+<li><span class="k">Chain:</span> in pattern write, hold the step keys at both ends of a run of patterns and press ENTER. Any of them then plays the whole chain from its first. A step key held with ENTER takes its pattern out; the patterns after it stay chained.</li>
+</ul>
+
+<h3 id="ext-inst">External instruments</h3>
+<p>In pattern write, stopped, SHIFT with EXT INST switches the step keys to 16 external instruments; EXT INST lights. They are written as the voices are, with no flam; INSTRUMENT SELECT with ENTER selects their accent. They play as MIDI notes 36 to 51 on the 909's <a href="#midi-out">MIDI out</a>.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="tracks">
+<div class="eyebrow">4</div>
+<h2>Tracks</h2>
+<p>A track is a list of measures, each one a pattern (its group and number), with a stored tempo. Each bank has four, sharing 896 measures.</p>
+<Shot src={panel} base={base} alt="The TRACK PLAY keys, START and STOP/CONT, the display, BACK, FWD and AVAILABLE MEAS, CYCLE, ENTER and the digits under the step keys outlined" crop={lower} marks={[{ ...at.track, n: 1 }, { ...at.startStop, n: 2 }, { ...at.display, n: 3 }, { ...at.fn4, n: 4 }, { ...at.cycleKey, n: 5 }, { ...at.enter, n: 6 }, { ...at.digits, n: 7 }]} />
+
+<h3 id="banks">Banks</h3>
+<p>After a TRACK PLAY key, SHIFT with FWD (BANK I) or AVAILABLE MEAS (BANK II) <Num n="4" /> selects the bank; its LED lights. Patterns and tracks are then the bank's.</p>
+
+<h3 id="track-play">Play a track</h3>
+<ul>
+<li><span class="k">TRACK PLAY 1 to 4</span> <Num n="1" /> selects a track at its first measure; an empty track shows 0 on the display <Num n="3" />.</li>
+<li><span class="k">START</span> <Num n="2" /> plays it, and it stops at its end. STOP/CONT stops it and continues.</li>
+<li><span class="k">CYCLE</span> <Num n="5" />, its LED lit, repeats it. Pressed again while it plays, the track stops at its end.</li>
+<li><span class="k">From a measure:</span> SHIFT with the measure number from the digits <Num n="7" />, then ENTER <Num n="6" />, then STOP/CONT. START still plays from measure 1.</li>
+</ul>
+<p>The display shows the measure playing, and the tempo while TEMPO is held.</p>
+
+<h3 id="track-write">Write a track</h3>
+<ol>
+<li>Hold SHIFT and press TRACK PLAY 1 to 4: track write.</li>
+<li>To clear the track first: with SHIFT held, DEL, LAST MEAS, ENTER.</li>
+<li>Press START.</li>
+<li>For each measure, press a PATTERN PLAY key, the pattern's step key, then ENTER. The display shows the next measure's number.</li>
+</ol>
+<p>Two step keys pressed together enter the patterns between them, a measure each. AVAILABLE MEAS, held, shows the measures left of the bank's 896. When none are left it shows 0, and ENTER shows 0 and adds nothing.</p>
+
+<h3 id="track-edit">Edit a track</h3>
+<p>In track write:</p>
+<ul>
+<li><span class="k">Replace:</span> START, FWD (or ENTER) to the measure, the new pattern, ENTER. BACK steps back a measure. The count stays.</li>
+<li><span class="k">Go to a measure:</span> SHIFT with its number, then ENTER.</li>
+<li><span class="k">Delete:</span> from that measure, with SHIFT held, DEL, ENTER deletes it; DEL, a number, ENTER deletes up to that measure; DEL, LAST MEAS, ENTER to the end.</li>
+<li><span class="k">Insert:</span> go to the measure, select the pattern, and with SHIFT held, INS, ENTER: it goes in before that measure.</li>
+<li><span class="k">Copy:</span> go to the destination; with SHIFT held, COPY, the first measure's number, ENTER, the last's, ENTER. A copy of those measures goes in there.</li>
+</ul>
+
+<h3 id="tempo-memory">Tempo memory</h3>
+<ul>
+<li>TEMPO with ENTER stores the tempo in the selected track.</li>
+<li>TEMPO with TRACK PLAY 1 to 4 selects the track at its stored tempo; the TEMPO knob then does nothing.</li>
+<li>Holding TEMPO and turning the knob gives the tempo back to the knob. The stored tempo stays: TEMPO with the track's key recalls it again, and TEMPO with ENTER replaces it.</li>
+</ul>
+
+<h3 id="manual">Where the firmware differs from the manual</h3>
+<p>Every procedure in the owner's manual behaves as it says, but for these, which are the version 4.0 firmware's own and are kept:</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">Procedure</th><th scope="col">The manual</th><th scope="col">The firmware</th></tr></thead>
+<tbody>
+<tr><th scope="row">Track copy of one measure</th><td>"Skip assigning the last measure"</td><td>Nothing is copied</td></tr>
+<tr><th scope="row">CLEAR in tap write</th><td>"3 or 4" for SD</td><td>The left key erases the accented notes, the right key the normal ones</td></tr>
+<tr><th scope="row">Erasing the tempo memory</th><td>Erases it</td><td>The knob takes over; the stored tempo stays</td></tr>
+<tr><th scope="row">CLEAR in EXT INST mode</th><td>Scale, last step, shuffle and flam remain</td><td>They remain, and so do the voices</td></tr>
+<tr><th scope="row">MIDI system reset (FF)</th><td>Recognised</td><td>Passed to MIDI out, no other effect</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="rear">
+<div class="eyebrow">5</div>
+<h2>The rear</h2>
+<p><span class="k">REAR</span> in the bottom bar shows the rear panel.</p>
+<Shot src={rear} base={base} alt="The rear panel: cables in the SNARE and BASS DRUM MULTI OUT jacks and in MASTER OUT, the label under each cable, and the POWER switch, outlined" crop={{ x: 0, y: 40, w: 1215, h: 500 }} marks={[{ x: 296, y: 128, w: 456, h: 76, n: 1 }, { x: 194, y: 128, w: 92, h: 76, n: 2 }, { x: 625, y: 497, w: 238, h: 33, n: 3 }, { x: 1074, y: 128, w: 64, h: 62, n: 4 }]} caption="Cables in SNARE and BASS DRUM: the two voices are out of the main mix. Here the DAW has their outputs off." />
+
+<h3 id="multi-out">MULTI OUT</h3>
+<ul>
+<li><span class="k">A click on a MULTI OUT jack</span> <Num n="1" /> plugs a cable in: as on the unit, its voice leaves the main mix for its own output. A second click pulls it out. The cables are saved with the session.</li>
+<li><span class="k">The plugin's outputs:</span> the main pair, MASTER OUT L and R <Num n="2" />, then BD, SD, LT, MT, HT, RS, HC, HH, Crash and Ride. These ten are off until the DAW turns them on, mono or stereo (the jack on both sides).</li>
+<li>With no cable, a voice is in the main pair and its output is silent, whatever outputs the DAW turns on. The label under a cable <Num n="3" /> says when the DAW has its output off.</li>
+<li>The main pair has the jack board's fixed panning: the low tom and ride left, the high tom and the hi-hats right, the crash a little right. The MULTI OUTs are inverted against it, as on the unit.</li>
+</ul>
+<p>The other jacks take no cable: MIDI goes through the DAW (see <a href="#midi">MIDI</a>); SYNC IN, START/STOP, TRIG OUT, the tape jacks and the cartridge slot aren't emulated.</p>
+
+<h3 id="power">POWER</h3>
+<p>The POWER switch <Num n="4" /> turns the 909 off, silent with the panel dark and its memory kept, and on again. Switching it on is the unit's power-on: the program boots for 0.6 s, the master outputs are muted for about 2 s while C143 charges, and the hi-hat, crash and ride thump at their MULTI OUTs as their stages charge.</p>
+<p>A new instance, a session load and State: Reset start as a 909 that has been on a while, playable at once. A session always loads switched on.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="bars">
+<div class="eyebrow">6</div>
+<h2>The bars and SERVICE</h2>
+
+<h3 id="top-bar">The top bar</h3>
+<ul>
+<li><span class="k">BETA</span> after the name: this version is a beta. About shows the version.</li>
+<li><span class="k">VOICE MODE</span> and a line saying what's missing, while ro-drums-909 runs without its program ROM.</li>
+<li><span class="k">ROMs:</span> the ROM folder, the five ROMs and the <a href="#artwork">artwork</a>, with their full paths, and Show, Change… and Rescan for the folder. In voice mode it reads <span class="k">Add Program ROM…</span>: see <a href="#add-rom">Adding ROMs later</a>.</li>
+<li><span class="k">State:</span> see <a href="#state">State</a>.</li>
+<li><span class="k">About:</span> the version, the ROM folder and artwork in use, the <a href="/support#updates">update check</a>, and links to this guide, the site and the forum. A newer version shows as a button in the bar.</li>
+</ul>
+
+<h3 id="state">State</h3>
+<Shot src={state} base={base} alt="The State pop-up under the top bar: Save to file…, Load from file… and Reset…" crop={{ x: 455, y: 0, w: 760, h: 240 }} marks={[{ x: 1072, y: 3, w: 66, h: 26, n: 1 }]} caption="State in the top bar." />
+<ul>
+<li><span class="k">Save to file…</span> saves the instance: the knobs, the pattern and track memory, the MULTI OUT cables, TM and the serial number in SERVICE.</li>
+<li><span class="k">Load from file…</span> loads one. The standalone app's Options menu saves and loads the same files.</li>
+<li><span class="k">Reset…</span> makes it a new instance: the factory patterns, with the version 1.0 ROM, and every control at its default.</li>
+</ul>
+
+<h3 id="bottom-bar">The bottom bar</h3>
+<Shot src={panel} base={base} alt="The bottom bar: SYNC, REAR, SERVICE and the status line" crop={{ x: 0, y: 725, w: 760, h: 46 }} marks={[{ x: 10, y: 738, w: 110, h: 26, n: 1 }, { x: 128, y: 738, w: 64, h: 26, n: 2 }, { x: 200, y: 738, w: 81, h: 26, n: 3 }, { x: 290, y: 738, w: 300, h: 26, n: 4 }]} caption="The left end of the bottom bar; ? is at the far right." />
+<dl class="legend">
+<div><dt><Num n="1" /> SYNC</dt><dd>OFF: the 909 runs on its own clock. HOST: your DAW's transport runs it. See <a href="#sync">Sync</a>.</dd></div>
+<div><dt><Num n="2" /> REAR</dt><dd>The rear panel: <a href="#multi-out">MULTI OUT</a> and <a href="#power">POWER</a>.</dd></div>
+<div><dt><Num n="3" /> SERVICE</dt><dd>Takes the top panel off to show the boards. See <a href="#service">SERVICE</a>.</dd></div>
+<div><dt><Num n="4" /> Status line</dt><dd>The sync mode, INT, MIDI or DIN (HOST while the DAW runs it), and the TEMPO knob's tempo; a missing sample ROM; the MULTI OUTs with a cable in; a key held by a right-click. At the right, the voices sounding.</dd></div>
+<div><dt><Num n="5" /> ?</dt><dd>Shows the list of computer keys over the panel. Any click, ? or Escape closes it.</dd></div>
+</dl>
+
+<h3 id="service">SERVICE: the boards, TM and the scope</h3>
+<Shot src={service} base={base} alt="SERVICE: the voicing board above the switch board, the trimmer TM on the board outlined, and on the right the scope, the readouts, the TM row with TEST and the circuit by serial number" marks={[{ x: 614, y: 296, w: 25, h: 25, n: 1 }, { x: 920, y: 38, w: 288, h: 194, n: 2 }, { x: 920, y: 239, w: 288, h: 59, n: 3 }, { x: 920, y: 303, w: 288, h: 87, n: 4 }, { x: 920, y: 397, w: 288, h: 328, n: 5 }]} caption="SERVICE, the late board selected." />
+<p>The voicing board where it hangs under the panel and the switch board folded out in front of it, every part where the service notes' board drawings put it, the copper drawn faintly through. The knobs stay on their pots and the keys on their switches, and work as on the panel; the LEDs and the display run. The wheel or a pinch zooms, and the parts' designators show close up; a drag moves; a double-click shows it all.</p>
+<ul>
+<li><span class="k">The scope</span> <Num n="2" />: click its caption to clip the probe on a MULTI OUT or master jack, a trigger line, an accent DAC, or any pin of any part the netlists draw, by voice, kind, part and pin. It triggers on a voice's TRIG line, or runs free; time and volts per division are set from their captions. The readouts <Num n="3" /> show its peak to peak, and HAND CLAP LEVEL. While a probe is on, the board doesn't sleep.</li>
+<li><span class="k">TM</span>, the hand clap's trimmer (SN p.11), on the board <Num n="1" /> and as a row <Num n="4" />: drag either, shift finer. A double-click puts it back to the calibrated unit's trim, 30 %. TEST sets the scope on the clap's MULTI OUT at the scale of SN p.9 and plays the clap every 0.6 s.</li>
+<li><span class="k">Circuit</span> <Num n="5" />: which unit this is, by serial number, from the first units (360100) to the late board (426700 up, the default). Each range has the production changes of SN p.7 up to it: <a href="/ro-drums-909#revisions">Board revisions</a>. Saved with the session.</li>
+</ul>
+<p>The service notes set TM for 2 Vp-p at the clap's MULTI OUT. At its 30 % the model reads about 4 Vp-p there: its clap's spikes are narrower than the calibrated unit's, and at 2 Vp-p (25.5 %) the clap would be 6 dB under the other voices.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="midi">
+<div class="eyebrow">7</div>
+<h2>MIDI and your DAW</h2>
+
+<h3 id="midi-notes">MIDI notes</h3>
+<p>Notes go into the firmware's own MIDI IN, as on the unit, and play the voices with the firmware's own timing: a hit comes 0.3–2.2 ms after its note.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">Voice</th><th scope="col">Notes</th></tr></thead>
+<tbody>
+<tr><td>Bass drum</td><td>36, 35</td></tr>
+<tr><td>Snare drum</td><td>38, 40</td></tr>
+<tr><td>Low tom</td><td>43, 41</td></tr>
+<tr><td>Mid tom</td><td>47, 45</td></tr>
+<tr><td>High tom</td><td>50, 48</td></tr>
+<tr><td>Rim shot</td><td>37</td></tr>
+<tr><td>Hand clap</td><td>39</td></tr>
+<tr><td>Closed hat</td><td>42, 44</td></tr>
+<tr><td>Open hat</td><td>46</td></tr>
+<tr><td>Crash</td><td>49</td></tr>
+<tr><td>Ride</td><td>51</td></tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Velocity sets the voice's accent level through the firmware's own table: 50 is the sequencer's normal level, 80 its accent. Note-offs are ignored.</li>
+<li>The 909 receives on every channel at power-on: see <a href="#channels">MIDI channels</a>.</li>
+<li>In voice mode, notes play the voices directly, with the firmware's velocity laws as measured.</li>
+<li>MIDI and the sequencer play the same voices.</li>
+</ul>
+
+<h3 id="cc">Controllers</h3>
+<p>Control changes on any channel move the knobs, on Roland's TR-8 numbers for the same controls. The 909 itself takes none.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">Voice</th><th scope="col">TUNE</th><th scope="col">LEVEL</th><th scope="col">Others</th></tr></thead>
+<tbody>
+<tr><td>Bass drum</td><td>20</td><td>24</td><td>ATTACK 21, DECAY 23</td></tr>
+<tr><td>Snare drum</td><td>25</td><td>29</td><td>SNAPPY 26, TONE 28</td></tr>
+<tr><td>Low tom</td><td>46</td><td>48</td><td>DECAY 47</td></tr>
+<tr><td>Mid tom</td><td>49</td><td>51</td><td>DECAY 50</td></tr>
+<tr><td>High tom</td><td>52</td><td>54</td><td>DECAY 53</td></tr>
+<tr><td>Rim shot</td><td></td><td>57</td><td></td></tr>
+<tr><td>Hand clap</td><td></td><td>60</td><td></td></tr>
+<tr><td>Hi-hat</td><td></td><td>63 or 82</td><td>CH DECAY 62, OH DECAY 81</td></tr>
+<tr><td>Crash</td><td>83</td><td>85</td><td></td></tr>
+<tr><td>Ride</td><td>86</td><td>88</td><td></td></tr>
+<tr><td>TOTAL ACCENT</td><td></td><td></td><td>71</td></tr>
+<tr><td>VOLUME</td><td></td><td></td><td>7</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="midi-out">MIDI out</h3>
+<ul>
+<li>The plugin's MIDI output is the firmware's MIDI OUT, as on the unit: the external instruments' notes, 36 to 51 on the send channel, and everything received but the clock (the unit's MIDI OUT is a merge).</li>
+<li>The 909 never sends its own voices.</li>
+<li>Its clock, start, stop and song select aren't sent: the DAW has its own transport.</li>
+</ul>
+
+<h3 id="channels">MIDI channels</h3>
+<ul>
+<li>At power-on the 909 receives on every channel (omni) and sends on 11. A new instance and a session load start there too.</li>
+<li>In track play, SHUFFLE/FLAM with step key n sets the receive channel to n, omni off.</li>
+<li>In track play, LAST STEP with step key n sets the send channel to n.</li>
+</ul>
+
+<h3 id="sync">Sync</h3>
+<ul>
+<li><span class="k">SYNC: OFF</span> (the default): START, STOP/CONT and TEMPO run the 909's own clock.</li>
+<li><span class="k">SYNC: HOST:</span> the 909 goes into its MIDI sync mode, as SHIFT with TEMPO MODE puts it, once the sequencer is stopped. The DAW's transport is sent to it as MIDI clock, start, stop and continue: play starts it at the DAW's tempo, stop stops it. START and STOP/CONT do nothing.</li>
+<li>Started from the top of the song, the DAW sends start; from anywhere else, the song position and continue. In track play the 909 goes to that sixteenth of the track, counting each measure at its pattern's length (last step and scale), and plays on from there. In pattern play it ignores the song position and goes on from where the pattern stopped.</li>
+</ul>
+
+<h3 id="automation">Automation and sessions</h3>
+<p>These parameters can be automated, in this order: BD Tune, BD Level, BD Attack, BD Decay, SD Tune, SD Level, SD Tone, SD Snappy, LT Tune, LT Level, LT Decay, MT Tune, MT Level, MT Decay, HT Tune, HT Level, HT Decay, RS Level, HC Level, HH Level, CH Decay, OH Decay, Crash Level, Crash Tune, Ride Level, Ride Tune, Total Accent, Master Volume, Tempo, Sync to Host and Clap Trim (TM).</p>
+<p>A session saves every parameter, the pattern and track memory, the MULTI OUT cables, the serial number in SERVICE and the window size. It loads switched on, as a 909 that has been on a while.</p>
+<p>Idle, the voices put out exact zeros and use little CPU, but the CPU keeps running: the sequencer, LEDs and display carry on. ro-drums-909 reports a 2 s tail. Don't let the DAW suspend it on silent tracks, or the 909 can't play its own patterns.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="keyboard">
+<div class="eyebrow">8</div>
+<h2>Keyboard and mouse</h2>
+
+<h3 id="keys">Computer keys</h3>
+<p>Click the panel first. Keys stay down while held, so two-key steps work.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">Keys</th><th scope="col">Panel</th></tr></thead>
+<tbody>
+<tr><td class="mono">1 2 3 4 5 6 7 8</td><td>Step keys 1 to 8</td></tr>
+<tr><td class="mono">Q W E R T Y U I</td><td>Step keys 9 to 16</td></tr>
+<tr><td class="mono">A S D F</td><td>TRACK PLAY 1 to 4</td></tr>
+<tr><td class="mono">G H J</td><td>PATTERN PLAY 1 to 3</td></tr>
+<tr><td class="mono">K</td><td>EXT INST</td></tr>
+<tr><td class="mono">Z X C V</td><td>TEMPO (STEP), BACK (TAP), FWD (BANK I), AVAILABLE MEAS (BANK II)</td></tr>
+<tr><td class="mono">B N</td><td>CYCLE/GUIDE (LAST MEAS), TAPE SYNC (TEMPO MODE)</td></tr>
+<tr><td class="mono">Return</td><td>CARTRIDGE/ENTER (TOTAL ACCENT)</td></tr>
+<tr><td class="mono">Shift</td><td>SHIFT, held while the computer's Shift is</td></tr>
+<tr><td class="mono">Backspace, Delete</td><td>CLEAR</td></tr>
+<tr><td class="mono">F1 F2 F3 F4</td><td>LAST STEP, SCALE, SHUFFLE/FLAM, INSTRUMENT SELECT</td></tr>
+<tr><td class="mono">, .</td><td>START, STOP/CONT</td></tr>
+<tr><td class="mono">Space</td><td>START, or STOP/CONT while running, in the standalone app (in a DAW, Space is the DAW's)</td></tr>
+<tr><td class="mono">?</td><td>The key list</td></tr>
+<tr><td class="mono">Escape</td><td>Closes the key list and lets go of every key</td></tr>
+</tbody>
+</table>
+</div>
+<p>Some DAWs keep letter keys for themselves.</p>
+
+<h3 id="mouse">Mouse</h3>
+<ul>
+<li><span class="k">Knobs:</span> drag up or down; shift is finer, double-click resets, the wheel works, hover shows the value.</li>
+<li><span class="k">Keys</span> are held while the button is. A right-click (ctrl-click on a Mac) holds one down until it’s clicked again, and the status bar names it; Escape lets go of all.</li>
+<li><span class="k">Window:</span> drag the bottom-right corner, half to twice the size.</li>
+</ul>
+</section>
+
+</div>
+
+</div>
+</div>
+
+</Base>
+
+<script>
+// The sidebar marks the heading being read and opens its section; the button opens it as a
+// drawer on a narrow window. Without this script the sidebar shows every heading.
+const nav = document.querySelector<HTMLElement>('.side')!;
+const button = document.querySelector<HTMLButtonElement>('.toc-button')!;
+const links = [...nav.querySelectorAll<HTMLAnchorElement>('a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+nav.classList.add('spy');
+button.hidden = false;
+
+let current = -1;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 120) i = j; });
+  // At the end of the page the last headings can't reach the top: take the one jumped to, if
+  // it's in view, or else the last.
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) {
+    const jumped = targets.findIndex((t) => '#' + t.id === location.hash);
+    i = jumped >= 0 && targets[jumped].getBoundingClientRect().top < innerHeight ? jumped : targets.length - 1;
+  }
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => {
+    a.classList.toggle('on', j === i);
+    if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+  });
+  const section = i >= 0 ? links[i].closest('.side > ol > li') : null;
+  for (const li of nav.querySelectorAll(':scope > ol > li')) li.classList.toggle('open', li === section);
+  reveal();
+}
+
+// Keep the marked heading in view when the sidebar is taller than the window.
+function reveal() {
+  const a = links[current];
+  if (!a || nav.scrollHeight <= nav.clientHeight) return;
+  if (a.offsetTop < nav.scrollTop || a.offsetTop + a.offsetHeight > nav.scrollTop + nav.clientHeight)
+    nav.scrollTop = a.offsetTop - nav.clientHeight / 3;
+}
+
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+addEventListener('hashchange', later);
+mark();
+
+function open(on: boolean) {
+  nav.classList.toggle('open', on);
+  button.setAttribute('aria-expanded', String(on));
+  button.querySelector('span')!.textContent = on ? 'Close' : 'Contents';
+  if (on) reveal();
+}
+button.addEventListener('click', () => open(!nav.classList.contains('open')));
+nav.addEventListener('click', (e) => { if ((e.target as Element).closest('a')) open(false); });
+document.addEventListener('click', (e) => {
+  if (nav.classList.contains('open') && !nav.contains(e.target as Node) && !button.contains(e.target as Node)) open(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && nav.classList.contains('open')) { open(false); button.focus(); }
+});
+</script>
+
+<style>
+.guide { padding-bottom: 96px; }
+.main { min-width: 0; max-width: 1000px; }
+
+.side { font-size: 14px; line-height: 1.45; }
+.side .label { padding: 0 0 10px 12px; }
+.side ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; max-width: none; }
+.side li { font-size: inherit; color: inherit; }
+.side > ol > li + li { margin-top: 6px; }
+.side a { display: flex; gap: 8px; padding: 3px 10px 3px 30px; border-left: 2px solid var(--rule); color: var(--ink2); text-decoration: none; }
+.side a.top { padding-left: 10px; color: var(--ink); font-weight: 600; }
+.side a.deep { padding-left: 44px; }
+.side .n { flex: 0 0 auto; min-width: 12px; font: 12px/1.7 var(--mono); color: var(--ink3); }
+.side a:hover { color: var(--ink); border-left-color: var(--ink2); }
+.side a.on { color: var(--wire-text); border-left-color: var(--wire); }
+.side a.on .n { color: var(--wire-text); }
+.toc-button { display: none; }
+
+@media (min-width: 1080px) {
+  .guide { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 56px; }
+  .side { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; box-sizing: border-box; padding: 56px 0 32px; scrollbar-width: thin; }
+  .side.spy > ol > li:not(.open) > ol { display: none; }
+  .intro .toc { display: none; }
+}
+@media (max-width: 1079.98px) {
+  .side { display: none; }
+  .side.open { display: block; position: fixed; top: 0; bottom: 0; left: 0; z-index: 20; width: min(320px, 85vw); box-sizing: border-box; overflow-y: auto; padding: 24px 16px 96px; background: var(--paper); border-right: 2px solid var(--ink); box-shadow: 0 0 0 100vmax rgba(22, 26, 38, 0.45); }
+  .toc-button:not([hidden]) { display: inline-flex; align-items: center; gap: 8px; position: fixed; left: 16px; bottom: 16px; z-index: 21; min-height: 44px; padding: 0 18px; box-sizing: border-box; border: 2px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); font-family: var(--display); font-size: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 20px rgba(22, 26, 38, 0.25); }
+  .toc-button:hover { background: var(--wire-text); border-color: var(--wire-text); }
+}
+.intro { padding: 56px 0 24px; display: flex; flex-direction: column; gap: 18px; }
+.crumbs { font-size: 14px; color: var(--ink2); }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(40px, 5.4vw, 68px); line-height: 0.95; }
+.lede { margin: 0; color: var(--ink2); font-size: 18px; max-width: 44em; }
+.nowrap { white-space: nowrap; }
+.toc { margin: 8px 0 0; padding: 16px 20px 16px 44px; border: 2px solid var(--ink); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 4px 24px; color: var(--ink3); }
+section { padding: 48px 0 8px; border-top: 1.5px solid var(--ink); margin-top: 32px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+.eyebrow { width: 44px; height: 44px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(32px, 3.8vw, 44px); line-height: 1; text-transform: uppercase; }
+h3 { margin: 20px 0 0; font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.15; letter-spacing: 0.02em; text-transform: uppercase; scroll-margin-top: 16px; }
+p, li, dd { color: var(--ink2); font-size: 16px; }
+p { margin: 0; max-width: 46em; }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.k { color: var(--ink); font-weight: 600; }
+.mono { font-family: var(--mono); font-size: 0.88em; color: var(--ink); overflow-wrap: anywhere; }
+td.mono { white-space: nowrap; overflow-wrap: normal; }
+.path { font-family: var(--mono); font-size: 0.88em; color: var(--ink); overflow-wrap: anywhere; }
+.card { border: 2px solid var(--ink); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.label { font-family: var(--display); font-size: 13px; letter-spacing: 0.1em; font-weight: 600; color: var(--ink2); text-transform: uppercase; }
+.scroll { overflow-x: auto; border: 2px solid var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 520px; }
+th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink2); }
+thead th { background: var(--paper2); border-bottom: 2px solid var(--ink); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+tbody th { color: var(--ink); font-weight: 600; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+.legend { margin: 0; display: flex; flex-direction: column; gap: 12px; max-width: 52em; }
+.legend dt { color: var(--ink); font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.legend dd { margin: 2px 0 0; }
+</style>

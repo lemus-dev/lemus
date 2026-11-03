@@ -1,0 +1,36 @@
+* Test circuit for the solver's MOSFET (tools/spice/cases/cmos.py; docs/circuit/solver-mosfet.md),
+* not a part of the TR-909: a triangle VCO built as the snare's and toms' are (docs/research.md,
+* "Snare drum" 3), its parts named after the snare's VCO-1. A 4069UB inverter whose supply pins
+* op-amps drive to +cv (the follower IC35a through R250) and -cv (the inverter IC35b through
+* R253) switches the integrator IC37b's input current between +cv and -cv through R261; the
+* Schmitt comparator IC37a (R271/R272 hysteresis, thresholds +-vsat/2) flips the inverter's
+* input through R259, which the input's diodes (DCMOS) clamp to the inverter's rails. f = cv /
+* (4 R261 C69 vsat/2), 78.8 Hz a volt. The input kick, a current into the integrator's input at
+* the start, gives it an operating point (the integrator at its negative limit, the comparator
+* high), which it leaves at once.
+* Inputs: cv (volts), kick (amps). Outputs: tri (the integrator), sq (the comparator), sw (the
+* inverter's output), vdd (its V_DD pin).
+Vcv cvin 0 input cv
+XIC35a cvin vddo vddo opamp {gbw} 1e5 {opsat} {sr}
+R250 vddo vdd 1k
+R251 vddo n1 100k
+R252 n1 vsso 100k
+XIC35b 0 n1 vsso opamp {gbw} 1e5 {opsat} {sr}
+R253 vsso vss 1k
+MP36 sw g vdd 4069UB_P
+MN36 sw g vss 4069UB_N
+D36a vss g DCMOS
+D36b g vdd DCMOS
+R259 sq g 100k
+R261 sw s 47k
+Ik 0 s input kick
+C69 s tri 0.01u
+XIC37b 0 s tri opamp {gbw} 1e5 {opsat} {sr}
+R269 tri cm 10k
+R271 sq h 100k
+R272 h 0 100k
+XIC37a h cm sq opamp {gbw} 1e5 {opsat} {sr}
+.output tri tri
+.output sq sq
+.output sw sw
+.output vdd vdd

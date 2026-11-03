@@ -1,0 +1,23 @@
+* Test circuit for the solver's MOSFET (tools/spice/cases/cmos.py; docs/circuit/solver-mosfet.md),
+* not a part of the TR-909: a ring of three 4069UB inverters on the supply vdd, each into 47k and
+* 22 nF to ground (the next one's gate): an audio-rate oscillator, about 300 Hz at 5 V, whose
+* inverters pass through their linear region at every edge. Its DC point (every node at the
+* inverters' threshold) is unstable; the input kick, a current into the first stage's
+* capacitor, leaves it the same way in the solver and in ngspice.
+* Inputs: vdd (volts), kick (amps). Outputs: a (the first stage's capacitor), o1 (its inverter).
+Vdd vdd 0 input vdd
+Ik 0 a input kick
+MP1 o1 c vdd 4069UB_P
+MN1 o1 c 0 4069UB_N
+R1 o1 a 47k
+C1 a 0 22n
+MP2 o2 a vdd 4069UB_P
+MN2 o2 a 0 4069UB_N
+R2 o2 b 47k
+C2 b 0 22n
+MP3 o3 b vdd 4069UB_P
+MN3 o3 b 0 4069UB_N
+R3 o3 c 47k
+C3 c 0 22n
+.output a a
+.output o1 o1

@@ -38,8 +38,31 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.1.4', stage: 'beta', mac: 'ro-mono-303-0.1.4-mac.pkg', windows: 'ro-mono-303-0.1.4-windows.zip' },
+    release: { version: '0.1.5', stage: 'beta', mac: 'ro-mono-303-0.1.5-mac.pkg', windows: 'ro-mono-303-0.1.5-windows.zip' },
     changes: [
+      {
+        version: '0.2.0',
+        notes: [
+          'State in the top bar has Reset…: the instance as a new one, every control and SERVICE trim at its default.',
+          'FACTORY TRIM is gone from SERVICE: State, Reset… puts the trims back.',
+          'A key held down by a right-click stays down when its computer key is let go.',
+          'Every button in the top bar has a tooltip.',
+          'The ROM prompt says what the CPU ROM holds, and what the 303 keeps and loses without it.',
+          'BETA next to the name in the top bar.',
+        ],
+      },
+      {
+        version: '0.1.5',
+        notes: [
+          'Artwork: an SVG or PNG of your own for each place on the panel (maker, name, model, tagline), in artwork/tb303/ in the ROM folder, drawn as it looks. A tb303.svg still works.',
+          'ROMs in the top bar shows the ROM folder, the CPU ROM and the artwork with their full paths, and changes or rescans the folder. In voice mode it is Add CPU ROM….',
+          'State in the top bar saves the instance to a file and loads one, the standalone app\'s saved states too.',
+          'MIDI: a note overlapping one of the same pitch slides into it instead of cutting it, and with the sustain pedal down every note slides.',
+          'The Mac installer runs on macOS 11 and later again: 0.1.0 to 0.1.4 needed the newest macOS.',
+          'About links to the forum, lemus.discourse.group.',
+          'No blank tb303.svg is written into the ROM folder any more, and an untouched one is taken out.',
+        ],
+      },
       {
         version: '0.1.4',
         notes: [
@@ -63,6 +86,20 @@ export const machines: Machine[] = [
         ],
       },
     ],
+  },
+  {
+    slug: 'ro-drums-909',
+    emulates: 'Roland TR-909 Rhythm Composer',
+    year: 1984,
+    type: 'drum machine',
+    status: 'working',
+    withoutRom: 'voice',
+    keywords: '909 drums drum machine rhythm composer roland',
+    nav: true,
+    // Not released yet: its download links go to /download, which says so, and it isn't in
+    // /latest.json or the footer. Set the release when it ships.
+    release: null,
+    changes: [{ version: '0.2.0', notes: ['The first release, a beta.'] }],
   },
 ];
 

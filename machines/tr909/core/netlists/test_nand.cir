@@ -1,0 +1,17 @@
+* Test circuit for the solver's MOSFET (tools/spice/cases/cmos.py; docs/circuit/solver-mosfet.md),
+* not a part of the TR-909: one 4011UB NAND gate (models.cir's 4011UB_P, two in parallel from
+* +5 V, and 4011UB_N, two in series), inputs a and b, its output into 10 nF to ground and 10k to
+* 2.5 V (two 20k). The node between the two NMOS is tied to the rest only through them.
+* Inputs: a, b (volts). Outputs: out, mid (the NMOS pair's middle).
+Vdd vdd 0 5
+Va a 0 input a
+Vb b 0 input b
+MPA out a vdd 4011UB_P
+MPB out b vdd 4011UB_P
+MNA out a mid 4011UB_N
+MNB mid b 0 4011UB_N
+CL out 0 10n
+RLP out vdd 20k
+RLN out 0 20k
+.output out out
+.output mid mid

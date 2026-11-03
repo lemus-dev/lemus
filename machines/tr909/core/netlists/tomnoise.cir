@@ -1,0 +1,67 @@
+* TR-909 TOM NOISE, voicing board (service notes p.11, grid K-N 14-17; crop p11-noise-tom-noise.png),
+* shared by the three toms.
+* Inputs: noise (the noise generator, IC33 pin 9), trig.lt, trig.mt, trig.ht (the three toms' TRIG
+* latch outputs: the board's signals, each tom's trig), lt.g, mt.g, ht.g (the toms' gated accent
+* lines: lt.cir's, mt.cir's and ht.cir's output g).
+* Output: tn (IC27a's output, the TOM NOISE bus: each tom's input tomnoise.tn).
+* The noise through R190/C161 and the Sallen-Key high-pass IC27b (C51, C52, R191, R192, about
+* 720 Hz) into IC27a's virtual ground two ways: always through R194, and through C53, R195 and the
+* VCA Q33. Any tom's TRIG holds Q34 on (D1-D3), which keeps Q33 off while the tom's gated accent
+* charges C54 (D26, D44, D45); when the trigger ends, C54 runs down through R198 and R200 into Q33's
+* base: a noise burst of about a millisecond at each hit's start.
+* Late board (SN 426700 up, p.7: "to emphasize attack of TOM TOMs"): C54 0.0047u, R194 100k; before:
+* C54 0.0022u, R194 47k.
+.param rlatch=600 c54=0.0047u r194=100k
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VNOISE noise 0 input noise
+VTLT trig_lt 0 input trig.lt
+VTMT trig_mt 0 input trig.mt
+VTHT trig_ht 0 input trig.ht
+VGLT g_lt 0 input lt.g
+VGMT g_mt 0 input mt.g
+VGHT g_ht 0 input ht.g
+* the TRIG latch's output resistance, on each line (the toms' netlists hold their own)
+RLATCH1 trig_lt tlt {rlatch}
+RLATCH2 trig_mt tmt {rlatch}
+RLATCH3 trig_ht tht {rlatch}
+* Q34: on while any tom's TRIG is high
+D1 tlt dtrig 1SS133
+D2 tmt dtrig 1SS133
+D3 tht dtrig 1SS133
+R196 dtrig q34b 22k
+R197 q34b 0 10k
+Q34 q34c q34b 0 2SC2603
+* C54, charged from the toms' gated accent lines (D26 from LT's, D44 from MT's, D45 from HT's, by
+* the lines' markers on p.11; NAVA has D45 and D26 the other way round), into Q33's base
+D26 g_lt c54 1SS133
+D44 g_mt c54 1SS133
+D45 g_ht c54 1SS133
+C54 c54 0 {c54}
+R198 c54 q34c 100k
+R200 q34c q33b 100k
+* the noise: R190/C161, then IC27b's Sallen-Key high-pass (unity gain)
+R190 noise n1 22k
+C161 n1 0 0.0047u
+C51 n1 n2 0.0047u
+C52 n2 n3 0.0047u
+R192 n3 0 220k
+X27B n3 o27b o27b opamp {gbw} 1e5 {opsat} {sr}
+R191 n2 o27b 10k
+* the VCA Q33 (C53, R195 into R199) and the steady path R194, into IC27a's virtual ground
+C53 o27b n4 0.047u
+R195 n4 x 1k
+R199 x 0 47
+Q33 x q33b sum 2SC2603S
+R194 o27b sum {r194}
+X27A 0 sum o27a opamp {gbw} 1e5 {opsat} {sr}
+R193 sum o27a 22k
+* the toms' R114, R177, R387 (22k each into a 47 ohm node: ground to within 0.2 %)
+R114 o27a 0 22k
+R177 o27a 0 22k
+R387 o27a 0 22k
+.output tn o27a
+* Runtime partitions (docs/model.md, "Partitions"): the filter (linear) and the rest, cut at IC27b's
+* output.
+.part filter R190 C161 C51 C52 R192 X27B R191
+.part vca in=o27b RLATCH1 RLATCH2 RLATCH3 D1 D2 D3 R196 R197 Q34 D26 D44 D45 C54 R198 R200 C53 R195 R199 Q33 R194 X27A R193 R114 R177 R387

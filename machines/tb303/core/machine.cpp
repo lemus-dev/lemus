@@ -339,7 +339,9 @@ std::vector<uint8_t> Machine::saveState() const
 	std::vector<uint8_t> v;
 	put(v, kStateMagic);
 	v.insert(v.end(), m_xram.begin(), m_xram.end());
-	ucom43::Cpu::State s{};
+	// the structs with their padding zeroed, so a state is the same bytes every time it is saved
+	ucom43::Cpu::State s;
+	std::memset(&s, 0, sizeof s);
 	m_cpu.save(s);
 	put(v, s);
 	put(v, m_addr);
@@ -350,7 +352,13 @@ std::vector<uint8_t> Machine::saveState() const
 	put(v, m_portI);
 	put(v, m_portE);
 	put(v, m_dac);
-	put(v, m_lines);
+	CpuLines lines;
+	std::memset(&lines, 0, sizeof lines);
+	lines.note = m_lines.note;
+	lines.gate = m_lines.gate;
+	lines.accent = m_lines.accent;
+	lines.slide = m_lines.slide;
+	put(v, lines);
 	return v;
 }
 

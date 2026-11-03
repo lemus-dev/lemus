@@ -5,6 +5,8 @@
 // scenes in the same folder are a click (or Up/Down) away. After changing a source in its editor
 // (its volume, say), Match levels (L) measures them again. The spectrum (Spectrum.h) shows what
 // is playing against the reference; Left/Right stop and step it through the loop a frame at a time.
+// Dual mode (D) plays two at once, one in each ear, each in mono: the selected source left, another
+// right; Space swaps them.
 //
 //   Lemus A/B.app/Contents/MacOS/Lemus A/B [SCENE.json]      or drop a scene on the window
 #include "../Player.h"
@@ -46,12 +48,13 @@ public:
 	{
 		m_formats.addDefaultFormats();
 		m_devices.initialiseWithDefaultDevices(0, 2);
-		for (auto *b : {&m_open, &m_play, &m_match, &m_prev, &m_next, &m_blind, &m_reveal}) {
+		for (auto *b : {&m_open, &m_play, &m_match, &m_prev, &m_next, &m_dualButton, &m_blind, &m_reveal}) {
 			addAndMakeVisible(*b);
 			b->setWantsKeyboardFocus(false);
 		}
 		m_open.onClick = [this] { choose(); };
 		m_play.onClick = [this] { togglePlay(); };
+		m_dualButton.onClick = [this] { setDual(!m_dual); };
 		m_blind.onClick = [this] { setBlind(!m_isBlind); };
 		m_reveal.onClick = [this] { m_revealed = true; refresh(); };
 		m_match.onClick = [this] { rematch(); };
@@ -141,9 +144,11 @@ public:
 				m_reference = int(i);
 				break;
 			}
-		m_gains.assign(m_players.size(), 0.0f);
+		m_gainsL.assign(m_players.size(), 0.0f);
+		m_gainsR.assign(m_players.size(), 0.0f);
 		m_meters = std::vector<std::atomic<float>>(m_players.size());
 		m_selected = 0;
+		m_right = m_players.size() > 1 ? 1 : 0;
 		m_position = 0;
 		allocate();
 		m_spectrum.prepare(int(m_players.size()), m_scene.rate);
@@ -160,8 +165,8 @@ public:
 		// A scene's "about" says what it tests; it never names the sources.
 		if (const auto about = juce::JSON::parse(file).getProperty("about", {}).toString(); about.isNotEmpty())
 			notes.insert(0, about);
-		notes.insert(0, "Space: next   1-" + juce::String(int(m_players.size())) +
-		                    ": pick   Return: play/stop   B: blind   L: match levels   Up/Down: scene\n"
+		notes.insert(0, "Space: next (dual: swap ears)   1-" + juce::String(int(m_players.size())) +
+		                    ": pick   Return: play/stop   D: dual   B: blind   L: match levels   Up/Down: scene\n"
 		                    "Left/Right: stop, step the spectrum a frame (with Shift, a 16th)\n");
 		m_status.setText(notes.joinIntoString("\n"), juce::dontSendNotification);
 		refresh();
@@ -210,9 +215,11 @@ public:
 	bool keyPressed(const juce::KeyPress &k) override
 	{
 		if (k == juce::KeyPress::spaceKey && !m_players.empty())
-			select((m_selected + 1) % int(m_players.size()));
+			select(m_dual ? m_right.load() : (m_selected + 1) % int(m_players.size()));
 		else if (k == juce::KeyPress::returnKey)
 			togglePlay();
+		else if (k.getTextCharacter() == 'd' || k.getTextCharacter() == 'D')
+			setDual(!m_dual);
 		else if (k.getTextCharacter() >= '1' && k.getTextCharacter() <= '9') {
 			const int i = int(k.getTextCharacter() - '1');
 			if (i < int(m_players.size()))
@@ -275,6 +282,8 @@ public:
 		m_reveal.setBounds(row.removeFromRight(90).reduced(0, 4));
 		row.removeFromRight(8);
 		m_blind.setBounds(row.removeFromRight(90).reduced(0, 4));
+		row.removeFromRight(8);
+		m_dualButton.setBounds(row.removeFromRight(90).reduced(0, 4));
 		row.reduce(16, 0);
 		m_prev.setBounds(row.removeFromLeft(36).reduced(0, 4));
 		m_next.setBounds(row.removeFromRight(36).reduced(0, 4));
@@ -414,9 +423,22 @@ private:
 		refresh();
 	}
 
+	// The source heard (in dual mode, in the left ear; picking the right one swaps them).
 	void select(int i)
 	{
+		if (m_dual && i == m_right)
+			m_right = m_selected.load();
 		m_selected = i;
+		refresh();
+	}
+
+	// Dual mode: the selected source in the left ear, another in the right.
+	void setDual(bool on)
+	{
+		const int n = int(m_players.size());
+		if (on && n > 1 && (m_right == m_selected || m_right >= n))
+			m_right = (m_selected + 1) % n;
+		m_dual = on;
 		refresh();
 	}
 
@@ -470,6 +492,7 @@ private:
 		const int at = m_siblings.indexOf(m_file);
 		m_prev.setEnabled(at > 0);
 		m_next.setEnabled(at >= 0 && at + 1 < m_siblings.size());
+		m_dualButton.setButtonText(m_dual ? "Dual: on" : "Dual: off");
 		m_blind.setButtonText(m_isBlind ? "Blind: on" : "Blind: off");
 		m_reveal.setVisible(m_isBlind && !m_revealed);
 		for (size_t k = 0; k < m_sourceButtons.size(); ++k) {
@@ -479,10 +502,14 @@ private:
 			juce::String text = letter;
 			if (!m_isBlind || m_revealed)
 				text << ": " << m_scene.sources[size_t(src)].label << "  (" << m_levelText[size_t(src)] << ")";
+			if (m_dual && src == m_selected)
+				text << "  [left]";
+			else if (m_dual && src == m_right)
+				text << "  [right]";
 			auto &b = *m_sourceButtons[k];
 			b.setButtonText(text);
 			b.onClick = [this, src] { select(src); };
-			const bool on = src == m_selected;
+			const bool on = src == m_selected || (m_dual && src == m_right);
 			b.setColour(juce::TextButton::buttonColourId, on ? colours::accentDim : colours::panel);
 			b.setColour(juce::TextButton::textColourOffId, on ? colours::accent : colours::text);
 			m_editButtons[k]->onClick = [this, src] { showEditor(src); };
@@ -530,6 +557,8 @@ private:
 		}
 		if (int(m_mix.size()) < int(m_players.size()))
 			return;
+		const int left = m_selected, right = m_dual ? m_right.load() : left;
+		const bool dual = m_dual;
 		for (int done = 0; done < n;) {
 			// Up to the loop's end; there every source starts over.
 			int64_t pos = m_position.load();
@@ -540,15 +569,21 @@ private:
 				m_players[i]->process(view, pos);
 				m_meters[i] = std::max(view.getRMSLevel(0, 0, len), m_meters[i].load() * 0.95f);
 				m_spectrum.tap(i).push(view, std::min(heard(m_players[i]->numOutputs()), view.getNumChannels()), len, m_autoGain[i]);
-				// Ramp each source's gain toward on (the selected one) or off: 5 ms.
+				// Ramp each source's gain in each ear toward on (the selected one; in dual mode, the
+				// left ear's and the right ear's) or off: 5 ms. Dual: each source in mono, the left ear
+				// on the first output, the right on the others.
 				const float step = float(1.0 / (0.005 * m_scene.rate));
-				const float target = int(i) == m_selected ? 1.0f : 0.0f;
+				const float targetL = int(i) == left ? 1.0f : 0.0f, targetR = int(i) == right ? 1.0f : 0.0f;
+				const int last = view.getNumChannels() - 1, heardCh = std::min(heard(m_players[i]->numOutputs()), last + 1);
 				for (int s = 0; s < len; ++s) {
-					m_gains[i] += juce::jlimit(-step, step, target - m_gains[i]);
-					const float g = m_gains[i] * m_autoGain[i];
-					if (g > 0)
-						for (int c = 0; c < numOut; ++c)
-							out[c][done + s] += g * view.getSample(std::min(c, view.getNumChannels() - 1), s);
+					m_gainsL[i] += juce::jlimit(-step, step, targetL - m_gainsL[i]);
+					m_gainsR[i] += juce::jlimit(-step, step, targetR - m_gainsR[i]);
+					const float gl = m_gainsL[i] * m_autoGain[i], gr = m_gainsR[i] * m_autoGain[i];
+					if (gl <= 0 && gr <= 0)
+						continue;
+					const float mono = heardCh > 1 ? 0.5f * (view.getSample(0, s) + view.getSample(1, s)) : view.getSample(0, s);
+					for (int c = 0; c < numOut; ++c)
+						out[c][done + s] += (c == 0 ? gl : gr) * (dual ? mono : view.getSample(std::min(c, last), s));
 				}
 			}
 			pos += len;
@@ -570,18 +605,19 @@ private:
 	std::vector<std::unique_ptr<juce::TextButton>> m_sourceButtons, m_editButtons;
 	std::vector<std::unique_ptr<EditorWindow>> m_editors;
 	std::vector<juce::AudioBuffer<float>> m_mix;
-	std::vector<float> m_gains, m_autoGain;
+	std::vector<float> m_gainsL, m_gainsR, m_autoGain; // the switch's gains, per ear; the level match's
 	std::vector<std::vector<float>> m_renders; // a loop of each source, mono, before its gain
 	std::vector<std::atomic<float>> m_meters;
 	std::vector<juce::String> m_levelText;
 	std::vector<int> m_order;
 	std::atomic<int64_t> m_position{0};
 	int64_t m_loop = 1;
-	std::atomic<int> m_selected{0};
+	std::atomic<int> m_selected{0}, m_right{1}; // heard (dual: left), dual's right
 	int m_reference = 0;
-	std::atomic<bool> m_playing{false}, m_restart{false};
+	std::atomic<bool> m_playing{false}, m_restart{false}, m_dual{false};
 	bool m_isBlind = false, m_revealed = false;
-	juce::TextButton m_open{"Open"}, m_play{"Play"}, m_match{"Match levels"}, m_prev{"<"}, m_next{">"}, m_blind{"Blind: off"}, m_reveal{"Reveal"};
+	juce::TextButton m_open{"Open"}, m_play{"Play"}, m_match{"Match levels"}, m_prev{"<"}, m_next{">"}, m_dualButton{"Dual: off"},
+		m_blind{"Blind: off"}, m_reveal{"Reveal"};
 	juce::ComboBox m_picker;
 	juce::Array<juce::File> m_siblings;
 	juce::Label m_status;

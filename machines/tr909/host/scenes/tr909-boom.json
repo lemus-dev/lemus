@@ -1,0 +1,103 @@
+{
+ "name": "tr909-boom",
+ "bpm": 120,
+ "beats": 4,
+ "tail": 3,
+ "playing": false,
+ "params": {
+  "total_accent": 0.0,
+  "volume": 0.85,
+  "bd_tune": 0.75,
+  "bd_attack": 1.0,
+  "bd_decay": 1.0,
+  "sd_tune": 0.5,
+  "sd_tone": 0.5,
+  "sd_snappy": 0.5,
+  "lt_tune": 0.5,
+  "lt_decay": 0.5,
+  "mt_tune": 0.5,
+  "mt_decay": 0.5,
+  "ht_tune": 0.5,
+  "ht_decay": 0.5,
+  "ch_decay": 0.5,
+  "oh_decay": 0.5,
+  "cr_tune": 0.5,
+  "rd_tune": 0.5,
+  "bd_level": 0.75,
+  "sd_level": 0.75,
+  "lt_level": 0.75,
+  "mt_level": 0.75,
+  "ht_level": 0.75,
+  "rs_level": 0.75,
+  "hc_level": 0.75,
+  "hh_level": 0.75,
+  "oh_level": 0.75,
+  "cr_level": 0.75,
+  "rd_level": 0.75
+ },
+ "notes": [
+  {
+   "at": 0,
+   "note": 36,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 0.5,
+   "note": 42,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 0.75,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 1,
+   "note": 38,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 1.5,
+   "note": 42,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 2.5,
+   "note": 36,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 2.5,
+   "note": 42,
+   "len": 0.1,
+   "vel": 50
+  },
+  {
+   "at": 3,
+   "note": 38,
+   "len": 0.1,
+   "vel": 80
+  },
+  {
+   "at": 3.5,
+   "note": 42,
+   "len": 0.1,
+   "vel": 50
+  }
+ ],
+ "repeat": 4,
+ "sources": [
+  {
+   "use": "tr909.lemus"
+  },
+  {
+   "use": "tr909.roland"
+  }
+ ]
+}

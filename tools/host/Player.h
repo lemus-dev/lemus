@@ -14,7 +14,7 @@ juce::File findPlugin(const juce::String &name);
 class Player : private juce::AudioPlayHead {
 public:
 	// Loads and prepares the plugin, picks the Lemus machine, restores the state, sets the
-	// parameters. Check error() afterwards.
+	// parameters, runs the preroll. Check error() afterwards.
 	Player(juce::AudioPluginFormatManager &formats, const Scene &scene, const Source &source, bool realtime);
 	~Player() override;
 
@@ -50,6 +50,7 @@ private:
 	juce::AudioBuffer<float> m_input, m_work, m_recording;
 	int64_t m_now = 0;
 	size_t m_next = 0;
+	bool m_prerolling = false; // the source's preroll: the transport reads stopped
 };
 
 } // namespace lemus::host

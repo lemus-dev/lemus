@@ -1,0 +1,20 @@
+* Test circuit for the solver's MOSFET (tools/spice/cases/cmos.py; docs/circuit/solver-mosfet.md),
+* not a part of the TR-909: two 4069UB inverters (models.cir's 4069UB_N and 4069UB_P) on the
+* supply vdd, both driven by vin. A is unloaded but for 10 nF (its transfer curve and, through
+* the 1 ohm Rdd, its supply current); B drives 100 nF to ground and 10k to vdd/2 (two 20k), so a
+* square on vin shows its output current in both directions, saturated and linear.
+* Inputs: vdd, vin (volts). Outputs: outa, outb, idd (A's supply current, volts per amp).
+Vdd vdd 0 input vdd
+Vin in 0 input vin
+Rdd vdd vdda 1
+MPA outa in vdda 4069UB_P
+MNA outa in 0 4069UB_N
+CA outa 0 10n
+MPB outb in vdd 4069UB_P
+MNB outb in 0 4069UB_N
+CB outb 0 0.1u
+RBP outb vdd 20k
+RBN outb 0 20k
+.output outa outa
+.output outb outb
+.output idd vdd vdda

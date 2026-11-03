@@ -1,0 +1,508 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import Prerelease from '../components/Prerelease.astro';
+import MailForm from '../components/MailForm.astro';
+import Clip from '../components/Clip.astro';
+import { bySlug, downloadLinks, platforms, sourceOf } from '../data/machines';
+import voiceModeShot from '../assets/ro-drums-909/voice-mode.webp';
+import serviceShot from '../assets/ro-drums-909/service.webp';
+
+const m = bySlug('ro-drums-909');
+const links = downloadLinks(m);
+const voiceMode = await getImage({ src: voiceModeShot, format: 'webp', quality: 85 });
+const service = await getImage({ src: serviceShot, format: 'webp', quality: 85 });
+
+// The real unit: a video of a TR-909 playing its factory song. Linked, never hosted.
+const video = 'https://www.youtube.com/watch?v=od-erpCKbtc';
+
+// The strip under the header: the page's sections, the one being read underlined.
+const sections = [
+  { id: 'accuracy', label: 'Hear it' },
+  { id: 'service', label: 'Service' },
+  { id: 'revisions', label: 'Board revisions' },
+  { id: 'differences', label: 'Differences' },
+  { id: 'made', label: 'How it was made' },
+  { id: 'roland', label: "Roland's software" },
+  { id: 'rom', label: 'ROMs' },
+  { id: 'artwork', label: 'Artwork' },
+];
+
+// A scale for the In numbers charts: where a value sits, as a percentage of the axis.
+const at = (v: number, min: number, max: number) => `${((v - min) / (max - min)) * 100}%`;
+const width = (from: number, to: number, min: number, max: number) => `${((to - from) / (max - min)) * 100}%`;
+const ticks = (min: number, max: number, step: number, label: (v: number) => string) =>
+  Array.from({ length: Math.round((max - min) / step) + 1 }, (_, i) => min + i * step).map((v) => ({ left: at(v, min, max), label: label(v) }));
+const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + ' ¢';
+---
+<Base title="ro-drums-909 · Lemus" description="ro-drums-909 emulates the Roland TR-909 Rhythm Composer: its original sequencer firmware on an emulated CPU, and its voicing board modelled part by part. Free for macOS and Windows." current="ro-drums-909">
+
+<nav slot="sub" class="onpage" aria-label="On this page">
+<div class="frame sheet">
+<div class="col">
+<ol>
+{sections.map((s) => <li><a href={`#${s.id}`} class:list={{ red: s.id === 'differences' }}>{s.label}</a></li>)}
+</ol>
+</div>
+</div>
+</nav>
+
+<section class="sheet">
+<div class="col hero">
+<div class="top">
+<div class="intro">
+<nav aria-label="Breadcrumb" class="crumbs"><a href="/#plugins">Plugins</a> / ro-drums-909</nav>
+<h1 class="name">ro-drums-909</h1>
+<p class="lede">Emulation of the Roland TR-909 Rhythm Composer (1984), a drum machine with analog voices, sampled hi-hats and cymbals, and a step sequencer.</p>
+<p class="dim">It runs the original sequencer firmware on an emulated CPU, and models the voicing board part by part from the service notes.</p>
+{m.release ? (
+<div class="buttons">
+<a href={links.mac} class="btn">Download for macOS</a>
+<a href={links.windows} class="btn">Download for Windows</a>
+</div>
+) : (
+<p class="partial unreleased">Not available for download yet. The first release, a beta, is being prepared.</p>
+)}
+<p class="meta">Free{m.release && <>, version {m.release.version}{m.release.stage && ` ${m.release.stage}`}, source: <a href={sourceOf(m.release)}>v{m.release.version} on GitHub</a> (GNU AGPLv3)</>}</p>
+{m.release && <Prerelease release={m.release} />}
+<div class="mailbox tapbox">
+<h2 class="mail-h">Release announcements by email</h2>
+<p class="dim">Nothing else is sent. <a href="/support#mailing-list">Mailing list</a></p>
+<MailForm id="mail-hero" />
+</div>
+<div class="jumps">
+<a href="/ro-drums-909/guide">User guide</a>
+<a href="#accuracy">Hear the factory patterns
+<svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M8 2v11M4 9l4 4 4-4"></path></svg></a>
+</div>
+</div>
+
+<div class="data">
+<div class="data-head"><span>Data</span>{m.release && <span class="mono">{m.slug} {m.release.version}</span>}</div>
+<dl>
+<div><dt class="lbl">Emulates</dt><dd>Roland TR-909 Rhythm Composer</dd></div>
+<div><dt class="lbl">Year</dt><dd>{m.year}</dd></div>
+<div><dt class="lbl">Type</dt><dd>{m.type}</dd></div>
+<div><dt class="lbl">Status</dt><dd class={m.status === 'working' ? 'ok' : 'partial'}>{m.status}</dd></div>
+<div><dt class="lbl">Without ROM</dt>{m.withoutRom === 'voice' ? <dd class="partial"><span class="mono">[~]</span> voice mode</dd> : <dd class="missing"><span class="mono">[✗]</span> ROM missing</dd>}</div>
+<div><dt class="lbl">ROM images</dt><dd><span class="mono">tr909_v4.ic609</span> and the hi-hat, crash and ride ROMs, not included</dd></div>
+<div><dt class="lbl">Outputs</dt><dd>Master L and R, ten MULTI OUTs</dd></div>
+{platforms.map(([os, formats]) => <div><dt class="lbl">{os}</dt><dd>{formats}</dd></div>)}
+</dl>
+</div>
+</div>
+
+<figure class="panel">
+<div class="mount">
+<div class="pin">
+<img src={voiceMode.src} alt="ro-drums-909 in voice mode: the TR-909 panel with its knobs, keys and display, its brand marks' places left blank, and the plugin bar with SYNC, REAR and SERVICE" width="1215" height="771">
+<span class="leader" style="left: 45.5%; top: -24px; height: calc(43% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 45.5%; top: 43%" aria-hidden="true"></span>
+<span class="balloon" style="left: 45.5%; top: -56px" aria-hidden="true">A2</span>
+<span class="leader" style="left: 54.8%; top: 83%; height: calc(17% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 54.8%; top: 83%" aria-hidden="true"></span>
+<span class="balloon" style="left: 54.8%; top: calc(100% + 24px)" aria-hidden="true">A1</span>
+</div>
+</div>
+<figcaption class="caption">
+<div class="row"><span class="key">A1</span><span><strong>Sequencer.</strong> The CPU, a uPD7811, runs its original program from <span class="mono">tr909_v4.ic609</span>.</span></div>
+<div class="row"><span class="key">A2</span><span><strong>Voices.</strong> The voicing board, modelled part by part from the service notes; the hi-hat, crash and ride play their samples from their own ROMs.</span></div>
+<div class="row"><span class="fig">FIG. 1</span><span>Voice mode: the panel with its brand marks' places left blank, and the plugin bar with SYNC, REAR and SERVICE.</span></div>
+</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="accuracy" class="sheet">
+<div class="col sec">
+<div class="pair">
+<div class="text">
+<h2 class="h2 tap">The factory patterns</h2>
+<p class="dim">With the version 1.0 program ROM, a new ro-drums-909 holds the factory patterns. Here it plays them as a new instance starts, every knob at its default, in mono, with no effects: each pattern four times at the default tempo, 120.6 BPM, and the song, track 1, at its stored tempo, 110.3 BPM (TEMPO with TRACK 1).</p>
+<a href={video} class="btn ghost small out">A real TR-909 playing the song, on YouTube
+<svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 3h7v7M13 3L4 12"></path></svg></a>
+</div>
+<div class="clips">
+<Clip plugin="ro-drums-909" src="/media/ro-drums-909/factory-song.m4a" settings={[['TRACK', '1'], ['TEMPO', '110.3']]} note="The factory song, 65 measures" />
+<div class="clips-grid">
+{[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <Clip plugin="ro-drums-909" src={`/media/ro-drums-909/factory-pattern-${n}.m4a`} settings={[['PATTERN', String(n)]]} />)}
+</div>
+</div>
+</div>
+
+<div class="numbers-head">
+<h3 class="h3">In numbers</h3>
+<p class="dim">Measured against AudioRealism's recordings of a late TR-909 on a fine grid of knob settings, the unit it is calibrated to. Method: <a href="#made">How it was made</a>.</p>
+</div>
+
+<div class="numbers">
+<div class="measure">
+<div class="figure">
+<div class="big">±28 ¢</div>
+<div class="what">tom tuning error</div>
+<div class="dim small">At the settings Roland's TR-909 software was measured at; its low tom is 79–120 ¢ flat, its high tom 150–210 ¢ sharp. Over 121 settings, ro-drums-909's median is −4, −6 and −10 ¢ (low, mid, high tom).</div>
+</div>
+<div class="chart range" aria-hidden="true">
+<span class="zero" style={`left: ${at(0, -150, 250)}`}></span>
+<span class="label ours" style={`left: ${at(-28, -150, 250)}; top: 0`}>ro-drums-909 −28 to +28 ¢</span>
+<span class="span ours" style={`left: ${at(-28, -150, 250)}; width: ${width(-28, 28, -150, 250)}; top: 18px`}></span>
+<span class="label" style={`left: ${at(-120, -150, 250)}; top: 32px`}>Roland's software: low tom, high tom</span>
+<span class="span" style={`left: ${at(-120, -150, 250)}; width: ${width(-120, -79, -150, 250)}; top: 50px`}></span>
+<span class="span" style={`left: ${at(150, -150, 250)}; width: ${width(150, 210, -150, 250)}; top: 50px`}></span>
+<div class="axis"></div>
+{ticks(-150, 250, 50, cents).map((t) => <><span class="tick" style={`left: ${t.left}`}></span><span class="tick-label" style={`left: ${t.left}`}>{t.label}</span></>)}
+</div>
+</div>
+
+<div class="measure">
+<div class="figure">
+<div class="big">±21 ¢</div>
+<div class="what">crash and ride clock error over TUNE</div>
+<div class="dim small">Roland's TR-909 software: 29 to 118 ¢ under the real unit's.</div>
+</div>
+<div class="chart range" aria-hidden="true">
+<span class="zero" style={`left: ${at(0, -150, 50)}`}></span>
+<span class="label ours to-end" style={`left: ${at(21, -150, 50)}; top: 0`}>ro-drums-909 −21 to +21 ¢</span>
+<span class="span ours" style={`left: ${at(-21, -150, 50)}; width: ${width(-21, 21, -150, 50)}; top: 18px`}></span>
+<span class="label" style={`left: ${at(-118, -150, 50)}; top: 32px`}>Roland's software −118 to −29 ¢</span>
+<span class="span" style={`left: ${at(-118, -150, 50)}; width: ${width(-118, -29, -150, 50)}; top: 50px`}></span>
+<div class="axis"></div>
+{ticks(-150, 50, 50, cents).map((t) => <><span class="tick" style={`left: ${t.left}`}></span><span class="tick-label" style={`left: ${t.left}`}>{t.label}</span></>)}
+</div>
+</div>
+
+<div class="measure">
+<div class="figure">
+<div class="big">14.5 ms</div>
+<div class="what">the bass drum's pitch sweep at TUNE 75 %</div>
+<div class="dim small">The real unit: 14.4 ms. Roland's TR-909 software: 20.9 ms, 45 % long.</div>
+</div>
+<div class="chart" aria-hidden="true">
+<div class="axis"></div>
+{ticks(0, 30, 5, (v) => `${v} ms`).map((t) => <><span class="tick" style={`left: ${t.left}`}></span><span class="tick-label" style={`left: ${t.left}`}>{t.label}</span></>)}
+<span class="bar" style={`width: ${at(14.5, 0, 30)}`}></span>
+<span class="dot" style={`left: ${at(14.4, 0, 30)}`}></span>
+<span class="dot ours" style={`left: ${at(14.5, 0, 30)}`}></span>
+<span class="label ours above" style={`left: ${at(14.5, 0, 30)}`}>ro-drums-909 14.5 ms</span>
+<span class="label below to" style={`left: ${at(14.4, 0, 30)}`}>real 14.4 ms</span>
+<span class="dot" style={`left: ${at(20.9, 0, 30)}`}></span>
+<span class="label below from" style={`left: ${at(20.9, 0, 30)}`}>Roland's software 20.9 ms</span>
+</div>
+</div>
+
+<div class="measure">
+<div class="figure">
+<div class="big">0.84 ms</div>
+<div class="what">the sequencer's shuffle against the real unit's, at all seven settings</div>
+<div class="dim small">Its 40 flam recordings within 0.7 ms. Through 2 min 19 s of a real unit's factory song, every hit within about 2 ms.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="service" class="sheet">
+<div class="col sec">
+<div class="service-head">
+<div class="text">
+<h2 class="h2 tap">Take the panel off</h2>
+<p class="dim">The voicing board and the switch board, every part where the service notes draw it, with the clap's trimmer TM, the circuit by serial number (<a href="#revisions">Board revisions</a>), and a scope on any pin of any part. <a href="/ro-drums-909/guide#service">SERVICE in the guide</a></p>
+</div>
+<div class="stamp">
+<div><span class="count">62 / 75</span> <span class="spec">Pass</span></div>
+<div class="checks">service-note checks</div>
+<div class="dim tiny">e.g. the master out's 6 Vp-p. The other 13: <a href="#differences">Differences</a></div>
+</div>
+</div>
+<figure class="shot">
+<div class="mount">
+<img src={service.src} alt="ro-drums-909 with SERVICE on: the TR-909's voicing board above its switch board, every part drawn where the service notes put it, and on the right the scope, the peak-to-peak and HAND CLAP LEVEL readouts, the trimmer TM with TEST, and the circuit by serial number" width="2430" height="1542" loading="lazy">
+</div>
+<figcaption class="caption"><div class="row"><span class="fig">FIG. 2</span><span>SERVICE: the voicing board above the switch board. On the right, the scope, the trimmer <span class="mono">TM</span> and the circuit by serial number, from the first units to the late board.</span></div></figcaption>
+</figure>
+</div>
+</section>
+
+<section id="revisions" class="sheet">
+<div class="col sec">
+<div class="text">
+<h2 class="h2 tap">Board revisions</h2>
+<p class="dim">Roland changed the TR-909 during production. The service notes list each change by the first serial number to have it (SN p.7). SERVICE’s circuit setting picks the unit by serial number, from the first units (360100) to the late board (426700 up, the default), and the model puts back the parts each later change replaced. Every other part is the calibrated unit’s, a late board. The setting is saved with the session. <a href="/ro-drums-909/guide#service">SERVICE in the guide</a></p>
+</div>
+<div class="table-box">
+<table class="table revisions">
+<thead><tr><th scope="col">From serial</th><th scope="col">Parts</th><th scope="col">Change</th><th scope="col">What it does</th><th scope="col">Modelled</th></tr></thead>
+<tbody>
+<tr><td class="num">371500</td><td>R495 (bass drum)</td><td>150 kΩ from Q6’s base to ground removed</td><td>Surface-mounted on earlier boards (SN p.11)</td><td>Yes</td></tr>
+<tr><td class="num">381500</td><td>C9 (bass drum)</td><td>0.22 µF → 0.33 µF</td><td>“For expanding the TUNE range”</td><td>Yes</td></tr>
+<tr><td class="num">381500</td><td>C87, R306, R312 (tape)</td><td>C87 removed; R306 4.7 kΩ → 47 kΩ; R312 470 kΩ → 4.7 MΩ</td><td>Tape LOAD</td><td class="dim">No: the tape interface isn’t emulated</td></tr>
+<tr><td class="num">392600</td><td>R442, R440 (crash, ride)</td><td>33 kΩ → 10 kΩ</td><td>The sample clocks’ TUNE range</td><td>Yes</td></tr>
+<tr><td class="num">393000</td><td>D701 (power supply)</td><td>RD6.8JB2 → RD5.6JB2</td><td>The reset at a brown-out</td><td class="dim">No: the supply isn’t modelled</td></tr>
+<tr><td class="num">415300</td><td>R417 (rim shot)</td><td>12 kΩ → 3.3 kΩ</td><td>“For giving the voice more realistic sound”</td><td>Yes</td></tr>
+<tr><td class="num">415300</td><td>C134 (hi-hat)</td><td>10 µF → 0.01 µF</td><td>“For rolling off unnecessary lower frequencies”</td><td>Yes</td></tr>
+<tr><td class="num">415300</td><td>R392, R393, R495, C600 (TRIG OUT)</td><td>22 kΩ and 10 kΩ → 1 MΩ; a jumper → R495 1 kΩ; C600 0.1 µF added</td><td>Keeps the rim shot’s TRIG OUT pulse out of TAPE SYNC</td><td>Yes</td></tr>
+<tr><td class="num">415300</td><td>C500–C512 (jack board)</td><td>0.01 µF to ground at each jack added</td><td>“Noise is high in OUTPUT”</td><td>Yes</td></tr>
+<tr><td class="num">426700</td><td>C54, R194 (tom noise)</td><td>0.0022 µF → 0.0047 µF; 47 kΩ → 100 kΩ</td><td>“To emphasize attack of TOM TOMs”</td><td>Yes</td></tr>
+</tbody>
+</table>
+</div>
+<p class="dim small">The program ROM changed too: group A, with no version label (SN 360100–393899); Ver. 1, an EPROM or a mask ROM (SN 403900 on); Ver. 2, which fixes STOP/CONTINUE under MIDI clock. ro-drums-909 runs version 4.0 at every serial number. A version 1.0 ROM only makes the factory patterns, which 4.0 dropped (<a href="/ro-drums-909/guide#factory">the guide</a>).</p>
+</div>
+</section>
+
+<section id="differences" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap red">What is still different</h2>
+<dl class="diffs">
+<div><dt>The bass drum</dt><dd>Its second harmonic is perhaps 3–6 dB strong against three units, and DECAY 0 a little short: down 20 dB at 93 ms, against 106.</dd></div>
+<div><dt>The clap</dt><dd>Its fourth tooth is a spike where three units have a full tooth, and with it the tail at 60–250 ms differs. A fourth unit has that tooth 3–12 dB down: units differ.</dd></div>
+<div><dt>The rim shot</dt><dd>Its output is taken from IC50a rather than the drawn IC50b: five units' waveforms say so.</dd></div>
+<div><dt>Snare and toms</dt><dd>The snare's pitch bend is 3–10 % high in its first milliseconds. The toms' far tail is up to 0.14 octave short at −40 dB.</dd></div>
+<div><dt>Units differ</dt><dd>The calibration is one unit's. Another unit's toms sit 14–92 cents higher, and the unit in the video takes its crash a semitone below the lowest CRASH TUNE here. Earlier boards come from the serial number in SERVICE (<a href="#revisions">Board revisions</a>), with the calibrated unit's other parts. Two fitted values lie outside their parts' tolerances: the bass drum's R44 (36k, standing for the click's real cause) and the cymbal clocks' 4011UB gates (1.72 times their typical drive).</dd></div>
+<div><dt>The top octave</dt><dd>The snare and clap are 0.4–1.2 dB low at 10–16 kHz at their jacks, against the board run at 384 kHz. The hi-hat, crash and ride are 0.5–0.7 dB low at 15–20 kHz, against ngspice.</dd></div>
+<div><dt>Service-note checks</dt><dd>13 of 75 fail. The snare's supply peaks at 4.1 V where the notes draw 5. The low tom's and closed hat's accents span about 8 and 6.5 dB where the notes' traces span 5.8 and 4.7. The hats' positive peaks are 1.2–1.5 times their negative ones against the traces' 1.9–2.0; the AudioRealism unit's agree with ro-drums-909's. The snare's snappy noise bursts as its trigger ends, which the traces don't show; the AudioRealism unit's burst is the same size. At the calibrated unit's TM the clap reads 4.1 Vp-p, against the adjustment's 2.</dd></div>
+<div><dt>CPU</dt><dd>The voices run on two worker threads beside the host's. A busy kit takes about three quarters of one core of an Apple M1 Max at 48 kHz; every voice at once comes near a full audio block.</dd></div>
+</dl>
+<div class="not">
+<h3 class="h3">Not emulated</h3>
+<p class="dim">The tape interface (SAVE, LOAD, VERIFY, TAPE SYNC's input), the cartridge, TRIGGER OUT as a plugin output, the clock, start, stop and song select on MIDI out, the analog voices' own power-on transients (they start at their operating points), and the supply rails' ramp.</p>
+</div>
+</div>
+</section>
+
+<section id="made" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">How it was made</h2>
+<ol class="steps">
+<li>
+<div class="step-n">01</div>
+<div class="step">
+<h3 class="h3">The firmware</h3>
+<p class="dim">Roland's v4.0 program runs unmodified on an emulated uPD7811, with the CPU board's battery RAM, key and LED matrices, MEAS/TEMPO display, TEMPO and TOTAL ACCENT pots, MIDI and DIN sync, driving the voicing board through its trigger latches and accent DACs. Every procedure in the owner's manual behaves as the manual says, the firmware's own quirks aside: 54 checks. Against a real unit's recordings, shuffle is within 0.84 ms at all seven settings and the 40 flam recordings within 0.7 ms.</p>
+</div>
+</li>
+<li>
+<div class="step-n">02</div>
+<div class="step">
+<h3 class="h3">Schematic and SPICE</h3>
+<p class="dim">Every circuit of the voicing board and the jack board was transcribed part by part from the service notes into a netlist, which a circuit solver runs sample by sample: no voice is a hand-made approximation. Each netlist is checked against ngspice on the same circuit: the bass drum, snare, toms and rim shot within 0.12 % RMS, the clap 0.65 %, the jack board 0.35 %, the hi-hat and crash 0.45 % and the ride 0.6 % at their 192 kHz; the VCOs' pitch within 0.01 %. The noise generator and the hi-hat's and cymbals' counters, ROMs and latches are their logic, edge by edge.</p>
+</div>
+</li>
+<li>
+<div class="step-n">03</div>
+<div class="step">
+<h3 class="h3">Calibration to a real unit</h3>
+<p class="dim">The schematic doesn't fix the pots' laws, the trimmer or the parts' spread. These were fitted to AudioRealism's recordings of a late TR-909 at every knob on a fine grid, each fit checked on settings held out of it, and on other units' recordings.</p>
+<div class="table-box">
+<table class="table fitted">
+<thead><tr><th scope="col">Part</th><th scope="col">Schematic value</th><th scope="col" class="fit">Fitted</th></tr></thead>
+<tbody>
+<tr><td>Bass drum C8</td><td class="num dim">0.33 µF</td><td class="num fit">0.40 µF</td></tr>
+<tr><td>Bass drum R44</td><td class="num dim">22 kΩ</td><td class="num fit">36 kΩ</td></tr>
+<tr><td>Snare VR7</td><td class="num dim">500 kΩ</td><td class="num fit">600 kΩ</td></tr>
+<tr><td>Clap trimmer TM, wiper</td><td class="num dim">25.5 %</td><td class="num fit">30 %</td></tr>
+<tr><td>Crash VR25</td><td class="num dim">10 kΩ</td><td class="num fit">8.36 kΩ</td></tr>
+<tr><td>Cymbal clocks' 4011UB gates, drive</td><td class="num dim">typical</td><td class="num fit">× 1.72</td></tr>
+</tbody>
+</table>
+</div>
+<p class="dim small">With the schematic's values, the bass drum's log-spectral distance from the unit is 11.7 dB and the toms' tuning is 46–80 ¢ off RMS; fitted, 4.2 dB and 14–20 ¢. The clap's TM in the service notes, 2 Vp-p at its MULTI OUT, leaves the clap 6 dB under the other voices: its spikes are narrower than the unit's.</p>
+</div>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="roland" class="sheet">
+<div class="col sec">
+<div class="text">
+<h2 class="h2 tap">Roland's TR-909 software</h2>
+<p class="dim">Its renders measured against the same real unit, at the same knob settings.</p>
+</div>
+<div class="table-box">
+<table class="table versus">
+<caption>Against the real unit. ¢ = cents.</caption>
+<thead><tr><th scope="col"><span class="sr">Source</span></th><th scope="col">Toms' tuning</th><th scope="col">Crash and ride clocks</th><th scope="col">Bass drum sweep, TUNE 75 %</th><th scope="col">Open hat at DECAY 0, to −20 dB</th></tr></thead>
+<tbody>
+<tr class="dim"><th scope="row">Real unit</th><td class="num">—</td><td class="num">—</td><td class="num">14.4 ms</td><td class="num">136–137 ms</td></tr>
+<tr class="ours"><th scope="row" class="mono">ro-drums-909</th><td class="num">within ±28 ¢</td><td class="num">within ±21 ¢</td><td class="num">14.5 ms</td><td class="num">136–137 ms</td></tr>
+<tr><th scope="row">Roland's software</th><td class="num">low 79–120 ¢ flat, high 150–210 ¢ sharp</td><td class="num">29–118 ¢ under</td><td class="num">20.9 ms</td><td class="num">31 ms</td></tr>
+</tbody>
+</table>
+</div>
+<p class="dim">Roland's software also places the clap's fourth burst 3–5 ms late, and its rim shot's tail is half as long. ro-drums-909 was calibrated on this unit; Roland's software wasn't.</p>
+<p class="dim small">Measured with Roland's TR-909 software 1.1.3: single-knob sweeps around its default kit, at 48 kHz, MIDI velocity 127.</p>
+</div>
+</section>
+
+<section id="rom" class="sheet">
+<div class="col sec brief">
+<h2 class="h2 tap">ROM images and voice mode</h2>
+<p class="dim">The sequencer program and the hi-hat's, crash's and ride's samples are in ROMs, Roland's copyrighted work, so they aren't included. With the images from MAME's tr909 set, ro-drums-909 runs the program, <span class="mono">tr909_v4.ic609</span>, on an emulated CPU, and plays the samples from their ROMs. Without the program ROM, it runs in voice mode: the same voices over MIDI, with no sequencer. Without a sample ROM, that voice is silent. The version 1.0 program ROM gives a new instance the factory patterns. <a href="/ro-drums-909/guide#roms">The ROMs and voice mode</a></p>
+</div>
+</section>
+
+<section id="artwork" class="sheet">
+<div class="col sec brief last">
+<h2 class="h2 tap">Panel artwork</h2>
+<p class="dim">Roland's logo and the model names are trademarks, so their places are blank: three on the top panel and one on the rear. Each place takes an SVG or PNG file of your own in <span class="mono">artwork/tr909/</span> in the ROM folder: drawn yourself, or generated with an AI tool such as Claude or ChatGPT. <a href="/ro-drums-909/guide#artwork">Panel artwork</a></p>
+</div>
+</section>
+
+</Base>
+
+<script>
+// Underline the strip's link for the section being read: the last whose top has passed under the
+// strip, or the last of all at the foot of the page.
+const links = [...document.querySelectorAll<HTMLAnchorElement>('.onpage a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+const strip = document.querySelector<HTMLElement>('.onpage ol')!;
+let current = -2;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 80) i = j; });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) i = targets.length - 1;
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => { if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  // Bring the link into view along the strip only. scrollIntoView would also scroll the page, up
+  // by the scroll padding, since the stuck strip sits inside it.
+  const a = links[i];
+  if (!a) return;
+  const r = a.getBoundingClientRect(), s = strip.getBoundingClientRect();
+  if (r.left < s.left) strip.scrollLeft += r.left - s.left;
+  else if (r.right > s.right) strip.scrollLeft += r.right - s.right;
+}
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+mark();
+</script>
+
+<style>
+:global(html) { scroll-padding-top: 64px; }
+
+.onpage { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.onpage ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 30px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.onpage ol::-webkit-scrollbar { display: none; }
+.onpage a { display: inline-flex; align-items: center; min-height: 46px; box-sizing: border-box; padding-top: 3px; border-bottom: 3px solid transparent; color: var(--ink2); text-decoration: none; font-size: 15px; font-weight: 500; }
+.onpage a:hover { color: var(--ink); }
+.onpage a[aria-current] { color: var(--ink); border-bottom-color: var(--wire); }
+.onpage a.red[aria-current] { border-bottom-color: var(--red); }
+
+.hero { padding-block: 56px 88px; display: flex; flex-direction: column; gap: 56px; }
+.top { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 48px 64px; align-items: start; }
+.intro { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.intro p { margin: 0; }
+.crumbs { font-size: 14px; color: var(--ink2); }
+.name { margin: 0; font-family: var(--mono); font-weight: 700; font-size: clamp(38px, 4.8vw, 66px); line-height: 1; letter-spacing: -0.035em; white-space: nowrap; }
+.lede { font-size: 21px; line-height: 1.45; }
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+.unreleased { font-size: 16px; font-weight: 600; }
+.meta { font-size: 14px; color: var(--ink2); }
+.mailbox { --tap-y: 31px; max-width: 560px; box-sizing: border-box; border: 2px solid var(--ink); background: var(--tint); padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+.mail-h { margin: 0; font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.15; text-transform: uppercase; }
+.mailbox p { font-size: 15px; }
+.jumps { display: flex; flex-wrap: wrap; gap: 0 28px; font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: 0.05em; text-transform: uppercase; }
+.jumps a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-underline-offset: 5px; }
+
+.data { border: 2px solid var(--ink); min-width: 0; }
+.data-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 16px; border-bottom: 2px solid var(--ink); background: var(--paper2); font-family: var(--display); font-weight: 700; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
+.data-head .mono { font-family: var(--mono); font-weight: 400; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--ink2); }
+.data dl { margin: 0; display: flex; flex-direction: column; font-size: 16px; }
+.data dl > div { display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--rule); }
+.data dl > div:last-child { border-bottom: 0; }
+.data dt { padding-top: 3px; }
+.data dd { margin: 0; }
+.data .mono { font-size: 14px; }
+
+.panel { margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.panel .mount { padding: 58px 24px; }
+.pin { position: relative; }
+.pin img { display: block; width: 100%; height: auto; }
+.panel .balloon { width: 34px; height: 34px; font-size: 12px; }
+.caption strong { color: var(--ink); font-weight: 600; }
+.caption .mono { font-size: 13px; color: var(--ink); }
+
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 40px 56px; align-items: start; }
+.text { display: flex; flex-direction: column; gap: 18px; min-width: 0; max-width: 48em; }
+.text p { margin: 0; }
+.out { align-self: start; color: var(--wire-text); border-color: var(--wire); }
+.small { font-size: 15px; }
+.tiny { font-size: 13px; }
+.mono { font-size: 0.9em; color: var(--ink); }
+.clips { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.clips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+
+.numbers-head { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.numbers-head .h3 { font-size: 30px; font-weight: 700; letter-spacing: 0.02em; }
+.numbers-head p { margin: 0; font-size: 16px; }
+.numbers { display: flex; flex-direction: column; margin-top: -8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.measure { display: flex; flex-wrap: wrap; gap: 24px 56px; padding: 28px 0; }
+.measure + .measure { border-top: 1px solid var(--rule); }
+.figure { flex: 1 1 300px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.big { font: 700 56px/1 var(--display); font-variant-numeric: tabular-nums; }
+.what { font-weight: 500; }
+.chart { flex: 2 1 420px; min-width: 0; position: relative; height: 96px; margin-top: 8px; font: 11px/16px var(--mono); color: var(--ink2); }
+.chart > * { position: absolute; }
+.axis { left: 0; right: 0; top: 40px; border-top: 1.5px solid var(--ink); }
+.tick { top: 40px; height: 7px; border-left: 1px solid var(--ink); }
+.tick-label { top: 50px; transform: translateX(-50%); font-size: 10px; white-space: nowrap; }
+.bar { left: 0; top: 37px; height: 6px; background: var(--wire); }
+.dot { top: 35px; width: 11px; height: 11px; box-sizing: border-box; transform: translateX(-50%); border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); }
+.dot.ours { top: 33px; width: 15px; height: 15px; border: 0; background: var(--wire); box-shadow: 0 0 0 2px var(--paper); }
+.label { white-space: nowrap; }
+.label.ours { font-weight: 700; color: var(--wire-text); }
+.label.to-end { transform: translateX(-100%); }
+.label.above { top: 10px; transform: translateX(-50%); }
+.label.below { top: 72px; }
+.label.above.from, .label.below.from { transform: translateX(-12px); }
+.label.below.to { transform: translateX(calc(-100% + 12px)); }
+.range { height: 104px; margin-top: 4px; }
+.range .axis, .range .tick { top: 74px; }
+.range .tick-label { top: 84px; }
+.zero { top: 0; height: 74px; border-left: 1px dashed var(--rule); }
+.span { height: 10px; box-sizing: border-box; border: 1.5px solid var(--ink); background-image: repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 5px); }
+.span.ours { border: 0; background: var(--wire); }
+
+.service-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 28px; }
+.service-head .text { flex: 1 1 480px; max-width: 46em; }
+.stamp { border: 4px double var(--green); color: var(--green); padding: 12px 20px 14px; display: flex; flex-direction: column; gap: 2px; max-width: 100%; box-sizing: border-box; }
+.count { font: 700 44px/1.05 var(--display); white-space: nowrap; }
+.spec { margin-left: 8px; font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: 0.1em; text-transform: uppercase; }
+.checks { font-size: 15px; color: var(--ink); }
+.shot { margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.shot .mount { padding: 24px; }
+.shot img { display: block; width: 100%; height: auto; }
+
+.diffs { margin: 0; display: flex; flex-direction: column; max-width: 62em; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.diffs > div { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 12px; padding: 18px 0; }
+.diffs > div + div { border-top: 1px solid var(--rule); }
+.diffs > div::before { content: '≠'; grid-row: span 2; font: 700 24px/1.05 var(--mono); color: var(--red); }
+.diffs dt { font-family: var(--display); font-weight: 600; font-size: 23px; line-height: 1.15; letter-spacing: 0.03em; text-transform: uppercase; }
+.diffs dd { margin: 0; color: var(--ink2); font-size: 16px; }
+.not { max-width: 62em; display: flex; flex-direction: column; gap: 8px; }
+.not .h3 { font-size: 26px; letter-spacing: 0.02em; }
+.not p { margin: 0; font-size: 16px; }
+
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.steps > li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 20px; padding: 28px 0; }
+.steps > li + li { border-top: 1px solid var(--rule); }
+.step-n { width: 48px; height: 48px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+.step { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.step .h3 { font-size: 28px; letter-spacing: 0.02em; }
+.step p { margin: 0; max-width: 52em; }
+.fitted { min-width: 600px; }
+.fitted .fit { color: var(--red); font-weight: 700; }
+.versus { min-width: 860px; }
+.revisions { min-width: 860px; }
+.revisions td.num { white-space: nowrap; }
+.versus tbody th { font-weight: 400; }
+.versus .ours { background: var(--tint); color: var(--wire-text); font-weight: 700; }
+.versus .ours th { font-weight: 700; font-size: 15px; color: var(--wire-text); }
+.sec > p { margin: 0; max-width: 52em; }
+.brief { gap: 18px; }
+.brief p { margin: 0; max-width: 46em; }
+.last { padding-bottom: 96px; }
+</style>

@@ -54,6 +54,10 @@ public:
 	// what went wrong. A load into a playing instance holds the audio for the moment it takes.
 	juce::String saveStateTo(const juce::File &file);
 	juce::String loadStateFrom(const juce::File &file);
+	// The State pop-up's Reset: the loaded machine made again from the ROM folder with none of its
+	// state, as a new instance starts (its memory as a new one holds it, every control and setting
+	// at its default). Message thread. False while the instance is empty.
+	bool resetMachine();
 
 	// The loaded machine, or nullptr while the instance is empty. Message thread.
 	const lemus::MachineInfo *machine() const { return m_info; }

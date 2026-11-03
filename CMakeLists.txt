@@ -7,7 +7,7 @@ if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0" CACHE STRING "Oldest macOS the builds run on" FORCE)
 endif()
 set(CMAKE_OSX_ARCHITECTURES "arm64" CACHE STRING "")
-project(LEMUS VERSION 0.1.5 LANGUAGES C CXX)
+project(LEMUS VERSION 0.2.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -59,14 +59,18 @@ endmacro()
 # A machine's own plugin: the host with that machine alone, under the machine's own name (maker,
 # kind, model, all lower case: "ro-mono-303"), a download of its own. Its machine.cmake declares
 # it, after lemus_machine():
-#   lemus_plugin(<id> NAME <name> CODE <plugin code> DESCRIPTION <text> [STANDALONE] [MIDI_OUT])
+#   lemus_plugin(<id> NAME <name> CODE <plugin code> DESCRIPTION <text> [STAGE alpha|beta] [STANDALONE] [MIDI_OUT])
 # The name and code are permanent once the plugin ships: sessions find the plugin by them. The
 # code is four characters, an upper-case letter and then none. STANDALONE adds the standalone app.
 # MIDI_OUT makes the plugin send MIDI: what the machine's processBlock leaves in its MidiBuffer
-# (only its output: it takes the input out).
+# (only its output: it takes the input out). STAGE marks a pre-release: the bar shows it after the
+# plugin's name and About after its version, as the website does next to the download.
 set(LEMUS_PLUGIN_MACHINES)
 macro(lemus_plugin id)
-  cmake_parse_arguments(_lemus_plugin "STANDALONE;MIDI_OUT" "NAME;CODE;DESCRIPTION" "" ${ARGN})
+  cmake_parse_arguments(_lemus_plugin "STANDALONE;MIDI_OUT" "NAME;CODE;DESCRIPTION;STAGE" "" ${ARGN})
+  if(_lemus_plugin_STAGE AND NOT _lemus_plugin_STAGE MATCHES "^(alpha|beta)$")
+    message(FATAL_ERROR "lemus_plugin(${id}): STAGE is alpha or beta")
+  endif()
   if(NOT _lemus_plugin_NAME OR NOT _lemus_plugin_DESCRIPTION OR NOT "${_lemus_plugin_CODE}" MATCHES "^[A-Z][^A-Z][^A-Z][^A-Z]$")
     message(FATAL_ERROR "lemus_plugin(${id}): needs a NAME, a DESCRIPTION and a CODE of four characters, only the first upper-case")
   endif()
@@ -78,6 +82,7 @@ macro(lemus_plugin id)
   set(LEMUS_PLUGIN_${id}_DESCRIPTION "${_lemus_plugin_DESCRIPTION}")
   set(LEMUS_PLUGIN_${id}_STANDALONE ${_lemus_plugin_STANDALONE})
   set(LEMUS_PLUGIN_${id}_MIDI_OUT ${_lemus_plugin_MIDI_OUT})
+  set(LEMUS_PLUGIN_${id}_STAGE "${_lemus_plugin_STAGE}")
   list(APPEND LEMUS_PLUGIN_MACHINES ${id})
 endmacro()
 file(GLOB LEMUS_MACHINE_FILES CONFIGURE_DEPENDS ${LEMUS_MACHINES_DIR}/*/machine.cmake)
@@ -280,7 +285,7 @@ foreach(id ${LEMUS_PLUGIN_MACHINES})
     ${_lemus_kind}
   )
   lemus_add_host_with(plugin_${id} only_${id} ${id})
-  target_compile_definitions(plugin_${id} PUBLIC LEMUS_MACHINE="${id}")
+  target_compile_definitions(plugin_${id} PUBLIC LEMUS_MACHINE="${id}" LEMUS_STAGE="${LEMUS_PLUGIN_${id}_STAGE}")
   # Windows version info (host/version.rc.in): the product is Lemus, the description the plugin.
   if(WIN32)
     string(REPLACE "." "," _lemus_rc_version "${PROJECT_VERSION}.0")
@@ -355,6 +360,6 @@ if(LEMUS_TOOLS)
       set(_lemus_synth 0)
     endif()
     lemus_add_check(lemustest_${id} plugin only_${id} ${_lemus_synth} "${LEMUS_PLUGIN_${id}_NAME}" ${id})
-    target_compile_definitions(lemustest_${id} PRIVATE LEMUS_MACHINE="${id}")
+    target_compile_definitions(lemustest_${id} PRIVATE LEMUS_MACHINE="${id}" LEMUS_STAGE="${LEMUS_PLUGIN_${id}_STAGE}")
   endforeach()
 endif()

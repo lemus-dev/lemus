@@ -1,6 +1,7 @@
 # The Windows release: each shipping machine's own plugin (VST3 and the standalone app), checked
-# with its own tests and the instruments host's (the runner has no ROMs, so the 303 is checked in
-# voice mode), each zipped by tools/release/windows.ps1. Runs on demand and for version tags; the
+# with its own tests and the instruments host's (the runner has no ROMs, so the machines are checked
+# in voice mode), each zipped by tools/release/windows.ps1. The TR-909 is built with clang-cl: its
+# circuit solver runs about 15 % faster than with MSVC (windows-machine.yml's bench). Runs on demand and for version tags; the
 # zips are the run's artifact. The macOS release is built locally (tools/release/mac.sh), where the
 # signing keys are.
 #
@@ -24,16 +25,24 @@ jobs:
         with:
           submodules: true
       - name: Configure
-        run: cmake -S . -B build/release-win -G "Visual Studio 17 2022" -A x64 -DLEMUS_MACHINES=tb303 -DLEMUS_COPY_PLUGINS=OFF
+        run: |
+          cmake -S . -B build/release-win -G "Visual Studio 17 2022" -A x64 -DLEMUS_MACHINES=tb303 -DLEMUS_COPY_PLUGINS=OFF
+          cmake -S . -B build/release-win-tr909 -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=tr909 -DLEMUS_COPY_PLUGINS=OFF
       - name: Build
-        run: cmake --build build/release-win --config Release --parallel --target plugin_tb303_VST3 plugin_tb303_Standalone lemustest_tb303 lemustest_instrument
+        run: |
+          cmake --build build/release-win --config Release --parallel --target plugin_tb303_VST3 plugin_tb303_Standalone lemustest_tb303 lemustest_instrument
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cmake --build build/release-win-tr909 --config Release --parallel --target plugin_tr909_VST3 plugin_tr909_Standalone lemustest_tr909
       - name: Test
         run: |
           build/release-win/lemustest_tb303_artefacts/Release/lemustest_tb303.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          build/release-win-tr909/lemustest_tr909_artefacts/Release/lemustest_tr909.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
           build/release-win/lemustest_instrument_artefacts/Release/lemustest_instrument.exe
       - name: Package
         shell: pwsh
-        run: tools/release/windows.ps1 -Build build/release-win
+        run: |
+          tools/release/windows.ps1 -Build build/release-win
+          tools/release/windows.ps1 -Build build/release-win-tr909
       - name: Version
         id: version
         shell: pwsh

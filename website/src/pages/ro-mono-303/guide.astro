@@ -6,7 +6,7 @@ import panel from '../../assets/ro-mono-303/panel.webp';
 import panelWrite from '../../assets/ro-mono-303/panel-write.webp';
 import panelTrackWrite from '../../assets/ro-mono-303/panel-track-write.webp';
 import prompt from '../../assets/ro-mono-303/prompt.webp';
-import addrom from '../../assets/ro-mono-303/addrom.webp';
+import roms from '../../assets/ro-mono-303/roms.webp';
 import service from '../../assets/ro-mono-303/service-tm3.webp';
 
 // Areas of the 1200 × 640 window (the panel is y 32–600, the bottom bar y 600–640).
@@ -141,7 +141,7 @@ const toc: Entry[] = [
 
 <h3 id="first-start">The first start</h3>
 <p>The sequencer is a program in the CPU's 2 KB mask ROM, Roland's copyrighted work, so Lemus doesn't include it. The first time ro-mono-303 starts without it, it asks how to continue.</p>
-<Shot src={prompt} alt="The first-start prompt over the dimmed panel: d650c-133.ic8 and tb303.svg not found, where Lemus looked, and two choices, I have the ROM with Locate ROM… and Use voice mode with what voice mode does" crop={{ x: 200, y: 6, w: 800, h: 628 }} caption="The prompt the first time ro-mono-303 starts without its CPU ROM." />
+<Shot src={prompt} alt="The first-start prompt over the dimmed panel: d650c-133.ic8 and the artwork not found, where Lemus looked, and two choices, I have the ROM with Locate ROM… and Use voice mode with what voice mode does" crop={{ x: 200, y: 6, w: 800, h: 628 }} caption="The prompt the first time ro-mono-303 starts without its CPU ROM." />
 <ul>
 <li><span class="k">I have the ROM</span> (Locate ROM…) takes the ROM image, a zip holding it such as MAME's tb303.zip, or a folder. A file is checked and copied into the ROM folder; a folder becomes the ROM folder. The full TB-303 starts at once, settings kept.</li>
 <li><span class="k">Use voice mode</span> carries on without it.</li>
@@ -164,29 +164,38 @@ const toc: Entry[] = [
 <tr><th scope="row">Knobs, WAVEFORM, automation</th><td>Yes</td><td>Yes</td></tr>
 <tr><th scope="row">Sequencer: patterns, tracks, tap</th><td>The original firmware</td><td>No</td></tr>
 <tr><th scope="row">Panel keys and LEDs</th><td>Work as on the unit</td><td>No effect</td></tr>
-<tr><th scope="row">TEMPO, MODE, TRACK</th><td>Work</td><td>No effect</td></tr>
+<tr><th scope="row">TEMPO, MODE, TRACK, SYNC</th><td>Work</td><td>No effect</td></tr>
 </tbody>
 </table>
 </div>
 <p>Adding the ROM later switches the session to the full machine, keeping its knobs and pattern memory.</p>
 
 <h3 id="add-rom">Adding the ROM later</h3>
-<Shot src={addrom} alt="The Add CPU ROM… pop-up under the top bar: the ROM's name, size and checksums, the ROM folder's path, and the buttons Show folder, Change… and Rescan" crop={{ x: 700, y: 0, w: 500, h: 390 }} marks={[{ x: 1006, y: 3, w: 118, h: 26, n: 1 }]} caption="Add CPU ROM… in the top bar, while ro-mono-303 is in voice mode." />
+<Shot src={roms} alt="The ROMs pop-up under the top bar in voice mode: the ROM folder's path with Show, Change… and Rescan, d650c-133.ic8 not found with its checksums, and the artwork places" crop={{ x: 530, y: 0, w: 670, h: 572 }} marks={[{ x: 933, y: 3, w: 118, h: 26, n: 1 }]} caption="Add CPU ROM… in the top bar, while ro-mono-303 is in voice mode." />
 <ol>
-<li>Click <span class="k">Add CPU ROM…</span> <Num n="1" /> in the top bar.</li>
+<li>Click <span class="k">Add CPU ROM…</span> <Num n="1" /> in the top bar (with the ROM in place, the same button is <span class="k">ROMs</span>).</li>
 <li>Put the ROM in the folder shown, or choose your own with <span class="k">Change…</span>.</li>
 <li>Click <span class="k">Rescan</span>. ro-mono-303 reloads as the full TB-303.</li>
 </ol>
 
 <h3 id="artwork">Panel artwork</h3>
-<p>The four blank places take your own artwork, from <span class="mono">tb303.svg</span> in the ROM folder (<a href="/support#artwork">how artwork files work</a>).</p>
-<Shot src={panel} alt="The top half of the panel with the four blank artwork places outlined: roland at top left, bass_line at top right, tb303 and computer_controlled in the middle section" crop={{ x: 0, y: 32, w: 1200, h: 280 }} marks={[{ x: 50, y: 85, w: 214, h: 36, n: 'roland' }, { x: 904, y: 86, w: 233, h: 35, n: 'bass_line' }, { x: 827, y: 206, w: 122, h: 31, n: 'tb303' }, { x: 716, y: 239, w: 232, h: 32, n: 'computer_controlled' }]} caption="The four artwork places and their ids." />
-<ol>
-<li>The slot ids are <span class="mono">roland</span>, <span class="mono">bass_line</span>, <span class="mono">tb303</span> and <span class="mono">computer_controlled</span>. Keep the id on your element (a path, shape, text or group).</li>
-<li>Units are the panel's millimetres from the top-left corner of the 300 × 142 mm panel; the page size and viewBox are ignored.</li>
-<li>Only the outline is used, filled in the panel's print colour.</li>
-<li>A <span class="mono">tb303.zip</span> holding the file works too.</li>
-</ol>
+<p>The four blank places take an SVG or PNG of your own each, named as below, in <span class="path">artwork/tb303/</span> in the ROM folder (<a href="/support#artwork">how artwork files work</a>). <span class="k">ROMs</span> in the top bar lists them with what each has, opens the folder with Show its folder, and reads it again with Rescan.</p>
+<Shot src={panel} alt="The top half of the panel with the four blank artwork places outlined: maker at top left, name at top right, model and tagline in the middle section" crop={{ x: 0, y: 32, w: 1200, h: 280 }} marks={[{ x: 50, y: 85, w: 214, h: 36, n: 'maker' }, { x: 904, y: 86, w: 233, h: 35, n: 'name' }, { x: 827, y: 206, w: 122, h: 31, n: 'model' }, { x: 716, y: 239, w: 232, h: 32, n: 'tagline' }]} caption="The four artwork places and their file names." />
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Place</th><th scope="col">Size</th><th scope="col">A sharp PNG</th></tr></thead>
+<tbody>
+<tr><td class="mono">maker.svg or .png</td><td>Roland logo</td><td>51.8 × 7.4 mm</td><td>828 × 118 px</td></tr>
+<tr><td class="mono">name.svg or .png</td><td>Bass Line</td><td>56.7 × 7.2 mm</td><td>908 × 115 px</td></tr>
+<tr><td class="mono">model.svg or .png</td><td>TB-303</td><td>28.7 × 6.1 mm</td><td>460 × 97 px</td></tr>
+<tr><td class="mono">tagline.svg or .png</td><td>Computer Controlled</td><td>56.5 × 6.4 mm</td><td>905 × 103 px</td></tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><span class="mono">artwork/tb303.zip</span> holding the same files works too.</li>
+<li>A <span class="mono">tb303.svg</span> made for an earlier version still fills the places without a file: its elements <span class="mono">roland</span>, <span class="mono">bass_line</span>, <span class="mono">tb303</span> and <span class="mono">computer_controlled</span>, in panel millimetres, filled in the print colour.</li>
+</ul>
 
 <h3 id="first-sound">Your first sound</h3>
 <ul>
@@ -408,13 +417,15 @@ const toc: Entry[] = [
 
 <h3 id="top-bar">The top bar</h3>
 <ul>
+<li><span class="k">BETA</span> after the name: this version is a beta. About shows the version.</li>
 <li><span class="k">VOICE MODE</span> and a line saying what's missing, while ro-mono-303 runs without its ROM.</li>
-<li><span class="k">Add CPU ROM…</span>, in voice mode: see <a href="#add-rom">Adding the ROM later</a>.</li>
-<li><span class="k">About:</span> the version, the artwork in use, and the <a href="/support#updates">update check</a>. A newer version shows as a button in the bar.</li>
+<li><span class="k">ROMs:</span> the ROM folder, the CPU ROM and the <a href="#artwork">artwork</a>, with their full paths, and Change… and Rescan for the folder. In voice mode it reads <span class="k">Add CPU ROM…</span>: see <a href="#add-rom">Adding the ROM later</a>.</li>
+<li><span class="k">State:</span> saves the instance (knobs, trimmers, pattern and track memory) to a file, or loads one, the standalone app's saved states too. Reset makes it a new instance: every pattern as PATTERN CLEAR leaves it, every knob, switch and trimmer at its default.</li>
+<li><span class="k">About:</span> the version, the ROM folder and artwork in use, the <a href="/support#updates">update check</a>, and links to this guide, the site and the forum. A newer version shows as a button in the bar.</li>
 </ul>
 
 <h3 id="bottom-bar">The bottom bar</h3>
-<Shot src={panel} alt="The bottom bar: SYNC, CUT OFF MAX, SERVICE, the status line and the question mark" crop={{ x: 0, y: 594, w: 720, h: 46 }} marks={[{ x: 10, y: 606, w: 104, h: 28, n: 1 }, { x: 118, y: 606, w: 200, h: 28, n: 2 }, { x: 322, y: 606, w: 100, h: 28, n: 3 }, { x: 430, y: 606, w: 270, h: 28, n: 4 }]} caption="The left end of the bottom bar; ? is at the far right." />
+<Shot src={panel} alt="The bottom bar: SYNC, CUT OFF MAX, SERVICE, the status line and the question mark" crop={{ x: 0, y: 594, w: 720, h: 46 }} marks={[{ x: 8, y: 605, w: 114, h: 30, n: 1 }, { x: 126, y: 605, w: 200, h: 30, n: 2 }, { x: 330, y: 605, w: 86, h: 30, n: 3 }, { x: 426, y: 606, w: 270, h: 28, n: 4 }]} caption="The left end of the bottom bar; ? is at the far right." />
 <dl class="legend">
 <div><dt><Num n="1" /> SYNC</dt><dd>OFF: the 303 runs on its own clock. HOST: your DAW's transport runs it. See <a href="#sync">Sync</a>.</dd></div>
 <div><dt><Num n="2" /> CUT OFF MAX</dt><dd>The filter's top, with CUT OFF and RESONANCE full: 1.2 to 3 kHz, 2.3 kHz by default. Units differ here (<a href="/ro-mono-303#differences">known differences</a>). Double-click resets it.</dd></div>
@@ -424,13 +435,13 @@ const toc: Entry[] = [
 </dl>
 
 <h3 id="service">SERVICE: the boards and the trimmers</h3>
-<Shot src={service} base={{ w: 1200, h: 608 }} alt="SERVICE view: the main board and the switch board where the panel was, TM3 picked and ringed on the board, and on the right the scope timing the filter's ring at TP6, the counter, the meter and the six trimmer rows" marks={[{ x: 438, y: 150, w: 32, h: 32, n: 1 }, { x: 890, y: 6, w: 300, h: 186, n: 2 }, { x: 890, y: 196, w: 300, h: 60, n: 3 }, { x: 890, y: 262, w: 300, h: 300, n: 4 }, { x: 426, y: 574, w: 124, h: 28, n: 5 }]} caption="SERVICE with TM3 picked: the scope times the filter's ring at test point TP6." />
+<Shot src={service} base={{ w: 1200, h: 608 }} alt="SERVICE view: the main board and the switch board where the panel was, TM3 picked and ringed on the board, and on the right the scope timing the filter's ring at TP6, the counter, the meter and the six trimmer rows" marks={[{ x: 438, y: 150, w: 32, h: 32, n: 1 }, { x: 890, y: 6, w: 300, h: 186, n: 2 }, { x: 890, y: 196, w: 300, h: 60, n: 3 }, { x: 890, y: 262, w: 300, h: 300, n: 4 }]} caption="SERVICE with TM3 picked: the scope times the filter's ring at test point TP6." />
 <p>The main board and switch board where the panel was, every part where the service notes draw it, with a scope, a frequency counter, a meter and the six trimmers on the right.</p>
 <ul>
 <li><span class="k">Pick a trimmer</span> by its row, on the board <Num n="1" />, or with ↑ ↓. The scope <Num n="2" /> moves to its test point, with the service notes' adjustment under the screen.</li>
 <li><span class="k">The counter and the meter</span> <Num n="3" /> read the VCO's frequency and the CV output's voltage.</li>
 <li><span class="k">Turn it</span> by dragging its row <Num n="4" /> or on the board, with ← →, or the wheel; shift is finer. Green is in spec; the white tick is the factory setting.</li>
-<li><span class="k">Reset</span> one by double-clicking, all six with FACTORY TRIM <Num n="5" />.</li>
+<li><span class="k">Reset</span> one by double-clicking it. State: Reset in the top bar puts back the whole instance.</li>
 </ul>
 <div class="scroll">
 <table>
@@ -457,7 +468,8 @@ const toc: Entry[] = [
 <ul>
 <li>Notes play the voice directly, on any channel. MIDI note 36 (C2) is the panel's low C, 65.4 Hz; A above it (note 45) is 110 Hz with TUNING centred.</li>
 <li>Velocity 100 or more is an accent.</li>
-<li>A note started while another is held slides to it. Letting go of the newest of several held notes slides back to the one before.</li>
+<li>A note started while another is held slides to it, the same pitch too. Letting go of the newest of several held notes slides back to the one before.</li>
+<li>With the sustain pedal (CC 64) down, notes are held until it's let go, so each slides into the next.</li>
 <li>MIDI and the sequencer share the voice: whichever starts a note last has it.</li>
 </ul>
 
@@ -506,7 +518,7 @@ const toc: Entry[] = [
 <tr><td class="mono">Q</td><td>PITCH MODE</td></tr>
 <tr><td class="mono">R</td><td>TIME MODE</td></tr>
 <tr><td class="mono">I</td><td>FUNCTION (BAR)</td></tr>
-<tr><td class="mono">Backspace</td><td>PATTERN CLEAR (D.C., BAR RESET)</td></tr>
+<tr><td class="mono">Backspace, Delete</td><td>PATTERN CLEAR (D.C., BAR RESET)</td></tr>
 <tr><td class="mono">,</td><td>BACK (segno)</td></tr>
 <tr><td class="mono">Return</td><td>TAP (WRITE/NEXT, D.S.)</td></tr>
 <tr><td class="mono">Space</td><td>RUN/STOP, in the standalone app (in a DAW, Space is the DAW's)</td></tr>

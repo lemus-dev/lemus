@@ -10,11 +10,11 @@
 #   LEMUS_SIGN_APP        "Developer ID Application: ..." (signs the plugins and the app)
 #   LEMUS_SIGN_INSTALLER  "Developer ID Installer: ..."  (signs the .pkg)
 #   LEMUS_NOTARY_PROFILE  a notarytool keychain profile (xcrun notarytool store-credentials)
-# LEMUS_MACHINES overrides the machines that ship, by id, separated by ; (default: tb303).
+# LEMUS_MACHINES overrides the machines that ship, by id, separated by ; (default: tb303;tr909).
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-MACHINES=${LEMUS_MACHINES:-tb303}
+MACHINES=${LEMUS_MACHINES:-tb303;tr909}
 BUILD=$ROOT/build/release-mac
 DIST=$ROOT/dist
 VERSION=$(sed -n 's/^project(LEMUS VERSION \([0-9.]*\).*/\1/p' "$ROOT/CMakeLists.txt")

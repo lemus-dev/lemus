@@ -1,0 +1,124 @@
+* TR-909 RIM SHOT, voicing board 73133090 (service notes p.11, grid H-J 6-10; docs/circuit/rshc.md).
+* Inputs: trig, the RS output of TRIG latch IC10 (4174; TRIG2 bit 1; 0/5 V for one 2 ms scan tick);
+* acc, the open-circuit voltage of accent DAC IC7 (RA6, RM0621; 5 V * code / 63), which the hand
+* clap shares.
+* Outputs: out, IC50b at the voicing board's connector W5 pin 38 to the multi-jack board;
+* trigout, the TRIG OUT (RIM SHOT) jack on the DIN jack board JK-2 (Q67 through R413 and CN-4
+* pin 30, with C600 at the jack).
+* Control: level (VR19 100k B, a rheostat in IC50a's feedback).
+* Three bridged-T resonators IC48a (F1, ~500 Hz), IC49a (F2, ~220 Hz) and IC49b (F3, ~1 kHz),
+* rung by one positive pulse from C111/D89, rail-clipping in their own loops, are summed by
+* R408/R415/R417 into the D91/D92 clipper; Q65, its base fed from C119 through R403, gates the
+* clipped sum into IC50a; IC50b is a Sallen-Key high-pass with gain 2. Q63/Q64 charge C119 to the
+* accent buffer IC48b's output (ACC x 3.13) while the trigger's edge lasts.
+* Defaults are the late board (SN 415300 up, SN p.7); earlier units by .param: r417=12k, r392=22k,
+* r393=10k, r495=0.1 (a jumper), c600=1p (no C600 at the TRIG OUT jack) and c506=1p (the jack
+* board's C506, from SN 415300 too). c121/c122: C121/C122 as printed, 0.01u; every recording fits
+* 0.047u better (docs/circuit/rshc.md, "Against the real unit").
+* c112-c118, r418, r419, r421, r423: printed values, for the board's Calibration (the unit Lemus
+* plays has IC50a's output at the jack: docs/circuit/rshc.md, "Calibration").
+* rlatch: IC10's output resistance (MC14174B at 5 V: 0.88 mA typ, 0.51 min, at a 0.4 V drop; 600 as
+* the other netlists); rdac: IC7's Thevenin resistance (5k || 10k || ... || 160k). The DAC node's
+* other load, the hand clap's IC26a (+), is an op-amp input and takes no current.
+.param rlatch=600 rdac=2.54k r417=3.3k r392=1meg r393=1meg r495=1k c600=0.1u c121=0.01u c122=0.01u r419=4.7k r421=4.7k c506=0.01u
++ c112=0.01u c113=0.01u c115=0.027u c116=0.027u c117=0.0047u c118=0.0047u r423=12k r418=680
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VTRIG trig 0 input trig
+VACC acc 0 input acc
+RLATCH trig t {rlatch}
+RDAC acc a {rdac}
+* trigger: C111 differentiates the TRIG edge into node na; D89 passes the rising edge into the
+* resonators' common input nb (R396/R395), R399/R398 turn Q63 on for its first ~0.25 ms
+C111 t na 0.018u
+D89 na d89k 1SS133
+R396 d89k nb 22k
+R395 nb 0 22k
+R399 na q63b 22k
+R398 q63b 0 10k
+Q63 q63c q63b 0 2SC2603
+* accent buffer IC48b: ACC x (1 + R406/R397)
+X48B a n48b o48b opamp {gbw} 1e5 {opsat} {sr}
+R397 n48b 0 4.7k
+R406 n48b o48b 10k
+* envelope: Q63 pulls Q64's base down through D90/R400; Q64 charges C119 from IC48b through R401;
+* C119 runs down through R403 into Q65's base
+R402 o48b q64b 1meg
+Q64 q64c q64b o48b 2SA1115
+R400 q64b d90a 47k
+D90 d90a q63c 1SS133
+R401 q64c env 2.7k
+C119 env 0 0.047u
+R403 env q65b 1meg
+* F1: IC48a, bridged T R407 / C113, C112 / R394
+X48A nb n48a o48a opamp {gbw} 1e5 {opsat} {sr}
+R407 n48a o48a 470k
+C113 n48a m48a {c113}
+C112 m48a o48a {c112}
+R394 m48a 0 2.2k
+* F2: IC49a, bridged T R414 / C116, C115 / R411
+X49A nb n49a o49a opamp {gbw} 1e5 {opsat} {sr}
+R414 n49a o49a 330k
+C116 n49a m49a {c116}
+C115 m49a o49a {c115}
+R411 m49a 0 2.2k
+* F3: IC49b, bridged T R416 / C118, C117 / R404
+X49B nb n49b o49b opamp {gbw} 1e5 {opsat} {sr}
+R416 n49b o49b 470k
+C118 n49b m49b {c118}
+C117 m49b o49b {c117}
+R404 m49b 0 2.2k
+* the sum and its clipper D91/D92; R423/R418 into Q65's collector
+R408 o48a s 12k
+R415 o49a s 12k
+R417 o49b s {r417}
+D92 s 0 1SS133
+D91 0 s 1SS133
+R423 s q65c {r423}
+R418 q65c 0 {r418}
+* Q65 (marked S): collector at the divider, emitter at IC50a's virtual ground
+Q65 q65c q65b x50a 2SC2603S
+* IC50a with LEVEL (VR19) and C120 in its feedback
+X50A 0 x50a o50a opamp {gbw}
+P19 o50a o50a x50a 100k level
+C120 x50a o50a 220p
+* IC50b: Sallen-Key high-pass C121/C122, R422 to the (-) input (= V+), R420; gain 1 + R421/R419
+C121 o50a h50 {c121}
+C122 h50 p50b {c122}
+R420 p50b 0 220k
+R422 h50 n50b 22k
+X50B p50b n50b out opamp {gbw} 1e5 {opsat} {sr}
+R419 n50b 0 {r419}
+R421 n50b out {r421}
+* the multi-jack board's load (p.12; mix.cir runs it): R515 and C506 (SN 415300 up) to the jack,
+* whose normal contact takes R516/R517 to the mix buses (AC ground)
+R515 out jk 1k
+C506 jk 0 {c506}
+R516 jk 0 12k
+R517 jk 0 12k
+* TRIG OUT: Q66 discharges C114 for the trigger's length; Q67 then holds TRIG OUT at ~+14 V until
+* C114 charges back through R409/R410 (~20 ms)
+R392 t q66b {r392}
+R393 q66b 0 {r393}
+Q66 q66c q66b 0 2SC2603
+C114 q66c 0 0.1u
+R409 q67b q66c 47k
+R410 e67 q67b 47k
+R495 b15 e67 {r495}
+Q67 c67 q67b e67 2SA1115
+R412 c67 0 22k
+R413 c67 trigout 1k
+C600 trigout 0 {c600}
+.control level 0.5
+.output out out
+.output trigout trigout
+* Runtime partitions (tr808/docs/model.md, "Partitions"): run in this order; in= nodes come from the
+* others. C111's differentiator and its loads are in both trig and res: its pulse into the
+* resonators rises within a sample, which the samples between partitions can't carry.
+.part trig in=q65b,q66b RLATCH RDAC C111 D89 R396 R395 R399 R398 Q63 X48B R397 R406 R402 Q64 R400 D90
++ R401 C119 R403 R392
+.part res in=q63c,s RLATCH C111 D89 R396 R395 R399 R398 Q63 X48A R407 C113 C112 R394 X49A R414 C116
++ C115 R411 X49B R416 C118 C117 R404 R408 R415 R417
+.part vca in=o48a,o49a,o49b,env sleep R408 R415 R417 D92 D91 R423 R418 Q65 R403 X50A P19 C120
+.part out in=o50a sleep C121 C122 R420 R422 X50B R419 R421 R515 C506 R516 R517
+.part tout in=t sleep R392 R393 Q66 C114 R409 R410 R495 Q67 R412 R413 C600

@@ -52,6 +52,12 @@ juce::TextLayout layoutOf(const juce::String &text, const juce::Font &font, juce
 }
 
 // A folder with the home folder as ~, so the part that matters fits.
+// A pre-release plugin's stage, from its lemus_plugin(... STAGE ...): "beta" after its name in the
+// bar and after its version in About, as the website shows it next to the download.
+#ifndef LEMUS_STAGE
+#define LEMUS_STAGE ""
+#endif
+
 juce::String shortPath(const juce::File &f)
 {
 	const auto home = juce::File::getSpecialLocation(juce::File::userHomeDirectory).getFullPathName();
@@ -355,7 +361,7 @@ public:
 	{
 		setLookAndFeel(&m_look.get());
 		const auto folder = lemus::romfolder::location();
-		m_text = juce::String(JucePlugin_Name) + " " + JucePlugin_VersionString + "\n" + m.name + " emulation (" + m.description + ")\nFree software under the GNU AGPLv3.\n\n" +
+		m_text = juce::String(JucePlugin_Name) + " " + JucePlugin_VersionString + (juce::String(LEMUS_STAGE).isNotEmpty() ? " " LEMUS_STAGE : "") + "\n" + m.name + " emulation (" + m.description + ")\nFree software under the GNU AGPLv3.\n\n" +
 		         "ROM folder: " + shortPath(folder) + "\n\n" + (notes.isNotEmpty() ? notes + "\n\n" : juce::String()) + kDisclaimer;
 
 		// The ROM folder holds the ROMs and the artwork packs, wherever it is.
@@ -429,10 +435,15 @@ public:
 	explicit StatePopover(LemusProcessor &proc) : m_proc(proc)
 	{
 		setLookAndFeel(&m_look.get());
-		m_save.onClick = [this] { choose(true); };
-		m_load.onClick = [this] { choose(false); };
-		addAndMakeVisible(m_save);
-		addAndMakeVisible(m_load);
+		m_save.onClick = [this] { confirmReset(false); choose(true); };
+		m_load.onClick = [this] { confirmReset(false); choose(false); };
+		m_reset.onClick = [this] { confirmReset(!m_confirming); };
+		m_resetYes.onClick = [this] { reset(); };
+		m_resetNo.onClick = [this] { confirmReset(false); };
+		for (auto *b : {&m_save, &m_load, &m_reset})
+			addAndMakeVisible(b);
+		addChildComponent(m_resetYes);
+		addChildComponent(m_resetNo);
 		relayout();
 	}
 	~StatePopover() override { setLookAndFeel(nullptr); }
@@ -445,6 +456,11 @@ public:
 		m_save.setBounds(row.removeFromLeft(m_save.idealWidth()));
 		row.removeFromLeft(8);
 		m_load.setBounds(row.removeFromLeft(m_load.idealWidth()));
+		m_reset.setBounds(row.removeFromRight(m_reset.idealWidth()));
+		auto confirm = juce::Rectangle<int>(kPad, m_confirmY, kWidth, 32);
+		m_resetYes.setBounds(confirm.removeFromLeft(m_resetYes.idealWidth()));
+		confirm.removeFromLeft(8);
+		m_resetNo.setBounds(confirm.removeFromLeft(m_resetNo.idealWidth()));
 	}
 
 private:
@@ -462,13 +478,23 @@ private:
 			return l.getHeight();
 		};
 		const auto *info = m_proc.machine();
-		y += text("Save or load the state", mono(15.0f, true), col::ink) + 8;
-		y += text("Everything the session keeps of the " + (info != nullptr ? info->name : juce::String("machine")) +
+		const juce::String name = info != nullptr ? info->name : juce::String("machine");
+		y += text("Save, load or reset the state", mono(15.0f, true), col::ink) + 8;
+		y += text("Everything the session keeps of the " + name +
 		              ", its memory included. The standalone app's Options menu saves and loads the same files.",
 		          mono(13.0f), col::inkSoft) +
 		     14;
 		m_buttonsY = int(y);
 		y += 32;
+		if (m_confirming) {
+			y += 14;
+			y += text("Reset the " + name + " to a new instance? Its memory goes back to what a new one holds, and every "
+			              "control and setting to its default. Save the state first to keep it.",
+			          mono(13.0f), col::warn) +
+			     10;
+			m_confirmY = int(y);
+			y += 32;
+		}
 		if (m_status.isNotEmpty()) {
 			y += 12;
 			y += text(m_status, mono(12.0f), m_failed ? col::warn : col::ok);
@@ -481,6 +507,29 @@ private:
 		setSize(kWidth + 2 * kPad, layout(nullptr));
 		resized();
 		repaint();
+	}
+
+	void confirmReset(bool on)
+	{
+		m_confirming = on;
+		m_status.clear();
+		m_resetYes.setVisible(on);
+		m_resetNo.setVisible(on);
+		relayout();
+	}
+
+	void reset()
+	{
+		const juce::String name = m_proc.machine() != nullptr ? m_proc.machine()->name : juce::String("machine");
+		auto safe = juce::Component::SafePointer<StatePopover>(this);
+		const bool done = m_proc.resetMachine();
+		if (safe == nullptr) // the new machine's editor can take this pop-up with it
+			return;
+		confirmReset(false);
+		m_failed = !done;
+		m_status = done ? utf8("\xe2\x9c\x93 Reset: the ") + name + " as a new instance."
+		                : "Couldn't reset: the " + name + "'s ROMs aren't in the ROM folder.";
+		relayout();
 	}
 
 	void choose(bool save)
@@ -515,8 +564,10 @@ private:
 	juce::String m_status;
 	bool m_failed = false;
 	Pill m_save{utf8("Save to file\xe2\x80\xa6")}, m_load{utf8("Load from file\xe2\x80\xa6"), Pill::Kind::Primary};
+	Pill m_reset{utf8("Reset\xe2\x80\xa6")}, m_resetYes{"Reset", Pill::Kind::Outline, col::warn}, m_resetNo{"Cancel"};
 	std::unique_ptr<juce::FileChooser> m_chooser;
-	int m_buttonsY = 0;
+	bool m_confirming = false;
+	int m_buttonsY = 0, m_confirmY = 0;
 };
 
 // A pop-up's content, scrolled when it's taller than `maxHeight` (a small window), following the
@@ -965,6 +1016,14 @@ private:
 		juce::StringArray has = rom().modeHas, lacks = rom().modeLacks;
 		if (has.isEmpty() && lacks.isEmpty())
 			lacks.add(rom().without.substring(0, 1).toUpperCase() + rom().without.substring(1));
+		// and what each other missing image takes away (the TR-909 without its sample ROMs too)
+		for (size_t i = 1; i < m_roms.size(); ++i) {
+			const auto &r = m_roms[i];
+			if (!r.modeLacks.isEmpty())
+				lacks.addArray(r.modeLacks);
+			else if (r.without.isNotEmpty())
+				lacks.add(r.without.substring(0, 1).toUpperCase() + r.without.substring(1));
+		}
 		const float markW = 36;
 		const float aH = 20 + 8 + measure(aText, mono(13.0f), tw);
 		float bH = 20 + 8 + measure(bText, mono(13.0f), tw) + 8;
@@ -1648,17 +1707,31 @@ public:
 
 		// A narrow machine (a channel strip) keeps what fits: " emulation" goes first, then the
 		// product's name, then the machine's name gets smaller, then it is cut short.
-		const juce::String product = JucePlugin_Name;
-		const int productW = juce::GlyphArrangement::getStringWidthInt(mono(13.0f, true), product) + 12;
+		const juce::String product = JucePlugin_Name, stage = juce::String(LEMUS_STAGE).toUpperCase();
+		const auto stageFont = mono(10.0f, true).withExtraKerningFactor(0.08f);
+		const int nameW = juce::GlyphArrangement::getStringWidthInt(mono(13.0f, true), product) + 8;
+		const int stageW = stage.isEmpty() ? 0 : juce::GlyphArrangement::getStringWidthInt(stageFont, stage) + 14;
+		const int productW = nameW + (stage.isEmpty() ? 4 : stageW + 12);
 		juce::String machine = m_info.name + " emulation";
 		float size = 13.0f;
 		auto machineW = [&] { return juce::GlyphArrangement::getStringWidthInt(mono(size), machine) + 14; };
 		if (productW + machineW() > b.getWidth())
 			machine = m_info.name;
 		if (productW + machineW() <= b.getWidth()) {
+			auto p = b.removeFromLeft(productW);
 			g.setColour(col::title);
 			g.setFont(mono(13.0f, true));
-			g.drawText(product, b.removeFromLeft(productW), juce::Justification::centredLeft, false);
+			g.drawText(product, p.removeFromLeft(nameW), juce::Justification::centredLeft, false);
+			if (stage.isNotEmpty()) { // the pre-release's stage, a small badge after the name
+				const juce::Rectangle<float> badge(float(p.getX()), float(p.getCentreY()) - 9, float(stageW), 18);
+				g.setColour(col::accent.withAlpha(0.12f));
+				g.fillRoundedRectangle(badge, 9.0f);
+				g.setColour(col::accent.withAlpha(0.6f));
+				g.drawRoundedRectangle(badge.reduced(0.5f), 9.0f, 1.0f);
+				g.setColour(col::accent);
+				g.setFont(stageFont);
+				g.drawText(stage, badge, juce::Justification::centred, false);
+			}
 		} else if (machineW() > b.getWidth()) {
 			size = 11.0f;
 		}

@@ -1,0 +1,200 @@
+* TR-909 MID TOM, voicing board (service notes p.11, grid K-N 18-26; crop p11-mt-mid-tom.png).
+* Inputs: trig (MT TRIG from latch IC1), acc (the MT accent DAC, IC5 into RA4), tomnoise.tn (the
+* TOM NOISE bus: IC27a's output, tomnoise.cir's output tn, into R177).
+* Outputs: out (IC23a's output, connector pin 36 to the multi-jack board), g (Q29's collector, the
+* gated accent line, which tomnoise.cir takes as mt.g through D44).
+* Controls: tune (VR13 10k B), decay (VR14 500k B, a rheostat), level (VR15 50k B, a rheostat in
+* IC23a's feedback).
+* Three triangle VCOs (comparator, two 4069UB inverters in parallel run from VDD/VSS, integrator),
+* reset by line A for the trigger's 2 ms; VCO1 (C32) and VCO3 (C34) through diode shapers into the
+* VCAs Q26 and Q28, VCO2 (C33) into Q27; the VCAs' emitters into IC23a's virtual ground.
+.param rlatch=600 rdac=2.54k
+* dat: the tantalum capacitors' dielectric absorption (circuit.h: da=): 2 %. Modern MnO2
+* tantalum is about 0.5 % (Vishay's dielectric comparison); none is published for the 909's parts.
+* It lengthens the toms' far tails a little (docs/circuit/toms.md, "Calibration")
+.param dat=0.02
+* parts a unit's calibration may set (docs/circuit/toms.md, "Calibration"); the printed values
+.param c32=0.018u c33=0.027u c34=0.01u vr13=10k vr14=500k c35=0.47u c37=0.47u c36=0.15u c39=0.056u
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VTRIG trig 0 input trig
+VACC acc 0 input acc
+VTN tn 0 input tomnoise.tn
+* the TRIG latch's output resistance (HD14174BP on +5 V), and the DAC's source resistance (RA4)
+RLATCH trig t {rlatch}
+RA4 acc acc2 {rdac}
+* trigger: Q25 pulls Q24's base (line A, +15 V for the trigger) and, through D42, Q29's (gated accent)
+R154 t q25b 22k
+R155 q25b 0 10k
+Q25 q25c q25b 0 2SC2603
+R153 q24b q25c 22k
+R151 b15 q24b 10k
+R152 b15 q24e 100
+Q24 a q24b q24e 2SA1115
+* accent: IC23b, gain 1 + R179/R180 + R179/R178, R178 to -15 V on the - input (+0.68 V offset)
+X23B acc2 n23b o23b opamp {gbw} 1e5 {opsat} {sr}
+R180 n23b 0 4.7k
+R179 n23b o23b 10k
+R178 n23b nb15 220k
+R156 o23b d42a 100k
+D42 d42a q25c 1SS133
+R158 d42a q29b 100k
+R157 o23b q29e 100
+Q29 g q29b q29e 2SA1115
+* Between hits the gated accent line floats: in the unit D44 into C54 (tomnoise.cir) takes the
+* reverse-biased envelope diodes' leakage and holds it just above C54. tomnoise.cir takes g as a
+* stiff source, so g is tied down here through 10 meg (not a part: microamps at most, nothing
+* against Q29's drive), which keeps it under C54 at rest.
+RGF g 0 10meg
+* TUNE: VR13 between R172 (+15 V) and R173; IC20a follows the wiper as VDD (R129 inside its loop;
+* printed "R12a")
+R172 b15 tt 68k
+P13 tt tw tb {vr13} tune
+R173 tb 0 10k
+X20A tw vdd o20a opamp {gbw} 1e5 {opsat} {sr}
+R129 o20a vdd 1k
+* VSS: IC20b, -(VDD + V(C30) R125/R121 + V(C31) R125/R122), R126 inside its loop. Line A charges
+* C30/C31 (the pitch envelope, 220 ms and 22 ms). D34 (RD18JB2, 18 V across VDD-VSS) is left out:
+* VDD-VSS never exceeds 11 V.
+R127 vdd n20b 100k
+R121 c30 n20b 2.2meg
+R122 c31 n20b 470k
+R125 n20b vss 100k
+X20B 0 n20b o20b opamp {gbw} 1e5 {opsat} {sr}
+R126 o20b vss 1k
+D37 a c30 1SS133
+C30 c30 0 0.1u
+D36 a c31 1SS133
+C31 c31 0 0.047u
+* VCO1: comparator IC21a (R130 printed "R80"; lightly loaded, it swings +-14 V: opsatlight), IC22a/f
+* (pins 1-2, 13-12, TC4069UBP; in parallel, as one N and one P of twice a gate's width with their
+* input diodes: models.cir 4069UB_N2/_P2, DCMOS2), integrator IC21b with C32; line A forces the
+* comparator low through D35 and turns on Q30 across C32
+D35 a d35k 1SS133
+R123 d35k n21a 10k
+R124 o21b n21a 100k
+X21A p21a n21a o21a opamp {gbw} 1e5 {opsatlight} {sr}
+R130 o21a p21a 100k
+R128 p21a 0 100k
+R131 o21a i1 100k
+DIC22AH i1 vdd DCMOS2
+DIC22AL vss i1 DCMOS2
+M22AP y1 i1 vdd 4069UB_P2
+M22AN y1 i1 vss 4069UB_N2
+R134 y1 n21b 47k
+X21B 0 n21b o21b opamp {gbw} 1e5 {opsat} {sr}
+C32 n21b o21b {c32}
+R133 a q30b 1meg
+Q30 q30c q30b n21b 2SC2603
+R132 o21b q30c 10k
+* VCO1's shaper: R164 into D38/D39, with Q23 from the triangle (R163) across it while C38 (charged by
+* line A through D31) holds its base: hard clipping at first, then soft; R165 into R159 and VCA Q26
+D31 a c38 1SS133
+C38 c38 0 0.0068u
+R162 c38 q23b 1meg
+R163 o21b q23c 1k
+Q23 q23c q23b s1 2SC2603
+R164 o21b s1 10k
+D38 s1 0 1SS133
+D39 0 s1 1SS133
+R165 s1 x1 2.2k
+R159 x1 0 47
+Q26 x1 q26b sum 2SC2603S
+* ENV1 (C36 through R168) and ENV2 (C37 through R169) into Q26's base
+D29 g c36 1SS133
+C36 c36 0 {c36} da={dat}
+R168 c36 q26b 470k
+R169 c37 q26b 220k
+* VCO3: IC25a, IC22b/c (pins 3-4, 5-6), IC25b with C34, Q32
+D50 a d50k 1SS133
+R149 d50k n25a 10k
+R148 o25b n25a 100k
+X25A p25a n25a o25a opamp {gbw} 1e5 {opsatlight} {sr}
+R147 o25a p25a 100k
+R146 p25a 0 100k
+R144 o25a i3 100k
+DIC22BH i3 vdd DCMOS2
+DIC22BL vss i3 DCMOS2
+M22BP y3 i3 vdd 4069UB_P2
+M22BN y3 i3 vss 4069UB_N2
+R136 y3 n25b 47k
+X25B 0 n25b o25b opamp {gbw} 1e5 {opsat} {sr}
+C34 n25b o25b {c34}
+R137 a q32b 1meg
+Q32 q32c q32b n25b 2SC2603
+R145 o25b q32c 10k
+* VCO3's shaper and VCA Q28, with the tom noise through R177; ENV3 (C39 through R174;
+* NAVA calls it R129)
+R181 o25b s3 10k
+D47 s3 0 1SS133
+D46 0 s3 1SS133
+R176 s3 x3 2.2k
+R175 x3 0 47
+R177 tn x3 22k
+Q28 x3 q28b sum 2SC2603S
+D43 g c39 1SS133
+C39 c39 0 {c39}
+R174 c39 q28b 470k
+* VCO2: IC24a, IC22d/e (pins 9-8, 11-10), IC24b with C33, Q31
+D51 a d51k 1SS133
+R150 d51k n24a 10k
+R143 o24b n24a 100k
+X24A p24a n24a o24a opamp {gbw} 1e5 {opsatlight} {sr}
+R142 o24a p24a 100k
+R140 p24a 0 100k
+R141 o24a i2 100k
+DIC22DH i2 vdd DCMOS2
+DIC22DL vss i2 DCMOS2
+M22DP y2 i2 vdd 4069UB_P2
+M22DN y2 i2 vss 4069UB_N2
+R139 y2 n24b 47k
+X24B 0 n24b o24b opamp {gbw} 1e5 {opsat} {sr}
+C33 n24b o24b {c33}
+R135 a q31b 1meg
+Q31 q31c q31b n24b 2SC2603
+R138 o24b q31c 10k
+* VCO2's shaper and VCA Q27
+R166 o24b s2 10k
+D40 s2 0 1SS133
+D41 0 s2 1SS133
+R167 s2 x2 2.2k
+R160 x2 0 47
+Q27 x2 q27b sum 2SC2603S
+* ENV2: D30 charges C35, which DECAY (VR14 + R171) runs down and which fills C37 through R161;
+* C37 feeds Q27 (R170) and Q26 (R169)
+D30 g c35 1SS133
+C35 c35 0 {c35} da={dat}
+P14 r171 r171 c35 {vr14} decay
+R171 r171 0 56k
+R161 c35 c37 100k
+C37 c37 0 {c37} da={dat}
+R170 c37 q27b 220k
+* IC23a sums the three VCAs; LEVEL (VR15) is its feedback
+X23A 0 sum o23a opamp {gbw} 1e5 {opsat} {sr}
+P15 o23a o23a sum 50k level
+* the multi-jack board's load (p.12; mix.cir runs it): R509 and C504 (SN 415300 up) to the jack,
+* whose normal contact takes R510/R511 to the mix buses (AC ground)
+R509 o23a j 1k
+C504 j 0 0.01u
+R510 j 0 12k
+R511 j 0 12k
+.control tune 0.5
+.control decay 0.5
+.control level 0.5
+.output out o23a
+.output g g
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+* Line A, VDD and VSS are cut where they are stiff (Q24 for the trigger, IC20's outputs); each VCO's
+* reset diode and comparator input (to the triangle) are in the trigger partition too, so line A
+* floats between hits and falls at the trigger's end as it does whole. The shapers are cut from the
+* VCOs at their resistors from the triangles (op-amp outputs), and from the VCAs at their 2.2k into
+* the 47 ohm nodes (R165, R176, R167): each shaper a partition of its own, the VCAs and the output
+* op-amp another. On a trigger edge every partition is to be substepped (docs/circuit/toms.md, §8).
+.part trig in=o21b,o25b,o24b,q26b,q27b,q28b RLATCH R154 R155 Q25 R153 R151 R152 Q24 RA4 X23B R180 R179 R178 R156 D42 R158 R157 Q29 RGF R172 P13 R173 X20A R129 R127 R121 R122 R125 X20B R126 D37 C30 D36 C31 D35 R123 R124 D50 R149 R148 D51 R150 R143 D29 C36 D43 C39 D30 C35 P14 R171 R161 C37 R168 R169 R174 R170
+.part vco1 in=a,vdd,vss,s1,q23c D35 R123 R124 X21A R130 R128 R131 DIC22AH DIC22AL M22AP M22AN R134 X21B C32 R133 Q30 R132 R163 R164
+.part vco3 in=a,vdd,vss,s3 D50 R149 R148 X25A R147 R146 R144 DIC22BH DIC22BL M22BP M22BN R136 X25B C34 R137 Q32 R145 R181
+.part vco2 in=a,vdd,vss,s2 D51 R150 R143 X24A R142 R140 R141 DIC22DH DIC22DL M22DP M22DN R139 X24B C33 R135 Q31 R138 R166
+.part shape1 in=o21b,a,x1 D31 C38 R162 R163 Q23 R164 D38 D39 R165
+.part shape3 in=o25b,x3 R181 D47 D46 R176
+.part shape2 in=o24b,x2 R166 D40 D41 R167
+.part vca in=s1,s3,s2,c36,c37,c39 R165 R159 Q26 R168 R169 R176 R175 R177 Q28 R174 R167 R160 Q27 R170 X23A P15 R509 C504 R510 R511

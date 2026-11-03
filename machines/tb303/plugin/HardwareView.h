@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PluginProcessor.h"
+#include "host/PanelFrame.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <array>
@@ -18,6 +19,12 @@
 // meter hook onto its check point.
 class HardwareView : public juce::Component, private juce::Timer {
 public:
+	// The key list (?) shown or not: the editor's --keys snapshot.
+	void showKeys(bool on)
+	{
+		m_showHelp = on;
+		repaint();
+	}
 	static constexpr float kPxPerMm = 4.0f;
 	static constexpr int kPanelHeight = 568;
 	static constexpr int kBarHeight = 40;
@@ -60,11 +67,11 @@ private:
 		int element;
 		tb303::Machine::Led led;
 	};
-	enum class HitKind { None, Knob, Switch, Key, Waveform, Trimmer, TrimRow, TrimSlider, BarSync, BarTop, BarService, BarFactory, BarHelp };
+	enum class HitKind { None, Knob, Switch, Key, Waveform, Trimmer, TrimRow, TrimSlider, BarSync, BarTop, BarService, BarHelp };
 	// The bar's sliders (CUT OFF MAX): their parameter, or null for other hits.
 	static const char *barSlider(HitKind k);
-	// The bar's items, left to right; FACTORY TRIM shows in service only.
-	enum class BarItem { Sync, Top, Service, Factory, Help };
+	// The bar's items, left to right.
+	enum class BarItem { Sync, Top, Service, Help };
 	juce::Rectangle<float> barRect(BarItem) const;
 	juce::Rectangle<float> sliderTrack() const; // CUT OFF MAX's
 	struct Hit {
@@ -116,7 +123,6 @@ private:
 	void drawTrimmerList(juce::Graphics &);
 	void updateScope();
 	juce::String trimmerText(int index) const;
-	void factoryTrim();
 	void resetTrim(int index);
 	void nudgeTrim(int index, float delta);
 
@@ -143,9 +149,9 @@ private:
 	Hit m_hover, m_drag;
 	float m_dragStartValue = 0;
 	juce::Point<float> m_dragStart;
-	std::vector<bool> m_keyDown;
-	std::vector<bool> m_latched; // held down by a right-click until clicked again
-	std::map<int, int> m_computerKeys; // KeyPress code -> key index held
+	lemus::panel::Keys m_held; // the keys held by the mouse and the computer keyboard
+	lemus::panel::Bar m_bar{kWidth, kPanelHeight, kBarHeight};
+	int m_barSync = -1, m_barTop = -1, m_barService = -1;
 	bool m_showHelp = false;
 
 	// Service

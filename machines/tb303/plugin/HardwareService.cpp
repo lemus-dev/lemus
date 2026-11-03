@@ -706,12 +706,6 @@ void HardwareView::setServiceTrim(int trim)
 	repaint();
 }
 
-void HardwareView::factoryTrim()
-{
-	for (int i = 0; i < 6; ++i)
-		resetTrim(i);
-}
-
 void HardwareView::resetTrim(int i)
 {
 	if (auto *p = m_proc.params().getParameter(TB303Processor::kTrimIds[i])) {
@@ -1431,7 +1425,7 @@ void HardwareView::drawServiceParts(juce::Graphics &g)
 	// Key switches' plungers and the LEDs.
 	for (size_t i = 0; i < m_keys.size(); ++i) {
 		const auto r = serviceKey(int(i));
-		const bool down = m_keyDown[i];
+		const bool down = m_held.down(int(i));
 		const auto pl = r.reduced(L(2.6f), L(2.4f)).translated(0, down ? 0.6f : 0);
 		g.setColour(juce::Colours::black.withAlpha(down ? 0.15f : 0.35f));
 		g.fillRoundedRectangle(pl.translated(0.8f, down ? 0.6f : 1.8f), L(0.4f));
@@ -1886,17 +1880,9 @@ juce::StringArray HardwareView::serviceSelfTest()
 		resetTrim(3);
 	}
 
-	// FACTORY TRIM puts every trimmer back.
-	for (const char *id : TB303Processor::kTrimIds)
-		setParamValue(id, 0.9f);
-	click(barRect(BarItem::Factory).getCentre());
-	bool factory = true;
-	for (const char *id : TB303Processor::kTrimIds)
-		factory = factory && approx(value(id), def(id));
-	check(factory, "FACTORY TRIM puts all six back");
-
 	// Pots, switches, S1 and the keys work on the boards.
 	{
+		setParamValue("cutoff", 0.5f); // not where the standalone app's saved state left it, near the top
 		const float cutoff = value("cutoff");
 		const auto c = servicePos(m_knobs[1].element);
 		drag(c, c - juce::Point<float>(0, 30));
@@ -1913,9 +1899,9 @@ juce::StringArray HardwareView::serviceSelfTest()
 		const int k = 12; // C'
 		const auto kc = serviceKey(k).getCentre();
 		mouseDown(ev(kc, kc));
-		const bool down = m_keyDown[size_t(k)];
+		const bool down = m_held.down(k);
 		mouseUp(ev(kc, kc));
-		check(down && !m_keyDown[size_t(k)], "a key switch on the switch board presses and releases");
+		check(down && !m_held.down(k), "a key switch on the switch board presses and releases");
 	}
 
 	// Nothing on the boards reaches under the instruments.

@@ -1,0 +1,179 @@
+* TR-909 BASS DRUM, voicing board 73133090 (service notes p.11, grid K-N 6-13; crop
+* p11-bd-bass-drum.png; theory p.6). Transcription notes: docs/circuit/bd.md.
+* Inputs: trig, the BD output of the TRIG latch IC1 (pin 10; 0/5 V for one 2 ms panel scan);
+* acc, the BD accent DAC (IC2 into RA1, RM0621) into IC11b pin 5, its open-circuit voltage
+* 5 V * code / 63; noise, the noise bus (IC33 pin 9, 0/15 V) into R10.
+* Output: out, IC11a's output at the connector to the multi-jack board (CN-5 pin 33, R500).
+* Controls: tune (VR2 100k A, a rheostat in ENV3's discharge), level (VR4 100k B, a rheostat in
+* IC11a's feedback), attack (VR3 500 B, a rheostat into the attack VCA), decay (VR5 1M A, a
+* rheostat in ENV1's discharge).
+* A triangle VCO (integrator IC13a, comparator IC13b) whose rate IC12a/IC12b set from ENV3 (C9),
+* reset by Q7/Q11 for the trigger, rounded by D10/D11 into the body VCA Q12 (ENV1: C8, held for
+* about 50 ms by the C7/Q3/Q4 timer); the attack: Q8's 2 ms pulse through the Q9 Sallen-Key and
+* the low-passed noise into the VCA Q6 (ENV2: C12). IC11a sums both.
+* Board: the late one. Early units by .param: c9=0.22u before SN 381500 (SN p.7, "for expanding
+* the TUNE range"); r495=150k up to SN 371499 (p.11, "SN UP to 371499 SURFACE MOUNTED"); the
+* jack board's C500 is from SN 415300 (c500=1p before: absent; the solver takes no zero).
+.param rlatch=600 rdac=2.54k c9=0.33u r495=1e12 c500=0.01u
+* Parts a unit's calibration sets (docs/circuit/bd.md, "Calibration"; the printed values here)
+.param c14=0.033u r27=1.5meg c8=0.33u r44=22k r15=100k r52=10k r53=2.2k r43=47
+* dat: C8's and C9's (tantalum) dielectric absorption (circuit.h: da=): 2 %. Modern MnO2
+* tantalum is about 0.5 % (Vishay's dielectric comparison); none is published for the 909's parts.
+* The same as the toms' (docs/circuit/toms.md, "Calibration"); here it moves the decays by under 2 %.
+.param dat=0.02
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VTRIG trig 0 input trig
+VACC acc 0 input acc
+VNOISE noise 0 input noise
+* IC1's output resistance (HD14174 at +5 V, a stand-in), and the RM0621's 2.54k (5k || ... || 160k)
+RIC1 trig t1 {rlatch}
+RDAC acc i11p {rdac}
+* --- trigger: Q1 pulls n1 down; Q2 (PNP) then lifts n2 to +15 V; C1 kicks Q7 on (the VCO reset)
+R1 t1 q1b 22k
+R2 q1b 0 10k
+Q1 n1 q1b 0 2SC2603
+D4 x4 n1 1SS133
+R3 q2b x4 100k
+R4 b15 q2b 47k
+R11 x4 c6a 4.7k
+C6 c6a 0 0.0022u
+Q2 n2 q2b b15 2SA1115
+R19 n2 0 2.2k
+C1 n1 p1 0.068u
+R12 p1 q7b 100k
+R13 b15 q7b 47k
+Q7 q7c q7b b15 2SA1115
+* --- accent: IC11b x3.13; Q5 passes it to ENV2 while n1 is low, Q4 to ENV1 while Q3 is on
+R38 i11n 0 4.7k
+R37 i11n ac 10k
+X11B i11p i11n ac opamp {gbw} 1e5 {opsat} {sr}
+R39 ac q5b 1meg
+R34 q5b d5a 100k
+D5 d5a n1 1SS133
+Q5 e2 q5b ac 2SA1115
+* ENV1's hold timer: n2 charges C7 through D6/R20; C7 holds Q3 on through R18
+D6 n2 d6k 1SS133
+R20 d6k c7 6.8k
+C7 c7 0 0.033u
+R18 c7 q3b 470k
+R17 q3b 0 470k
+Q3 q3c q3b 0 2SC2603
+R32 q4b q3c 47k
+R33 ac q4b 1meg
+Q4 e1 q4b ac 2SA1115
+* ENV1: R35/D9 charge C8; D8 into the R36/R22 divider limits it; DECAY (VR5 + R58) discharges it
+R35 e1 j 1.8k
+D8 j d8k 1SS133
+R36 b15 d8k 47k
+R22 d8k 0 10k
+D9 j c8 1SS133
+C8 c8 0 {c8} da={dat}
+P5 c8 c8 vr5b 1meg decay a0.15
+R58 vr5b 0 47k
+R54 c8 q12b 470k
+* ENV2: Q5 charges C12 through R41; it discharges only through R42 into Q6's base (and R495)
+R41 e2 c12 22k
+C12 c12 0 0.033u
+R42 c12 q6b 470k
+R495 q6b 0 {r495}
+* --- ENV3, the pitch envelope: n2 charges C9 through D7/R21; TUNE (R57 + VR2) || R26 discharges it
+D7 n2 d7k 1SS133
+R21 d7k c9 2.2k
+C9 c9 0 {c9} da={dat}
+R57 c9 r57b 22k
+P2 r57b r57b 0 100k tune a0.15
+* --- CV: IC12a, va = -(R28/R26 vc9 + R28/R27 15 V); IC12b, x(+1) or x(-1) as Q10 grounds its + input
+R26 c9 i12an 330k
+R27 b15 i12an {r27}
+R28 i12an va 150k
+R25 i12ap 0 100k
+X12A i12ap i12an va opamp {gbw} 1e5
+R29 va i12bn 100k
+R30 i12bn vb 100k
+R31 va i12bp 100k
+Q10 i12bp q10b 0 2SA1115
+R23 cmp q10b 100k
+R24 q10b 0 22k
+X12B i12bp i12bn vb opamp {gbw} 1e5 {opsat} {sr}
+* --- VCO: IC13a integrator, IC13b comparator with hysteresis (R49/R50; lightly loaded, about 67k,
+* it swings +-14 V: opsatlight); the reset: Q7 turns Q11 on across C14 (through R51) and holds
+* IC13b's + input high through R48/D12
+R59 vb i13n 47k
+C14 i13n tri {c14}
+X13A 0 i13n tri opamp {gbw} 1e5
+R47 q7c q11b 330k
+Q11 q11c q11b i13n 2SC2603
+R51 q11c tri 2.2k
+R48 q7c d12a 22k
+D12 d12a i13p 1SS133
+R49 i13p cmp 100k
+R50 i13p 0 47k
+X13B i13p tri cmp opamp {gbw} 1e5 {opsatlight} {sr}
+* --- waveshaper and the body VCA Q12 (collector on the 47 ohm node, emitter into IC11a's sum)
+R52 tri sh {r52}
+D10 0 sh 1SS133
+D11 sh 0 1SS133
+R53 sh q12c {r53}
+R43 q12c 0 {r43}
+Q12 q12c q12b sj 2SC2603S
+* --- attack pulse: Q8 (PNP, on at rest) lets go of its collector while n2 is high; C2/R7 into the
+* Q9 Sallen-Key low-pass (R16, C4; C3 from its output), C11/R44 into the attack sum
+R5 n2 q8b 100k
+R6 b15 q8b 22k
+Q8 q8c q8b b15 2SA1115
+R14 q8c 0 22k
+C5 q8c 0 0.0068u
+C2 q8c c2b 0.0033u
+R7 c2b ska 100k
+R15 ska 0 {r15}
+R16 ska q9b 39k
+C4 q9b 0 100p
+Q9 b15 q9b q9e 2SC2603
+R8 q9e nb15 10k
+C3 ska q9e 0.0047u
+C11 c11p q9e 0.47u
+R44 c11p sum {r44}
+* --- noise: R10/R9 divider, C15, the R46/C13 low-pass, R45 into the attack sum
+R10 noise nzd 12k
+R9 nzd 0 4.7k
+C15 nzd c15n 0.47u
+R46 c15n c13 4.7k
+C13 c13 0 0.1u
+R45 c13 sum 4.7k
+* --- the attack VCA Q6: ATTACK (VR3) into R55, ENV2 into its base
+R56 sum 0 330
+P3 sum q6c q6c 500 attack
+R55 q6c 0 47
+Q6 q6c q6b sj 2SC2603S
+* --- IC11a sums the VCAs' currents; LEVEL (VR4) is its feedback
+P4 out out sj 100k level
+X11A 0 sj out opamp {gbw} 1e5 {opsat} {sr}
+* the multi-jack board's load (p.12; mix.cir runs it): R500 1k, C500 0.01u (SN 415300 up), and
+* R501, R502 (12k each) into the mix buses' virtual grounds while no plug is in the BD jack
+R500 out jk 1k
+C500 jk 0 {c500}
+R501 jk 0 12k
+R502 jk 0 12k
+.control tune 0.5
+.control level 0.5
+.control attack 0.5
+.control decay 0.5
+.output out out
+.output tri tri
+.output env3 c9
+.output env1 c8
+.output env2 c12
+.output atk sum
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+* The VCO's loop (IC12b, Q10, the comparator) stays whole: a cut in it would delay every flip.
+.part trig in=q7b,q8b,q12b,q6b,i12an RIC1 RDAC R1 R2 Q1 D4 R3 R4 R11 C6 Q2 R19 C1 R12
++ R38 R37 X11B R39 R34 D5 Q5 D6 R20 C7 R18 R17 Q3 R32 R33 Q4 R35 D8 R36 R22 D9 C8 P5 R58 R54
++ R41 C12 R42 D7 R21 C9 R57 P2 R26 R5
+.part vco in=c9,p1,sh R26 R27 R28 R25 X12A R29 R30 R31 Q10 R23 R24 X12B R59 C14 X13A R12 R13 Q7 R47
++ Q11 R51 R48 D12 R49 R50 X13B R52
+.part shaper in=tri,q12c R52 D10 D11 R53
+.part click in=n2,sum R5 R6 Q8 R14 C5 C2 R7 R15 R16 C4 Q9 R8 C3 C11 R44
+.part noise in=sum R10 R9 C15 R46 C13 R45
+.part vca in=sh,c8,c12,c11p,c13 R53 R43 Q12 R54 R44 R45 R56 P3 R55 Q6 R42 R495 P4 X11A R500 C500
++ R501 R502

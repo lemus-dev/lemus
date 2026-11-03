@@ -180,6 +180,18 @@ Player::Player(juce::AudioPluginFormatManager &formats, const Scene &scene, cons
 	}
 	const int ch = std::max(m_plugin->getTotalNumInputChannels(), m_plugin->getTotalNumOutputChannels());
 	m_work.setSize(ch, scene.block);
+
+	// The preroll: the plugin runs, the transport stopped and no notes, and what it plays is
+	// dropped (a machine switched on before the scene, past its power-on).
+	m_prerolling = true;
+	const juce::MidiBuffer none;
+	for (int64_t done = 0, total = std::llround(source.preroll * scene.rate); done < total; done += scene.block) {
+		m_work.clear();
+		juce::AudioBuffer<float> view(m_work.getArrayOfWritePointers(), ch, 0, int(std::min<int64_t>(scene.block, total - done)));
+		juce::MidiBuffer midi(none);
+		m_plugin->processBlock(view, midi);
+	}
+	m_prerolling = false;
 }
 
 Player::~Player()
@@ -238,7 +250,7 @@ juce::Optional<juce::AudioPlayHead::PositionInfo> Player::getPosition() const
 	info.setTimeInSeconds(seconds);
 	info.setPpqPosition(seconds * m_scene.bpm / 60.0);
 	info.setPpqPositionOfLastBarStart(std::floor(seconds * m_scene.bpm / 60.0 / 4.0) * 4.0);
-	info.setIsPlaying(m_scene.playing);
+	info.setIsPlaying(m_scene.playing && !m_prerolling);
 	return info;
 }
 

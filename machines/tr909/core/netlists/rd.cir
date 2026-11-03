@@ -1,0 +1,137 @@
+* TR-909 RIDE, voicing board 73133090, analog half (service notes p.11, grid B-F 18-27, crop
+* p11-cy-ride.png; p.5 "DIGITAL VOICE GENERATORS"; docs/circuit/cymbals.md). The clock (IC57b/c,
+* VR27 TUNE; C40/R188) is rdclk.cir; the logic between it and the D/As (timing flip-flops IC56,
+* counters IC58b + IC55, ROM IC54, latch IC53, NANDs IC57a/d) is core/cymbals.* (Cymbal), which
+* gives this netlist the latch's and counter's outputs and IC57a's. The same circuit as the crash's
+* (cr.cir) but for R439 470k (the crash's R432 is 270k) and the jack board's mix resistors.
+* Inputs: d0..d5, IC53's outputs (4174 on +5 V, 0/5 V, averaged over each step by Cymbal) into RA12's
+* 32R .. R, i.e. the ROM byte's bits 2..7 (the public images are in D/A order: bit 7 is the MSB);
+* e0..e5, counter bits 9..14 (IC55 Q6-Q11) into RA13's 32R .. R; run, IC57a's output (NOT counter
+* bit 15: 5 V while the counter runs); cr.run, the crash's IC59d output (its load on the shared accent
+* DAC moves with it); acc, the open-circuit voltage of accent DAC IC9 (RA8, address 4008, shared
+* with the crash; 5 V code/63).
+* Outputs: out, IC64a at the voicing board's connector W5 (CN-5 pin 42) to the multi-jack board;
+* jack, the MULTI OUT jack's contact behind R527/C510 with nothing plugged in (the mix resistors on it).
+* Controls: level (VR26 50k B, a rheostat in IC64a's feedback).
+* RA12 (RM0621, R = 5k binary weighted) through C128 drives the 22 ohm R438: a current into the VCA
+* Q69, a saturated NPN between that node and IC51a's virtual ground whose conductance follows its
+* base current. That current is the anti-log pair Q68's: IC52a forces Q68's reference collector to
+* the envelope current (5 V - RA13) / R439 (RA13 counts up, so the current falls in 64 steps of 512
+* samples to none), and the accent (R435), RUN (R437, the mute when stopped) and R433 set the
+* reference base against R434's, so the gain is exponential in the accent. Then two unity-gain
+* Sallen-Key low-passes with emitter followers Q77, Q78 (about 4th-order Butterworth at 27 kHz),
+* C133 and the LEVEL stage IC64a.
+* rlatch: IC53's and the counters' output resistance (HD14174B at 5 V, ~0.9 mA at 0.4 V drop), also
+* taken for IC57a and the crash's IC59d (4011UB); rdac: IC9's RM0621 Thevenin resistance (5k || 10k
+* || ... || 160k).
+.param rlatch=450 rdac=2.54k
+VB15 b15 0 15
+VNB15 nb15 0 -15
+VV5 v5 0 5
+VACC acc 0 input acc
+VRUN run 0 input run
+VCRRUN crrun 0 input cr.run
+VD0 d0 0 input d0
+VD1 d1 0 input d1
+VD2 d2 0 input d2
+VD3 d3 0 input d3
+VD4 d4 0 input d4
+VD5 d5 0 input d5
+VE0 e0 0 input e0
+VE1 e1 0 input e1
+VE2 e2 0 input e2
+VE3 e3 0 input e3
+VE4 e4 0 input e4
+VE5 e5 0 input e5
+* --- the envelope: counter bits 9-14 through RA13 and R439 into IC52a's virtual node at +5 V ------
+RLE0 e0 l6 {rlatch}
+RLE1 e1 l7 {rlatch}
+RLE2 e2 l8 {rlatch}
+RLE3 e3 l9 {rlatch}
+RLE4 e4 l10 {rlatch}
+RLE5 e5 l11 {rlatch}
+RA13F l6 ea 160k
+RA13E l7 ea 80k
+RA13D l8 ea 40k
+RA13C l9 ea 20k
+RA13B l10 ea 10k
+RA13A l11 ea 5k
+R439 ea n52a 470k
+* the anti-log pair Q68 (2SA798): IC52a holds Q68A's collector at its - input (+5 V), so Q68A carries
+* the envelope current; Q68B's collector feeds Q69's base
+X52A v5 n52a o52a opamp {gbw}
+C125 n52a o52a 1000p
+R436 o52a q68e 2.2k
+Q68A n52a q68b1 q68e 2SA798
+* the reference base: R433 to +5 V, R435 from the accent DAC, R437 from IC57a (RUN)
+RRUN run rn {rlatch}
+R433 v5 q68b1 220
+R435 ac q68b1 4.7k
+R437 rn q68b1 2.2k
+* accent DAC IC9 (RA8), shared with the crash: its source resistance, and the crash's base network
+* on it (R426 to its reference base, R428 to +5 V, R427 to its IC59d); the crash's base current
+* (tens of nA through 200 ohms) is left out
+RDAC acc ac {rdac}
+R426 ac crb 4.7k
+R428 v5 crb 220
+RCR crrun crr {rlatch}
+R427 crr crb 2.2k
+* --- the D/A and the VCA ------------------------------------------------------------------------
+R434 v5 q68b2 100
+Q68B q69b q68b2 q68e 2SA798
+* IC53's outputs through RA12 (R = 5k: d5 into R, d0 into 32R) to C128
+RL0 d0 l0 {rlatch}
+RL1 d1 l1 {rlatch}
+RL2 d2 l2 {rlatch}
+RL3 d3 l3 {rlatch}
+RL4 d4 l4 {rlatch}
+RL5 d5 l5 {rlatch}
+RA12F l0 da 160k
+RA12E l1 da 80k
+RA12D l2 da 40k
+RA12C l3 da 20k
+RA12B l4 da 10k
+RA12A l5 da 5k
+C128 da vn 10u
+R438 vn 0 22
+* Q69 (S): collector on the 22 ohm node, emitter at IC51a's virtual ground, R424 the I-V
+Q69 vn q69b n51a 2SC2603S
+X51A 0 n51a o51a opamp {gbw}
+R424 n51a o51a 47k
+* --- the filter: two unity-gain Sallen-Key low-passes, emitter followers Q77, Q78 ----------------
+R462 o51a s1 5.6k
+C144 s1 q77e 1200p
+R463 s1 q77b 5.6k
+C145 q77b 0 1000p
+Q77 b15 q77b q77e 2SC2603
+R464 q77e nb15 10k
+R465 q77e s2 5.6k
+C146 s2 q78e 2700p
+R467 s2 q78b 5.6k
+C147 q78b 0 390p
+Q78 b15 q78b q78e 2SC2603
+R466 q78e nb15 10k
+* LEVEL: C133, R446 into IC64a with VR26 in its feedback
+C133 q78e c133 10u
+R446 c133 n64a 22k
+X64A 0 n64a out opamp {gbw} 1e5 {opsat}
+P26 out out n64a 50k level
+* the multi-jack board's load on W5 (JK-1, SN p.12): R527, C510 (from SN 415300) and the mix
+* resistors R528 8.2k, R529 15k into the mix amplifiers' virtual grounds (mix.cir has them)
+R527 out jack 1k
+C510 jack 0 0.01u
+R528 jack 0 8.2k
+R529 jack 0 15k
+.control level 0.5
+.output out out
+.output jack jack
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+* The envelope and the anti-log pair's reference side (cut at Q68's emitters: IC52a holds them where
+* Q68A carries the envelope current, whatever Q68B draws), then the D/A and VCA to IC51a, then the
+* filter and LEVEL, which sleep on their own while the VCA is shut.
+.part env RLE0 RLE1 RLE2 RLE3 RLE4 RLE5 RA13F RA13E RA13D RA13C RA13B RA13A R439 X52A C125 R436 Q68A
++ RRUN R433 R435 R437 RDAC R426 R428 RCR R427
+.part vca in=q68e sleep R434 Q68B RL0 RL1 RL2 RL3 RL4 RL5 RA12F RA12E RA12D RA12C RA12B RA12A C128
++ R438 Q69 X51A R424
+.part out in=o51a sleep R462 C144 R463 C145 Q77 R464 R465 C146 R467 C147 Q78 R466 C133 R446 X64A P26
++ R527 C510 R528 R529

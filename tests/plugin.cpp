@@ -128,6 +128,33 @@ void testSessions()
 	juce::TemporaryFile junk;
 	junk.getFile().replaceWithText("not a state");
 	check(c.loadStateFrom(junk.getFile()).isNotEmpty() && c.slot(0).getValue() == set, "and so is a file that isn't a state");
+
+	// The State pop-up's Reset: the machine as a new instance starts.
+	LemusProcessor fresh;
+	check(c.resetMachine() && c.machine()->id == kId && c.slot(0).getValue() == fresh.slot(0).getValue() && stateOf(c) == stateOf(fresh),
+	      "Reset makes it a new instance: the same machine, its state as a new one's");
+}
+
+// The ROM prompt's words (host/LemusEditor.cpp), in one pattern on every machine: for each optional
+// image, what it holds and where ("The sequencer program, in the CPU's 2 KB mask ROM (IC8). Roland's
+// copyrighted work, not included: Lemus uses your own dump."), then what the machine keeps and
+// loses without it, each line "Label: fact" ("Sound: the same as with the ROM", "Sync: none").
+void testRomTexts()
+{
+	std::printf("\nThe ROM prompt's words\n");
+	for (const auto &r : findMachine(kId)->roms) {
+		if (!r.optional)
+			continue;
+		check(r.what.isNotEmpty() && r.mode.isNotEmpty() && r.without.isNotEmpty(), r.name + ": its name, its mode and what it lacks, for the bar");
+		check(r.about.contains("(IC") && r.about.endsWith(" not included: Lemus uses your own dump."),
+		      r.name + ": what it holds and where (\"" + r.about + "\")");
+		bool lines = !r.modeHas.isEmpty() && !r.modeLacks.isEmpty();
+		for (const auto &l : r.modeHas)
+			lines = lines && l.indexOf(": ") > 0;
+		for (const auto &l : r.modeLacks)
+			lines = lines && l.indexOf(": ") > 0;
+		check(lines, r.name + ": what the machine keeps and loses without it, each a \"Label: fact\" line");
+	}
 }
 
 } // namespace
@@ -143,6 +170,7 @@ int main(int argc, char **argv)
 		                opts.contains("noroms"), opts.contains("noart"), opts.contains("2x") ? 2.0f : 1.0f);
 	}
 	testMachine();
+	testRomTexts();
 	testOutputs();
 	testSessions();
 	finish();

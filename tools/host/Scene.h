@@ -30,6 +30,7 @@ struct Source {
 	std::map<juce::String, juce::String> names; // generic parameter name -> the plugin's own
 	std::map<juce::String, juce::var> params;   // in the plugin's own names, after the scene's
 	double gainDb = 0;    // applied to the output (level matching)
+	double preroll = 0;   // seconds the plugin runs before the scene, stopped and without notes (a power-on)
 	// A clip on a plugin's output, standing in for a recording chain that squashed or cut the peaks
 	// of the recording it is compared with: level * (tanh(x / level + bias) - tanh(bias)), or with
 	// clipHard the same through a hard limit at ±1 instead of tanh. clipLevel 0: none.

@@ -1,0 +1,88 @@
+* Semiconductor models for the TR-909 netlists (DC equations only: the solver has no charge
+* storage). Parts from the voicing board schematic (service notes p.11: "All NPN 2SC2603-F, All PNP
+* 2SA1115-F, All DIODE 1SS133", Q82/Q83 2SC2878, Q47/Q48 2SD1469, Q68/Q70/Q84 2SA798) and the
+* parts list (p.2-3: 2SC2603-28-F, 2SA1115-28-F, 2SC2878-A or B, 2SD1469-R, 2SA798-G). Each from
+* its data sheet (private/docs/datasheets/); the reasoning: docs/circuit/semiconductors.md.
+* 2SC2603 (Mitsubishi; Micro Electronics' second-source sheet): rank F h_FE 250-500 at 1 mA, 6 V;
+* BF 350 gives 345 there (VAF 110, ISE), the rank's geometric middle. No V_BE, BR or Early figure on
+* the sheet: IS 1.1e-14 (0.65 V at 1 mA), BR 6, VAF 110 are typical small-signal values; ISE puts
+* h_FE at 0.1 mA at 0.93 of that at 1 mA (the sheet: min 50 at 0.1 mA, min 90 at 1 mA).
+.model 2SC2603 NPN(IS=1.1e-14 BF=350 BR=6 NF=1 NR=1 VAF=110 ISE=1e-14 NE=1.5)
+* 2SC2603S: the "(S)" (selected) 2SC2603s of p.11, every single-transistor VCA (Q6, Q12, Q19-Q21,
+* Q26-Q28, Q33, Q37, Q50, Q51, Q57-Q59, Q65, Q69, Q71, Q85): saturated, their gain about
+* BR I_B / V_T, so BR is the one parameter that matters (Roland's MKS-30 sheet bins the same VCA's
+* 2SC945s by this gain, "Gm selected", one bin a board). BR 6.5 fitted jointly to the AudioRealism
+* unit: BD, toms, hats, cymbals within 1.1 dB of its levels against the snare's snappy (2SD1469s)
+* and its clap (whose tail fits with TM at about 0.31); flat from 2 to 18 uA (the cymbals' VCA law:
+* no ISC). No sheet gives the 2SC2603's reverse h_FE. docs/circuit/s-transistors.md.
+.model 2SC2603S NPN(IS=1.1e-14 BF=350 BR=6.5 NF=1 NR=1 VAF=110 ISE=1e-14 NE=1.5)
+* 2SA1115 (Mitsubishi): rank F h_FE 250-500 at -1 mA, -6 V: BF 370 gives 348 (VAF 90, ISE). As the
+* 2SC2603, the sheet has no V_BE, BR or Early figure.
+.model 2SA1115 PNP(IS=1.2e-14 BF=370 BR=6 NF=1 NR=1 VAF=90 ISE=2e-14 NE=1.5)
+* 2SC2878 (Toshiba, for muting): V_BE 0.61 V typ at 4 mA, 2 V gives IS 2.2e-13; h_FE A 200-700,
+* B 350-1200 (the parts list allows either) at 2 V, 4 mA: BF 480; reverse h_FE 150 typ (BR); V_EBO
+* 25 V min (no breakdown in the model, none needed).
+.model 2SC2878 NPN(IS=2.2e-13 BF=480 BR=150 NF=1 NR=1 VAF=100 ISE=1e-14 NE=1.5)
+* 2SD1469 (Rohm, medium power, 1 A): rank R h_FE 180-390 at 3 V, 100 mA: BF 260; V_CE(sat) about
+* 6 mV at 1 mA / 0.1 mA (the sheet's features) gives BR 50. No V_BE on the sheet: IS 5e-14, between
+* the small-signal parts and the 2SC2878, an estimate.
+.model 2SD1469 NPN(IS=5e-14 BF=260 BR=50 NF=1 NR=1 VAF=100 ISE=1e-14 NE=1.5)
+* 2SA798 (Mitsubishi dual PNP): V_BE -0.63 V at -1 mA, -6 V (the I_C-V_BE curve, p.2) gives IS
+* 2.2e-14; rank G h_FE 400-800 at -1 mA, -6 V: BF 480 with VAF 35 (h_oe 30 uS at 1 mA, 6 V and the
+* I_C-V_CE curves: 27-50 V); h_FE flat from -10 uA to -3 mA (p.3): no ISE. BR not on the sheet.
+.model 2SA798 PNP(IS=2.2e-14 BF=480 BR=6 NF=1 NR=1 VAF=35)
+* 1SS133 (Rohm): fitted to the 25 C forward curve (Fig. 1, 0.2-95 mA, within 12 mV): 0.60 V at
+* 1 mA, 0.71 V at 10 mA, 0.94 V at 100 mA (the sheet: 1.2 V max at 100 mA).
+.model 1SS133 D(IS=1.45n N=1.71 RS=1.44)
+* CMOS input protection diodes (DCMOS: one diode to each rail, at an input; the 4011UB's and
+* 4069UB's).
+.model DCMOS D(IS=1e-14 N=1 RS=10)
+* CMOS (docs/circuit/solver-mosfet.md, section 5): SPICE level-1 MOSFETs, one inverter an N and a
+* P, without charge storage. 4069UB (HD14069UBP, IC16/IC22/IC36/IC44): fitted to the HD14069UB
+* typical table (25 C; private/docs/datasheets/hitachi-hd14069ub.pdf p.2, the same numbers as
+* Motorola's MC14069UB), with the threshold and the curves' shape from TI's CD4069UB typical
+* curves (ti-cd4069ub.pdf p.8 Fig. 3, 4, 6). 4069UB_N/_P for supplies of 3-10 V, as the VCO
+* switches' +-V_cv rails: I_OL 0.81 mA at 5 V/0.4 V (sheet 0.88), 2.40 mA at 10 V/0.5 V (2.25);
+* I_OH 4.03 mA at 5 V/2.5 V (4.2), 0.84 mA at 5 V/4.6 V (0.88), 2.44 mA at 10 V/9.5 V (2.25);
+* into 50 pF at 5 V t_PHL 34 ns (sheet 65, of which ~20 ns is the gate's own: MC's formula
+* 0.90 ns/pF CL + 20 ns), t_THL 67 ns (100); switching point 2.56 V; peak supply current 4.8 mA at
+* 10 V (TI Fig. 3: 4.6 mA). 4069UB15_N/_P for 15 V: I_OL 8.76 mA at 15 V/1.5 V (8.8), I_OH
+* 8.83 mA at 15 V/13.5 V (8.8), transfer gain 5 at 15 V as TI's soft 15 V curve; 35 % weak at 5 V.
+* W and L are only a plausible split of beta = KP/2 W/L (metal gate, L 6 um).
+.model 4069UB_N NMOS(VTO=1.15 KP=20u LAMBDA=0.03 W=165u L=6u)
+.model 4069UB_P PMOS(VTO=-1.03 KP=8u LAMBDA=0.03 W=413u L=6u)
+.model 4069UB15_N NMOS(VTO=1.32 KP=20u LAMBDA=0.106 W=117u L=6u)
+.model 4069UB15_P PMOS(VTO=-1.15 KP=8u LAMBDA=0.106 W=291u L=6u)
+* Three 4069UB inverters in parallel (the snare's IC36 runs three per VCO, inputs and outputs
+* tied): 4069UB_N/_P with W x3, and their input diodes, three DCMOS each way, as one (IS x3, RS /3).
+.model 4069UB_N3 NMOS(VTO=1.15 KP=20u LAMBDA=0.03 W=495u L=6u)
+.model 4069UB_P3 PMOS(VTO=-1.03 KP=8u LAMBDA=0.03 W=1239u L=6u)
+.model DCMOS3 D(IS=3e-14 N=1 RS=3.33)
+* Two in parallel (the toms' IC16/IC22/IC44 run two per VCO): W x2, and DCMOS2 (IS x2, RS /2).
+.model 4069UB_N2 NMOS(VTO=1.15 KP=20u LAMBDA=0.03 W=330u L=6u)
+.model 4069UB_P2 PMOS(VTO=-1.03 KP=8u LAMBDA=0.03 W=826u L=6u)
+.model DCMOS2 D(IS=2e-14 N=1 RS=5)
+* 4011UB (TC4011UBP: IC57, IC59, the crash's and ride's clock oscillators, on +5 V; IC72): a gate
+* is two of each, the P in parallel, the N in series. The TC4011UBP sheet (Toshiba 1985) gives
+* only minimum drive, the MC14011UB's (Motorola 1988) and the CD4011UB's (Harris/TI) typicals differ
+* threefold, and Motorola's stops the cymbals' clock from TUNE 0.9 up. Fitted, LAMBDA 0.05, to the
+* CD4011UB's typical 5 V drive: source -1 mA at 4.6 V, -3.2 mA at 2.5 V (the P pair; the fit:
+* -0.84, -3.6), sink 1 mA at 0.4 V (the N pair in series), with the threshold at 2.5 V for both
+* inputs together and 2.35 V for one (the other high): beta 0.90 / 0.187 mA/V2. Checked on the
+* hi-hat's fixed astable (R492 12k, R493 33k, C160 470p): 31.8 kHz against the 31.57 measured.
+* private/docs/datasheets/; docs/circuit/cymbals.md, "The clock". w4011n / w4011p: the channels'
+* width, a voice's .param (its gates' drive: docs/circuit/cymbals.md, "Calibration").
+.param w4011n=540u w4011p=280.5u
+.model 4011UB_N NMOS(VTO=2.06 KP=20u LAMBDA=0.05 W={w4011n} L=6u)
+.model 4011UB_P PMOS(VTO=-2.04 KP=8u LAMBDA=0.05 W={w4011p} L=6u)
+* Op-amps: M5218L, single pole. Mitsubishi 1984 data book (M5218/M5R4558P, Vcc +-15 V): gain-
+* bandwidth 7 MHz typ, slew rate 2.2 V/us typ (the later M5218A: 3.0), maximum output +-14 V typ
+* into 10k, +-13 V into 2k (+-12 / +-10 min).
+.param gbw=7meg
+* Op-amp outputs clip at +-13.5 V.
+.param opsat=13.5
+* An op-amp loaded by 10k or more (the toms' VCO comparators: about 50k) swings +-14 V (the data
+* book's typical into 10k): their thresholds, and the toms' pitch, hang on it (docs/circuit/toms.md).
+.param opsatlight=14
+* Slew rate, V/us.
+.param sr=2.2
