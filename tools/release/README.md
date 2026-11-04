@@ -3,9 +3,12 @@
 A release is each shipping machine's own plugin (`-DLEMUS_MACHINES`, for now `tb303;tr909`),
 each a download of its own: the TB-303 is **ro-mono-303**, the TR-909 **ro-drums-909**. A machine's plugin is the host with that
 machine alone, declared in its `machine.cmake` (`lemus_plugin`: name, plugin code, description,
-whether it has a standalone app). The all-in-one Lemus and Lemus FX don't ship. Every plugin
-shares one version (the project's), so a release rebuilds them all. Each release's source is
-published at https://github.com/lemus-dev/lemus (AGPLv3), tagged `v<version>`.
+whether it has a standalone app, its version). The all-in-one Lemus and Lemus FX don't ship. Each
+plugin has its own version (`lemus_plugin(... VERSION x.y.z)`) and is released on its own: a
+release raises the versions of the plugins in it and builds only those. Each release's source is
+published at https://github.com/lemus-dev/lemus (AGPLv3), tagged `<plugin>-v<version>`
+(`ro-drums-808-v0.1.0`); a release of several plugins tags the same commit once per plugin. Up to
+0.2.0 every plugin shared the project's version, and those releases are tagged `v<version>`.
 
 | Platform | Formats | Built by | Output |
 |---|---|---|---|
@@ -18,31 +21,36 @@ readme (`windows-readme.txt`) that says where the VST3 goes.
 
 ## Making one
 
-1. Set the version in `CMakeLists.txt` (`project(LEMUS VERSION x.y.z)`). Sessions record it
-   (`savedBy`), and the update check compares it with the website's.
-2. Run the checks: each shipping plugin's (`lemustest_tb303`, `lemustest_tr909`),
-   `lemustest_instrument` and each shipping machine's own (`tb303plugintest`, `tr909plugintest`),
+1. Set each released plugin's version in its `machines/<id>/machine.cmake` (`lemus_plugin(...
+   VERSION x.y.z)`). Sessions record it (`savedBy`), and the update check compares it with the
+   website's for that plugin.
+2. Run the checks: each released plugin's (`lemustest_tb303`, `lemustest_tr909`),
+   `lemustest_instrument` and each released machine's own (`tb303plugintest`, `tr909plugintest`),
    with the private folder in place, and `auval -v aumu R303 Lmus` / `auval -v aumu R909 Lmus` on
    the installed AUs (each plugin's code is in its `machine.cmake`). There are no manual DAW
    checks before a release.
-3. macOS: `tools/release/mac.sh` with `LEMUS_SIGN_APP`, `LEMUS_SIGN_INSTALLER` and
-   `LEMUS_NOTARY_PROFILE` set (see the script). Without them it builds an unsigned package for
-   testing.
-4. Windows: tag the commit `v<version>` and push it (or run the workflow by hand); download the
-   zips from the run. The workflow lists the plugins it builds and tests. Once SignPath is set up
-   (below), take them from the public repo's run for the tag instead (step 5 pushes it there):
-   those are signed.
-5. Publish the release's source to https://github.com/lemus-dev/lemus and tag it `v<version>`
-   there too: the binaries are AGPLv3, so their source must be out when they are.
+3. macOS: `tools/release/mac.sh` with `LEMUS_MACHINES` set to the released machines
+   (`LEMUS_MACHINES="tb303;tr808"`) and `LEMUS_SIGN_APP`, `LEMUS_SIGN_INSTALLER` and
+   `LEMUS_NOTARY_PROFILE` set (see the script). Without the signing settings it builds an unsigned
+   package for testing.
+4. Windows: tag the commit `<plugin>-v<version>` for each released plugin and push the tags (or
+   run the workflow by hand); download the zips from the runs. A tag's run keeps only that plugin's
+   zip, and fails if the plugin's VERSION isn't the tag's. The workflow lists the plugins it
+   builds and tests. Once SignPath is set up (below), take them from the public repo's runs for the
+   tags instead (step 5 pushes them there): those are signed.
+5. Publish the release's source to https://github.com/lemus-dev/lemus with the same tags
+   (`tools/publish/publish.sh -t ro-mono-303-v0.2.1 -t ro-drums-808-v0.1.0 "..."`): the binaries
+   are AGPLv3, so their source must be out when they are.
 6. Write what the version changed as a `changes` entry for each plugin in
    `website/src/data/machines.ts` (short lines; the plugin's what's-new window shows them), and
-   use the same lines as the release notes. Attach the installers to a GitHub release of that tag,
-   which counts their downloads:
+   use the same lines as the release notes. Attach each plugin's installers to a GitHub release of
+   its tag, which counts their downloads:
 
-       gh release create v<version> -R lemus-dev/lemus --verify-tag --latest \
+       gh release create ro-mono-303-v<version> -R lemus-dev/lemus --verify-tag --latest \
          --title "ro-mono-303 <version>" --notes "<changes>" dist/ro-mono-303-<version>-*
 
-7. Set each released plugin's `release` in `website/src/data/machines.ts` and run
+7. Set each released plugin's `release` (version, tag, file names) in
+   `website/src/data/machines.ts` and run
    `npm run deploy` in `website/`. That publishes the download links (to the GitHub release's
    files) and `latest.json`, so it's the last step: every open plugin window shows the new version
    within a day, and pops up what's new in it. The site builds `latest.json` from the same list:

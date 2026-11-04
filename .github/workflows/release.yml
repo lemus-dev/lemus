@@ -1,9 +1,11 @@
 # The Windows release: each shipping machine's own plugin (VST3 and the standalone app), checked
 # with its own tests and the instruments host's (the runner has no ROMs, so the machines are checked
 # in voice mode), each zipped by tools/release/windows.ps1. The TR-909 is built with clang-cl: its
-# circuit solver runs about 15 % faster than with MSVC (windows-machine.yml's bench). Runs on demand and for version tags; the
-# zips are the run's artifact. The macOS release is built locally (tools/release/mac.sh), where the
-# signing keys are.
+# circuit solver runs about 15 % faster than with MSVC (windows-machine.yml's bench). Runs on demand
+# and for release tags; the zips are the run's artifact. Each plugin has its own version (its
+# lemus_plugin() VERSION) and its own tag, <plugin>-v<version> (ro-drums-909-v0.2.1): a tag's run
+# keeps only that plugin's zip, and fails if the plugin isn't at the tag's version. The macOS release
+# is built locally (tools/release/mac.sh), where the signing keys are.
 #
 # Where the SignPath secrets are set (the public repo, github.com/lemus-dev/lemus), the zips are
 # signed by SignPath Foundation: the exe and the VST3 in each (tools/release/signpath.xml), once a
@@ -13,7 +15,7 @@ name: release
 on:
   workflow_dispatch:
   push:
-    tags: ['v*']
+    tags: ['*-v[0-9]*']
 
 jobs:
   windows:
@@ -43,19 +45,28 @@ jobs:
         run: |
           tools/release/windows.ps1 -Build build/release-win
           tools/release/windows.ps1 -Build build/release-win-tr909
-      - name: Version
+      - name: Release
         id: version
         shell: pwsh
-        run: '"version=" + (Select-String -Path CMakeLists.txt -Pattern "project\(LEMUS VERSION ([0-9.]+)").Matches[0].Groups[1].Value >> $env:GITHUB_OUTPUT'
+        run: |
+          # A tag <plugin>-v<version> releases that plugin alone, at that version.
+          if ('${{ github.ref_type }}' -eq 'tag' -and '${{ github.ref_name }}' -match '^(.+)-v([0-9]+\.[0-9]+\.[0-9]+)$') {
+            $plugin = $Matches[1]; $version = $Matches[2]
+            $zip = "dist/$plugin-$version-windows.zip"
+            if (-not (Test-Path $zip)) { throw "the tag is ${{ github.ref_name }} but there's no $zip: is the plugin's VERSION $version?" }
+            Get-ChildItem dist/*.zip | Where-Object { $_.Name -ne "$plugin-$version-windows.zip" } | Remove-Item
+            "plugin=$plugin" >> $env:GITHUB_OUTPUT
+            "version=$version" >> $env:GITHUB_OUTPUT
+          }
       - name: Upload for signing
         id: unsigned
-        if: env.SIGNPATH_API_TOKEN != ''
+        if: env.SIGNPATH_API_TOKEN != '' && steps.version.outputs.version != ''
         uses: actions/upload-artifact@v4
         with:
           name: plugins-windows-unsigned
           path: dist/*.zip
       - name: Sign
-        if: env.SIGNPATH_API_TOKEN != ''
+        if: env.SIGNPATH_API_TOKEN != '' && steps.version.outputs.version != ''
         uses: signpath/github-action-submit-signing-request@v3
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -69,7 +80,7 @@ jobs:
           parameters: |
             version: "${{ steps.version.outputs.version }}"
       - name: Use the signed zips
-        if: env.SIGNPATH_API_TOKEN != ''
+        if: env.SIGNPATH_API_TOKEN != '' && steps.version.outputs.version != ''
         shell: pwsh
         run: Move-Item -Force build/signed/*.zip dist/
       - uses: actions/upload-artifact@v4

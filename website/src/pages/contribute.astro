@@ -1,0 +1,221 @@
+---
+// How to contribute a machine: for the person and for the coding agent they point at this page.
+// The method itself is CONTRIBUTING.md in the repo; this page is who does what, what it costs and
+// how a machine gets in.
+import Base from '../layouts/Base.astro';
+
+const repo = 'https://github.com/lemus-dev/lemus';
+const contributing = `${repo}/blob/main/CONTRIBUTING.md`;
+const issues = `${repo}/issues?q=is%3Aissue+is%3Aopen+%22Machine%3A%22`;
+
+const prompt = 'Read https://lemusdev.org/contribute, then build a Lemus emulation of the <maker> <model> as it says. Stop and ask me at every gate.';
+
+const sections = [
+  { id: 'choose', label: 'Choosing' },
+  { id: 'steps', label: 'Who does what' },
+  { id: 'cost', label: 'Cost' },
+  { id: 'rules', label: 'Rules' },
+  { id: 'agents', label: 'For agents' },
+  { id: 'submit', label: 'Submitting' },
+];
+---
+<Base title="Build a machine · Lemus" description="How to add a machine to Lemus with a coding agent such as Claude Code or Codex: what the agent does, what the person does, what it costs, and how a machine is submitted and released." current="contribute">
+
+<nav slot="sub" class="onpage" aria-label="On this page">
+<div class="frame sheet">
+<div class="col">
+<ol>
+{sections.map((s) => <li><a href={`#${s.id}`}>{s.label}</a></li>)}
+</ol>
+</div>
+</div>
+</nav>
+
+<section class="sheet">
+<div class="col hero">
+<div class="intro">
+<h1 class="h1 tap">Build a machine</h1>
+<p class="lede">New machines come in as pull requests to <a href={repo}>lemus-dev/lemus</a>. A coding agent such as Claude Code or Codex can do most of the work, from this page and the repo's <a href={contributing}>CONTRIBUTING.md</a>. A person makes the calls it can't, and the maintainers review and listen before a machine is released.</p>
+<div class="ask tapbox">
+<h2 class="ask-h">For your agent</h2>
+<pre id="prompt">{prompt}</pre>
+<div class="ask-row">
+<button type="button" class="btn small" data-copy="prompt">Copy</button>
+<span class="dim small" data-copied hidden>Copied.</span>
+</div>
+</div>
+</div>
+
+<div class="data">
+<div class="data-head"><span>Data</span></div>
+<dl>
+<div><dt class="lbl">Method</dt><dd><a href={contributing}>CONTRIBUTING.md</a></dd></div>
+<div><dt class="lbl">Examples</dt><dd><span class="mono">machines/tr909</span>, <span class="mono">machines/tb303</span></dd></div>
+<div><dt class="lbl">Claims</dt><dd>A GitHub issue, <span class="mono">Machine: &lt;Maker&gt; &lt;Model&gt;</span></dd></div>
+<div><dt class="lbl">Licence</dt><dd>GNU AGPLv3, <span class="mono">Signed-off-by</span> on each commit, no CLA</dd></div>
+<div><dt class="lbl">Needs</dt><dd>A Mac; CMake 3.22+, Python 3.14, ngspice; a coding agent</dd></div>
+<div><dt class="lbl">Questions</dt><dd><a href="https://lemus.discourse.group">lemus.discourse.group</a></dd></div>
+</dl>
+</div>
+</div>
+</section>
+
+<section id="choose" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">Choosing a machine</h2>
+<p class="text">A machine can be emulated to the standard of the released ones when four inputs exist. Without the first two it can't be; with all four public, it can be done without ever having the unit.</p>
+<div class="table-box">
+<table class="table">
+<thead><tr><th scope="col">Input</th><th scope="col">Where it comes from</th></tr></thead>
+<tbody>
+<tr><td>Circuit</td><td>A service manual or schematic, data sheets, published analyses</td></tr>
+<tr><td>Firmware, if it has a CPU</td><td>A ROM dump (a MAME set) and a CPU core (MAME's, BSD-3)</td></tr>
+<tr><td>Custom chips</td><td>A data sheet, a community decode, or a decode from the firmware</td></tr>
+<tr><td>Reference</td><td>Free recordings of real units, several to see the spread; for digital gear, an open bit-exact emulator run as an oracle</td></tr>
+</tbody>
+</table>
+</div>
+<p class="text">Any machine without an open <a href={issues}>claim issue</a> is open.</p>
+</div>
+</section>
+
+<section id="steps" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">Who does what</h2>
+<p class="text">The phases are CONTRIBUTING.md's. At a <span class="gate">gate</span> the agent stops until the person says go on.</p>
+<div class="table-box">
+<table class="table steps">
+<thead><tr><th scope="col">Step</th><th scope="col">The agent</th><th scope="col">The person</th></tr></thead>
+<tbody>
+<tr><th scope="row">0 Choose <span class="gate">gate</span></th><td>Finds the schematic, ROM set, chip documents and free recordings. Proposes the target unit (revision, serial range) and the plugin name, and drafts the claim issue.</td><td>Picks the machine. Posts the claim. Waits for the maintainers to agree the target and the name; they assign the plugin code.</td></tr>
+<tr><th scope="row">1 Research</th><td>Downloads every source into the private folder, beside the clone. Writes <span class="mono">sources.md</span> and <span class="mono">research.md</span>.</td><td>Supplies the ROM images, and recordings of their own unit if they have one.</td></tr>
+<tr><th scope="row">2 Skeleton</th><td>Lays out <span class="mono">machines/&lt;id&gt;/</span> from the 909's: driver, sleep, model version, artwork places, plugin name.</td><td>—</td></tr>
+<tr><th scope="row">3 Firmware</th><td>Ports MAME's CPU core, maps the board's I/O by running it, checks every procedure in the owner's manual.</td><td>—</td></tr>
+<tr><th scope="row">4 Circuit</th><td>Transcribes the schematic part by part, checks every netlist against ngspice, passes the service manual's checks.</td><td>—</td></tr>
+<tr><th scope="row">5 First playable <span class="gate">gate</span></th><td>Draws the panel from a photo, adds keys, MIDI, state and power, builds the check set, compares against every real unit, writes <span class="mono">improvements.md</span>. Opens a draft pull request.</td><td>Installs it and plays it. Says what's wrong. Picks the first round.</td></tr>
+<tr><th scope="row">Rounds <span class="gate">gate</span></th><td>One kind per round, accuracy or CPU, with the whole check set before and after, and the numbers logged.</td><td>Picks each round, listens to its A/B scenes, decides any trade between sound and CPU.</td></tr>
+<tr><th scope="row">Ship <span class="gate">gate</span></th><td>Every service check passes, the CPU budget is met, the README has the numbers and the known differences.</td><td>Signs off the commits and marks the pull request ready. The maintainers review it, listen, merge and release it.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="cost" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">Cost</h2>
+<p class="text">Measured on this project, in Claude Code with Claude Opus 5.5. Codex hasn't been measured.</p>
+<div class="table-box">
+<table class="table cost">
+<thead><tr><th scope="col">Work</th><th scope="col">At API rates</th><th scope="col">On a Claude plan</th><th scope="col">The person</th></tr></thead>
+<tbody>
+<tr><td><span class="mono">ro-drums-909</span>, firmware and circuit: research to a calibrated release, two CPU rounds, a service view</td><td class="amt">about $1,600</td><td>Max: about 40 % of its weekly allowance, for three weeks</td><td>175 messages over 12 days</td></tr>
+<tr><td>A circuit-only monosynth: research to first playable and its first accuracy rounds</td><td class="amt">about $500</td><td>Max: about 40 % of one week's allowance</td><td>16 messages over 3 days</td></tr>
+<tr><td>The project's first four weeks: nine machines at different stages, the shared host, this site, three releases</td><td class="amt">about $4,400</td><td>Ultra: about 45 % of four weeks' allowance; 55 % in the busiest week</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<p class="text">The plans' limits are weekly. In one measured week, 28 % of Ultra's allowance was about $710 at API rates, so a week of Ultra ($200 a month) is worth roughly $2,500 at API rates, a week of Max ($100) $1,250, and a week of Pro ($20) $250: on Pro, a machine like the 909 would take about six weeks of full allowances.</p>
+<p class="text">About half the cost is the agent rereading its own context. A new session for each phase or round costs less than one long session; <span class="mono">improvements.md</span> carries the state between them.</p>
+</div>
+</section>
+
+<section id="rules" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap red">Rules</h2>
+<p class="text">A pull request that breaks one of these is closed. The full list is in <a href={`${contributing}#rules`}>CONTRIBUTING.md</a>.</p>
+<ul class="list">
+<li><strong>Nothing copyrighted in the repo.</strong> No ROMs, manuals, schematics, photos, recordings, vendor renders or logos. They stay in the private folder.</li>
+<li><strong>Licences.</strong> MAME's CPU cores are BSD-3 and are ported with their notice. GPL projects are oracles only: run as separate programs, their source never read for this code.</li>
+<li><strong>A machine is its folder.</strong> The pull request changes only <span class="mono">machines/&lt;id&gt;/</span>. A change to shared code is a pull request of its own.</li>
+<li><strong>Free reference data.</strong> No bought sample sets. Every value in the docs names its source.</li>
+<li><strong>The hardware, only.</strong> The panel is the machine's one view, and it has only the controls the unit has.</li>
+</ul>
+</div>
+</section>
+
+<section id="agents" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">For agents</h2>
+<p class="text">If a person has pointed you at this page to build a machine:</p>
+<ol class="list numbered">
+<li>Clone <span class="mono">{repo}</span>. Read <span class="mono">CONTRIBUTING.md</span> and <span class="mono">README.md</span>, then <span class="mono">machines/tr909/</span>, the example to copy.</li>
+<li>Check the machine has no open <span class="mono">Machine:</span> issue (<span class="mono">gh issue list --repo lemus-dev/lemus --search "Machine:"</span>).</li>
+<li>Do phase 0 and stop. Show the person the choice note. Post nothing public, issue, pull request or forum post, without their go.</li>
+<li>Work only in <span class="mono">machines/&lt;id&gt;/</span> and the private folder, <span class="mono">../private/</span>. Never commit what belongs in the private folder.</li>
+<li>Stop at every gate: phase 0, phase 5, each round's pick and result, the pull request.</li>
+<li>Keep <span class="mono">docs/improvements.md</span> current, with numbers. It is how the next session and the reviewers know where the machine stands.</li>
+<li>Commit with <span class="mono">git commit -s</span> under the person's own git identity, with their consent. Never sign off in anyone else's name.</li>
+</ol>
+</div>
+</section>
+
+<section id="submit" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">Submitting</h2>
+<p class="text">One machine, one pull request, against <span class="mono">main</span>. Open it as a draft at the first playable machine, so the maintainers can follow it; mark it ready at the ship gate. The maintainers merge it, build the installers, write the machine's page here and announce the release. The machine's README and its page here name who built it, by name or handle. Rounds go on after release: a change to the sound then bumps the model version, so old sessions keep theirs.</p>
+</div>
+</section>
+
+</Base>
+
+<script>
+for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+  button.addEventListener('click', async () => {
+    const text = document.getElementById(button.dataset.copy!)!.textContent ?? '';
+    const note = button.parentElement!.querySelector<HTMLElement>('[data-copied]')!;
+    try {
+      await navigator.clipboard.writeText(text);
+      note.textContent = 'Copied.';
+    } catch {
+      note.textContent = 'Select the text and copy it.';
+    }
+    note.hidden = false;
+  });
+}
+</script>
+
+<style>
+:global(html) { scroll-padding-top: 64px; }
+
+.onpage { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.onpage ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 30px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.onpage ol::-webkit-scrollbar { display: none; }
+.onpage a { display: inline-flex; align-items: center; min-height: 46px; box-sizing: border-box; padding-top: 3px; border-bottom: 3px solid transparent; color: var(--ink2); text-decoration: none; font-size: 15px; font-weight: 500; }
+.onpage a:hover { color: var(--ink); }
+
+.hero { padding-block: 72px 88px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 48px 64px; align-items: start; }
+.intro { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.lede { margin: 0; color: var(--ink2); font-size: 19px; line-height: 1.55; max-width: 34em; }
+
+.ask { --tap-y: 31px; box-sizing: border-box; border: 2px solid var(--ink); background: var(--tint); padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+.ask-h { margin: 0; font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.15; text-transform: uppercase; }
+/* ui-monospace, not B612: B612's wide punctuation reads as spaces in a URL meant to be copied. */
+.ask pre { margin: 0; padding: 14px 16px; background: var(--paper); border: 1.5px solid var(--ink); font: 14px/1.55 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+.ask-row { display: flex; align-items: center; gap: 16px; }
+.small { font-size: 15px; }
+
+.data { border: 2px solid var(--ink); min-width: 0; }
+.data-head { padding: 9px 16px; border-bottom: 2px solid var(--ink); background: var(--paper2); font-family: var(--display); font-weight: 700; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
+.data dl { margin: 0; display: flex; flex-direction: column; font-size: 16px; }
+.data dl > div { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--rule); }
+.data dl > div:last-child { border-bottom: 0; }
+.data dt { padding-top: 3px; }
+.data dd { margin: 0; }
+
+.mono { font-family: var(--mono); font-size: 0.86em; color: var(--ink); overflow-wrap: anywhere; }
+.text { margin: 0; color: var(--ink2); max-width: 46em; }
+.sec > .table-box { max-width: 1000px; }
+.table th[scope='row'] { font-family: var(--display); font-weight: 600; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; background: var(--paper2); }
+.table td { color: var(--ink2); }
+.steps { min-width: 760px; }
+.steps td { width: 42%; }
+.cost { min-width: 820px; }
+.cost .amt { white-space: nowrap; color: var(--ink); font-weight: 600; }
+.gate { display: inline-block; margin-left: 6px; padding: 0 6px; border: 1.5px solid var(--red); color: var(--red); font: 700 11px/18px var(--mono); letter-spacing: 0.04em; text-transform: uppercase; vertical-align: 2px; }
+
+.list { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; color: var(--ink2); max-width: 46em; }
+.list strong { color: var(--ink); font-weight: 600; }
+.numbered { padding-left: 26px; }
+.numbered li::marker { font: 700 14px var(--mono); color: var(--wire-text); }
+</style>

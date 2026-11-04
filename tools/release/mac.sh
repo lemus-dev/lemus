@@ -1,7 +1,8 @@
 #!/bin/bash
 # Builds the macOS release: each shipping machine's own plugin (AU, VST3 and, where it has one, the
 # standalone app), universal (arm64 and x86_64), each in an installer of its own:
-# dist/<plugin>-<version>-mac.pkg (dist/ro-mono-303-0.1.0-mac.pkg).
+# dist/<plugin>-<version>-mac.pkg (dist/ro-mono-303-0.1.0-mac.pkg), the version each plugin's own
+# (its lemus_plugin() VERSION, read back from the built bundle).
 #
 #   tools/release/mac.sh
 #
@@ -10,14 +11,14 @@
 #   LEMUS_SIGN_APP        "Developer ID Application: ..." (signs the plugins and the app)
 #   LEMUS_SIGN_INSTALLER  "Developer ID Installer: ..."  (signs the .pkg)
 #   LEMUS_NOTARY_PROFILE  a notarytool keychain profile (xcrun notarytool store-credentials)
-# LEMUS_MACHINES overrides the machines that ship, by id, separated by ; (default: tb303;tr909).
+# LEMUS_MACHINES picks the machines to package, by id, separated by ; (default: tb303;tr909): a
+# release builds only the plugins it ships (LEMUS_MACHINES=tr808 tools/release/mac.sh).
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 MACHINES=${LEMUS_MACHINES:-tb303;tr909}
 BUILD=$ROOT/build/release-mac
 DIST=$ROOT/dist
-VERSION=$(sed -n 's/^project(LEMUS VERSION \([0-9.]*\).*/\1/p' "$ROOT/CMakeLists.txt")
 
 cmake -S "$ROOT" -B "$BUILD" -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
 	-DLEMUS_MACHINES="$MACHINES" -DLEMUS_TOOLS=OFF -DLEMUS_COPY_PLUGINS=OFF
@@ -42,6 +43,8 @@ package() { # id
 	au=$(echo "$art"/AU/*.component)
 	local name
 	name=$(basename "$au" .component)
+	local VERSION # the plugin's own; component() reads it too
+	VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$au/Contents/Info.plist")
 	local vst3=$art/VST3/$name.vst3 app=$art/Standalone/$name.app
 	local bundles=("$au" "$vst3")
 	[[ -d $app ]] && bundles+=("$app")

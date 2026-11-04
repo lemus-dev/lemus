@@ -116,7 +116,7 @@ set(TR909_PLUGIN_INCLUDES ${TR909_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHINES
 set_source_files_properties(${TR909_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${TR909_PLUGIN_INCLUDES}")
 
 lemus_machine(tr909 instrument)
-lemus_plugin(tr909 NAME "ro-drums-909" CODE R909 STAGE beta STANDALONE MIDI_OUT
+lemus_plugin(tr909 NAME "ro-drums-909" CODE R909 VERSION 0.2.0 STAGE beta STANDALONE MIDI_OUT
   DESCRIPTION "Emulation of the Roland TR-909. Not affiliated with Roland.")
 function(lemus_add_tr909 target)
   target_sources(${target} PRIVATE ${TR909_DIR}/tr909.cpp ${TR909_PLUGIN_SOURCES})

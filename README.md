@@ -123,8 +123,9 @@ A name and its plugin code never change once the plugin ships: sessions find the
 ## Contributing
 
 Contributions are under the AGPL-3.0, with a `Signed-off-by:` line on each commit; there is no
-CLA. Questions, reports and recordings of real units: the forum, https://lemus.discourse.group.
-Bugs can also go to GitHub Issues.
+CLA. New machines: `CONTRIBUTING.md`, and https://lemusdev.org/contribute for who does what and
+what it costs. Questions, reports and recordings of real units: the forum,
+https://lemus.discourse.group. Bugs can also go to GitHub Issues.
 
 ## Licence and names
 

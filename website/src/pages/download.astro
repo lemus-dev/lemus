@@ -23,7 +23,7 @@ import { machines, downloadLinks, platforms, sourceOf } from '../data/machines';
 <a href={links.windows} class="btn">Windows</a>
 </div>
 <div class="meta">
-<span>Version {m.release.version}{m.release.stage && ` ${m.release.stage}`}, source: <a href={sourceOf(m.release)}>v{m.release.version} on GitHub</a> (GNU AGPLv3)</span>
+<span>Version {m.release.version}{m.release.stage && ` ${m.release.stage}`}, source: <a href={sourceOf(m.release)}>{m.release.tag} on GitHub</a> (GNU AGPLv3)</span>
 {platforms.map(([os, formats]) => <span>{os}: {formats}</span>)}
 </div>
 <Prerelease release={m.release} />

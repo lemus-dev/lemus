@@ -2,7 +2,8 @@
 // /latest.json (the plugins' update check) are built from this list.
 
 export interface Release {
-  version: string;
+  version: string; // the plugin's own (its lemus_plugin() VERSION in the repo)
+  tag: string; // the release's tag in lemus-dev/lemus: <slug>-v<version>; v<version> up to 0.2.0, when every plugin shared one version
   stage?: 'alpha' | 'beta'; // a pre-release: shown next to the version, with the unsigned-installer warning
   mac: string; // installer file names, attached to the GitHub release (see assetOf)
   windows: string;
@@ -38,7 +39,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.1.5', stage: 'beta', mac: 'ro-mono-303-0.1.5-mac.pkg', windows: 'ro-mono-303-0.1.5-windows.zip' },
+    release: { version: '0.2.0', tag: 'v0.2.0', stage: 'beta', mac: 'ro-mono-303-0.2.0-mac.pkg', windows: 'ro-mono-303-0.2.0-windows.zip' },
     changes: [
       {
         version: '0.2.0',
@@ -96,9 +97,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    // Not released yet: its download links go to /download, which says so, and it isn't in
-    // /latest.json or the footer. Set the release when it ships.
-    release: null,
+    release: { version: '0.2.0', tag: 'v0.2.0', stage: 'beta', mac: 'ro-drums-909-0.2.0-mac.pkg', windows: 'ro-drums-909-0.2.0-windows.zip' },
     changes: [{ version: '0.2.0', notes: ['The first release, a beta.'] }],
   },
 ];
@@ -114,13 +113,13 @@ export const isNewer = (a: string, b: string) => {
 export const bySlug = (slug: string) => machines.find((m) => m.slug === slug)!;
 
 // The source of a release, next to its downloads: the binaries are AGPLv3, and the licence
-// accepts the source offered from the same place. Each release is tagged v<version> there.
-export const sourceOf = (r: Release) => `https://github.com/lemus-dev/lemus/tree/v${r.version}`;
+// accepts the source offered from the same place. Each release is tagged there (Release.tag).
+export const sourceOf = (r: Release) => `https://github.com/lemus-dev/lemus/tree/${r.tag}`;
 
-// The installers are attached to the release on GitHub (tag v<version>), which counts their
-// downloads. public/_redirects sends the old /download/<file> links there.
+// The installers are attached to the release on GitHub (its tag), which counts their downloads.
+// public/_redirects sends the old /download/<file> links there.
 export const assetOf = (r: Release, file: string) =>
-  `https://github.com/lemus-dev/lemus/releases/download/v${r.version}/${file}`;
+  `https://github.com/lemus-dev/lemus/releases/download/${r.tag}/${file}`;
 
 export const downloadLinks = (m: Machine) =>
   m.release
