@@ -53,7 +53,7 @@ jobs:
           if ('${{ github.ref_type }}' -eq 'tag' -and '${{ github.ref_name }}' -match '^(.+)-v([0-9]+\.[0-9]+\.[0-9]+)$') {
             $plugin = $Matches[1]; $version = $Matches[2]
             $zip = "dist/$plugin-$version-windows.zip"
-            if (-not (Test-Path $zip)) { throw "the tag is ${{ github.ref_name }} but there's no $zip: is the plugin's VERSION $version?" }
+            if (-not (Test-Path $zip)) { throw "the tag is ${{ github.ref_name }} but there's no ${zip}: is the plugin's VERSION $version?" }
             Get-ChildItem dist/*.zip | Where-Object { $_.Name -ne "$plugin-$version-windows.zip" } | Remove-Item
             "plugin=$plugin" >> $env:GITHUB_OUTPUT
             "version=$version" >> $env:GITHUB_OUTPUT
