@@ -34,11 +34,11 @@ host's State: Reset.
 A session keeps its patterns in voice mode, and gets the full 909 back when it is reopened with the
 ROM in the folder.
 
-The panel's brand marks come from your own artwork; Lemus ships none. As MAME keeps artwork, each
-of the four places has a file of its own in `artwork/tr909/` in the ROM folder (or in
-`artwork/tr909.zip`), an SVG or PNG with a plain name: `maker` (the Roland logo), `model` (TR-909),
-`name` (Rhythm Composer), and `rear_maker` (the Roland logo on the rear panel, 110 x 22 mm), e.g.
-`maker.png`. The front places are the panel's logo boxes in `docs/panel.json`. Each file is drawn
+The panel's brand marks come from your own artwork; Lemus ships none. Each of the
+four places has a file of its own, an SVG or PNG named after the plugin and the place, anywhere in
+the ROM folder (`ro-drums-909-maker.png`; `artwork/tr909/maker.png` or `artwork/tr909.zip` also
+work, and win). The places are `maker` (the Roland logo), `model` (TR-909), `name` (Rhythm
+Composer) and `rear_maker` (the Roland logo on the rear panel, 110 x 22 mm). The front places are the panel's logo boxes in `docs/panel.json`. Each file is drawn
 as it looks, fitted to its box with its proportions kept and centred; only what it draws counts
 (not a page's margins or a PNG's transparent border), and transparent parts show the panel. A PNG
 at 10 px/mm stays sharp in the largest window. ROMs on the bar lists the places with their sizes

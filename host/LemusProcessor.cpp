@@ -118,7 +118,7 @@ void LemusProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 std::vector<lemus::RomSpec> LemusProcessor::missingRoms(const lemus::MachineInfo &info)
 {
 	std::vector<lemus::RomSpec> missing;
-	lemus::romfolder::load(lemus::romfolder::location(), info.roms, &missing);
+	lemus::romfolder::load(lemus::romfolder::location(info.id), info.roms, &missing);
 	return missing;
 }
 
@@ -129,9 +129,11 @@ bool LemusProcessor::anyRequired(const std::vector<lemus::RomSpec> &roms)
 
 std::unique_ptr<juce::AudioProcessor> LemusProcessor::createMachine(const lemus::MachineInfo &info)
 {
-	const auto folder = lemus::romfolder::location();
+	const auto folder = lemus::romfolder::location(info.id);
 	std::vector<lemus::RomSpec> missing;
 	auto roms = lemus::romfolder::load(folder, info.roms, &missing);
+	if (missing.size() < info.roms.size())
+		lemus::romfolder::keepLocation(info.id, folder);
 	if (anyRequired(missing))
 		return nullptr;
 	// With every ROM, the answer to the prompt is forgotten: if one goes missing later, it shows again.
@@ -142,6 +144,8 @@ std::unique_ptr<juce::AudioProcessor> LemusProcessor::createMachine(const lemus:
 	// with places, a blank one an earlier release wrote comes out.
 	const auto &spec = info.artwork;
 	const auto art = lemus::romfolder::findAllArtwork(folder, spec);
+	if (!art.empty())
+		lemus::romfolder::keepLocation(info.id, folder);
 	lemus::romfolder::addArtwork(roms, spec, art);
 	if (!spec.places.empty())
 		lemus::romfolder::removeBlankArtwork(folder, spec);
@@ -166,12 +170,17 @@ juce::String LemusProcessor::artworkNote(const lemus::ArtworkSpec &spec, const l
 		return art.pack.data.isEmpty() ? "No artwork pack: the panel's brand marks come from " + spec.name + " in your ROM folder."
 		                               : "Artwork: " + art.pack.where + ".";
 	if (art.empty())
-		return "No artwork: the panel's brand marks come from your own files, in artwork/" + spec.folder() + "/ in your ROM folder (ROMs on the bar lists them).";
+		return "No artwork: the panel's brand marks come from your own files, " +
+		       (spec.plugin.isNotEmpty() ? "named like " + spec.plugin + "-" + spec.places.front().id + ".svg," : "in artwork/" + spec.folder() + "/") + " in your ROM folder (ROMs on the bar lists them).";
 	if (art.places.empty())
 		return "Artwork: " + art.pack.where + ".";
-	juce::StringArray from; // the folder, the zip, or both
-	for (const auto &p : art.places)
-		from.addIfNotAlreadyThere(p.file != juce::File() ? p.where.upToLastOccurrenceOf("/", true, false) : p.where.upToFirstOccurrenceOf(".zip", true, true));
+	juce::StringArray from; // the folders, the zip
+	for (const auto &p : art.places) {
+		const int slash = p.where.lastIndexOfAnyOf("/\\");
+		from.addIfNotAlreadyThere(p.file == juce::File() ? p.where.upToFirstOccurrenceOf(".zip", true, true)
+		                          : slash >= 0           ? p.where.substring(0, slash + 1)
+		                                                 : juce::String("your ROM folder"));
+	}
 	juce::String note = "Artwork: " + juce::String(int(art.places.size())) + " of " + juce::String(int(spec.places.size())) + " places from " +
 	                    from.joinIntoString(" and ");
 	return note + (art.pack.data.isEmpty() || art.places.size() == spec.places.size() ? "." : ", the others from " + art.pack.where + ".");
@@ -192,7 +201,10 @@ bool LemusProcessor::reloadArtwork()
 	if (m_info == nullptr || m_machine == nullptr)
 		return false;
 	const auto &spec = m_info->artwork;
-	const auto art = lemus::romfolder::findAllArtwork(lemus::romfolder::location(), spec);
+	const auto folder = lemus::romfolder::location(m_info->id);
+	const auto art = lemus::romfolder::findAllArtwork(folder, spec);
+	if (!art.empty())
+		lemus::romfolder::keepLocation(m_info->id, folder);
 	const auto print = fingerprint(art);
 	if (print == m_artworkPrint)
 		return false;

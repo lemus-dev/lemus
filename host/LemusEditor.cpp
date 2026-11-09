@@ -65,15 +65,14 @@ juce::String shortPath(const juce::File &f)
 	return path.startsWith(home + juce::File::getSeparatorString()) ? "~" + path.substring(home.length()) : path;
 }
 
-// Makes `folder` the ROM folder. The old one keeps the user's files, but not the blank artwork packs
-// Lemus wrote there that nobody filled in: they'd look like the packs in use.
-void changeRomFolder(const juce::File &folder)
+// Makes `folder` the machine's ROM folder. The old one keeps the user's files, but not the blank
+// artwork pack Lemus wrote there that nobody filled in: it'd look like the pack in use.
+void changeRomFolder(const lemus::MachineInfo &machine, const juce::File &folder)
 {
-	const auto old = lemus::romfolder::location();
-	lemus::romfolder::setLocation(folder);
+	const auto old = lemus::romfolder::location(machine.id);
+	lemus::romfolder::setLocation(machine.id, folder);
 	if (old != folder)
-		for (const auto &m : lemus::machines())
-			lemus::romfolder::removeBlankArtwork(old, m.artwork);
+		lemus::romfolder::removeBlankArtwork(old, machine.artwork);
 }
 
 float drawWrapped(juce::Graphics &g, const juce::String &text, const juce::Font &font, juce::Colour colour, juce::Rectangle<float> area)
@@ -360,7 +359,7 @@ public:
 	AboutBox(const lemus::MachineInfo &m, const juce::String &notes)
 	{
 		setLookAndFeel(&m_look.get());
-		const auto folder = lemus::romfolder::location();
+		const auto folder = lemus::romfolder::location(m.id);
 		m_text = juce::String(JucePlugin_Name) + " " + JucePlugin_VersionString + (juce::String(LEMUS_STAGE).isNotEmpty() ? " " LEMUS_STAGE : "") + "\n" + m.name + " emulation (" + m.description + ")\nFree software under the GNU AGPLv3.\n\n" +
 		         "ROM folder: " + shortPath(folder) + "\n\n" + (notes.isNotEmpty() ? notes + "\n\n" : juce::String()) + kDisclaimer;
 
@@ -605,7 +604,7 @@ private:
 
 // The ROMs pill's pop-up: the ROM folder (shown, changed, read again) and everything the machine
 // takes from it, each with its full path: its ROMs, found or not (with what to look for), and its
-// artwork, a file per place as MAME keeps it (artwork/<machine>/ or artwork/<machine>.zip), each
+// artwork, a file per place (named after the plugin and the place, anywhere in the folder), each
 // place with its file's name and size. Opening it reads the artwork again, as Rescan does, so files
 // added since the machine loaded show at once. While the machine runs without an optional ROM it
 // says so first; Rescan then reloads the machine with the ROM, keeping the session.
@@ -616,13 +615,16 @@ public:
 	{
 		setLookAndFeel(&m_look.get());
 		m_show.onClick = [this] {
-			const auto folder = lemus::romfolder::location();
+			const auto folder = lemus::romfolder::location(m_info.id);
 			if (folder.isDirectory() || (folder == lemus::romfolder::defaultLocation() && folder.createDirectory()))
 				folder.startAsProcess();
 		};
 		m_showArt.onClick = [this] {
-			const auto folder = lemus::romfolder::location();
+			const auto folder = lemus::romfolder::location(m_info.id);
 			const auto dir = lemus::romfolder::placeFolder(folder, m_info.artwork);
+			// Files named after the plugin go in the ROM folder: no artwork folder is made for them.
+			if (m_info.artwork.plugin.isNotEmpty() && !dir.isDirectory())
+				return m_show.onClick();
 			if ((folder.isDirectory() || folder == lemus::romfolder::defaultLocation()) && dir.createDirectory())
 				dir.startAsProcess();
 		};
@@ -709,7 +711,7 @@ private:
 
 		heading("ROM folder", &m_buttonsY);
 		{
-			const auto l = layoutOf(shortPath(lemus::romfolder::location()), mono(12.0f), col::ink, w - 24);
+			const auto l = layoutOf(shortPath(lemus::romfolder::location(m_info.id)), mono(12.0f), col::ink, w - 24);
 			const juce::Rectangle<float> box(ox, y, w, l.getHeight() + 14);
 			if (g != nullptr) {
 				g->setColour(col::well);
@@ -731,9 +733,10 @@ private:
 			const auto maker = m_info.name.upToFirstOccurrenceOf(" ", false, false);
 			heading("Artwork", spec.places.empty() ? nullptr : &m_showArtY);
 			if (!spec.places.empty())
-				y += text(maker + "'s logo and model names aren't included. Put an SVG or PNG of your own for each place where it says (artwork/" +
-				              spec.folder() + ".zip with the same files works too). It's drawn as it looks, fitted to the place; transparent parts " +
-				              "show the panel." + juce::String(spec.sharpPxPerMm > 0 ? " The pixel sizes keep a PNG sharp in the largest window." : ""),
+				y += text(maker + "'s logo and model names aren't included. Put an SVG or PNG of your own for each place " +
+				              (spec.plugin.isNotEmpty() ? juce::String("anywhere in your ROM folder, named as below.")
+				                                        : "where it says (artwork/" + spec.folder() + ".zip with the same files works too).") +
+				              " It's drawn as it looks, fitted to the place; transparent parts show the panel." + juce::String(spec.sharpPxPerMm > 0 ? " The pixel sizes keep a PNG sharp in the largest window." : ""),
 				          mono(12.0f), col::inkSoft) +
 				     12;
 			else
@@ -757,7 +760,7 @@ private:
 	// What the folder has now.
 	void refresh()
 	{
-		const auto folder = lemus::romfolder::location();
+		const auto folder = lemus::romfolder::location(m_info.id);
 		m_roms.clear();
 		m_romMissing = false;
 		const auto roms = lemus::romfolder::load(folder, m_info.roms);
@@ -789,8 +792,8 @@ private:
 				if (spec.sharpPxPerMm > 0)
 					about << utf8(" \xc2\xb7 ") << juce::roundToInt(place.width * spec.sharpPxPerMm) << utf8(" \xc3\x97 ")
 					      << juce::roundToInt(place.height * spec.sharpPxPerMm) << " px";
-				Line l{place.id + ".svg or " + place.id + ".png", about,
-				       utf8("none \xc2\xb7 goes in ") + shortPath(lemus::romfolder::placeFolder(folder, spec).getChildFile(place.id)) + ".svg or .png", col::muted};
+				Line l{lemus::romfolder::placeFileName(spec, place.id) + ".svg or .png", about,
+				       utf8("none \xc2\xb7 goes in ") + shortPath(spec.plugin.isNotEmpty() ? folder : lemus::romfolder::placeFolder(folder, spec)), col::muted};
 				const auto own = std::find_if(found.places.begin(), found.places.end(), [&](const lemus::PlaceFile &p) { return p.place == place.id; });
 				if (own != found.places.end()) {
 					if (lemus::Picture::load(own->data) != nullptr) {
@@ -838,14 +841,14 @@ private:
 
 	void chooseFolder()
 	{
-		const auto folder = lemus::romfolder::location();
+		const auto folder = lemus::romfolder::location(m_info.id);
 		m_chooser = std::make_unique<juce::FileChooser>("Choose your ROM folder", folder.isDirectory() ? folder : juce::File::getSpecialLocation(juce::File::userHomeDirectory));
 		m_chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories,
 		                       [safe = juce::Component::SafePointer<RomsPopover>(this)](const juce::FileChooser &fc) {
 			                       const auto chosen = fc.getResult();
 			                       if (safe == nullptr || !chosen.isDirectory())
 				                       return;
-			                       changeRomFolder(chosen);
+			                       changeRomFolder(safe->m_info, chosen);
 			                       safe->rescan();
 		                       });
 	}
@@ -875,7 +878,7 @@ public:
 	RomPromptBody(LemusProcessor &proc, std::function<void(const juce::String &)> onReloaded, std::function<void()> onClosed)
 		: m_proc(proc), m_info(*proc.machine()), m_roms(proc.romsWithout()), m_onReloaded(std::move(onReloaded)), m_onClosed(std::move(onClosed))
 	{
-		m_folder = lemus::romfolder::location();
+		m_folder = lemus::romfolder::location(m_info.id);
 		const auto &art = m_info.artwork;
 		m_noArtwork = art.name.isNotEmpty() && lemus::romfolder::findAllArtwork(m_folder, art).empty();
 		m_voice.setButtonText("Use " + mode().toLowerCase());
@@ -968,6 +971,7 @@ private:
 			files.push_back({art.places.empty() ? art.name : juce::String("Artwork"), "not found", utf8("Artwork \xc2\xb7 optional"),
 			                 maker + "'s logo and model names aren't included, so their places on the panel are blank. " +
 			                     (art.places.empty() ? "Put your own artwork in " + art.name + " in the ROM folder to fill them."
+			                                         : art.plugin.isNotEmpty() ? "Your own go in the ROM folder, named like " + art.plugin + "-" + art.places.front().id + ".svg: ROMs on the bar lists them."
 			                                         : "Your own go in artwork/" + art.folder() + "/ in the ROM folder: ROMs on the bar lists them.")});
 		}
 		{
@@ -1143,7 +1147,7 @@ private:
 	{
 		if (!hasAny(folder))
 			return fail(names() + " isn't in " + shortPath(folder) + ". Your ROM folder is unchanged.");
-		changeRomFolder(folder);
+		changeRomFolder(m_info, folder);
 		m_folder = folder;
 		if (!reload("Your ROM folder is " + shortPath(folder) + "."))
 			fail("Found in " + shortPath(folder) + ", but it didn't load. Try Rescan from the bar.");
@@ -1383,7 +1387,7 @@ public:
 		}
 		for (const auto &m : lemus::machines())
 			m_entries.push_back({&m, LemusProcessor::missingRoms(m),
-			                     m.artwork.name.isNotEmpty() && !lemus::romfolder::findAllArtwork(m_folder, m.artwork).empty()});
+			                     m.artwork.name.isNotEmpty() && !lemus::romfolder::findAllArtwork(lemus::romfolder::location(m.id), m.artwork).empty()});
 
 		m_search.setFont(mono(14.0f));
 		m_search.setIndents(14, 0);
@@ -1640,7 +1644,9 @@ private:
 		m_chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectDirectories, [this](const juce::FileChooser &fc) {
 			const auto folder = fc.getResult();
 			if (folder.isDirectory()) {
-				changeRomFolder(folder);
+				// This host's one folder: for every machine in it.
+				for (const auto &m : lemus::machines())
+					changeRomFolder(m, folder);
 				m_refresh();
 			}
 		});

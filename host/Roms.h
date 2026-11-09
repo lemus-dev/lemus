@@ -71,6 +71,9 @@ struct ArtworkSpec {
 	// The most panel pixels per millimetre the machine's editor draws (largest window on a
 	// high-density screen): a PNG this sharp stays sharp.
 	float sharpPxPerMm = 0;
+	// The name the machine's own plugin ships under, from its machine.cmake (none: empty). A place's
+	// file can then be called <plugin>-<place> and sit anywhere in the ROM folder.
+	juce::String plugin;
 
 	juce::String folder() const { return name.upToLastOccurrenceOf(".", false, false); }
 	// The RomSet name a place's file goes under (host/Artwork.h reads it from there).
@@ -114,13 +117,22 @@ private:
 
 namespace romfolder {
 
-// Where the user's ROMs are: a setting shared by every Lemus instance and both hosts, by default
-// ~/Library/Application Support/Lemus/ROMs.
+// Where a machine's ROMs and artwork are. A plugin keeps the folder where it found some; until it
+// has, it uses the last folder chosen in any plugin (location() below), so one folder for everything
+// needs choosing once, and a plugin's choice never takes away another's.
+juce::File location(const juce::String &machine);
+// The last folder chosen, for whatever has no folder of its own: a setting shared by every Lemus
+// instance and both hosts, by default ~/Library/Application Support/Lemus/ROMs.
 juce::File location();
-void setLocation(const juce::File &folder);
+// The user chose this folder for the machine. It is also the last folder chosen.
+void setLocation(const juce::String &machine, const juce::File &folder);
+// The machine found ROMs or artwork in this folder: unless it has a folder already, it keeps this one.
+void keepLocation(const juce::String &machine, const juce::File &folder);
 juce::File defaultLocation();
 // Tests: use this folder instead, without touching the user's settings (empty to stop).
 void setOverride(const juce::File &folder);
+// Tests: keep the settings in this file instead of the user's (empty to stop).
+void setSettingsFile(const juce::File &file);
 
 // Finds every image in `roms` in the folder. Images not found are added to `missing`.
 RomSet load(const juce::File &folder, const std::vector<RomSpec> &roms, std::vector<RomSpec> *missing = nullptr);
@@ -131,9 +143,12 @@ RomSet load(const juce::File &folder, const std::vector<RomSpec> &roms, std::vec
 // doesn't count. If there are several, the first by path wins.
 ArtworkFile findArtwork(const juce::File &folder, const ArtworkSpec &spec);
 
-// The places' own files: <place>.svg or <place>.png (any case; SVG first) in artwork/<folder>/,
-// or else in artwork/<folder>.zip (anywhere in it), in the order of the places.
+// The places' own files, in the order of the places: <place>.svg or <place>.png (any case; SVG
+// first) in artwork/<folder>/, or else in artwork/<folder>.zip (anywhere in it), or else named
+// <plugin>-<place> anywhere in the ROM folder (the first by path).
 std::vector<PlaceFile> findPlaceFiles(const juce::File &folder, const ArtworkSpec &spec);
+// A place's file name without its extension, as the user is told to name it.
+juce::String placeFileName(const ArtworkSpec &spec, const juce::String &place);
 // Where the places' files go.
 juce::File placeFolder(const juce::File &folder, const ArtworkSpec &spec);
 

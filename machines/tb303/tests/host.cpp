@@ -493,6 +493,87 @@ void testMidi()
 
 } // namespace
 
+// A place's file named after the plugin, anywhere in the ROM folder.
+void testNamedArtwork()
+{
+	std::printf("\nArtwork named after the plugin\n");
+	check(findMachine("tb303")->artwork.plugin == "ro-mono-303", "the host knows the name the machine's plugin ships under");
+	const auto svg = block("<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 10 10\"><rect width=\"10\" height=\"10\"/></svg>");
+
+	const RomFolder folder;
+	folder.add("d650c-133.ic8", g_rom);
+	folder.add("ro-mono-303-maker.svg", svg);
+	folder.add("my art/RO-MONO-303-Name.PNG", pngOf(200, 60, {20, 10, 160, 40}));
+	folder.add("ro-drums-909-model.svg", svg);
+	LemusProcessor p;
+	p.selectMachine("tb303");
+	check(pictureOf(p, "roland") == 1 && pictureOf(p, "bass_line") == 2 && artworkOf(p).marks().size() == 2,
+	      "found by name anywhere in the folder, any case, and another plugin's isn't taken");
+	check(p.artworkNote() == "Artwork: 2 of 4 places from your ROM folder and my art/.", "and the About box says so");
+
+	folder.add("artwork/tb303/maker.png", pngOf(200, 60, {20, 10, 160, 40}));
+	check(p.reloadArtwork() && pictureOf(p, "roland") == 2, "a file in artwork/tb303/ wins over a named one");
+}
+
+// Each plugin's own ROM folder: the rule in host/Roms.h.
+void testFolderPerPlugin()
+{
+	std::printf("\nA ROM folder per plugin\n");
+	const auto dir = juce::File::getSpecialLocation(juce::File::tempDirectory).getNonexistentChildFile("lemustest-folders", "");
+	const auto a = dir.getChildFile("a"), b = dir.getChildFile("b"), c = dir.getChildFile("c");
+	for (const auto &f : {a, b, c})
+		f.createDirectory();
+	auto fresh = [&, n = 0]() mutable { romfolder::setSettingsFile(dir.getChildFile("settings" + juce::String(++n))); };
+
+	fresh();
+	check(romfolder::location("tb303") == romfolder::defaultLocation(), "nothing chosen: the default folder");
+	romfolder::setLocation("tb303", a);
+	check(romfolder::location("tb303") == a && romfolder::location("tr909") == a, "chosen in one plugin, it's also the folder of a plugin that has none");
+	romfolder::setLocation("tr909", b);
+	check(romfolder::location("tb303") == a && romfolder::location("tr909") == b, "chosen in another, it doesn't replace the first's");
+	check(romfolder::location("sh101") == b && romfolder::location() == b, "and a plugin with none follows the last folder chosen");
+	romfolder::keepLocation("sh101", b);
+	romfolder::setLocation("tb303", c);
+	check(romfolder::location("sh101") == b, "a plugin that found something there keeps it");
+	romfolder::keepLocation("tb303", a);
+	check(romfolder::location("tb303") == c, "finding something doesn't replace a folder the plugin has");
+
+	// Through the processor, with only today's setting in the file: what an update starts from.
+	const auto rom = a.getChildFile("d650c-133.ic8");
+	rom.replaceWithData(g_rom.getData(), g_rom.getSize());
+	fresh();
+	{
+		auto s = settings();
+		s->setValue("romFolder", a.getFullPathName());
+		s->saveIfNeeded();
+	}
+	{
+		LemusProcessor p;
+		p.selectMachine("tb303");
+		check(p.romsWithout().empty(), "an existing folder setting still finds the ROM");
+	}
+	romfolder::setLocation("tr909", b);
+	check(romfolder::location("tb303") == a, "the plugin that found its ROM there stays when another plugin chooses a folder");
+
+	fresh();
+	romfolder::setLocation("tr909", b);
+	{
+		LemusProcessor p;
+		p.selectMachine("tb303");
+		check(!p.romsWithout().empty(), "a plugin that finds nothing runs without");
+	}
+	romfolder::setLocation("tr909", a);
+	check(romfolder::location("tb303") == a, "and goes on following the last folder chosen");
+	{
+		LemusProcessor p;
+		p.selectMachine("tb303");
+		check(p.romsWithout().empty(), "so it finds the ROM there");
+	}
+
+	romfolder::setSettingsFile({});
+	dir.deleteRecursively();
+}
+
 LEMUS_HOST_TEST(tb303)
 {
 	g_rom = privateRom("tb303", "d650c-133.ic8");
@@ -506,5 +587,7 @@ LEMUS_HOST_TEST(tb303)
 	testMidi();
 	testArtworkPack();
 	testArtworkPlaces();
+	testNamedArtwork();
+	testFolderPerPlugin();
 	testEditor();
 }

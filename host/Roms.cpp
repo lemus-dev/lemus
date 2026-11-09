@@ -98,6 +98,12 @@ juce::String crc32Hex(const void *data, size_t size)
 	return hex(bytes, 4);
 }
 
+namespace {
+
+juce::File g_settingsFile; // tests
+
+} // namespace
+
 std::unique_ptr<juce::PropertiesFile> settings()
 {
 	juce::PropertiesFile::Options o;
@@ -105,7 +111,7 @@ std::unique_ptr<juce::PropertiesFile> settings()
 	o.filenameSuffix = ".settings";
 	o.folderName = "Lemus";
 	o.osxLibrarySubFolder = "Application Support";
-	return std::make_unique<juce::PropertiesFile>(o);
+	return g_settingsFile != juce::File() ? std::make_unique<juce::PropertiesFile>(g_settingsFile, o) : std::make_unique<juce::PropertiesFile>(o);
 }
 
 namespace romfolder {
@@ -113,6 +119,17 @@ namespace romfolder {
 namespace {
 
 juce::File g_override;
+
+juce::File lastChosen(const juce::PropertiesFile &s)
+{
+	const auto path = s.getValue("romFolder");
+	return juce::File::isAbsolutePath(path) ? juce::File(path) : defaultLocation();
+}
+
+juce::String machineKey(const juce::String &machine)
+{
+	return "romFolder." + machine;
+}
 
 } // namespace
 
@@ -128,17 +145,40 @@ juce::File defaultLocation()
 
 juce::File location()
 {
-	if (g_override != juce::File())
-		return g_override;
-	const auto path = settings()->getValue("romFolder");
-	return path.isNotEmpty() && juce::File::isAbsolutePath(path) ? juce::File(path) : defaultLocation();
+	return g_override != juce::File() ? g_override : lastChosen(*settings());
 }
 
-void setLocation(const juce::File &folder)
+juce::File location(const juce::String &machine)
+{
+	if (g_override != juce::File())
+		return g_override;
+	const auto s = settings();
+	const auto own = s->getValue(machineKey(machine));
+	return juce::File::isAbsolutePath(own) ? juce::File(own) : lastChosen(*s);
+}
+
+void setLocation(const juce::String &machine, const juce::File &folder)
 {
 	auto s = settings();
 	s->setValue("romFolder", folder.getFullPathName());
+	s->setValue(machineKey(machine), folder.getFullPathName());
 	s->saveIfNeeded();
+}
+
+void keepLocation(const juce::String &machine, const juce::File &folder)
+{
+	if (g_override != juce::File())
+		return;
+	auto s = settings();
+	if (s->containsKey(machineKey(machine)))
+		return;
+	s->setValue(machineKey(machine), folder.getFullPathName());
+	s->saveIfNeeded();
+}
+
+void setSettingsFile(const juce::File &file)
+{
+	g_settingsFile = file;
 }
 
 void setOverride(const juce::File &folder)
@@ -279,6 +319,11 @@ juce::File placeFolder(const juce::File &folder, const ArtworkSpec &spec)
 	return folder.getChildFile("artwork").getChildFile(spec.folder());
 }
 
+juce::String placeFileName(const ArtworkSpec &spec, const juce::String &place)
+{
+	return spec.plugin.isNotEmpty() ? spec.plugin + "-" + place : place;
+}
+
 std::vector<PlaceFile> findPlaceFiles(const juce::File &folder, const ArtworkSpec &spec)
 {
 	std::vector<PlaceFile> found;
@@ -289,19 +334,32 @@ std::vector<PlaceFile> findPlaceFiles(const juce::File &folder, const ArtworkSpe
 	std::unique_ptr<juce::ZipFile> zip;
 	if (const auto z = dir.withFileExtension("zip"); z.existsAsFile())
 		zip = std::make_unique<juce::ZipFile>(z);
+	auto take = [&](const juce::Array<juce::File> &files, const juce::String &stem, PlaceFile &pf) {
+		for (const char *ext : {".svg", ".png"})
+			for (const auto &f : files)
+				if (f.getFileName().equalsIgnoreCase(stem + ext) && f.loadFileAsData(pf.data)) {
+					pf.where = f.getRelativePathFrom(folder);
+					pf.file = f;
+					return;
+				}
+	};
+	// The files named after the plugin, looked for once, and only if a place still needs one.
+	juce::Array<juce::File> named;
+	bool lookedForNamed = false;
+	auto namedFiles = [&]() -> const juce::Array<juce::File> & {
+		if (!lookedForNamed) {
+			lookedForNamed = true;
+			for (const auto &entry : juce::RangedDirectoryIterator(folder, true, "*", juce::File::findFiles))
+				if (entry.getFile().getFileName().startsWithIgnoreCase(spec.plugin + "-"))
+					named.add(entry.getFile());
+			named.sort();
+		}
+		return named;
+	};
 	for (const auto &place : spec.places) {
 		PlaceFile pf;
 		pf.place = place.id;
-		for (const char *ext : {".svg", ".png"}) {
-			for (const auto &f : loose)
-				if (f.getFileName().equalsIgnoreCase(place.id + ext) && f.loadFileAsData(pf.data)) {
-					pf.where = f.getRelativePathFrom(folder);
-					pf.file = f;
-					break;
-				}
-			if (!pf.data.isEmpty())
-				break;
-		}
+		take(loose, place.id, pf);
 		if (pf.data.isEmpty() && zip != nullptr)
 			for (const char *ext : {".svg", ".png"}) {
 				for (int i = 0; i < zip->getNumEntries() && pf.data.isEmpty(); ++i) {
@@ -316,6 +374,8 @@ std::vector<PlaceFile> findPlaceFiles(const juce::File &folder, const ArtworkSpe
 				if (!pf.data.isEmpty())
 					break;
 			}
+		if (pf.data.isEmpty() && spec.plugin.isNotEmpty())
+			take(namedFiles(), placeFileName(spec, place.id), pf);
 		if (!pf.data.isEmpty())
 			found.push_back(std::move(pf));
 	}

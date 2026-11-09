@@ -216,22 +216,22 @@ const toc: Entry[] = [
 </ul>
 
 <h3 id="artwork">Panel artwork</h3>
-<p>The four blank places take an SVG or PNG of your own each, named as below, in <span class="path">artwork/tr909/</span> in the ROM folder (<a href="/support#artwork">how artwork files work</a>). <span class="k">ROMs</span> in the top bar lists them with what each has, opens the folder with Show its folder, and reads it again with Rescan.</p>
+<p>The four blank places take an SVG or PNG of your own each, named as below, anywhere in the ROM folder (<a href="/support#artwork">how artwork files work</a>). <span class="k">ROMs</span> in the top bar lists them with what each has, opens the folder with Show its folder, and reads it again with Rescan.</p>
 <Shot src={panel} base={base} alt="The top of the panel with the three blank artwork places outlined: maker at top left, model under it, name at the right" crop={upper} marks={[{ x: 87, y: 68, w: 201, h: 32, n: 'maker' }, { x: 87, y: 219, w: 270, h: 39, n: 'model' }, { x: 765, y: 241, w: 339, h: 17, n: 'name' }]} caption="The three places on the top panel." />
 <Shot src={rear} base={base} alt="The rear panel with the blank place of its Roland logo outlined, between MIDI IN and the AC inlet" crop={{ x: 0, y: 40, w: 1215, h: 280 }} marks={[{ x: 756, y: 216, w: 275, h: 55, n: 'rear_maker' }]} caption="The place on the rear panel (REAR in the bottom bar)." />
 <div class="scroll">
 <table>
 <thead><tr><th scope="col">File</th><th scope="col">Place</th><th scope="col">Size</th><th scope="col">A sharp PNG</th></tr></thead>
 <tbody>
-<tr><td class="mono">maker.svg or .png</td><td>Roland logo</td><td>80.5 × 12.6 mm</td><td>805 × 126 px</td></tr>
-<tr><td class="mono">model.svg or .png</td><td>TR-909</td><td>107.9 × 15.6 mm</td><td>1079 × 156 px</td></tr>
-<tr><td class="mono">name.svg or .png</td><td>Rhythm Composer</td><td>135.5 × 6.9 mm</td><td>1355 × 69 px</td></tr>
-<tr><td class="mono">rear_maker.svg or .png</td><td>Roland logo, rear panel</td><td>110.0 × 22.0 mm</td><td>1100 × 220 px</td></tr>
+<tr><td class="mono">ro-drums-909-maker.svg or .png</td><td>Roland logo</td><td>80.5 × 12.6 mm</td><td>805 × 126 px</td></tr>
+<tr><td class="mono">ro-drums-909-model.svg or .png</td><td>TR-909</td><td>107.9 × 15.6 mm</td><td>1079 × 156 px</td></tr>
+<tr><td class="mono">ro-drums-909-name.svg or .png</td><td>Rhythm Composer</td><td>135.5 × 6.9 mm</td><td>1355 × 69 px</td></tr>
+<tr><td class="mono">ro-drums-909-rear_maker.svg or .png</td><td>Roland logo, rear panel</td><td>110.0 × 22.0 mm</td><td>1100 × 220 px</td></tr>
 </tbody>
 </table>
 </div>
 <ul>
-<li><span class="mono">artwork/tr909.zip</span> holding the same files works too.</li>
+<li>The plain names (<span class="mono">maker.svg</span>…) in <span class="path">artwork/tr909/</span> or <span class="mono">artwork/tr909.zip</span> work too, and win over these.</li>
 <li>A <span class="mono">tr909.svg</span> still fills the places without a file: its elements <span class="mono">roland</span>, <span class="mono">tr909</span> and <span class="mono">rhythm_composer</span>, in panel millimetres, filled in the print colour. The rear place takes its <span class="mono">roland</span>, in the rear's grey.</li>
 </ul>
 

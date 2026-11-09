@@ -16,6 +16,7 @@ const at = (page: string) => (current === page ? 'page' : undefined);
 <a href="/#plugins">Plugins</a>
 <a href="/#how">About</a>
 {machines.filter((m) => m.nav).map((m) => <a href={`/${m.slug}`} class="slug" aria-current={at(m.slug)}>{m.slug}</a>)}
+<a href="/contribute">Contribute</a>
 <a href="/support" aria-current={at('support')}>Support</a>
 <a href="/download" class="btn small">Download</a>
 </nav>

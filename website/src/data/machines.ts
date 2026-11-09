@@ -39,8 +39,16 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.2.0', tag: 'v0.2.0', stage: 'beta', mac: 'ro-mono-303-0.2.0-mac.pkg', windows: 'ro-mono-303-0.2.0-windows.zip' },
+    release: { version: '0.2.1', tag: 'ro-mono-303-v0.2.1', stage: 'beta', mac: 'ro-mono-303-0.2.1-mac.pkg', windows: 'ro-mono-303-0.2.1-windows.zip' },
     changes: [
+      {
+        version: '0.2.1',
+        notes: [
+          "The ROM folder is per plugin: choosing one here no longer changes another plugin's.",
+          'Until a plugin has found its ROMs or artwork, it uses the last folder chosen in any plugin.',
+          'Artwork can be named after the plugin, anywhere in the ROM folder: ro-mono-303-maker.svg or .png. artwork/tb303/ still works.',
+        ],
+      },
       {
         version: '0.2.0',
         notes: [
@@ -97,8 +105,18 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.0', tag: 'v0.2.0', stage: 'beta', mac: 'ro-drums-909-0.2.0-mac.pkg', windows: 'ro-drums-909-0.2.0-windows.zip' },
-    changes: [{ version: '0.2.0', notes: ['The first release, a beta.'] }],
+    release: { version: '0.2.1', tag: 'ro-drums-909-v0.2.1', stage: 'beta', mac: 'ro-drums-909-0.2.1-mac.pkg', windows: 'ro-drums-909-0.2.1-windows.zip' },
+    changes: [
+      {
+        version: '0.2.1',
+        notes: [
+          "The ROM folder is per plugin: choosing one here no longer changes another plugin's.",
+          'Until a plugin has found its ROMs or artwork, it uses the last folder chosen in any plugin.',
+          'Artwork can be named after the plugin, anywhere in the ROM folder: ro-drums-909-maker.svg or .png. artwork/tr909/ still works.',
+        ],
+      },
+      { version: '0.2.0', notes: ['The first release, a beta.'] },
+    ],
   },
 ];
 
