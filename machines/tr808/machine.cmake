@@ -67,7 +67,7 @@ set(TR808_PLUGIN_INCLUDES ${TR808_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHINES
 set_source_files_properties(${TR808_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${TR808_PLUGIN_INCLUDES}")
 
 lemus_machine(tr808 instrument)
-lemus_plugin(tr808 NAME "ro-drums-808" CODE R808 VERSION 0.1.0 STAGE beta STANDALONE
+lemus_plugin(tr808 NAME "ro-drums-808" CODE R808 VERSION 0.1.1 STAGE beta STANDALONE
   DESCRIPTION "Emulation of the Roland TR-808. Not affiliated with Roland.")
 function(lemus_add_tr808 target)
   target_sources(${target} PRIVATE ${TR808_DIR}/tr808.cpp ${TR808_PLUGIN_SOURCES})

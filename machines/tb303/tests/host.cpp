@@ -417,6 +417,7 @@ void testEditor()
 		std::unique_ptr<juce::AudioProcessorEditor> e(p.createEditorIfNeeded());
 		auto *editor = dynamic_cast<LemusEditor *>(e.get());
 		check(editor != nullptr && editor->machineEditor() == nullptr, "with no machine picked, the picker shows");
+		p.editorBeingDeleted(e.get()); // the window closed, as a plugin wrapper closes it
 	}
 	folder.add("d650c-133.ic8", g_rom);
 	p.selectMachine("tb303");
@@ -425,6 +426,17 @@ void testEditor()
 	auto *inner = editor != nullptr ? editor->machineEditor() : nullptr;
 	check(inner != nullptr && editor->getWidth() == inner->getWidth() && editor->getHeight() == inner->getHeight() + LemusEditor::kBarHeight,
 	      "with the 303 loaded, its editor shows below the bar");
+	const auto ownPanel = [](LemusEditor *ed) {
+		return ed != nullptr && ed->machineEditor() != nullptr && dynamic_cast<juce::GenericAudioProcessorEditor *>(ed->machineEditor()) == nullptr;
+	};
+	check(ownPanel(editor), "and it is the 303's own panel");
+	// JUCE 8.0.15 forgets a processor's open editor only through editorBeingDeleted(): the
+	// machine's own editor, which the window deletes, must be let go of too.
+	p.editorBeingDeleted(e.get());
+	e.reset();
+	e.reset(p.createEditorIfNeeded());
+	check(ownPanel(dynamic_cast<LemusEditor *>(e.get())), "closed and opened again, the window has the 303's own panel again");
+	p.editorBeingDeleted(e.get());
 	e.reset();
 }
 

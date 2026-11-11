@@ -35,7 +35,7 @@ set(TB303_PLUGIN_INCLUDES ${TB303_DIR}/plugin ${LEMUS_ROOT_DIR})
 set_source_files_properties(${TB303_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${TB303_PLUGIN_INCLUDES}")
 
 lemus_machine(tb303 instrument)
-lemus_plugin(tb303 NAME "ro-mono-303" CODE R303 VERSION 0.2.1 STAGE beta STANDALONE
+lemus_plugin(tb303 NAME "ro-mono-303" CODE R303 VERSION 0.2.2 STAGE beta STANDALONE
   DESCRIPTION "Emulation of the Roland TB-303. Not affiliated with Roland.")
 function(lemus_add_tb303 target)
   target_sources(${target} PRIVATE ${TB303_DIR}/tb303.cpp ${TB303_PLUGIN_SOURCES})

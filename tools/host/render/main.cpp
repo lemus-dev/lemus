@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 {
 	juce::ScopedJuceInitialiser_GUI gui; // plugins load on the message thread
 	juce::AudioPluginFormatManager formats;
-	formats.addDefaultFormats();
+	juce::addDefaultFormatsToManager(formats);
 
 	const auto cwd = juce::File::getCurrentWorkingDirectory();
 	juce::File outDir = cwd;

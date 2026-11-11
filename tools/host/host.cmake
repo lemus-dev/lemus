@@ -18,7 +18,7 @@ target_link_libraries(lemus-render PRIVATE
 
 # The A/B player (a window): opens a scene and switches between its sources while they play.
 # Its icon is ab/icon.svg, rendered with `rsvg-convert -w 1024 -h 1024 icon.svg -o icon.png`.
-juce_add_gui_app(lemus-ab PRODUCT_NAME "Lemus AB" BUNDLE_ID "com.nonfatal.lemus.ab"
+juce_add_gui_app(lemus-ab PRODUCT_NAME "Lemus AB" BUNDLE_ID "org.lemusdev.lemusab"
   ICON_BIG ${LEMUS_HOST_DIR}/ab/icon.png)
 target_sources(lemus-ab PRIVATE
   ${LEMUS_HOST_DIR}/ab/Main.cpp

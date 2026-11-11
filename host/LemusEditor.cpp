@@ -1864,6 +1864,17 @@ void LemusEditor::Constrainer::checkBounds(juce::Rectangle<int> &bounds, const j
 }
 
 //==============================================================================
+// JUCE (8.0.15) forgets a processor's open editor only through editorBeingDeleted(), as a plugin
+// wrapper calls it: the machine's editor this window deletes must be let go of the same way, or the
+// machine's next createEditorIfNeeded() gives nothing and the window falls back to a generic editor.
+// Retired machines stay alive (LemusProcessor::m_retired), so the editor's processor is still there.
+static void deleteMachineEditor(std::unique_ptr<juce::AudioProcessorEditor> &editor)
+{
+	if (editor != nullptr)
+		editor->processor.editorBeingDeleted(editor.get());
+	editor.reset();
+}
+
 LemusEditor::LemusEditor(LemusProcessor &p) : AudioProcessorEditor(&p), m_proc(p)
 {
 	setConstrainer(&m_constrainer);
@@ -1876,7 +1887,7 @@ LemusEditor::~LemusEditor()
 	m_proc.removeChangeListener(this);
 	if (m_inner != nullptr)
 		m_inner->removeComponentListener(this);
-	m_inner.reset();
+	deleteMachineEditor(m_inner);
 }
 
 void LemusEditor::changeListenerCallback(juce::ChangeBroadcaster *)
@@ -1894,7 +1905,7 @@ void LemusEditor::showCurrentMachine()
 	}
 	if (m_inner != nullptr)
 		m_inner->removeComponentListener(this);
-	m_inner.reset();
+	deleteMachineEditor(m_inner);
 	m_whatsNew.reset();
 	m_prompt.reset();
 	m_bar.reset();
@@ -1956,7 +1967,7 @@ void LemusEditor::showMachineEditor()
 	m_innerArtwork = m_proc.artworkVersion();
 	if (m_inner != nullptr)
 		m_inner->removeComponentListener(this);
-	m_inner.reset();
+	deleteMachineEditor(m_inner);
 	m_inner.reset(machine->createEditorIfNeeded());
 	if (m_inner == nullptr)
 		m_inner = std::make_unique<juce::GenericAudioProcessorEditor>(*machine);

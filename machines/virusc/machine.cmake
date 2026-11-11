@@ -25,7 +25,7 @@ set(VIRUSC_PLUGIN_INCLUDES ${VIRUSC_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHIN
 set_source_files_properties(${VIRUSC_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${VIRUSC_PLUGIN_INCLUDES}")
 
 lemus_machine(virusc instrument)
-lemus_plugin(virusc NAME "ac-digital-vc" CODE Avrc VERSION 0.1.0 STAGE beta STANDALONE MIDI_OUT
+lemus_plugin(virusc NAME "ac-digital-vc" CODE Avrc VERSION 0.1.1 STAGE beta STANDALONE MIDI_OUT
   DESCRIPTION "Emulation of the Access Virus C. Not affiliated with Access.")
 function(lemus_add_virusc target)
   target_sources(${target} PRIVATE ${VIRUSC_DIR}/virusc.cpp ${VIRUSC_PLUGIN_SOURCES})

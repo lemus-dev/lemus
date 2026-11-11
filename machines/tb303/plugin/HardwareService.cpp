@@ -511,7 +511,7 @@ void drawIc(juce::Graphics &g, const Part &p)
 		const float avail = L((vertical ? len : len) - 3.0f);
 		g.addTransform(juce::AffineTransform::rotation(vertical ? -kPi / 2 : 0, cc.x, cc.y));
 		juce::Font f(juce::FontOptions("Helvetica Neue", L(std::min(2.3f, wid * 0.32f)), juce::Font::plain));
-		const float w = f.getStringWidthFloat(mark);
+		const float w = juce::GlyphArrangement::getStringWidth(f, mark);
 		if (w > avail)
 			f.setHorizontalScale(avail / w);
 		g.setFont(f);
@@ -1336,7 +1336,7 @@ void HardwareView::drawPicked(juce::Graphics &g)
 	// Its name, as the board prints it, on a tag beside it.
 	const juce::String name = juce::String(kTrims[m_trim].ref) + (*kTrims[m_trim].silk ? juce::String(" ") + kTrims[m_trim].silk : juce::String());
 	g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
-	const float w = g.getCurrentFont().getStringWidthFloat(name) + 14;
+	const float w = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), name) + 14;
 	const bool left = c.x + r + 14 + w > kIx - 8;
 	const juce::Rectangle<float> tag(left ? c.x - r - 12 - w : c.x + r + 12, c.y - r - 18, w, 18);
 	g.setColour(kOrange);
@@ -1719,7 +1719,7 @@ void HardwareView::drawTrimmerList(juce::Graphics &g)
 		g.setColour(juce::Colour(0xffeef1f5));
 		const juce::String name = juce::String(d.ref) + (*d.silk ? juce::String(" ") + d.silk : juce::String());
 		g.drawText(name, juce::Rectangle<float>(row.getX() + 24, y1, 100, 17), juce::Justification::centredLeft);
-		const float nameW = g.getCurrentFont().getStringWidthFloat(name);
+		const float nameW = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), name);
 		g.setFont(sans(11.0f));
 		g.setColour(juce::Colour(0xff8f98a5));
 		g.drawText(d.plain, juce::Rectangle<float>(row.getX() + 24 + nameW + 8, y1, 110, 17), juce::Justification::centredLeft);

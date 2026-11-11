@@ -46,7 +46,7 @@ class Main final : public juce::Component,
 public:
 	Main()
 	{
-		m_formats.addDefaultFormats();
+		juce::addDefaultFormatsToManager(m_formats);
 		m_devices.initialiseWithDefaultDevices(0, 2);
 		for (auto *b : {&m_open, &m_play, &m_match, &m_prev, &m_next, &m_dualButton, &m_blind, &m_reveal}) {
 			addAndMakeVisible(*b);
