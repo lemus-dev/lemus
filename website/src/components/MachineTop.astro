@@ -1,0 +1,101 @@
+---
+// The top of a plugin's page, the same on every one: its name, the downloads and the beta note,
+// the samples (the page's SampleList, in the slot) and the mailing list beside the data sheet.
+import Prerelease from './Prerelease.astro';
+import MailForm from './MailForm.astro';
+import { downloadLinks, platforms, sourceOf, type Machine } from '../data/machines';
+
+interface Props {
+  machine: Machine;
+}
+const { machine: m } = Astro.props;
+const links = downloadLinks(m);
+---
+<section class="sheet">
+<div class="col hero">
+<div class="title">
+<nav aria-label="Breadcrumb" class="crumbs"><a href="/#plugins">Plugins</a> / {m.slug}</nav>
+<h1 class="name">{m.slug}</h1>
+<p class="lede">{m.emulates} emulation</p>
+</div>
+
+<div id="download" class="get">
+<div class="dl">
+{m.release ? (
+<div class="buttons">
+<a href={links.mac} class="btn">Download for macOS</a>
+<a href={links.windows} class="btn">Download for Windows</a>
+</div>
+) : (
+<p class="partial unreleased">Not available for download yet. The first release, a beta, is being prepared.</p>
+)}
+<p class="meta">Free{m.release && <>, version {m.release.version}{m.release.stage && ` ${m.release.stage}`}, source: <a href={sourceOf(m.release)}>{m.release.tag} on GitHub</a> (GNU AGPLv3)</>}</p>
+<a class="guide" href={`/${m.slug}/guide`}>User guide</a>
+</div>
+{m.release?.stage && <Prerelease release={m.release} />}
+</div>
+
+<div id="hear" class="top">
+<div class="listen"><slot /></div>
+<div class="data">
+<div class="data-head"><span>Data</span>{m.release && <span class="mono">{m.slug} {m.release.version}</span>}</div>
+<dl>
+<div><dt class="lbl">Emulates</dt><dd>{m.emulates}</dd></div>
+<div><dt class="lbl">Year</dt><dd>{m.year}</dd></div>
+<div><dt class="lbl">Type</dt><dd>{m.type}</dd></div>
+<div><dt class="lbl">Status</dt><dd class={m.status === 'working' ? 'ok' : 'partial'}>{m.status}</dd></div>
+<div><dt class="lbl">Without ROM</dt>{m.withoutRom === 'voice' ? <dd class="partial"><span class="mono">[~]</span> voice mode</dd> : <dd class="missing"><span class="mono">[✗]</span> ROM missing</dd>}</div>
+<slot name="data" />
+{platforms.map(([os, formats]) => <div><dt class="lbl">{os}</dt><dd>{formats}</dd></div>)}
+</dl>
+</div>
+<div class="mailbox tapbox">
+<h2 class="mail-h">Release announcements by email</h2>
+<p class="dim">Nothing else is sent. <a href="/support#mailing-list">Mailing list</a></p>
+<MailForm id="mail-hero" />
+</div>
+</div>
+
+</div>
+</section>
+
+<style>
+.hero { padding-block: 52px 88px; display: flex; flex-direction: column; gap: 40px; }
+.title { display: flex; flex-direction: column; gap: 12px; }
+.title p { margin: 0; }
+.crumbs { font-size: 14px; color: var(--ink2); }
+.name { margin: 0; font-family: var(--mono); font-weight: 700; font-size: clamp(38px, 4.8vw, 66px); line-height: 1; letter-spacing: -0.035em; white-space: nowrap; }
+.lede { font-size: 21px; line-height: 1.4; color: var(--ink2); }
+
+/* The downloads beside the beta note; then the samples and under them the mailing list, beside
+   the data sheet. One column on a phone: downloads, beta, samples, data, mailing list. */
+.get, .top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px 64px; align-items: start; }
+@media (min-width: 980px) {
+  .get { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: 'listen data' 'mail data'; }
+  .listen { grid-area: listen; }
+  .data { grid-area: data; }
+  .mailbox { grid-area: mail; }
+}
+.listen { min-width: 0; }
+.dl { display: flex; flex-direction: column; gap: 16px; }
+.dl p { margin: 0; }
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+.unreleased { font-size: 16px; font-weight: 600; white-space: normal; }
+.meta { font-size: 14px; color: var(--ink2); }
+.guide { align-self: start; display: inline-flex; align-items: center; min-height: 44px; font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: 0.05em; text-transform: uppercase; text-underline-offset: 5px; }
+
+.data { border: 2px solid var(--ink); min-width: 0; }
+.data-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 16px; border-bottom: 2px solid var(--ink); background: var(--paper2); font-family: var(--display); font-weight: 700; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
+.data-head .mono { font-family: var(--mono); font-weight: 400; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--ink2); }
+.data dl { margin: 0; display: flex; flex-direction: column; font-size: 16px; }
+.data dl > :global(div) { display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--rule); }
+.data dl > :global(div:last-child) { border-bottom: 0; }
+.data :global(dt) { padding-top: 3px; }
+.data :global(dd) { margin: 0; }
+.data :global(.mono) { font-size: 14px; color: var(--ink); }
+
+.mailbox { --tap-y: 31px; max-width: 560px; box-sizing: border-box; border: 2px solid var(--ink); background: var(--tint); padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+.mail-h { margin: 0; font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.15; text-transform: uppercase; }
+.mailbox p { margin: 0; font-size: 15px; }
+</style>

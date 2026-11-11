@@ -1,0 +1,298 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import MachineTop from '../components/MachineTop.astro';
+import SampleList from '../components/SampleList.astro';
+import { bySlug } from '../data/machines';
+import panelShot from '../assets/ac-digital-vc/panel.webp';
+
+const m = bySlug('ac-digital-vc');
+const panel = await getImage({ src: panelShot, format: 'webp', quality: 85 });
+
+// The strip under the header: the page's sections, the one being read underlined.
+const sections = [
+  { id: 'download', label: 'Download' },
+  { id: 'hear', label: 'Hear it' },
+  { id: 'accuracy', label: 'In numbers' },
+  { id: 'differences', label: 'Differences' },
+  { id: 'made', label: 'How it was made' },
+  { id: 'rom', label: 'ROM' },
+  { id: 'artwork', label: 'Artwork' },
+];
+
+const clips = [
+  { file: 'pad-e73', title: 'PowerStrnJ', detail: 'E73, four chords' },
+  { file: 'arp-f73', title: 'NiceArp JS', detail: 'F73, four held chords, its arpeggiator' },
+  { file: 'bass-f101', title: 'SmoothBsBC', detail: 'F101, 16ths at 120 BPM' },
+  { file: 'lead-f63', title: 'KyotoLd JS', detail: 'F63, a line at 100 BPM' },
+];
+---
+<Base title="ac-digital-vc · Lemus" description="ac-digital-vc emulates the Access Virus C: its OS 6.6 firmware on an emulated 80C515 and DSP56362, the real panel, and the output DACs from their datasheet. Free for macOS and Windows." current="ac-digital-vc">
+
+<nav slot="sub" class="onpage" aria-label="On this page">
+<div class="frame sheet">
+<div class="col">
+<ol>
+{sections.map((s) => <li><a href={`#${s.id}`} class:list={{ red: s.id === 'differences' }}>{s.label}</a></li>)}
+</ol>
+</div>
+</div>
+</nav>
+
+<MachineTop machine={m}>
+<SampleList heading="Factory programs" plugin="ac-digital-vc" tracks={clips.map((c) => ({ src: `/media/ac-digital-vc/${c.file}.m4a`, title: c.title, detail: c.detail }))} />
+<Fragment slot="data">
+<div><dt class="lbl">ROM image</dt><dd><span class="mono">virus_c_660x368.bin</span>, not included</dd></div>
+<div><dt class="lbl">Outputs</dt><dd>OUT 1, OUT 2, OUT 3, stereo</dd></div>
+<div><dt class="lbl">Inputs</dt><dd>EXT IN L and R, as a side-chain</dd></div>
+</Fragment>
+</MachineTop>
+
+<section class="sheet">
+<div class="col sec">
+<figure class="panel">
+<div class="mount">
+<div class="pin">
+<img src={panel.src} alt="ac-digital-vc: the Virus C desktop panel with its knobs, keys, LEDs and display showing 1 A0 AutoBendBC, its brand marks' places left blank, and the bar with REAR" width="1224" height="511">
+<span class="leader" style="left: 46.5%; top: -24px; height: calc(52% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 46.5%; top: 52%" aria-hidden="true"></span>
+<span class="balloon" style="left: 46.5%; top: -56px" aria-hidden="true">A1</span>
+<span class="leader" style="left: 81%; top: 58%; height: calc(42% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 81%; top: 58%" aria-hidden="true"></span>
+<span class="balloon" style="left: 81%; top: calc(100% + 24px)" aria-hidden="true">A2</span>
+</div>
+</div>
+<figcaption class="caption">
+<div class="row"><span class="key">A1</span><span><strong>Firmware.</strong> Access's OS 6.6 runs unmodified on an emulated 80C515: the display, the keys, the LEDs and every menu are its own.</span></div>
+<div class="row"><span class="key">A2</span><span><strong>Sound.</strong> The DSP56362 runs the DSP program the firmware loads into it, on the dsp56300 recompiler; three Cirrus Logic CS4390 DACs put it out.</span></div>
+<div class="row"><span class="fig">FIG. 1</span><span>The panel with its brand marks' places left blank, and the bar with REAR.</span></div>
+</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="accuracy" class="sheet">
+<div class="col sec">
+<div class="numbers-head">
+<h2 class="h2 tap">In numbers</h2>
+<p class="dim">The firmware's paths checked against Gearmulator's Osirus, which runs the same DSP engine with its 80C515 replaced by C++. Method: <a href="#made">How it was made</a>.</p>
+<p class="dim small">The clips at the top: factory programs as a new instance holds them, played from MIDI, every knob where the program puts it.</p>
+</div>
+
+<div class="numbers">
+<div class="measure">
+<div class="figure">
+<div class="big">768 / 768</div>
+<div class="what">flash programs sent to the DSP word for word as Osirus sends them</div>
+<div class="dim small">But two bytes that change nothing. Banks A and B, 256 of 256; notes, every kind of channel message and sysex parameter changes the same.</div>
+</div>
+</div>
+<div class="measure">
+<div class="figure">
+<div class="big">0.00 dB</div>
+<div class="what">the median level of a note on each factory program, against Osirus</div>
+<div class="dim small">Their spectra differ by 1.31 dB per third octave, median, where Osirus against itself with the note 0.34 s later differs by 1.45.</div>
+</div>
+</div>
+<div class="measure">
+<div class="figure">
+<div class="big">5.5 %</div>
+<div class="what">of one core at 48 kHz, a filter sweep on a held note</div>
+<div class="dim small">Apple M5 Max. Idle, the DSP sleeps and the rest takes about 1 %.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="differences" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap red">What is still different</h2>
+<dl class="diffs">
+<div><dt>Against real units</dt><dd>The recordings of Virus Cs that exist are phrases on factory programs: Access's own 2002 web demos and videos. E73 PowerStrnJ's chords match within 3.5–5.3 dB per third octave with their notes guessed from the spectrum, and an A/B by ear against them passed. No recording has isolated notes on known settings.</dd></div>
+<div><dt>After the DACs</dt><dd>The op-amp stage between the DACs and the jacks isn't modelled, nor the inputs' converter: the photos of the board don't show their parts.</dd></div>
+<div><dt>The DACs' mute</dt><dd>After 0.17 s of digital silence the CS4390s mute, and the output is exact zeros. Whether the board enables that isn't known.</dd></div>
+<div><dt>The sample rate</dt><dd>46,875 Hz, 12 MHz / 256: Gearmulator's figure and what the DACs' clocking gives, not measured on a unit.</dd></div>
+<div><dt>A new instance</dt><dd>Its RAM banks A and B are copies of flash banks C and D, as a unit fresh from the factory might hold; what Access put there isn't known.</dd></div>
+<div><dt>STORE TO FLASH</dt><dd>It writes the flash, kept with the session. The DSP program that holds the bank meanwhile is stood in for, from what the firmware asks of it, and erasing is instant where the chip takes about a second.</dd></div>
+<div><dt>LEDs</dt><dd>12 of 69 are placed by their wiring order alone: LFO 2's and LFO 3's destinations, and BPM.</dd></div>
+<div><dt>CPU</dt><dd>The DSP's code is compiled the first time it runs. Code no earlier program used costs up to 8 ms in one audio block: 3 blocks over 2.67 ms across all the factory programs, none the second time.</dd></div>
+</dl>
+<div class="not">
+<h3 class="h3">Not emulated</h3>
+<p class="dim">The power-on keys (State, Reset… in the top bar starts a fresh memory instead), MIDI THRU, and the analog stages above.</p>
+</div>
+</div>
+</section>
+
+<section id="made" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">How it was made</h2>
+<ol class="steps">
+<li>
+<div class="step-n">01</div>
+<div class="step">
+<h3 class="h3">The firmware</h3>
+<p class="dim">OS 6.6 runs from reset: the 80C515's program on an emulated 80C515 (MAME's MCS-51 core with the C515's own peripherals from Siemens' manual), which loads the DSP's program over the host port into a DSP56362 on the dsp56300 recompiler, Gearmulator's DSP engine. The board around them was traced in the firmware: the key matrix and LED latches, the battery RAM and flash banks, the port pin that selects the host port and the one that lets the firmware write its own flash. Every key and menu page, and the LEDs, were then checked against the owner's manual.</p>
+</div>
+</li>
+<li>
+<div class="step-n">02</div>
+<div class="step">
+<h3 class="h3">Against Osirus</h3>
+<p class="dim">Gearmulator's Osirus runs the same DSP engine but replaces the 80C515 with C++, so it checks the control side. The same MIDI goes into both, and what each sends the DSP is compared word by word: the DSP's program, the upload of every factory program, every kind of channel message, sysex parameter changes, single dumps and multi mode. In multi mode 15 of 16 parts match; on the 16th, Osirus loads the wrong program. The comparison also found a bug here, now fixed: part 1's edit buffer read back through the host port.</p>
+</div>
+</li>
+<li>
+<div class="step-n">03</div>
+<div class="step">
+<h3 class="h3">The DACs</h3>
+<p class="dim">Photos of a Virus C's board show three Cirrus Logic CS4390s, one per stereo output. Their response is modelled from the datasheet: the filter fitted to its plots within 0.16 dB, flat to 21.3 kHz with 25 samples of delay, the noise floor 103 dB under full scale, and the mute.</p>
+</div>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="rom" class="sheet">
+<div class="col sec brief">
+<h2 class="h2 tap">ROM image</h2>
+<p class="dim">The firmware and every factory program are in the unit's flash, Access's copyrighted work, so it isn't included. ac-digital-vc needs the BIOS v6.6 image of MAME's virusc set, <span class="mono">virus_c_660x368.bin</span>: without it there is nothing to run. <a href="/ac-digital-vc/guide#roms">The ROM</a></p>
+</div>
+</section>
+
+<section id="artwork" class="sheet">
+<div class="col sec brief last">
+<h2 class="h2 tap">Panel artwork</h2>
+<p class="dim">Access's logo and the Virus wordmark are trademarks, so their three places on the panel are blank. Each place takes an SVG or PNG file of your own, named <span class="mono">ac-digital-vc-maker</span> and so on, in the ROM folder: drawn yourself, or generated with an AI tool such as Claude or ChatGPT. <a href="/ac-digital-vc/guide#artwork">Panel artwork</a></p>
+</div>
+</section>
+
+</Base>
+
+<script>
+// Underline the strip's link for the section being read: the last whose top has passed under the
+// strip, or the last of all at the foot of the page.
+const links = [...document.querySelectorAll<HTMLAnchorElement>('.onpage a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+const strip = document.querySelector<HTMLElement>('.onpage ol')!;
+let current = -2;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 80) i = j; });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) i = targets.length - 1;
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => { if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  // Bring the link into view along the strip only. scrollIntoView would also scroll the page, up
+  // by the scroll padding, since the stuck strip sits inside it.
+  const a = links[i];
+  if (!a) return;
+  const r = a.getBoundingClientRect(), s = strip.getBoundingClientRect();
+  if (r.left < s.left) strip.scrollLeft += r.left - s.left;
+  else if (r.right > s.right) strip.scrollLeft += r.right - s.right;
+}
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+mark();
+</script>
+
+<style>
+:global(html) { scroll-padding-top: 64px; }
+
+.onpage { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.onpage ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 30px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.onpage ol::-webkit-scrollbar { display: none; }
+.onpage a { display: inline-flex; align-items: center; min-height: 46px; box-sizing: border-box; padding-top: 3px; border-bottom: 3px solid transparent; color: var(--ink2); text-decoration: none; font-size: 15px; font-weight: 500; }
+.onpage a:hover { color: var(--ink); }
+.onpage a[aria-current] { color: var(--ink); border-bottom-color: var(--wire); }
+.onpage a.red[aria-current] { border-bottom-color: var(--red); }
+
+
+
+.panel { margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.panel .mount { padding: 58px 24px; }
+.pin { position: relative; }
+.pin img { display: block; width: 100%; height: auto; }
+.panel .balloon { width: 34px; height: 34px; font-size: 12px; }
+.caption strong { color: var(--ink); font-weight: 600; }
+.caption .mono { font-size: 13px; color: var(--ink); }
+
+.text { display: flex; flex-direction: column; gap: 18px; min-width: 0; max-width: 48em; }
+.text p { margin: 0; }
+.small { font-size: 15px; }
+.tiny { font-size: 13px; }
+.mono { font-size: 0.9em; color: var(--ink); }
+
+.numbers-head { display: flex; flex-direction: column; gap: 18px; }
+.numbers-head p { margin: 0; font-size: 16px; }
+.numbers { display: flex; flex-direction: column; margin-top: -8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.measure { display: flex; flex-wrap: wrap; gap: 24px 56px; padding: 28px 0; }
+.measure + .measure { border-top: 1px solid var(--rule); }
+.figure { flex: 1 1 300px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.big { font: 700 56px/1 var(--display); font-variant-numeric: tabular-nums; }
+.what { font-weight: 500; }
+.chart { flex: 2 1 420px; min-width: 0; position: relative; height: 96px; margin-top: 8px; font: 11px/16px var(--mono); color: var(--ink2); }
+.chart > * { position: absolute; }
+.axis { left: 0; right: 0; top: 40px; border-top: 1.5px solid var(--ink); }
+.tick { top: 40px; height: 7px; border-left: 1px solid var(--ink); }
+.tick-label { top: 50px; transform: translateX(-50%); font-size: 10px; white-space: nowrap; }
+.bar { left: 0; top: 37px; height: 6px; background: var(--wire); }
+.dot { top: 35px; width: 11px; height: 11px; box-sizing: border-box; transform: translateX(-50%); border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); }
+.dot.ours { top: 33px; width: 15px; height: 15px; border: 0; background: var(--wire); box-shadow: 0 0 0 2px var(--paper); }
+.label { white-space: nowrap; }
+.label.ours { font-weight: 700; color: var(--wire-text); }
+.label.to-end { transform: translateX(-100%); }
+.label.above { top: 10px; transform: translateX(-50%); }
+.label.below { top: 72px; }
+.label.above.from, .label.below.from { transform: translateX(-12px); }
+.label.below.to { transform: translateX(calc(-100% + 12px)); }
+.range { height: 104px; margin-top: 4px; }
+.range .axis, .range .tick { top: 74px; }
+.range .tick-label { top: 84px; }
+.zero { top: 0; height: 74px; border-left: 1px dashed var(--rule); }
+.span { height: 10px; box-sizing: border-box; border: 1.5px solid var(--ink); background-image: repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 5px); }
+.span.ours { border: 0; background: var(--wire); }
+
+.service-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 28px; }
+.service-head .text { flex: 1 1 480px; max-width: 46em; }
+.stamp { border: 4px double var(--green); color: var(--green); padding: 12px 20px 14px; display: flex; flex-direction: column; gap: 2px; max-width: 100%; box-sizing: border-box; }
+.count { font: 700 44px/1.05 var(--display); white-space: nowrap; }
+.spec { margin-left: 8px; font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: 0.1em; text-transform: uppercase; }
+.checks { font-size: 15px; color: var(--ink); }
+.shot { margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.shot .mount { padding: 24px; }
+.shot img { display: block; width: 100%; height: auto; }
+
+.diffs { margin: 0; display: flex; flex-direction: column; max-width: 62em; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.diffs > div { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 12px; padding: 18px 0; }
+.diffs > div + div { border-top: 1px solid var(--rule); }
+.diffs > div::before { content: '≠'; grid-row: span 2; font: 700 24px/1.05 var(--mono); color: var(--red); }
+.diffs dt { font-family: var(--display); font-weight: 600; font-size: 23px; line-height: 1.15; letter-spacing: 0.03em; text-transform: uppercase; }
+.diffs dd { margin: 0; color: var(--ink2); font-size: 16px; }
+.not { max-width: 62em; display: flex; flex-direction: column; gap: 8px; }
+.not .h3 { font-size: 26px; letter-spacing: 0.02em; }
+.not p { margin: 0; font-size: 16px; }
+
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.steps > li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 20px; padding: 28px 0; }
+.steps > li + li { border-top: 1px solid var(--rule); }
+.step-n { width: 48px; height: 48px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+.step { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.step .h3 { font-size: 28px; letter-spacing: 0.02em; }
+.step p { margin: 0; max-width: 52em; }
+.fitted { min-width: 600px; }
+.fitted .fit { color: var(--red); font-weight: 700; }
+.versus { min-width: 860px; }
+.revisions { min-width: 860px; }
+.revisions td.num { white-space: nowrap; }
+.versus tbody th { font-weight: 400; }
+.versus .ours { background: var(--tint); color: var(--wire-text); font-weight: 700; }
+.versus .ours th { font-weight: 700; font-size: 15px; color: var(--wire-text); }
+.sec > p { margin: 0; max-width: 52em; }
+.brief { gap: 18px; }
+.brief p { margin: 0; max-width: 46em; }
+.last { padding-bottom: 96px; }
+</style>

@@ -1,0 +1,388 @@
+---
+import Base from '../../layouts/Base.astro';
+import Shot from '../../components/Shot.astro';
+import Num from '../../components/Num.astro';
+import panel from '../../assets/ac-digital-vc/panel.webp';
+import rear from '../../assets/ac-digital-vc/rear.webp';
+
+// The plugin's view at its default size, 1224 × 511: the panel y 0–471 (2.6 px a millimetre),
+// the bottom bar y 471–511. The top bar is the host's, above it, and isn't in the shots.
+const base = { w: 1224, h: 511 };
+// A box by its centre and size in panel millimetres (machines/virusc/docs/panel.json) as view pixels.
+const mm = (cx: number, cy: number, w: number, h: number) => ({ x: (cx - w / 2) * 2.6, y: (cy - h / 2) * 2.6, w: w * 2.6, h: h * 2.6 });
+const at = {
+  maker: mm(47.12, 11.94, 51.0, 9.38),
+  name: mm(127.06, 12.88, 73.38, 8.0),
+  tagline: mm(410.62, 164.44, 76.0, 3.62),
+  lcd: mm(220.0, 109.26, 70.0, 24.87),
+  bank: mm(279.0, 124.3, 25.0, 12.5),
+  program: mm(279.1, 145.4, 25.0, 12.5),
+  store: mm(166.9, 145.5, 12.5, 12.5),
+  single: mm(196.4, 145.4, 12.5, 12.5),
+};
+
+// The sections and their headings, for the contents at the top and the sidebar. Keep in step
+// with the ids and headings below.
+type Entry = { id: string; title: string; sub?: Entry[] };
+const toc: Entry[] = [
+  { id: 'start', title: 'Getting started', sub: [
+    { id: 'first-start', title: 'The first start' },
+    { id: 'roms', title: 'The ROM' },
+    { id: 'artwork', title: 'Panel artwork' },
+    { id: 'first-sound', title: 'Your first sound' },
+  ] },
+  { id: 'panel', title: 'The panel', sub: [
+    { id: 'memory', title: 'Programs and memory' },
+    { id: 'flash', title: 'STORE TO FLASH' },
+    { id: 'power-on', title: 'Power-on keys' },
+  ] },
+  { id: 'rear', title: 'The rear', sub: [
+    { id: 'outputs', title: 'OUT 1, 2 and 3' },
+    { id: 'inputs', title: 'EXT IN' },
+    { id: 'on-off', title: 'ON/OFF' },
+  ] },
+  { id: 'bars', title: 'The bars', sub: [
+    { id: 'top-bar', title: 'The top bar' },
+    { id: 'state', title: 'State' },
+    { id: 'bottom-bar', title: 'The bottom bar' },
+  ] },
+  { id: 'midi', title: 'MIDI and your DAW', sub: [
+    { id: 'midi-in', title: 'MIDI in' },
+    { id: 'midi-out', title: 'MIDI out' },
+    { id: 'automation', title: 'Automation and sessions' },
+  ] },
+  { id: 'keyboard', title: 'Keyboard and mouse', sub: [
+    { id: 'keys', title: 'Computer keys' },
+    { id: 'mouse', title: 'Mouse' },
+  ] },
+];
+---
+<Base title="ac-digital-vc user guide · Lemus" description="How to use ac-digital-vc: the ROM, panel artwork, programs and memory, STORE TO FLASH, the outputs and the side-chain inputs, the ON/OFF switch, MIDI and your DAW." current="ac-digital-vc">
+
+<div class="sheet">
+<div class="col guide">
+
+<!-- Beside the guide on a wide window; on a narrow one, a drawer behind the Contents button. -->
+<nav class="side" id="contents" aria-label="Contents">
+<div class="label">Contents</div>
+<ol>
+{toc.map((s, i) => (
+<li>
+<a href={`#${s.id}`} class="top"><span class="n">{i + 1}</span>{s.title}</a>
+{s.sub && <ol>
+{s.sub.map((h) => (
+<li>
+<a href={`#${h.id}`}>{h.title}</a>
+{h.sub && <ol>{h.sub.map((g) => <li><a href={`#${g.id}`} class="deep">{g.title}</a></li>)}</ol>}
+</li>
+))}
+</ol>}
+</li>
+))}
+</ol>
+</nav>
+<button type="button" class="toc-button" aria-controls="contents" aria-expanded="false" hidden>
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h8"></path></svg>
+<span>Contents</span>
+</button>
+
+<div class="main">
+<header class="intro">
+<nav aria-label="Breadcrumb" class="crumbs"><a href="/ac-digital-vc">ac-digital-vc</a> / User guide</nav>
+<h1><span class="nowrap">ac-digital-vc</span> user guide</h1>
+<p class="lede">ac-digital-vc runs the Virus C's own firmware, OS 6.6: what you know from a Virus C applies here, and its owner's manual describes the sounds, the menus and the multi mode. This guide covers what the plugin adds or leaves out. Installing is on the <a href="/download#installing">download page</a>; the ROM folder, artwork files, the update check and contact are on <a href="/support">Support</a>.</p>
+<ol class="toc">
+{toc.map(({ id, title }) => <li><a href={`#${id}`}>{title}</a></li>)}
+</ol>
+</header>
+
+<!-- ===================================================================== -->
+<section id="start">
+<div class="eyebrow">1</div>
+<h2>Getting started</h2>
+
+<h3 id="first-start">The first start</h3>
+<p>The firmware and the factory programs are the unit's flash, Access's copyrighted work, so Lemus doesn't include them, and without them ac-digital-vc has nothing to run. The first time it starts without the ROM it asks for it: <span class="k">Locate ROM…</span> takes the image, a zip holding it such as MAME's virusc.zip, or a folder. A file is checked and copied into the ROM folder; a folder becomes the ROM folder.</p>
+<p>Then the firmware boots, as the unit does when it's switched on, and plays a few seconds later.</p>
+
+<h3 id="roms">The ROM</h3>
+<p>One image, from MAME's virusc set, found by checksum anywhere in the <a href="/support#rom">ROM folder</a>.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Size</th><th scope="col">SHA1</th><th scope="col">Holds</th></tr></thead>
+<tbody>
+<tr><td class="mono">virus_c_660x368.bin</td><td class="num">524,288 bytes</td><td class="mono">4c34546889d90522a8d85300c471f18339f88f72</td><td>BIOS v6.6: the 80C515's program, the DSP's program and the factory banks C to H</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="artwork">Panel artwork</h3>
+<p>The three blank places take an SVG or PNG of your own each, named as below, anywhere in the ROM folder (<a href="/support#artwork">how artwork files work</a>). <span class="k">ROMs</span> in the top bar lists them with what each has, opens the folder with Show its folder, and reads it again with Rescan.</p>
+<Shot src={panel} base={base} alt="The panel with the three blank artwork places outlined: maker and name at the top left, tagline at the bottom right" marks={[{ ...at.maker, n: 'maker' }, { ...at.name, n: 'name' }, { ...at.tagline, n: 'tagline' }]} caption="The three places." />
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Place</th><th scope="col">Size</th></tr></thead>
+<tbody>
+<tr><td class="mono">ac-digital-vc-maker.svg or .png</td><td>Access logo</td><td>51.0 × 9.4 mm</td></tr>
+<tr><td class="mono">ac-digital-vc-name.svg or .png</td><td>Virus wordmark</td><td>73.4 × 8.0 mm</td></tr>
+<tr><td class="mono">ac-digital-vc-tagline.svg or .png</td><td>The line under the panel's right side</td><td>76.0 × 3.6 mm</td></tr>
+</tbody>
+</table>
+</div>
+<p>The plain names (<span class="mono">maker.svg</span>…) in <span class="path">artwork/virusc/</span> or <span class="mono">artwork/virusc.zip</span> work too, and win over these.</p>
+
+<h3 id="first-sound">Your first sound</h3>
+<Shot src={panel} base={base} alt="The display, PARAMETER/BANK and VALUE/PROGRAM outlined" crop={{ x: 400, y: 220, w: 420, h: 210 }} marks={[{ ...at.lcd, n: 1 }, { ...at.bank, n: 2 }, { ...at.program, n: 3 }]} />
+<ul>
+<li>Play a note on MIDI channel 1: a new instance plays A0 <Num n="1" />.</li>
+<li>Where the display shows a program, PARAMETER/BANK <Num n="2" /> steps through the banks and VALUE/PROGRAM <Num n="3" /> through their programs. From a DAW, bank select (controller 32: 0 is bank A, 7 bank H) and a program change do the same.</li>
+<li>The knobs edit the program; the EDIT keys open their menus, as the manual describes.</li>
+</ul>
+</section>
+
+<!-- ===================================================================== -->
+<section id="panel">
+<div class="eyebrow">2</div>
+<h2>The panel</h2>
+<p>It is the unit's, measured from photos: every key goes through the firmware's own key scan, every LED shows what the firmware lights, at the brightness it drives it, and the display shows the controller's dots.</p>
+
+<h3 id="memory">Programs and memory</h3>
+<ul>
+<li><span class="k">Banks A and B</span> are the battery-backed RAM, with the multis and the global settings. STORE <Num n="1" /> writes there, as on the unit. A new instance holds copies of banks C and D in them.</li>
+<li><span class="k">Banks C to H</span> are the flash: the factory programs. STORE can't write them; STORE TO FLASH can.</li>
+<li>The session keeps all of it: see <a href="#automation">Automation and sessions</a>.</li>
+</ul>
+<Shot src={panel} base={base} alt="STORE and SINGLE outlined" crop={{ x: 380, y: 300, w: 220, h: 140 }} marks={[{ ...at.store, n: 1 }, { ...at.single, n: 2 }]} />
+
+<h3 id="flash">STORE TO FLASH</h3>
+<p>The SYSTEM menu's STORE TO FLASH copies bank A or B over a flash bank, as on the unit: "wait…", then "programming OK!" and a restart. The flash bank changes for this instance and its session; the ROM file on disk doesn't. State, Reset… puts the factory banks back.</p>
+
+<h3 id="power-on">Power-on keys</h3>
+<p>The unit reads its keys once as it starts. The plugin starts with none held, so the combination that clears the RAM can't be used: State, Reset… does the same.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="rear">
+<div class="eyebrow">3</div>
+<h2>The rear</h2>
+<p><span class="k">REAR</span> in the bottom bar turns the unit round. Cables hang from the jacks in use.</p>
+<Shot src={rear} base={base} alt="The rear panel: the ON/OFF switch, the 12 V DC socket, EXT IN R and L, OUT 3, OUT 2 and OUT 1, and MIDI IN, OUT and THRU, with cables in DC, OUT 1 and MIDI IN" marks={[{ x: 56, y: 160, w: 44, h: 58, n: 1 }, { x: 182, y: 136, w: 82, h: 64, n: 2 }, { x: 268, y: 136, w: 254, h: 64, n: 3 }, { x: 544, y: 140, w: 162, h: 66, n: 4 }]} caption="With OUT 2, OUT 3 and EXT IN off in the DAW: no cables in them." />
+
+<h3 id="outputs">OUT 1, 2 and 3</h3>
+<ul>
+<li><span class="k">OUT 1</span> <Num n="3" /> is the plugin's main output.</li>
+<li><span class="k">OUT 2 and OUT 3</span> are two more stereo outputs, off until the DAW turns them on (a mono bus gets the jack's left side). What reaches them is the firmware's routing: a part's OUTPUT SELECT in multi mode, and SECOND OUTPUT.</li>
+</ul>
+
+<h3 id="inputs">EXT IN</h3>
+<p>The two inputs <Num n="2" /> are the plugin's side-chain, read only while the DAW feeds it: for the vocoder, the INPUT modes and the input follower. Logic, Live, Cubase, Reaper, Bitwig and FL Studio (VST3) feed an instrument's side-chain; GarageBand doesn't. The standalone app has no inputs.</p>
+
+<h3 id="on-off">ON/OFF</h3>
+<p>The rocker <Num n="1" /> switches the unit off and on. Off, it's silent and dark, and its memory is kept; on, it boots from it, as the unit does. A new instance or a session load doesn't need it: the plugin starts on. MIDI IN, OUT and THRU <Num n="4" /> take no cable: MIDI comes from the DAW (<a href="#midi">MIDI and your DAW</a>), and THRU isn't emulated.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="bars">
+<div class="eyebrow">4</div>
+<h2>The bars</h2>
+
+<h3 id="top-bar">The top bar</h3>
+<ul>
+<li><span class="k">BETA</span> after the name: this version is a beta. About shows the version.</li>
+<li><span class="k">ROMs:</span> the ROM folder, the ROM and the <a href="#artwork">artwork</a>, with their full paths, and Show, Change… and Rescan for the folder.</li>
+<li><span class="k">State:</span> see <a href="#state">State</a>.</li>
+<li><span class="k">About:</span> the version, the ROM folder and artwork in use, the <a href="/support#updates">update check</a>, and links to this guide, the site and the forum. A newer version shows as a button in the bar.</li>
+</ul>
+
+<h3 id="state">State</h3>
+<ul>
+<li><span class="k">Save to file…</span> saves the instance: the knobs, the battery RAM (banks A and B, the multis, the global settings, the program being edited) and any flash bank STORE TO FLASH wrote.</li>
+<li><span class="k">Load from file…</span> loads one. The standalone app's Options menu saves and loads the same files.</li>
+<li><span class="k">Reset…</span> makes it a new instance: a fresh memory, the factory flash, every knob at its default.</li>
+</ul>
+
+<h3 id="bottom-bar">The bottom bar</h3>
+<dl class="legend">
+<div><dt>REAR</dt><dd>The rear panel: <a href="#rear">The rear</a>.</dd></div>
+<div><dt>?</dt><dd>Shows the list of computer keys over the panel. Any click, ? or Escape closes it.</dd></div>
+</dl>
+</section>
+
+<!-- ===================================================================== -->
+<section id="midi">
+<div class="eyebrow">5</div>
+<h2>MIDI and your DAW</h2>
+
+<h3 id="midi-in">MIDI in</h3>
+<p>The DAW's MIDI goes to the firmware through the unit's MIDI IN, byte by byte at 31,250 baud, and it does with it what the unit does: notes, program changes and bank select, controllers, sysex (parameter changes, dumps), on the channels its SYSTEM menu and multi mode set. A new instance plays channel 1. The owner's manual lists the controllers and the sysex.</p>
+
+<h3 id="midi-out">MIDI out</h3>
+<p>What the unit sends from MIDI OUT comes out of the plugin's MIDI output: knob moves as controllers, keys as sysex, and the SYSTEM menu's MIDI DUMP TX as single dumps. Route it to another track to record it, or back in to automate.</p>
+
+<h3 id="automation">Automation and sessions</h3>
+<p>The 32 knobs can be automated, in this order: LFOs Rate, Effects Send, Master Volume, Osc Shape, Effects Delay Time, Effects Intensity, Effects Type Mix, Effects Feedback, Mix Osc Bal, Soft Knob 1, Soft Knob 2, Mix Sub Osc, Osc Wave, Osc Detune, Osc FM Amount, Osc Semitone, Amp Attack, Filters Attack, Filters Cutoff 2, Amp Decay, Mix Osc Vol, Filters Cutoff, Mix Noise, Mix Ring Mod, Filters Release, Filters Balance, Amp Sustain, Amp Release, Filters Decay, Filters Sustain, Filters Resonance, Filters Env Amount. Automating one turns the knob: the firmware reads it as it reads the real one. Everything else goes by MIDI.</p>
+<p>A session saves the knobs, the battery RAM and any flash bank written, as <a href="#state">State</a> does; the instance boots from them when the session opens.</p>
+<p>Idle, the DSP sleeps and the output is exact zeros, but the 80C515 keeps running: the display and LEDs carry on. A note, a knob or sound at the inputs wakes it. ac-digital-vc reports an 8 s tail.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="keyboard">
+<div class="eyebrow">6</div>
+<h2>Keyboard and mouse</h2>
+
+<h3 id="keys">Computer keys</h3>
+<p>Click the panel first.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">Keys</th><th scope="col">Panel</th></tr></thead>
+<tbody>
+<tr><td class="mono">Left, Right</td><td>PARAMETER &lt; &gt;</td></tr>
+<tr><td class="mono">Down, Up</td><td>VALUE − +</td></tr>
+<tr><td class="mono">Page Down, Page Up</td><td>PART &lt; &gt;</td></tr>
+<tr><td class="mono">Return</td><td>STORE</td></tr>
+<tr><td class="mono">U</td><td>UNDO</td></tr>
+<tr><td class="mono">E</td><td>EDIT</td></tr>
+<tr><td class="mono">M, S</td><td>MULTI, SINGLE</td></tr>
+<tr><td class="mono">?</td><td>The key list</td></tr>
+<tr><td class="mono">Escape</td><td>Closes the key list</td></tr>
+</tbody>
+</table>
+</div>
+<p>Some DAWs keep letter keys for themselves.</p>
+
+<h3 id="mouse">Mouse</h3>
+<ul>
+<li><span class="k">Knobs:</span> drag up or down; shift is finer, double-click goes back to the start position.</li>
+<li><span class="k">Keys</span> are held while the button is.</li>
+<li><span class="k">Window:</span> drag the bottom-right corner, half to twice the size.</li>
+</ul>
+</section>
+
+</div>
+
+</div>
+</div>
+
+</Base>
+
+<script>
+// The sidebar marks the heading being read and opens its section; the button opens it as a
+// drawer on a narrow window. Without this script the sidebar shows every heading.
+const nav = document.querySelector<HTMLElement>('.side')!;
+const button = document.querySelector<HTMLButtonElement>('.toc-button')!;
+const links = [...nav.querySelectorAll<HTMLAnchorElement>('a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+nav.classList.add('spy');
+button.hidden = false;
+
+let current = -1;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 120) i = j; });
+  // At the end of the page the last headings can't reach the top: take the one jumped to, if
+  // it's in view, or else the last.
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) {
+    const jumped = targets.findIndex((t) => '#' + t.id === location.hash);
+    i = jumped >= 0 && targets[jumped].getBoundingClientRect().top < innerHeight ? jumped : targets.length - 1;
+  }
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => {
+    a.classList.toggle('on', j === i);
+    if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+  });
+  const section = i >= 0 ? links[i].closest('.side > ol > li') : null;
+  for (const li of nav.querySelectorAll(':scope > ol > li')) li.classList.toggle('open', li === section);
+  reveal();
+}
+
+// Keep the marked heading in view when the sidebar is taller than the window.
+function reveal() {
+  const a = links[current];
+  if (!a || nav.scrollHeight <= nav.clientHeight) return;
+  if (a.offsetTop < nav.scrollTop || a.offsetTop + a.offsetHeight > nav.scrollTop + nav.clientHeight)
+    nav.scrollTop = a.offsetTop - nav.clientHeight / 3;
+}
+
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+addEventListener('hashchange', later);
+mark();
+
+function open(on: boolean) {
+  nav.classList.toggle('open', on);
+  button.setAttribute('aria-expanded', String(on));
+  button.querySelector('span')!.textContent = on ? 'Close' : 'Contents';
+  if (on) reveal();
+}
+button.addEventListener('click', () => open(!nav.classList.contains('open')));
+nav.addEventListener('click', (e) => { if ((e.target as Element).closest('a')) open(false); });
+document.addEventListener('click', (e) => {
+  if (nav.classList.contains('open') && !nav.contains(e.target as Node) && !button.contains(e.target as Node)) open(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && nav.classList.contains('open')) { open(false); button.focus(); }
+});
+</script>
+
+<style>
+.guide { padding-bottom: 96px; }
+.main { min-width: 0; max-width: 1000px; }
+
+.side { font-size: 14px; line-height: 1.45; }
+.side .label { padding: 0 0 10px 12px; }
+.side ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; max-width: none; }
+.side li { font-size: inherit; color: inherit; }
+.side > ol > li + li { margin-top: 6px; }
+.side a { display: flex; gap: 8px; padding: 3px 10px 3px 30px; border-left: 2px solid var(--rule); color: var(--ink2); text-decoration: none; }
+.side a.top { padding-left: 10px; color: var(--ink); font-weight: 600; }
+.side a.deep { padding-left: 44px; }
+.side .n { flex: 0 0 auto; min-width: 12px; font: 12px/1.7 var(--mono); color: var(--ink3); }
+.side a:hover { color: var(--ink); border-left-color: var(--ink2); }
+.side a.on { color: var(--wire-text); border-left-color: var(--wire); }
+.side a.on .n { color: var(--wire-text); }
+.toc-button { display: none; }
+
+@media (min-width: 1080px) {
+  .guide { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 56px; }
+  .side { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; box-sizing: border-box; padding: 56px 0 32px; scrollbar-width: thin; }
+  .side.spy > ol > li:not(.open) > ol { display: none; }
+  .intro .toc { display: none; }
+}
+@media (max-width: 1079.98px) {
+  .side { display: none; }
+  .side.open { display: block; position: fixed; top: 0; bottom: 0; left: 0; z-index: 20; width: min(320px, 85vw); box-sizing: border-box; overflow-y: auto; padding: 24px 16px 96px; background: var(--paper); border-right: 2px solid var(--ink); box-shadow: 0 0 0 100vmax rgba(22, 26, 38, 0.45); }
+  .toc-button:not([hidden]) { display: inline-flex; align-items: center; gap: 8px; position: fixed; left: 16px; bottom: 16px; z-index: 21; min-height: 44px; padding: 0 18px; box-sizing: border-box; border: 2px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); font-family: var(--display); font-size: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 20px rgba(22, 26, 38, 0.25); }
+  .toc-button:hover { background: var(--wire-text); border-color: var(--wire-text); }
+}
+.intro { padding: 56px 0 24px; display: flex; flex-direction: column; gap: 18px; }
+.crumbs { font-size: 14px; color: var(--ink2); }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(40px, 5.4vw, 68px); line-height: 0.95; }
+.lede { margin: 0; color: var(--ink2); font-size: 18px; max-width: 44em; }
+.nowrap { white-space: nowrap; }
+.toc { margin: 8px 0 0; padding: 16px 20px 16px 44px; border: 2px solid var(--ink); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 4px 24px; color: var(--ink3); }
+section { padding: 48px 0 8px; border-top: 1.5px solid var(--ink); margin-top: 32px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+.eyebrow { width: 44px; height: 44px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(32px, 3.8vw, 44px); line-height: 1; text-transform: uppercase; }
+h3 { margin: 20px 0 0; font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.15; letter-spacing: 0.02em; text-transform: uppercase; scroll-margin-top: 16px; }
+p, li, dd { color: var(--ink2); font-size: 16px; }
+p { margin: 0; max-width: 46em; }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.k { color: var(--ink); font-weight: 600; }
+.mono { font-family: var(--mono); font-size: 0.88em; color: var(--ink); overflow-wrap: anywhere; }
+td.mono { white-space: nowrap; overflow-wrap: normal; }
+.path { font-family: var(--mono); font-size: 0.88em; color: var(--ink); overflow-wrap: anywhere; }
+.card { border: 2px solid var(--ink); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.label { font-family: var(--display); font-size: 13px; letter-spacing: 0.1em; font-weight: 600; color: var(--ink2); text-transform: uppercase; }
+.scroll { overflow-x: auto; border: 2px solid var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 520px; }
+th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink2); }
+thead th { background: var(--paper2); border-bottom: 2px solid var(--ink); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+tbody th { color: var(--ink); font-weight: 600; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+.legend { margin: 0; display: flex; flex-direction: column; gap: 12px; max-width: 52em; }
+.legend dt { color: var(--ink); font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.legend dd { margin: 2px 0 0; }
+</style>

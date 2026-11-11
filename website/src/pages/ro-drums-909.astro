@@ -1,15 +1,13 @@
 ---
 import { getImage } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import Prerelease from '../components/Prerelease.astro';
-import MailForm from '../components/MailForm.astro';
-import Clip from '../components/Clip.astro';
-import { bySlug, downloadLinks, platforms, sourceOf } from '../data/machines';
+import MachineTop from '../components/MachineTop.astro';
+import SampleList from '../components/SampleList.astro';
+import { bySlug } from '../data/machines';
 import voiceModeShot from '../assets/ro-drums-909/voice-mode.webp';
 import serviceShot from '../assets/ro-drums-909/service.webp';
 
 const m = bySlug('ro-drums-909');
-const links = downloadLinks(m);
 const voiceMode = await getImage({ src: voiceModeShot, format: 'webp', quality: 85 });
 const service = await getImage({ src: serviceShot, format: 'webp', quality: 85 });
 
@@ -18,7 +16,9 @@ const video = 'https://www.youtube.com/watch?v=od-erpCKbtc';
 
 // The strip under the header: the page's sections, the one being read underlined.
 const sections = [
-  { id: 'accuracy', label: 'Hear it' },
+  { id: 'download', label: 'Download' },
+  { id: 'hear', label: 'Hear it' },
+  { id: 'accuracy', label: 'In numbers' },
   { id: 'service', label: 'Service' },
   { id: 'revisions', label: 'Board revisions' },
   { id: 'differences', label: 'Differences' },
@@ -47,51 +47,19 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 </div>
 </nav>
 
-<section class="sheet">
-<div class="col hero">
-<div class="top">
-<div class="intro">
-<nav aria-label="Breadcrumb" class="crumbs"><a href="/#plugins">Plugins</a> / ro-drums-909</nav>
-<h1 class="name">ro-drums-909</h1>
-<p class="lede">Emulation of the Roland TR-909 Rhythm Composer (1984), a drum machine with analog voices, sampled hi-hats and cymbals, and a step sequencer.</p>
-<p class="dim">It runs the original sequencer firmware on an emulated CPU, and models the voicing board part by part from the service notes.</p>
-{m.release ? (
-<div class="buttons">
-<a href={links.mac} class="btn">Download for macOS</a>
-<a href={links.windows} class="btn">Download for Windows</a>
-</div>
-) : (
-<p class="partial unreleased">Not available for download yet. The first release, a beta, is being prepared.</p>
-)}
-<p class="meta">Free{m.release && <>, version {m.release.version}{m.release.stage && ` ${m.release.stage}`}, source: <a href={sourceOf(m.release)}>{m.release.tag} on GitHub</a> (GNU AGPLv3)</>}</p>
-{m.release && <Prerelease release={m.release} />}
-<div class="mailbox tapbox">
-<h2 class="mail-h">Release announcements by email</h2>
-<p class="dim">Nothing else is sent. <a href="/support#mailing-list">Mailing list</a></p>
-<MailForm id="mail-hero" />
-</div>
-<div class="jumps">
-<a href="/ro-drums-909/guide">User guide</a>
-<a href="#accuracy">Hear the factory patterns
-<svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M8 2v11M4 9l4 4 4-4"></path></svg></a>
-</div>
-</div>
-
-<div class="data">
-<div class="data-head"><span>Data</span>{m.release && <span class="mono">{m.slug} {m.release.version}</span>}</div>
-<dl>
-<div><dt class="lbl">Emulates</dt><dd>Roland TR-909 Rhythm Composer</dd></div>
-<div><dt class="lbl">Year</dt><dd>{m.year}</dd></div>
-<div><dt class="lbl">Type</dt><dd>{m.type}</dd></div>
-<div><dt class="lbl">Status</dt><dd class={m.status === 'working' ? 'ok' : 'partial'}>{m.status}</dd></div>
-<div><dt class="lbl">Without ROM</dt>{m.withoutRom === 'voice' ? <dd class="partial"><span class="mono">[~]</span> voice mode</dd> : <dd class="missing"><span class="mono">[✗]</span> ROM missing</dd>}</div>
+<MachineTop machine={m}>
+<SampleList heading="Factory song and patterns" plugin="ro-drums-909" link={{ href: video, text: 'A real TR-909 playing the song, on YouTube' }} tracks={[
+  { src: '/media/ro-drums-909/factory-song.m4a', title: 'Factory song', detail: 'TRACK 1, TEMPO 110.3' },
+  ...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ src: `/media/ro-drums-909/factory-pattern-${n}.m4a`, title: `Pattern ${n}` })),
+]} />
+<Fragment slot="data">
 <div><dt class="lbl">ROM images</dt><dd><span class="mono">tr909_v4.ic609</span> and the hi-hat, crash and ride ROMs, not included</dd></div>
 <div><dt class="lbl">Outputs</dt><dd>Master L and R, ten MULTI OUTs</dd></div>
-{platforms.map(([os, formats]) => <div><dt class="lbl">{os}</dt><dd>{formats}</dd></div>)}
-</dl>
-</div>
-</div>
+</Fragment>
+</MachineTop>
 
+<section class="sheet">
+<div class="col sec">
 <figure class="panel">
 <div class="mount">
 <div class="pin">
@@ -115,24 +83,10 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 
 <section id="accuracy" class="sheet">
 <div class="col sec">
-<div class="pair">
-<div class="text">
-<h2 class="h2 tap">The factory patterns</h2>
-<p class="dim">With the version 1.0 program ROM, a new ro-drums-909 holds the factory patterns. Here it plays them as a new instance starts, every knob at its default, in mono, with no effects: each pattern four times at the default tempo, 120.6 BPM, and the song, track 1, at its stored tempo, 110.3 BPM (TEMPO with TRACK 1).</p>
-<a href={video} class="btn ghost small out">A real TR-909 playing the song, on YouTube
-<svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 3h7v7M13 3L4 12"></path></svg></a>
-</div>
-<div class="clips">
-<Clip plugin="ro-drums-909" src="/media/ro-drums-909/factory-song.m4a" settings={[['TRACK', '1'], ['TEMPO', '110.3']]} note="The factory song, 65 measures" />
-<div class="clips-grid">
-{[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <Clip plugin="ro-drums-909" src={`/media/ro-drums-909/factory-pattern-${n}.m4a`} settings={[['PATTERN', String(n)]]} />)}
-</div>
-</div>
-</div>
-
 <div class="numbers-head">
-<h3 class="h3">In numbers</h3>
+<h2 class="h2 tap">In numbers</h2>
 <p class="dim">Measured against AudioRealism's recordings of a late TR-909 on a fine grid of knob settings, the unit it is calibrated to. Method: <a href="#made">How it was made</a>.</p>
+<p class="dim small">The clips at the top: with the version 1.0 program ROM, a new instance holds the factory patterns. Every knob at its default, in mono, with no effects: each pattern four times at the default tempo, 120.6 BPM, and the song, track 1, at its stored tempo, 110.3 BPM (TEMPO with TRACK 1). The song runs 65 measures.</p>
 </div>
 
 <div class="numbers">
@@ -391,31 +345,7 @@ mark();
 .onpage a[aria-current] { color: var(--ink); border-bottom-color: var(--wire); }
 .onpage a.red[aria-current] { border-bottom-color: var(--red); }
 
-.hero { padding-block: 56px 88px; display: flex; flex-direction: column; gap: 56px; }
-.top { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 48px 64px; align-items: start; }
-.intro { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
-.intro p { margin: 0; }
-.crumbs { font-size: 14px; color: var(--ink2); }
-.name { margin: 0; font-family: var(--mono); font-weight: 700; font-size: clamp(38px, 4.8vw, 66px); line-height: 1; letter-spacing: -0.035em; white-space: nowrap; }
-.lede { font-size: 21px; line-height: 1.45; }
-.buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
-.unreleased { font-size: 16px; font-weight: 600; }
-.meta { font-size: 14px; color: var(--ink2); }
-.mailbox { --tap-y: 31px; max-width: 560px; box-sizing: border-box; border: 2px solid var(--ink); background: var(--tint); padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
-.mail-h { margin: 0; font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.15; text-transform: uppercase; }
-.mailbox p { font-size: 15px; }
-.jumps { display: flex; flex-wrap: wrap; gap: 0 28px; font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: 0.05em; text-transform: uppercase; }
-.jumps a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; text-underline-offset: 5px; }
 
-.data { border: 2px solid var(--ink); min-width: 0; }
-.data-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 16px; border-bottom: 2px solid var(--ink); background: var(--paper2); font-family: var(--display); font-weight: 700; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
-.data-head .mono { font-family: var(--mono); font-weight: 400; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--ink2); }
-.data dl { margin: 0; display: flex; flex-direction: column; font-size: 16px; }
-.data dl > div { display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--rule); }
-.data dl > div:last-child { border-bottom: 0; }
-.data dt { padding-top: 3px; }
-.data dd { margin: 0; }
-.data .mono { font-size: 14px; }
 
 .panel { margin: 0; display: flex; flex-direction: column; gap: 16px; }
 .panel .mount { padding: 58px 24px; }
@@ -425,18 +355,14 @@ mark();
 .caption strong { color: var(--ink); font-weight: 600; }
 .caption .mono { font-size: 13px; color: var(--ink); }
 
-.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 40px 56px; align-items: start; }
 .text { display: flex; flex-direction: column; gap: 18px; min-width: 0; max-width: 48em; }
 .text p { margin: 0; }
 .out { align-self: start; color: var(--wire-text); border-color: var(--wire); }
 .small { font-size: 15px; }
 .tiny { font-size: 13px; }
 .mono { font-size: 0.9em; color: var(--ink); }
-.clips { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.clips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 14px; }
 
-.numbers-head { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-.numbers-head .h3 { font-size: 30px; font-weight: 700; letter-spacing: 0.02em; }
+.numbers-head { display: flex; flex-direction: column; gap: 18px; }
 .numbers-head p { margin: 0; font-size: 16px; }
 .numbers { display: flex; flex-direction: column; margin-top: -8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
 .measure { display: flex; flex-wrap: wrap; gap: 24px 56px; padding: 28px 0; }

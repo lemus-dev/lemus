@@ -1,7 +1,8 @@
 # The Windows release: each shipping machine's own plugin (VST3 and the standalone app), checked
 # with its own tests and the instruments host's (the runner has no ROMs, so the machines are checked
 # in voice mode), each zipped by tools/release/windows.ps1. The TR-909 and TR-808 are built with clang-cl: the
-# 909's circuit solver runs about 15 % faster than with MSVC (windows-machine.yml's bench), and the 808's is the same solver. Runs on demand
+# 909's circuit solver runs about 15 % faster than with MSVC (windows-machine.yml's bench), and the 808's is the same solver.
+# The Virus C too, as the compiler closest to the macOS build's (its own code; the DSP engine compiles its own). Runs on demand
 # and for release tags; the zips are the run's artifact. Each plugin has its own version (its
 # lemus_plugin() VERSION) and its own tag, <plugin>-v<version> (ro-drums-909-v0.2.1): a tag's run
 # keeps only that plugin's zip, and fails if the plugin isn't at the tag's version. The macOS release
@@ -31,6 +32,7 @@ jobs:
           cmake -S . -B build/release-win -G "Visual Studio 17 2022" -A x64 -DLEMUS_MACHINES=tb303 -DLEMUS_COPY_PLUGINS=OFF
           cmake -S . -B build/release-win-tr909 -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=tr909 -DLEMUS_COPY_PLUGINS=OFF
           cmake -S . -B build/release-win-tr808 -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=tr808 -DLEMUS_COPY_PLUGINS=OFF
+          cmake -S . -B build/release-win-virusc -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=virusc -DLEMUS_COPY_PLUGINS=OFF
       - name: Build
         run: |
           cmake --build build/release-win --config Release --parallel --target plugin_tb303_VST3 plugin_tb303_Standalone lemustest_tb303 lemustest_instrument
@@ -38,11 +40,14 @@ jobs:
           cmake --build build/release-win-tr909 --config Release --parallel --target plugin_tr909_VST3 plugin_tr909_Standalone lemustest_tr909
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           cmake --build build/release-win-tr808 --config Release --parallel --target plugin_tr808_VST3 plugin_tr808_Standalone lemustest_tr808
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cmake --build build/release-win-virusc --config Release --parallel --target plugin_virusc_VST3 plugin_virusc_Standalone lemustest_virusc
       - name: Test
         run: |
           build/release-win/lemustest_tb303_artefacts/Release/lemustest_tb303.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
           build/release-win-tr909/lemustest_tr909_artefacts/Release/lemustest_tr909.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
           build/release-win-tr808/lemustest_tr808_artefacts/Release/lemustest_tr808.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          build/release-win-virusc/lemustest_virusc_artefacts/Release/lemustest_virusc.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
           build/release-win/lemustest_instrument_artefacts/Release/lemustest_instrument.exe
       - name: Package
         shell: pwsh
@@ -50,6 +55,7 @@ jobs:
           tools/release/windows.ps1 -Build build/release-win
           tools/release/windows.ps1 -Build build/release-win-tr909
           tools/release/windows.ps1 -Build build/release-win-tr808
+          tools/release/windows.ps1 -Build build/release-win-virusc
       - name: Release
         id: version
         shell: pwsh

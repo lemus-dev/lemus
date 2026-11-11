@@ -1,0 +1,114 @@
+---
+// The audio at the top of a plugin's page: a card like the data sheet, one row per clip. One
+// clip plays at a time; the playing row shows how far it has got.
+interface Track {
+  src: string;
+  title: string;
+  detail?: string; // the knob settings it was played at
+}
+interface Props {
+  plugin: string;
+  heading: string;
+  tracks: Track[];
+  link?: { href: string; text: string }; // the real unit, elsewhere
+}
+const { plugin, heading, tracks, link } = Astro.props;
+---
+<div class="samples" data-samples>
+<div class="head">{heading}</div>
+<ol class="list">
+{tracks.map((t) => (
+<li>
+<button type="button" class="row" data-src={t.src} aria-label={`Play ${plugin}: ${t.title}`}>
+<span class="play" aria-hidden="true">
+<svg class="i-play" width="12" height="14" viewBox="0 0 14 16"><path d="M1 1L13 8L1 15Z" fill="currentColor"></path></svg>
+<svg class="i-pause" width="11" height="13" viewBox="0 0 14 16"><path d="M2 1h3.5v14H2zM8.5 1H12v14H8.5z" fill="currentColor"></path></svg>
+</span>
+<span class="t">{t.title}</span>
+{t.detail ? <span class="d">{t.detail}</span> : <span></span>}
+<span class="time" aria-hidden="true"></span>
+<span class="line" aria-hidden="true"><span class="fill"></span></span>
+</button>
+</li>
+))}
+</ol>
+{link && <a class="real" href={link.href}>{link.text}<svg aria-hidden="true" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 3h7v7M13 3L4 12"></path></svg></a>}
+<audio preload="none"></audio>
+</div>
+
+<script>
+const clock = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+
+for (const box of document.querySelectorAll<HTMLElement>('[data-samples]')) {
+  const audio = box.querySelector('audio')!;
+  const rows = [...box.querySelectorAll<HTMLButtonElement>('.row')];
+  let current: HTMLButtonElement | null = null;
+
+  const show = () => {
+    for (const r of rows) {
+      const on = r === current;
+      r.classList.toggle('current', on);
+      r.classList.toggle('playing', on && !audio.paused);
+      const label = r.getAttribute('aria-label')!;
+      r.setAttribute('aria-label', label.replace(/^(Play|Pause)/, on && !audio.paused ? 'Pause' : 'Play'));
+    }
+  };
+  const tick = () => {
+    if (!current) return;
+    const d = audio.duration;
+    current.querySelector<HTMLElement>('.fill')!.style.width = d ? `${(audio.currentTime / d) * 100}%` : '0';
+    current.querySelector<HTMLElement>('.time')!.textContent = d ? `${clock(audio.currentTime)} / ${clock(d)}` : clock(audio.currentTime);
+  };
+
+  for (const r of rows) {
+    r.addEventListener('click', () => {
+      if (r === current) { audio.paused ? audio.play() : audio.pause(); return; }
+      if (current) {
+        current.querySelector<HTMLElement>('.fill')!.style.width = '0';
+        current.querySelector<HTMLElement>('.time')!.textContent = '';
+      }
+      current = r;
+      audio.src = r.dataset.src!;
+      audio.play();
+      show();
+    });
+  }
+  // one at a time across the page
+  audio.addEventListener('play', () => document.querySelectorAll('audio').forEach((a) => a !== audio && a.pause()));
+  audio.addEventListener('play', show);
+  audio.addEventListener('pause', show);
+  audio.addEventListener('ended', () => { audio.currentTime = 0; show(); });
+  audio.addEventListener('timeupdate', tick);
+  audio.addEventListener('loadedmetadata', tick);
+}
+</script>
+
+<style>
+.samples { border: 2px solid var(--ink); min-width: 0; display: flex; flex-direction: column; }
+.head { padding: 9px 16px; border-bottom: 2px solid var(--ink); background: var(--paper2); font-family: var(--display); font-weight: 700; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li + li { border-top: 1px solid var(--rule); }
+
+.row { position: relative; width: 100%; min-height: 54px; padding: 8px 16px; box-sizing: border-box; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto; align-items: center; gap: 4px 14px; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.row:hover .t { color: var(--wire-text); }
+.row.current { background: var(--tint); }
+.play { width: 38px; height: 38px; border-radius: 50%; background: var(--wire); color: var(--ink); display: grid; place-items: center; }
+.row:hover .play { background: var(--wire-text); color: var(--paper); }
+.i-play { margin-left: 3px; }
+.i-pause, .playing .i-play { display: none; }
+.playing .i-pause { display: block; }
+.t { font-weight: 600; font-size: 17px; }
+.d { font-family: var(--display); font-weight: 600; font-size: 14px; letter-spacing: 0.06em; color: var(--ink2); white-space: nowrap; }
+.time { font: 12px var(--mono); color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.line { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; display: none; }
+.current .line { display: block; }
+.fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--wire); }
+
+.real { display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--rule); font-size: 15px; }
+
+@media (max-width: 560px) {
+  .row { grid-template-columns: 38px minmax(0, 1fr) auto; }
+  .d { grid-column: 2; grid-row: 2; white-space: normal; }
+  .time { grid-column: 3; grid-row: 1; }
+}
+</style>

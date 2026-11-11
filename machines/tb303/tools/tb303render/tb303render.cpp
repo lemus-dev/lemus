@@ -1,7 +1,8 @@
 // tb303render: renders test specs (tools/compare/specs/*.json) through the voice model.
 //
 //   tb303render SPEC.json [SPEC.json ...] [--out DIR] [--rate 44100] [--only NAME,NAME] [--unit]
-//              [--cal vcfRingHz=400 --cal q21Beta=600 --cal q21TailmA=0.45 ...]
+//              [--cal vcfRingHz=400 --cal q21Beta=600 --cal q21TailmA=0.45 ...] [--top HZ]
+//   tb303render --fullcutoff [--unit] [--cal ...] [--top HZ]     print how high CUT OFF reaches, Hz
 //
 // The voice starts from the schematic's nominal values (tb303::Calibration's defaults); --unit
 // starts from the plugin's unit instead (tb303::unitCalibration()). --cal then overrides.
@@ -147,6 +148,8 @@ int main(int argc, char **argv)
 	juce::File outDir = juce::File::getCurrentWorkingDirectory();
 	double rate = 44100;
 	juce::StringArray only, specs, overrides;
+	double topHz = 0;
+	bool printTop = false;
 	for (int i = 1; i < argc; ++i) {
 		const juce::String a(argv[i]);
 		if (a == "--out" && i + 1 < argc)
@@ -159,6 +162,10 @@ int main(int argc, char **argv)
 			g_cal = tb303::unitCalibration();
 		else if (a == "--cal" && i + 1 < argc)
 			overrides.add(argv[++i]); // e.g. --cal q21Beta=600 --cal vcfRingHz=400
+		else if (a == "--top" && i + 1 < argc)
+			topHz = juce::String(argv[++i]).getDoubleValue(); // the plugin's FULL CUT OFF: sets cutoffTaperMid
+		else if (a == "--fullcutoff")
+			printTop = true;
 		else
 			specs.add(a);
 	}
@@ -181,10 +188,24 @@ int main(int argc, char **argv)
 		else if (key == "vcaSwing") g_cal.vcaSwing = v;
 		else if (key == "c13UF") g_cal.c13UF = v;
 		else if (key == "vr4bOhms") g_cal.vr4bOhms = v;
+		else if (key == "vcoScale") g_cal.vcoScale = v;
+		else if (key == "tuneCents") g_cal.tuneCents = v;
 		else {
 			std::fprintf(stderr, "unknown calibration %s\n", key.toRawUTF8());
 			return 2;
 		}
+	}
+	if (topHz > 0) {
+		// CUT OFF's share of its track at mid rotation that puts full CUT OFF at topHz (it falls as the share rises).
+		double lo = 0.003, hi = 0.6;
+		for (int it = 0; it < 50; ++it) {
+			g_cal.cutoffTaperMid = std::sqrt(lo * hi);
+			(tb303::fullCutOffHz(g_cal) > topHz ? lo : hi) = g_cal.cutoffTaperMid;
+		}
+	}
+	if (printTop) {
+		std::printf("%.1f Hz (cutoffTaperMid %.6g)\n", tb303::fullCutOffHz(g_cal), g_cal.cutoffTaperMid);
+		return 0;
 	}
 	if (specs.isEmpty()) {
 		std::fprintf(stderr, "usage: tb303render SPEC.json [...] [--out DIR] [--rate HZ] [--only NAME,...] [--unit] [--cal NAME=VALUE]\n");

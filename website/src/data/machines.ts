@@ -130,6 +130,18 @@ export const machines: Machine[] = [
     release: { version: '0.1.0', tag: 'ro-drums-808-v0.1.0', stage: 'beta', mac: 'ro-drums-808-0.1.0-mac.pkg', windows: 'ro-drums-808-0.1.0-windows.zip' },
     changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
   },
+  {
+    slug: 'ac-digital-vc',
+    emulates: 'Access Virus C',
+    year: 2002,
+    type: 'virtual analog synth',
+    status: 'working',
+    withoutRom: 'none',
+    keywords: 'virus c access virtual analog va synth dsp osirus',
+    nav: true,
+    release: { version: '0.1.0', tag: 'ac-digital-vc-v0.1.0', stage: 'beta', mac: 'ac-digital-vc-0.1.0-mac.pkg', windows: 'ac-digital-vc-0.1.0-windows.zip' },
+    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+  },
 ];
 
 // True if version a is newer than b, number by number (0.10.0 is newer than 0.9.1).

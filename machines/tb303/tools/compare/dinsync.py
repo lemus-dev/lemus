@@ -41,7 +41,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "../../../.."))
 DIN = os.path.normpath(os.path.join(HERE, "../../private/reference/dinsync"))
 SPECS = os.path.join(HERE, "specs", "dinsync.json")
-TB303RENDER = os.path.join(ROOT, "build/cmake/tb303render_artefacts/Release/tb303render")
+TB303RENDER = os.environ.get("TB303RENDER", os.path.join(ROOT, "build/cmake/tb303render_artefacts/Release/tb303render"))
 SR = 44100
 
 KNOBS = ["cutoff", "resonance", "envmod", "decay", "accent"]
