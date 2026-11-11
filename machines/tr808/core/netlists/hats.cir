@@ -1,0 +1,127 @@
+* TR-808 OPEN HIHAT and CLS'D HIHAT, voicing board (service notes p.13): one circuit, since a CH
+* trigger chokes the OH envelope (Q23 through R173). Inputs: ntrig (the narrowed trig), dataoh,
+* datach (instrument data, 0/5 V), hi (the metallic source's high band, IC3b). Outputs: oh (IC7a
+* through R169), ch (IC7b through R172). Controls: decay (VR3 2M B, OH DECAY), levelo (VR7),
+* levelc (VR8), both 100k A.
+.param p3=2meg r132=100k c60=10u c62=0.47u r139=1meg
+VB3 b3 0 15
+VNB3 nb3 0 -15
+VNT ntrig 0 input ntrig
+VDOH dataoh 0 input dataoh
+VDCH datach 0 input datach
+VHI hi 0 input hi
+* gates: Q3/Q7 (OH), Q4/Q8 (CH)
+R1 dataoh q3b 22k
+R8 q3b 0 10k
+Q3 q3c q3b 0 2SC945
+R12 q7b q3c 22k
+R17 ntrig q7b 4.7k
+Q7 q7c q7b ntrig 2SA733
+R131 q7c j0 22k
+R130 j0 0 10k
+R2 datach q4b 22k
+R7 q4b 0 10k
+Q4 q4c q4b 0 2SC945
+R11 q8b q4c 22k
+R16 ntrig q8b 4.7k
+Q8 q8c q8b ntrig 2SA733
+R13 q8c 0 22k
+* OH envelope: Q24 charges C62; Q21 empties C60 at the trigger, which then charges through OH
+* DECAY and R132 until Q22 turns on and empties C62 through R134; a CH (Q28's emitter, R173)
+* turns Q23 on and does it at once
+R136 b3 s3 100
+C61 s3 0 47u
+R137 s3 q24c 470
+R135 q7c q24b 10k
+Q24 q24c q24b eoh 2SC945
+C62 eoh 0 {c62}
+R139 eoh 0 {r139}
+R134 eoh q22c 100k
+Q21 k j0 0 2SC945
+P3 r132 r132 b3 {p3} decay
+R132 r132 k {r132}
+C60 k 0 {c60}
+R133 k q22b 10k
+Q22 q22c q22b 0 2SC945
+Q23 q22c q23b 0 2SC945
+R173 ech q23b 330k
+R140 eoh q29b 33k
+Q29 b3 q29b e29 2SC945
+R143 e29 0 33k
+R144 e29 noh 33k
+* CH envelope: Q28 charges C63
+R138 s3 q28c 470
+R141 q8c q28b 33k
+Q28 q28c q28b ech 2SC945
+C63 ech 0 0.47u
+R142 ech nch 33k
+* OH swing VCA Q27 on the high band, high-pass (Q26), IC7a with LEVEL (VR7)
+C67 hi q27b 0.022u
+R148 b3 r148 1meg
+R149 r148 q27b 1meg
+Q27 q27c q27b q27e 2SC945
+R145 q27e 0 100
+C65 q27c 0 0.0015u
+D13 noh q27c 1S2473
+C64 noh 0 0.0015u
+C66 noh h26 0.0015u
+R147 h26 e26 2.7k
+C68 h26 q26b 0.0015u
+R146 q26b 0 68k
+Q26 b3 q26b e26 2SC945
+R156 e26 nb3 22k
+C80 e26 c80 470p
+R160 c80 n7a 39k
+R158 p7a 0 47k
+X7A p7a n7a o7a opamp {gbw}
+R159 n7a o7a 470k
+C79 n7a o7a 220p
+P7 c81 c81 n7a 100k levelo a0.15
+C81 c81 o7a 33u
+R169 o7a oh 1k
+* CH swing VCA Q30, high-pass (Q31), IC7b with LEVEL (VR8)
+C71 hi q30b 0.022u
+R151 b3 r151 1meg
+R150 r151 q30b 1meg
+Q30 q30c q30b q30e 2SC945
+R152 q30e 0 100
+C70 q30c 0 0.0015u
+D14 nch q30c 1S2473
+C69 nch 0 0.0015u
+C72 nch h31 0.001u
+R153 h31 e31 2.7k
+C73 h31 q31b 0.001u
+R155 q31b 0 68k
+Q31 b3 q31b e31 2SC945
+R154 e31 nb3 22k
+C74 e31 c74 470p
+R162 c74 n7b 33k
+R157 p7b 0 47k
+X7B p7b n7b o7b opamp {gbw}
+R161 n7b o7b 470k
+C82 n7b o7b 220p
+P8 c83 c83 n7b 100k levelc a0.15
+C83 c83 o7b 33u
+R172 o7b ch 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in a jack (plug_oh, plug_ch), its contact opens and the cable's input loads the voice
+SMIX oh 0 !plug_oh 56k 100k
+SMIXCH ch 0 !plug_ch 47k 100k
+.control plug_oh 0
+.control plug_ch 0
+.control decay 0.5
+.control levelo 0.8
+.control levelc 0.8
+.output oh oh
+.output ch ch
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+* The gates, the open hat's envelope and timer with the choke, the closed hat's envelope, then each
+* hat's VCA and output, which sleep on their own while their envelope is down.
+.part gates in=q24b,q28b R1 R8 Q3 R12 R17 Q7 R131 R130 R135 R2 R7 Q4 R11 R16 Q8 R13 R141
+.part ohenv in=q7c,ech,noh,q28c R131 R130 R135 R136 C61 R137 Q24 C62 R139 R134 Q21 P3 R132 C60
++ R133 Q22 Q23 R173 R140 Q29 R143 R144 R138
+.part chenv in=q8c,s3,nch,q23b R141 R138 Q28 C63 R142 R173
+.part oh in=e29 sleep R144 C67 R148 R149 Q27 R145 C65 D13 C64 C66 R147 C68 R146 Q26 R156 C80
++ R160 R158 X7A R159 C79 P7 C81 R169 SMIX
+.part ch in=ech sleep R142 C71 R151 R150 Q30 R152 C70 D14 C69 C72 R153 C73 R155 Q31 R154 C74
++ R162 R157 X7B R161 C82 P8 C83 R172 SMIXCH

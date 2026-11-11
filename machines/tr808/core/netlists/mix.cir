@@ -1,0 +1,81 @@
+* TR-808 mixer and master out, voicing board and Jack board B (service notes p.13). Inputs: each
+* voice's output at its MULTI OUT jack, whose normal contact feeds the mix through R1-R11 into IC4a's
+* virtual ground (the voices' netlists load their outputs with the same resistors). MASTER VOLUME
+* VR1 (50k A) into IC4b; out: the HI master output (C1, R14) and lo (R13/R12). Control: volume.
+* Input mute: the power on/off detector's point A (SN p.5: 0 V for 1-2 s after power on, else
+* -15 V), whose 0 V turns Q13 on across R74: C21 then shorts IC4b's feedback and the output is
+* muted while the board charges. C20 is taken as the gate's filter to ground (docs/circuit.md, §15).
+* Step ticks: the common trig's edges leak into the mix (the archive.org and Synthmania units: a
+* tick at both edges of every step's 1 ms pulse, about 70 dB under the voices). Not on the
+* schematic and its path isn't known: a network fitted to the archive.org unit's averaged tick
+* couples the trig bus into the summing node (a 30 us low-pass, high-passes of 95 and 534 us, a
+* few pF into sum). Off here (rtk3 1e15); the fitted unit's values are in docs/model.md,
+* "Calibration".
+.param rtk3=1e15 ctk3=0.534f
+* The mix resistors R1-R11 as switches, the jacks' normal contacts: closed they are the resistors, open
+* (plug_<voice>, a cable in that MULTI OUT jack) the voice is out of the mix.
+VBD bd 0 input bd
+VSD sd 0 input sd
+VLT lt 0 input lt
+VMT mt 0 input mt
+VHT ht 0 input ht
+VRS rs 0 input rs
+VCP cp 0 input cp
+VOH oh 0 input oh
+VCH ch 0 input ch
+VCB cb 0 input cb
+VCY cy 0 input cy
+VMUTE mutea 0 input mute
+VTRIG trig 0 input trig
+SR5 bd sum !plug_bd 22k 1e15
+SR4 sd sum !plug_sd 33k 1e15
+SR2 lt sum !plug_lt 33k 1e15
+SR1 mt sum !plug_mt 33k 1e15
+SR3 ht sum !plug_ht 33k 1e15
+SR6 rs sum !plug_rs 33k 1e15
+SR7 cp sum !plug_cp 33k 1e15
+SR10 oh sum !plug_oh 56k 1e15
+SR11 ch sum !plug_ch 47k 1e15
+SR8 cb sum !plug_cb 47k 1e15
+SR9 cy sum !plug_cy 47k 1e15
+RTK1 trig tk1 1k
+CTK1 tk1 0 29.6n
+CTK2 tk1 tk2 0.95n
+RTK2 tk2 0 100k
+CTK3 tk2 tk3 {ctk3}
+RTK3 tk3 sum {rtk3}
+C17 sum n4a 1u
+X4A 0 n4a o4a opamp {gbw} 1e5 {opsat} {sr}
+R75 n4a o4a 33k
+C18 n4a o4a 220p
+C19 o4a vr1 1u
+P1 vr1 vw 0 50k volume a0.15
+C23 vw c23 1u
+R77 c23 n4b 22k
+X4B 0 n4b o4b opamp {gbw} 1e5 {opsat} {sr}
+R76 n4b o4b 33k
+C22 n4b o4b 220p
+R74 n4b c21 330k
+C21 c21 o4b 33u
+R73 mutea q13g 10k
+C20 q13g 0 0.001u
+J13 n4b q13g c21 2SK30AY
+C1 o4b hi1 10u
+R14 hi1 out 1k
+R13 hi1 lo 27k
+R12 lo 0 3.3k
+RLOAD out 0 100k
+.control volume 0.7
+.control plug_bd 0
+.control plug_sd 0
+.control plug_lt 0
+.control plug_mt 0
+.control plug_ht 0
+.control plug_rs 0
+.control plug_cp 0
+.control plug_cb 0
+.control plug_cy 0
+.control plug_oh 0
+.control plug_ch 0
+.output out out
+.output lo lo

@@ -1,0 +1,36 @@
+* TR-808 voicing board: the metallic source's mixer and band-passes (service notes p.13). The six
+* HD14584 Schmitt oscillators (IC1, on the 4.7 V rail Q9 makes) are inputs o1-o6 (their square
+* waves); R50, R48, R46, R39, R37, R35 (120k each) mix them into R53. IC3b picks out the high band
+* (bridged T, about 7.1 kHz) for the cymbal's Q16/Q17 and the hats' Q27/Q30, IC3a the low band
+* (about 3.4 kHz) for the cymbal's Q18. Outputs: hi (IC3b pin 7), lo (IC3a pin 1).
+VO1 o1 0 input o1
+VO2 o2 0 input o2
+VO3 o3 0 input o3
+VO4 o4 0 input o4
+VO5 o5 0 input o5
+VO6 o6 0 input o6
+R50 o1 mix 120k
+R48 o2 mix 120k
+R46 o3 mix 120k
+R39 o4 mix 120k
+R37 o5 mix 120k
+R35 o6 mix 120k
+R53 mix 0 1k
+* high band, IC3b
+C11 mix c11 0.001u
+R55 c11 n3b 22k
+C15 n3b m3b 0.0033u
+C16 m3b hi 0.0033u
+R58 m3b 0 560
+R59 n3b hi 82k
+X3B 0 n3b hi opamp {gbw}
+* low band, IC3a
+C10 mix c10 0.0033u
+R52 c10 n3a 33k
+C13 n3a m3a 0.0068u
+C14 m3a lo 0.0068u
+R56 m3a 0 560
+R57 n3a lo 82k
+X3A 0 n3a lo opamp {gbw}
+.output hi hi
+.output lo lo

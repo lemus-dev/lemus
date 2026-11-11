@@ -1,0 +1,30 @@
+* TR-808 noise generator, main board (service notes p.8, the "6 lot ~" version drawn below the
+* first): Q35, a "selected noise" 2SC828, has its emitter-base junction in breakdown through R128;
+* its noise (input nz, a voltage at the emitter) goes through C31 into IC24a (non-inverting, gain
+* set by TM4 with C200, R130 with C202 22p across it) for the white noise (wn, TP4, trimmed to
+* 130 mV rms), and through IC24b's Sallen-Key low-pass (R133, R132, C32, C33; about 270 Hz) for
+* the pink (pn). Controls: tm4 (the trimmer, 22k B as a rheostat).
+* The first version (units before SN 010600, SN p.15 change 5) by its params: R131 300k, no C202
+* (c202a=0 c202b=0 put it between ground and ground) and R127 4.7k from TM4 to ground (n200=127
+* n127=127 put it under C200). That one is DC coupled and C200 isn't fitted; with no offsets in the
+* model, C200 in series with R127 changes nothing above 1 Hz. Its R129 330k into pin 2 carries only
+* the op-amp's bias current, which the model's hasn't: left out. IC24a's pins 1 (wn) and 2 are
+* nodes "1" and "2", so that C202's ends can be params.
+.param r131=100k c202a=2 c202b=1 n200=0 n127=0
+VNZ nz 0 input nz
+C31 nz p24 1u
+R131 p24 0 {r131}
+X24A p24 2 1 opamp {gbw}
+R130 2 1 1meg
+C202 {c202a} {c202b} 22p
+P4 2 2 tm4b 22k tm4
+C200 tm4b {n200} 10u
+R133 1 x 22k
+C32 x pn 0.039u
+R132 x p24b 22k
+C33 p24b 0 0.018u
+X24B p24b pn pn opamp {gbw}
+R127 {n127} 0 4.7k
+.control tm4 0.5
+.output wn 1
+.output pn pn

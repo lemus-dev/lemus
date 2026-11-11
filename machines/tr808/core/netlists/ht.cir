@@ -1,0 +1,75 @@
+* TR-808 HI TOM / HI CONGA, main board (service notes p.9, grid O-T 15-27). As the low tom.
+* Inputs: trig, data (HT instrument data), pn (pink noise). Output: out (IC16b through R294).
+* Controls: tuning (VR15 500R B), conga (SW10: 1 = HC), level (VR14 100k A).
+.param r268=10k c103=0.027u c105=0.0056u c104=0.022u r286=820k p15=500
+VB6 b6 0 15
+VB5 b5 0 15
+VTRIG trig 0 input trig
+VDATA data 0 input data
+VPN pn 0 input pn
+R267 data q56b 22k
+R271 q56b 0 10k
+Q56 q56c q56b 0 2SC945
+R268 q57b q56c {r268}
+R269 trig q57b 4.7k
+Q57 t q57b trig 2SA733
+R270 t 0 4.7k
+C99 t a 0.0027u
+D60 0 a 1S2473
+R282 a b 22k
+R281 b 0 5.6k
+S10B b r280 conga
+R280 r280 0 1.5k
+X18A b v o opamp {gbw} 1e5 {opsat} {sr}
+C103 v m {c103}
+C105 m o {c105}
+S10A m c104 !conga
+C104 c104 o {c104}
+R284 v o 820k
+R287 m tw 1k
+P15 0 tw vr15a {p15} tuning
+D84 m vr15a 1S188FM
+D85 vr15a m 1S188FM
+R285 o n18b 33k
+R283 n18b o18b 33k
+X18B 0 n18b o18b opamp {gbw} 1e5 {opsat} {sr}
+R286 o18b m {r286}
+R274 t d59a 4.7k
+D59 d59a e 1S2473
+C100 e 0 0.033u
+R276 e f 2.2meg
+C98 f g 0.047u
+R273 pn g 15k
+R272 g 0 3.3k
+R275 f q58b 33k
+Q58 q58c q58b 0 2SC945
+R279 b6 q58c 4.7k
+C101 q58c h 0.027u
+R277 h 0 22k
+R278 h k 22k
+C102 k 0 0.01u
+S10C k noise !conga
+S10D noise 0 conga
+R289 o18b s 100k
+R288 noise s 100k
+C108 s s16 0.033u
+R290 p16 0 47k
+X16B p16 s16 o16 opamp {gbw}
+R291 s16 o16 470k
+C110 s16 o16 0.001u
+P14 c109 c109 s16 100k level a0.15
+C109 c109 o16 33u
+R294 o16 out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 33k 100k
+.control plug 0
+.control tuning 0.5
+.control conga 0
+.control level 0.8
+.output out out
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+.part trig in=f R267 R271 Q56 R268 R269 Q57 R270 C99 D60 R282 R281 S10B R280 R274 D59 C100 R276
+.part res in=b X18A C103 C105 S10A C104 R284 R287 P15 D84 D85 R285 R283 X18B R286
+.part noise in=e,s sleep R276 C98 R273 R272 R275 Q58 R279 C101 R277 R278 C102 S10C S10D R288
+.part out in=o18b,noise R289 R288 C108 R290 X16B R291 C110 P14 C109 R294 SMIX

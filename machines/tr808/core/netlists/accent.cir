@@ -1,0 +1,27 @@
+* TR-808 common trig and accent, main board (service notes p.8; theory p.4). Inputs: mono (IC6
+* pin 10, the CMOS monostable on B1: 15 V idle, 0 V for the 1 ms after a step pulse), acc (the
+* ACCENT instrument data from PF3, 0/5 V). Output: trig (Q32's emitter, the COMMON TRIG bus).
+* Control: accent (VR3 10k B, AC LEVEL).
+* Q31 holds Q32's base down until the monostable fires; then Q32 follows node x: the 5 V line
+* through Q34 without accent, VR3's wiper (5-15 V) with it.
+VB1 b1 0 15
+V5 v5 0 5
+VMONO mono 0 input mono
+VACC acc 0 input acc
+P3 b1 w3 v5 10k accent
+R114 w3 x 4.7k
+R119 acc q33b 22k
+R118 q33b 0 10k
+Q33 q33c q33b 0 2SC945
+R123 q34b q33c 15k
+R122 b1 q34b 33k
+Q34 x q34b v5 2SC945
+R120 x y 4.7k
+R117 mono q31b 47k
+Q31 y q31b 0 2SC945
+R121 b1 c25 100
+C25 c25 0 47u
+Q32 c25 y trig 2SC945
+R113 trig 0 4.7k
+.control accent 0.5
+.output trig trig

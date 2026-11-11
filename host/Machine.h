@@ -31,6 +31,14 @@ struct MachineInfo {
 	// plugin declares them, off until the host turns them on, each mono or stereo, and the machine
 	// takes the same layout. Hosts with several machines have the main output only.
 	std::vector<juce::String> outputs = {};
+	// Those outputs as stereo pairs (a synth's OUT 2 and OUT 3) rather than mono jacks.
+	bool stereoOutputs = false;
+	// An instrument's audio input (a synth's external inputs), named; empty for none. The machine's
+	// own plugin declares it as a stereo side-chain, off until the host routes something to it, and
+	// the machine takes the same layout. The machine reads it only while the host has it on: with
+	// nothing routed, some hosts hand an instrument its own last output there. Hosts with several
+	// machines have none.
+	juce::String sideChain = {};
 };
 
 // A driver as a host's list holds it: with the name its own plugin ships under (from machine.cmake,

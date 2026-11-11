@@ -1,0 +1,70 @@
+* TR-808 COWBELL, voicing board (service notes p.13). Inputs: ntrig (the narrowed trig, IC2a),
+* data (CB instrument data, 0/5 V), o1 and o2 (the oscillators at TP6 and TP7, trimmed by TM1 and
+* TM2 to 1.85 ms (540 Hz) and 1.25 ms (800 Hz)). Output: out (IC6a through R163).
+* Controls: level (VR5 5k A, before the buffer).
+* Gate Q1/Q5 charges C9 through R122/D2; R82 and C34 across C9 make the fast first drop. The
+* envelope feeds two swing VCAs (Q15 on o1, Q14 on o2) through R28/D3 and R29/D4; their sum goes
+* through IC2b's band-pass.
+.param c9=0.47u c34=1u r82=33k r28=100k r29=100k
+VB1 b1 0 15
+VNB1 nb1 0 -15
+VNT ntrig 0 input ntrig
+VDATA data 0 input data
+VO1 o1 0 input o1
+VO2 o2 0 input o2
+R4 data q1b 22k
+R5 q1b 0 10k
+Q1 q1c q1b 0 2SC945
+R9 q5b q1c 22k
+R14 ntrig q5b 4.7k
+Q5 q5c q5b ntrig 2SA733
+R122 q5c d2a 1k
+D2 d2a env 1S2473
+C9 env 0 {c9}
+R82 env c34 {r82}
+C34 c34 0 {c34}
+* swing VCAs
+R62 o1 sq1 33k
+R63 sq1 0 2.2k
+C32 sq1 q15b 10u
+R30 b1 q15b 470k
+Q15 q15c q15b q15e 2SC945
+R31 q15e 0 100
+R64 o2 sq2 33k
+R65 sq2 0 2.2k
+C33 sq2 q14b 10u
+R32 b1 q14b 470k
+Q14 q14c q14b q14e 2SC945
+R33 q14e 0 100
+R28 env v1 {r28}
+D3 v1 q15c 1S2473
+R29 env v2 {r29}
+D4 v2 q14c 1S2473
+* IC2b band-pass (multiple feedback)
+R26 v1 c30 10k
+C30 c30 p 0.0022u
+R27 v2 c31 10k
+C31 c31 p 0.0022u
+R24 p 0 2.2k
+C29 p bp 0.0033u
+C28 p n2b 0.01u
+R25 n2b bp 470k
+X2B 0 n2b bp opamp {gbw}
+* LEVEL (VR5 5k A) and the IC6a follower
+C75 bp c75 1u
+R116 c75 lv 8.2k
+P5 lv lw 0 5k level a0.15
+C76 lw p6 0.022u
+R117 p6 0 22k
+X6A p6 o6 o6 opamp {gbw}
+R163 o6 out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 47k 100k
+.control plug 0
+.control level 0.8
+.output out out
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+.part env in=v1,v2 R4 R5 Q1 R9 R14 Q5 R122 D2 C9 R82 C34 R28 R29
+.part vca in=env R62 R63 C32 R30 Q15 R31 R64 R65 C33 R32 Q14 R33 R28 D3 R29 D4 R26 C30 R27 C31
++ R24 C29 C28 R25 X2B C75 R116 P5 C76 R117 X6A R163 SMIX

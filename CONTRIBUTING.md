@@ -35,8 +35,10 @@ a sampler, a reverb), or circuit only (an analog synth, an effect).
   recordings, vendor renders, logos, or copper traced from photos. They live in the private folder
   (below). The repo has paths to them, constants with their sources, and text written here.
 - **Licences.** MAME's CPU cores are BSD-3-Clause: port them with their notice. GPL projects are
-  oracles only: run as separate programs and compared against; their source is never read for this
-  code. Code under any other licence: ask on the claim issue first.
+  oracles by default: run as separate programs and compared against; their source is not read for
+  this code. A machine may use AGPL-compatible GPL code instead where its README says so and names
+  what it took. Its accuracy claims then cover only what can still be checked independently. Code
+  under any other licence: ask on the claim issue first.
 - **Names.** The plugin is named `<maker>-<kind>-<model>` (README, "Plugin names"). The original's
   name goes only in descriptions, with "Not affiliated with <maker>."
 - **Nothing from memory.** Every value in the docs names its source: a page, a figure, a file and

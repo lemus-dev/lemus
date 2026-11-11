@@ -1,0 +1,93 @@
+* TR-808 SNARE DRUM, main board (service notes p.9, grid A-H 2-14).
+* Inputs: trig (common trig bus), data (SD instrument data, 0/5 V), wn (white noise from IC24,
+* main board). Output: out, IC13a's output through R207, into the SD jack and the mix.
+* Controls: tone (VR8 100k B), snappy (VR9 10k B), level (VR7 100k A).
+* The "PORTION CHANGED" box on p.9 gives later values: C58 .056, C61 .015, R191 10k, R200 0.
+.param c58=0.027u c61=0.0068u r191=8.2k r200=47k r182=10k r194=2.2meg
+VB3 b3 0 15
+VNB3 nb3 0 -15
+VTRIG trig 0 input trig
+VDATA data 0 input data
+VWN wn 0 input wn
+* trigger gate (Q45, Q46), as the bass drum's
+R180 data q45b 22k
+R181 q45b 0 10k
+Q45 q45c q45b 0 2SC945
+R182 q46b q45c {r182}
+R183 trig q46b 4.7k
+Q46 t q46b trig 2SA733
+* the low resonator, IC14a (about 238 Hz)
+R189 t n1 100k
+C57 t n1 0.0068u
+R190 n1 0 680
+X14A n1 v1 o1 opamp {gbw} 1e5 {opsat} {sr}
+C58 v1 m1 {c58}
+C59 m1 o1 0.027u
+R196 m1 0 680
+R197 v1 o1 820k
+* the high resonator, IC14b (about 476 Hz)
+R191 t n2 {r191}
+R192 n2 0 220
+X14B n2 v2 o2 opamp {gbw} 1e5 {opsat} {sr}
+C60 v2 m2 0.0068u
+C61 m2 o2 {c61}
+R195 m2 0 2.2k
+R198 v2 o2 1meg
+* TONE (VR8): between the high resonator (pin 3, through R200 and C65) and the low (pin 1, C63)
+R200 o2 r200b {r200}
+C65 r200b t3 0.047u
+C63 o1 t1 0.047u
+P8 t3 tw t1 100k tone
+R204 tw s 100k
+* SNAPPY (VR9 off the gated trigger) charges C51 through Q47; the envelope runs down R184, R185
+* into the swing VCA Q48, whose collector the white noise chops through D54.
+P9 t sw r199a 10k snappy
+R199 r199a 0 1k
+R186 sw q47b 33k
+Q47 q47c q47b e47 2SC945
+R187 q47c b3f 330
+R193 b3f b3 100
+C55 b3f 0 47u
+C51 e47 0 0.47u
+R184 e47 e1 15k
+C52 e1 0 0.1u
+R185 e1 e2 15k
+C53 e2 0 0.001u
+D54 e2 x 1S2473
+C54 x 0 0.0027u
+Q48 x q48b q48e 2SC945
+R188 q48e 0 100
+R194 b3 q48b {r194}
+C56 wn q48b 0.022u
+* the noise's high-pass (C66, C67, R201 bootstrapped from Q49, R202) and Q49 follower
+C66 e2 hp1 0.0018u
+R201 hp1 e49 22k
+C67 hp1 q49b 0.0018u
+R202 q49b 0 47k
+Q49 b3 q49b e49 2SC945
+R203 e49 nb3 22k
+C69 e49 r205a 0.01u
+R205 r205a s 27k
+* mixer IC13a with LEVEL (VR7) in its feedback
+R206 p13 0 47k
+X13A p13 s o13 opamp {gbw}
+R210 s o13 470k
+C70 s o13 220p
+P7 c68 c68 s 100k level a0.15
+C68 c68 o13 33u
+R207 o13 out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 33k 100k
+.control plug 0
+.control tone 0.5
+.control snappy 0.5
+.control level 0.8
+.output out out
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+.part trig in=e2 R180 R181 Q45 R182 R183 Q46 R189 C57 R190 R191 R192 P9 R199 R186 Q47 R187 R193
++ C55 C51 R184 C52 R185
+.part res in=t,s R189 C57 R190 R191 R192 X14A C58 C59 R196 R197 X14B C60 C61 R195 R198 R200 C65
++ C63 P8 R204
+.part snap in=e1,s sleep R185 C53 D54 C54 Q48 R188 R194 C56 C66 R201 C67 R202 Q49 R203 C69 R205
+.part out in=tw,r205a R204 R205 R206 X13A R210 C70 P7 C68 R207 SMIX

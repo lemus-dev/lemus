@@ -1,0 +1,108 @@
+* TR-808 RIM SHOT / CLAVES, main board (service notes p.9, grid L-T 28-38).
+* Inputs: trig (common trig bus), data (RS instrument data, 0/5 V). Output: out (IC19a through
+* R295). Controls: claves (SW11: 1 = CL), level (VR16 100k A).
+* Rim shot: IC21's bridged T (about 455 Hz) and IC20a's (about 1.7 kHz with C118) drive the base
+* of the swing VCA Q62, whose collector chops the envelope on C24; Q63 high-passes it.
+* Claves: IC20a's bridged T at about 2.5 kHz (C118 out, R313 feeding back IC20b), straight out.
+* Q74 shorts the output stage's LEVEL leg (muting IC20's leakage) until a trigger turns Q61 on.
+* R324 has no value in the service notes; it alone sets the rim shot's level. The Yocto clone has
+* 220k, which leaves RS 2 Vpp against the p.14 table's 3 and ~5 dB under Michael Fischer's unit
+* against his other voices; 150k meets the table with the printed parts (the fitted unit: 120k).
+.param r298=10k r324=150k r313=390k c117=0.0022u c119=0.0022u c113=0.047u r305=1meg r318=220k r320=22k
++ c118=0.0022u
+VB7 b7 0 15
+VNB7 nb7 0 -15
+VTRIG trig 0 input trig
+VDATA data 0 input data
+R297 data q59b 22k
+R303 q59b 0 10k
+Q59 q59c q59b 0 2SC945
+R298 q60b q59c {r298}
+R299 trig q60b 4.7k
+Q60 t q60b trig 2SA733
+R300 t 0 22k
+* the output's mute: Q61 pulls Q74's gate to -15 V on a trigger, C113 lets it back up
+C112 t q61b 0.022u
+R304 q61b nb7 47k
+Q61 g q61b nb7 2SC945
+R305 g 0 {r305}
+C113 g 0 {c113}
+R327 g o19 470k
+* rim shot envelope and swing VCA
+D61 t d61k 1S2473
+R107 d61k e1 1k
+C24 e1 0 0.47u
+R108 e1 d63a 10k
+D63 d63a e 1S2473
+Q62 e q62b 0 2SC945
+R321 b7 q62b 2.2meg
+C120 q62b vca 10u
+C121 e hp 0.0047u
+C122 hp q63b 0.0047u
+R322 hp e63 10k
+R325 q63b 0 330k
+Q63 b7 q63b e63 2SC945
+R323 e63 nb7 22k
+R324 e63 rs {r324}
+* IC21: bridged T, about 455 Hz
+C111 t c111 0.01u
+R307 c111 0 100k
+D62 c111 d62k 1S2473
+R301 d62k p21 47k
+R302 p21 0 10k
+X21 p21 v21 o21 opamp {gbw} 1e5 {opsat} {sr}
+C116 v21 m21 0.0047u
+C115 m21 o21 0.0047u
+R315 m21 0 5.6k
+R316 v21 o21 1meg
+R318 o21 vca {r318}
+R317 vca 0 10k
+* IC20a: bridged T, about 1.7 kHz (RS, with C118) or 2.5 kHz (CL, with R313 from IC20b)
+C114 t c114 0.001u
+R306 c114 0 22k
+D64 c114 d64k 1S2473
+R310 d64k p20 33k
+R311 p20 0 10k
+X20A p20 v20 o20 opamp {gbw} 1e5 {opsat} {sr}
+C119 v20 m20 {c119}
+C117 m20 o20 {c117}
+R312 m20 0 1k
+R308 v20 o20 820k
+S11A m20 c118 !claves
+C118 c118 o20 {c118}
+S11B m20 r313 claves
+R313 r313 o20b {r313}
+R314 o20 n20b 33k
+R309 n20b o20b 33k
+X20B 0 n20b o20b opamp {gbw} 1e5 {opsat} {sr}
+R320 o20b vca {r320}
+R319 o20b cl 220k
+* SW11 picks the voice; IC19a with LEVEL (VR16) in its feedback, Q74 across VR16
+S11C rs sel !claves
+S11D cl sel claves
+C125 sel n19 0.01u
+R326 n19 s19 10k
+R331 p19 0 47k
+X19A p19 s19 o19 opamp {gbw}
+R330 s19 o19 470k
+C153 s19 o19 22p
+C126 s19 c126 33u
+P16 o19 o19 c126 100k level a0.15
+J74 c126 g o19 2SK30AY
+R295 o19 out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 33k 100k
+.control plug 0
+.control claves 0
+.control level 0.8
+.output out out
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+* The resonators' input networks are in both trig (as the gate's load) and res: C114 makes a spike
+* about two samples long, which the samples between partitions can't carry.
+.part trig in=o19,d63a R297 R303 Q59 R298 R299 Q60 R300 C112 R304 Q61 R305 C113 R327 D61 R107
++ C24 R108 C111 R307 D62 R301 R302 C114 R306 D64 R310 R311
+.part res in=t,e1,rs,cl C111 R307 D62 R301 R302 C114 R306 D64 R310 R311 R108 D63 Q62 R321 C120
++ C121 R322 C122 R325 Q63 R323 R324 X21 C116 C115 R315 R316 R318 R317 X20A C119 C117 R312 R308
++ S11A C118 S11B R313 R314 R309 X20B R320 R319
+.part out in=e63,o20b,g R324 R319 S11C S11D C125 R326 R331 X19A R330 C153 C126 P16 J74 R295 SMIX

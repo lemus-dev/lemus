@@ -22,12 +22,26 @@ juce::AudioProcessor::BusesProperties LemusProcessor::buses()
 	auto b = kInstrument ? BusesProperties().withOutput("Output", stereo, true)
 	                     : BusesProperties().withInput("Input", stereo, true).withOutput("Output", stereo, true);
 #ifdef LEMUS_MACHINE
-	// a machine's own plugin: its other outputs too (MachineInfo::outputs)
-	if (const auto *info = lemus::findMachine(LEMUS_MACHINE))
+	// a machine's own plugin: its other outputs too, and an instrument's side-chain input
+	// (MachineInfo::outputs, sideChain)
+	if (const auto *info = lemus::findMachine(LEMUS_MACHINE)) {
 		for (const auto &name : info->outputs)
-			b = b.withOutput(name, juce::AudioChannelSet::mono(), false);
+			b = b.withOutput(name, info->stereoOutputs ? stereo : juce::AudioChannelSet::mono(), false);
+		if (kInstrument && info->sideChain.isNotEmpty())
+			b = b.withInput(info->sideChain, stereo, false);
+	}
 #endif
 	return b;
+}
+
+juce::VST3ClientExtensions *LemusProcessor::getVST3ClientExtensions()
+{
+	// An instrument's input is a side-chain: VST3 hosts offer one to route only on an aux bus.
+	struct SideChain final : juce::VST3ClientExtensions {
+		bool getPluginHasMainInput() const override { return false; }
+	};
+	static SideChain sideChain;
+	return kInstrument && getBusCount(true) > 0 ? &sideChain : nullptr;
 }
 
 LemusProcessor::LemusProcessor() : AudioProcessor(buses())
@@ -65,7 +79,14 @@ bool LemusProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 		if (!set.isDisabled() && set != juce::AudioChannelSet::mono() && set != juce::AudioChannelSet::stereo())
 			return false;
 	}
-	return kInstrument || layouts.getMainInputChannelSet() == out;
+	if (kInstrument) {
+		// a side-chain (MachineInfo::sideChain): off, mono or stereo
+		for (const auto &set : layouts.inputBuses)
+			if (!set.isDisabled() && set != juce::AudioChannelSet::mono() && set != juce::AudioChannelSet::stereo())
+				return false;
+		return true;
+	}
+	return layouts.getMainInputChannelSet() == out;
 }
 
 void LemusProcessor::configure(juce::AudioProcessor &machine)

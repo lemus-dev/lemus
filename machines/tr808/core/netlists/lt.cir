@@ -1,0 +1,85 @@
+* TR-808 LOW TOM / LOW CONGA, main board (service notes p.9, grid B-H 15-27).
+* Inputs: trig (common trig bus), data (LT instrument data, 0/5 V), pn (pink noise from IC24b,
+* main board). Output: out, IC13b's output through R238, into the LT/LC jack and the mix.
+* Controls: tuning (VR11 500R B), conga (SW8: 1 = LC, 0 = LT), level (VR10 100k A).
+.param r213=10k c76=0.056u c78=0.012u c77=0.047u r230=820k p11=500
+VB4 b4 0 15
+VB3 b3 0 15
+VTRIG trig 0 input trig
+VDATA data 0 input data
+VPN pn 0 input pn
+* trigger gate
+R211 data q50b 22k
+R212 q50b 0 10k
+Q50 q50c q50b 0 2SC945
+R213 q51b q50c {r213}
+R214 trig q51b 4.7k
+Q51 t q51b trig 2SA733
+R215 t 0 4.7k
+* the trigger into IC15a's + input; SW8 (LC) loads it with R224
+C73 t a 0.0068u
+D56 0 a 1S2473
+R226 a b 22k
+R225 b 0 4.7k
+S8B b r224 conga
+R224 r224 0 1.5k
+* bridged-T around IC15a; SW8 (LT) adds C77 across C78. The leg from the centre to ground is
+* R231 and TUNING (VR11), with the germanium pair D80/D81 across VR11's other end: as they
+* conduct on the big early swings the leg's resistance drops and the pitch rises.
+X15A b v o opamp {gbw} 1e5 {opsat} {sr}
+C76 v m {c76}
+C78 m o {c78}
+S8A m c77 !conga
+C77 c77 o {c77}
+R228 v o 820k
+R231 m tw 1k
+P11 0 tw vr11a {p11} tuning
+D80 m vr11a 1S188FM
+D81 vr11a m 1S188FM
+* IC15b inverts the output; R230 feeds it back into the centre
+R229 o n15b 33k
+R227 n15b o15b 33k
+X15B 0 n15b o15b opamp {gbw} 1e5 {opsat} {sr}
+R230 o15b m {r230}
+* the tom's noise: D55/C72 hold the trigger, R218 into C71 with the pink noise (R216, R217)
+* through R220 into Q52, whose collector (R221) goes through C74, R222/C75 to SW8 (LT: into the mix)
+R219 t d55a 4.7k
+D55 d55a e 1S2473
+C72 e 0 0.039u
+R218 e f 2.2meg
+C71 f g 0.047u
+R216 pn g 15k
+R217 g 0 3.3k
+R220 f q52b 33k
+Q52 q52c q52b 0 2SC945
+R221 b4 q52c 4.7k
+C74 q52c h 0.047u
+R223 h 0 22k
+R222 h k 22k
+C75 k 0 0.018u
+S8C k noise !conga
+S8D noise 0 conga
+* mixer IC13b with LEVEL (VR10) in its feedback
+R233 o15b s 100k
+R232 noise s 100k
+C81 s s13 0.047u
+R234 p13 0 47k
+X13B p13 s13 o13 opamp {gbw}
+R235 s13 o13 470k
+C83 s13 o13 0.001u
+P10 c82 c82 s13 100k level a0.15
+C82 c82 o13 33u
+R238 o13 out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 33k 100k
+.control plug 0
+.control tuning 0.5
+.control conga 0
+.control level 0.8
+.output out out
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+.part trig in=f R211 R212 Q50 R213 R214 Q51 R215 C73 D56 R226 R225 S8B R224 R219 D55 C72 R218
+.part res in=b X15A C76 C78 S8A C77 R228 R231 P11 D80 D81 R229 R227 X15B R230
+.part noise in=e,s sleep R218 C71 R216 R217 R220 Q52 R221 C74 R223 R222 C75 S8C S8D R232
+.part out in=o15b,noise R233 R232 C81 R234 X13B R235 C83 P10 C82 R238 SMIX

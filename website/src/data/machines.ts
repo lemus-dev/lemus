@@ -118,6 +118,18 @@ export const machines: Machine[] = [
       { version: '0.2.0', notes: ['The first release, a beta.'] },
     ],
   },
+  {
+    slug: 'ro-drums-808',
+    emulates: 'Roland TR-808 Rhythm Composer',
+    year: 1980,
+    type: 'drum machine',
+    status: 'working',
+    withoutRom: 'voice',
+    keywords: '808 drums drum machine rhythm composer roland',
+    nav: true,
+    release: { version: '0.1.0', tag: 'ro-drums-808-v0.1.0', stage: 'beta', mac: 'ro-drums-808-0.1.0-mac.pkg', windows: 'ro-drums-808-0.1.0-windows.zip' },
+    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+  },
 ];
 
 // True if version a is newer than b, number by number (0.10.0 is newer than 0.9.1).

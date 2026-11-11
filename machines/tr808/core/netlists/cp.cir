@@ -1,0 +1,125 @@
+* TR-808 HAND CLAP (SW12 at CP), main board (service notes p.9, grid H-T 2-14; theory p.6, Fig. 13).
+* Inputs: trig (common trig bus), data (CP instrument data, 0/5 V), wn (white noise from IC24).
+* Output: out (IC19b through R296; TP5). Controls: offset (TM3 10k B,
+* "C.P. OFFSET", the service trim), level (VR17 100k A).
+* C140 is printed .0027 in the schematic; 0.027 uF (the Yocto clone's value) gives the 30 ms pulse
+* the theory describes (R350 x C140). The "PORTION CHANGED" box adds a 10k (called R200) from Q70's
+* emitter to -15 V in later units: r200cp.
+.param r106=10k r346=680 r332=27k c140=0.027u c144=0.47u r200cp=1e12 cmpvg=0.5m c128=0.0047u c129=0.0047u c138=0.047u
+VB7 b7 0 15
+VNB7 nb7 0 -15
+VB8 b8 0 15
+VNB8 nb8 0 -15
+VTRIG trig 0 input trig
+VDATA data 0 input data
+VWN wn 0 input wn
+* trigger gate (SW12 sends it here at CP; ma.cir has the MA side)
+R103 data q28b 22k
+R104 q28b 0 10k
+Q28 q28c q28b 0 2SC945
+R106 q29b q28c {r106}
+R105 trig q29b 4.7k
+Q29 t q29b trig 2SA733
+R12SW t tcp 0.1
+* the noise band-pass IC21b (multiple feedback, about 1 kHz)
+R332 wn n21 {r332}
+C127 wn n21 0.0018u
+R333 n21 0 10k
+C129 n21 o21 {c129}
+C128 n21 v21 {c128}
+R334 v21 o21 100k
+X21B 0 v21 o21 opamp {gbw}
+* "reverb": Q69 follows the trigger into C139 (D69) and on through R348 into C138; that
+* envelope biases the swing VCA Q70, whose base also gets the band-passed noise
+R342 o21 nq 15k
+R346 nq 0 {r346}
+C137 nq q70b 0.033u
+Q69 b8 tcp e69 2SC945
+D69 e69 e2 1S2473
+C139 e2 0 0.018u
+R348 e2 e1 1meg
+C138 e1 0 {c138}
+R349 e1 q70b 1meg
+Q70 c70 q70b e70 2SC945
+R369 e70 0 330
+R200CP e70 nb8 {r200cp}
+R363 b8 c70 10k
+C146 c70 0 0.018u
+C152 c70 c152 0.0047u
+R376 c152 mix 47k
+* the clap's sawtooth envelope: the AN6912 IC23 on -15 V only, open collectors
+R360 tcp n8 27k
+R361 n8 nb8 22k
+R353 0 na 4.7k
+R352 na nb 4.7k
+R351 nb nb8 4.7k
+BC23C nb n8 o14 nb8 comparator vg={cmpvg} vcm=-1.5 vos=-2m
+R350 0 o14 1meg
+C140 o14 0 {c140}
+BC23B o14 na o1 nb8 comparator vg={cmpvg} vcm=-1.5 vos=-2m
+R355 o1 n4 2.7k
+R354 n4 0 5.6k
+BC23A na o1 o13 nb8 comparator vg={cmpvg} vcm=-1.5 vos=-2m
+R365 0 o13 82k
+D71 o13 c144 1S2473
+C144 c144 0 {c144}
+R356 c144 n5 1meg
+BC23D n5 n4 o2 nb8 comparator vg={cmpvg} vcm=-1.5 vos=-2m
+C142 n5 o2 220p
+R359 0 o2 10k
+C141 o1 x73 0.001u
+D70 nb8 x73 1S2473
+R357 x73 q73b 68k
+R358 o2 q73b 68k
+Q73 q73c q73b nb8 2SC945
+R367 q73c c144 330
+* the exponential converter Q72/Q71 (PNP pair on R366) sets IC22's I_abc; Q71's base gets the
+* offset (TM3) and the accent memory (Q69, D68, C143, R362)
+R368 q73c q72b 470k
+R371 q72b 0 15k
+R366 b8 e72 15k
+Q72 abc q72b e72 2SA733
+Q71 nb8 q71b e72 2SA733
+R364 q71b 0 2.2k
+R370 tm3w q71b 47k
+P3 0 tm3w nb8 10k offset
+D68 e69 e3 1S2473
+C143 e3 0 1u
+R362 e3 q71b 330k
+R374 abc pin1 10k
+* IC22 BA662(A): OTA (textbook model, as the TB-303's) and its unity buffer
+C136 o21 c136 0.022u
+R372 c136 ota_n 39k
+R382 ota_n 0 1k
+R381 ota_p 0 1k
+B22 pin1 nb8 ota_p ota_n ota6 ota rs=450
+R383 ota6 0 82k
+E22 ota8 0 ota6 0 1
+C150 ota8 c150 0.001u
+R378 c150 mix 100k
+* mixer IC19b with LEVEL (VR17) in its feedback
+R390 mix s19 0.1
+R373 p19 0 47k
+X19B p19 s19 o19 opamp {gbw}
+R375 s19 o19 470k
+C149 s19 o19 220p
+P17 c145 c145 s19 100k level a0.15
+C145 c145 o19 33u
+R296 o19 out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 33k 100k
+.control plug 0
+.control offset 0.5
+.control level 0.8
+.output out out
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+.part noise R332 C127 R333 C129 C128 R334 X21B
+.part trig in=q70b,q71b R103 R104 Q28 R106 R105 Q29 R12SW R360 R361 Q69 D69 C139 R348 C138 R349
++ D68 C143 R362
+.part env in=tcp,q72b R360 R361 R353 R352 R351 BC23C R350 C140 BC23B R355 R354 BC23A R365 D71
++ C144 R356 BC23D C142 R359 C141 D70 R357 R358 Q73 R367 R368
+.part exp in=q73c,e3,pin1 R368 R371 R366 Q72 Q71 R364 R370 P3 R362 R374
+.part vca in=o21,e1,mix sleep R342 R346 C137 R349 Q70 R369 R200CP R363 C146 C152 R376
+.part ota in=o21,abc,mix sleep R374 C136 R372 R382 R381 B22 R383 E22 C150 R378
+.part out in=c152,c150 R376 R378 R390 R373 X19B R375 C149 P17 C145 R296 SMIX

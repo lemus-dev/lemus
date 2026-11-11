@@ -1,0 +1,73 @@
+{
+  "tr808.lemus": {
+    "label": "lemus",
+    "plugin": "ro-drums-808",
+    "names": {
+      "ac_level": "Accent Level",
+      "bd_level": "BD Level",
+      "bd_tone": "BD Tone",
+      "bd_decay": "BD Decay",
+      "sd_level": "SD Level",
+      "sd_tone": "SD Tone",
+      "sd_snappy": "SD Snappy",
+      "lt_level": "LT/LC Level",
+      "lt_tuning": "LT/LC Tuning",
+      "mt_level": "MT/MC Level",
+      "mt_tuning": "MT/MC Tuning",
+      "ht_level": "HT/HC Level",
+      "ht_tuning": "HT/HC Tuning",
+      "rs_level": "RS/CL Level",
+      "cp_level": "CP/MA Level",
+      "cb_level": "CB Level",
+      "cy_level": "CY Level",
+      "cy_tone": "CY Tone",
+      "cy_decay": "CY Decay",
+      "oh_level": "OH Level",
+      "oh_decay": "OH Decay",
+      "ch_level": "CH Level",
+      "volume": "Master Volume"
+    }
+  },
+  "tr808.roland": {
+    "label": "roland",
+    "plugin": "Roland/TR-808",
+    "names": {
+      "ac_level": "AC LEVEL",
+      "bd_level": "BD LEVEL",
+      "bd_tone": "BD TONE",
+      "bd_decay": "BD DECAY",
+      "sd_level": "SD LEVEL",
+      "sd_tone": "SD TONE",
+      "sd_snappy": "SD SNAPPY",
+      "lt_level": "LT/LC LEVEL",
+      "lt_tuning": "LT/LC TUNING",
+      "mt_level": "MT/MC LEVEL",
+      "mt_tuning": "MT/MC TUNING",
+      "ht_level": "HT/HC LEVEL",
+      "ht_tuning": "HT/HC TUNING",
+      "rs_level": "RS/CL LEVEL",
+      "cp_level": "CP/MA LEVEL",
+      "cb_level": "CB LEVEL",
+      "cy_level": "CY LEVEL",
+      "cy_tone": "CY TONE",
+      "cy_decay": "CY DECAY",
+      "oh_level": "OH LEVEL",
+      "oh_decay": "OH DECAY",
+      "ch_level": "CH LEVEL",
+      "volume": "VOLUME"
+    },
+    "params": {
+      "BD PAN": 0.5,
+      "SD PAN": 0.5,
+      "LT/LC PAN": 0.5,
+      "MT/MC PAN": 0.5,
+      "HT/HC PAN": 0.5,
+      "RS/CL PAN": 0.5,
+      "CP/MA PAN": 0.5,
+      "CH PAN": 0.5,
+      "OH PAN": 0.5,
+      "CY PAN": 0.5,
+      "CB PAN": 0.5
+    }
+  }
+}

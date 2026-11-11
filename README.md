@@ -3,27 +3,29 @@
 Legacy Electronic MUsic Systems: a MAME-style emulator for studio gear, as AU/VST3 plugins.
 One shared host runs many machines (drivers). Each machine ships as a plugin of its own, the host
 with that machine alone, named maker, kind, model: the TB-303 is **ro-mono-303**, the TR-909
-**ro-drums-909**. Downloads, user
+**ro-drums-909**, the TR-808 **ro-drums-808**. Downloads, user
 guides and measurements against real units are on https://lemusdev.org.
 
-Status: early. The machines released so far are the Roland TB-303 (ro-mono-303) and the Roland
-TR-909 (ro-drums-909). Others are in development and join this repository when they're released.
+Status: early. The machines released so far are the Roland TB-303 (ro-mono-303), the Roland
+TR-909 (ro-drums-909) and the Roland TR-808 (ro-drums-808). Others are in development and join this repository when they're released.
 
 ## Building
 
 Needs CMake 3.22+ and JUCE, a submodule (`git submodule update --init`).
 
     cmake -S . -B build/cmake -DCMAKE_BUILD_TYPE=Release
-    cmake --build build/cmake -j --target plugin_tb303_All plugin_tr909_All Lemus_All lemustest_instrument lemustest_tb303 lemustest_tr909
+    cmake --build build/cmake -j --target plugin_tb303_All plugin_tr909_All plugin_tr808_All Lemus_All lemustest_instrument lemustest_tb303 lemustest_tr909 lemustest_tr808
     build/cmake/lemustest_instrument_artefacts/Release/lemustest_instrument
     build/cmake/lemustest_tb303_artefacts/Release/lemustest_tb303
     build/cmake/lemustest_tr909_artefacts/Release/lemustest_tr909
+    build/cmake/lemustest_tr808_artefacts/Release/lemustest_tr808
 
-`plugin_tb303_All` is ro-mono-303 and `plugin_tr909_All` ro-drums-909 (AU, VST3, standalone); `Lemus_All` is the development host,
+`plugin_tb303_All` is ro-mono-303, `plugin_tr909_All` ro-drums-909 and `plugin_tr808_All` ro-drums-808 (AU, VST3, standalone); `Lemus_All` is the development host,
 which starts empty and loads a machine from its picker. The AU and VST3 are copied to
 `~/Library/Audio/Plug-Ins/` (`-DLEMUS_COPY_PLUGINS=OFF` while a host has them loaded), and
 `-DLEMUS_TOOLS=OFF` leaves out the test host and tests. Releases: `tools/release/README.md`.
-`auval -v aumu R303 Lmus` checks ro-mono-303's AU, `auval -v aumu R909 Lmus` ro-drums-909's.
+`auval -v aumu R303 Lmus` checks ro-mono-303's AU, `auval -v aumu R909 Lmus` ro-drums-909's,
+`auval -v aumu R808 Lmus` ro-drums-808's.
 
 The machines' Python tools run from a virtual environment with pinned libraries (Python 3.14), set
 up once from the repo root: `python3.14 -m venv .venv && .venv/bin/pip install -r tools/requirements.txt`.
@@ -129,8 +131,8 @@ https://lemus.discourse.group. Bugs can also go to GitHub Issues.
 
 ## Licence and names
 
-AGPL-3.0 (`LICENSE`). JUCE is used under the AGPLv3. The TB-303's and TR-909's CPU emulations are
-ports of MAME's uCOM-4 and uPD7810 cores, BSD 3-Clause (see their files' headers and
+AGPL-3.0 (`LICENSE`). JUCE is used under the AGPLv3. The TB-303's, TR-808's and TR-909's CPU emulations
+are ports of MAME's uCOM-4 and uPD7810 cores, BSD 3-Clause (see their files' headers and
 `tools/release/NOTICES.txt`).
 
 Machine names identify the original equipment and are trademarks of their owners. Lemus is not

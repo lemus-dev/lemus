@@ -1,0 +1,137 @@
+* TR-808 CYMBAL, voicing board (service notes p.13; Werner, Abel and Smith, ICMC/SMC 2014).
+* Inputs: ntrig (the narrowed trig), data (CY instrument data, 0/5 V), hi and lo (the metallic
+* source's bands, IC3). Output: out (IC6b through R166). Controls: decay (VR2 2M B), tone
+* (VR4 20k B), level (VR6 100k A).
+* Gate Q2/Q6 drives Q19, which charges three envelopes through D6, D7, D8: the high band's (C38,
+* R87/C37, R94, C47; swing VCA Q16, short), the middle's (C40, R88, C39, R90, C50; Q17) and the low
+* band's (C41, discharged by R93 and DECAY; followed by Q20 into R105/C45/R104; Q18), Q20's emitter
+* also pulling the middle band's envelope through R91/R92. Each VCA's output is high-passed (IC5a,
+* IC5b; Q25) and TONE balances them into IC6b.
+.param p2=2meg c41=1u r93=470k c45=2.2u r125=2.2k c37=2.2u c39=0.47u c38=1u c40=1u r87=22k r88=33k
+VB1 b1 0 15
+VB2 b2 0 15
+VNB1 nb1 0 -15
+VNB2 nb2 0 -15
+VNT ntrig 0 input ntrig
+VDATA data 0 input data
+VHI hi 0 input hi
+VLO lo 0 input lo
+R3 data q2b 22k
+R6 q2b 0 10k
+Q2 q2c q2b 0 2SC945
+R10 q6b q2c 22k
+R15 ntrig q6b 4.7k
+Q6 q6c q6b ntrig 2SA733
+R83 q6c 0 22k
+* Q19 charges the envelopes
+R84 q6c q19b 10k
+R86 b1 c35 100
+C35 c35 0 47u
+R85 c35 q19c 100
+Q19 q19c q19b e0 2SC945
+D6 e0 a1 1S2473
+C38 a1 0 {c38}
+R87 a1 c37 {r87}
+C37 c37 0 {c37}
+R94 a1 b1n 39k
+C47 b1n 0 0.0015u
+D5 b1n q16c 1S2473
+C36 q16c 0 0.0015u
+D7 e0 a2 1S2473
+C40 a2 0 {c40}
+R88 a2 c39 {r88}
+C39 c39 0 {c39}
+R90 c39 b2n 33k
+C50 b2n 0 0.0015u
+D11 b2n q17c 1S2473
+C43 q17c 0 0.0015u
+D8 e0 c41 1S2473
+C41 c41 0 {c41}
+R93 c41 vr2 {r93}
+P2 vr2 vr2 0 {p2} decay
+Q20 b1 c41 e20 2SC945
+R92 e20 j 33k
+R89 j 0 10k
+R91 b2n j 33k
+R105 e20 c45 33k
+C45 c45 0 {c45}
+R104 c45 l0 22k
+D12 l0 q18c 1S2473
+* the three swing VCAs, on the bands
+C42 hi q16b 0.022u
+R96 b1 r96 1meg
+R97 r96 q16b 1meg
+Q16 q16c q16b q16e 2SC945
+R95 q16e 0 100
+C44 hi q17b 0.022u
+R100 b1 r100 1meg
+R99 r100 q17b 1meg
+Q17 q17c q17b q17e 2SC945
+R98 q17e 0 100
+C46 lo q18b 0.022u
+R102 b1 r102 1meg
+R103 r102 q18b 1meg
+Q18 q18c q18b q18e 2SC945
+R101 q18e 0 100
+* high-passes: Q16's through C49/R106 and IC5a (Sallen-Key, gain 2.77), Q17's through IC5b
+* (gain 2), Q18's through Q25 and R123/C57
+C49 b1n c49 0.0033u
+R106 c49 0 6.8k
+C53 c49 s5a 0.001u
+C54 s5a p5a 0.001u
+R109 p5a 0 18k
+R108 s5a o5a 18k
+R111 n5a 0 22k
+R110 n5a o5a 39k
+X5A p5a n5a o5a opamp {gbw}
+C51 b2n s5b 0.001u
+C52 s5b p5b 0.001u
+R113 p5b 0 18k
+R107 s5b o5b 18k
+R115 n5b 0 39k
+R114 n5b o5b 39k
+X5B p5b n5b o5b opamp {gbw}
+C48 l0 h25 0.0015u
+R124 h25 e25 22k
+C59 h25 q25b 0.0015u
+R127 q25b 0 82k
+Q25 b2 q25b e25 2SC945
+R126 e25 nb2 22k
+C58 e25 c58 0.01u
+R123 c58 c57 100k
+C57 c57 0 0.0033u
+R121 c57 t2 10k
+* TONE (VR4: pin 1 at the high band's node, pin 3 through R125 at the others', wiper to ground)
+C55 o5a c55 0.01u
+R112 c55 t1 22k
+C56 o5b c56 0.01u
+R120 c56 t2 10k
+P4 r125 0 t1 20k tone
+R125 r125 t2 {r125}
+R119 t1 m 22k
+R129 t2 m 15k
+* IC6b with LEVEL (VR6) in its feedback
+C90 m n6b 0.01u
+R118 p6b 0 47k
+X6B p6b n6b o6b opamp {gbw}
+R128 n6b o6b 470k
+C77 n6b o6b 220p
+P6 c78 c78 n6b 100k level a0.15
+C78 c78 o6b 33u
+R166 o6b out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 47k 100k
+.control plug 0
+.control decay 0.5
+.control tone 0.5
+.control level 0.8
+.output out out
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+.part env in=b1n,b2n,l0 R94 R90 R91 R104 R3 R6 Q2 R10 R15 Q6 R83 R84 R86 C35 R85 Q19 D6 C38 R87
++ C37 D7 C40 R88 C39 D8 C41 R93 P2 Q20 R92 R89 R105 C45
+.part hi in=a1 sleep R94 C47 D5 C36 C42 R96 R97 Q16 R95 C49 R106 C53 C54 R109 R108 R111 R110 X5A
+.part mid in=c39,j sleep R90 R91 C50 D11 C43 C44 R100 R99 Q17 R98 C51 C52 R113 R107 R115 R114 X5B
+.part lo in=c45 sleep R104 D12 C46 R102 R103 Q18 R101 C48 R124 C59 R127 Q25 R126
+.part out in=o5a,o5b,e25 C58 R123 C57 R121 C55 R112 C56 R120 P4 R125 R119 R129 C90 R118 X6B R128
++ C77 P6 C78 R166 SMIX

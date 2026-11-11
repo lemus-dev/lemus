@@ -1,0 +1,82 @@
+* TR-808 BASS DRUM, main board OP3116-130 (service notes p.9, grid E-K 27-38).
+* Inputs: trig, the common trig bus (main board Q32's emitter); data, the BD instrument data
+* line from the CPU (0/5 V). Output: out, the voice after C50/R174, into its LEVEL feed.
+* Controls: tone (VR5 10k C), decay (VR6 500k B), level (VR4 100k A).
+.param r154=10k r177=82k r170=470k p6=500k
+VB2 b2 0 15
+VNB2 nb2 0 -15
+VTRIG trig 0 input trig
+VDATA data 0 input data
+* trigger gate: Q39 on with BD data pulls Q40's base down; Q40 passes the common trig.
+R152 data q39b 22k
+R153 q39b 0 10k
+Q39 q39c q39b 0 2SC945
+R154 q40b q39c {r154}
+R155 trig q40b 4.7k
+Q40 t q40b trig 2SA733
+* pulse shaper: Q41 discharges C38 during the trigger, Q42 lets go of node p for a few ms after
+* it, which switches Q43 (R165 shorted) and, as Q42 turns back on, sends a negative pulse
+* through C39/R161 into the resonator.
+R157 t q41b 8.2k
+R158 q41b 0 2.7k
+Q41 q42b q41b 0 2SC945
+R156 b2 q42b 1meg
+C38 q42b 0 0.1u
+Q42 p q42b 0 2SC945
+R160 b2 p 22k
+C39 p q 0.033u
+D52 q 0 1S2473
+R161 q m 1meg
+R159 p q43b 100k
+Q43 u q43b 0 2SC945
+* the trigger into IC12a's + input
+C40 t n 0.015u
+R163 t n 100k
+R162 n 0 4.7k
+D53 0 n 1S2473
+* bridged-T resonator around IC12a
+X12A n v w opamp {gbw} 1e5 {opsat} {sr}
+C41 v m 0.015u
+C42 m w 0.015u
+R166 m u 6.8k
+R165 u 0 47k
+R167 v w 1meg
+* DECAY: IC12b inverts the resonator's output and feeds it back into its centre through R170
+R164 w y 47k
+R169 y z 47k
+P6 c43 c43 y {p6} decay
+C43 c43 z 33u
+R168 y12p 0 22k
+X12B y12p y z opamp {gbw} 1e5 {opsat} {sr}
+R170 z m {r170}
+* TONE: a low-pass, R171 and VR5 (wiper to pin 1) with R172 across it, into C45
+R171 w k 220
+P5 k l l 10k tone c0.15
+R172 k l 10k
+C45 l 0 0.1u
+* LEVEL (VR4) and the output follower, behind the R177/R176 divider (R177 the surface-mounted 82k)
+C47 l lv 0.47u
+P4 lv lw 0 100k level a0.15
+C49 lw q44i 0.47u
+R176 q44b 0 100k
+R177 q44i q44b {r177}
+Q44 b2 q44b e44 2SC945
+R173 e44 nb2 6.8k
+C48 e44 0 220p
+C50 e44 o50 1u
+R174 o50 0 100k
+R175 o50 out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 22k 100k
+.control plug 0
+.control tone 0.5
+.control decay 0.5
+.control level 0.8
+.output out out
+.output res w
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+.part trig in=q43b,m R152 R153 Q39 R154 R155 Q40 R157 R158 Q41 R156 C38 Q42 R160 C39 D52 R161
++ R159 C40 R163 R162 D53
+.part res in=t,p,q C40 R163 R162 D53 X12A C41 C42 R166 R165 R167 R164 R169 P6 C43 R168 X12B R170
++ R171 P5 R172 C45 C47 P4 C49 R176 R177 Q44 R173 C48 C50 R174 R175 SMIX R159 Q43 R161

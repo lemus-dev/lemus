@@ -1,0 +1,17 @@
+* Semiconductor models for the TR-808 netlists (DC equations only: the solver has no charge
+* storage). Parts from the service notes' parts list (p.16) and the note on p.8: NPNs 2SC945 (P),
+* PNPs 2SA733 (P), Q23-Q26 2SA1015 (GR), diodes 1S2473 (Si) and 1S188FM (Ge), op-amps uPC4558C.
+* Values: docs/circuit.md, "Semiconductors".
+.model 2SC945 NPN(IS=1.1e-14 BF=300 BR=6 NF=1 NR=1 VAF=110 ISE=1e-14 NE=1.5)
+.model 2SA733 PNP(IS=1.2e-14 BF=280 BR=6 NF=1 NR=1 VAF=90 ISE=2e-14 NE=1.5)
+.model 2SA1015 PNP(IS=1.0e-14 BF=300 BR=6 NF=1 NR=1 VAF=90 ISE=2e-14 NE=1.5)
+.model 1S2473 D(IS=2.52n N=1.752 RS=0.568)
+.model 1S188FM D(IS=2e-7 N=1.3 RS=10)
+.model 2SK30AY NJF(VTO=-0.9 BETA=2.5e-3 LAMBDA=0.01 IS=1e-14 N=1)
+.model 2SK30AGR NJF(VTO=-1.5 BETA=2.2e-3 LAMBDA=0.01 IS=1e-14 N=1)
+* Op-amps: uPC4558C, single pole, 3 MHz gain-bandwidth (NEC data sheet: typ. 3 MHz unity gain).
+.param gbw=3meg
+* Op-amp outputs clip at +-13.5 V (uPC4558C at +-15 V: +-13 V typical into 10k).
+.param opsat=13.5
+* Slew rate, V/us (uPC4558C: typ. 1 V/us), for every op-amp given opsat or ntsat (docs/model.md).
+.param sr=1

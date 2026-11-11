@@ -1,0 +1,62 @@
+* TR-808 MARACAS (SW12 at MA), main board (service notes p.9, grid P-T 2-14; theory p.6).
+* Inputs: trig (common trig bus), data (CP instrument data, 0/5 V), wn (white noise from IC24).
+* Output: out (IC19b through R296). Control: level (VR17 100k A).
+* Q67/Q66 open a window (C135, R345; C134, R341) in which Q66 draws current through D65 from Q65,
+* whose base the white noise drives; Q68 high-passes it into the mixer IC19b, as the clap's.
+.param r106=10k
+VB8 b8 0 15
+VNB8 nb8 0 -15
+VTRIG trig 0 input trig
+VDATA data 0 input data
+VWN wn 0 input wn
+R103 data q28b 22k
+R104 q28b 0 10k
+Q28 q28c q28b 0 2SC945
+R106 q29b q28c {r106}
+R105 trig q29b 4.7k
+Q29 tma q29b trig 2SA733
+D67 tma m1 1S2473
+C135 m1 0 0.1u
+R345 m1 0 150k
+R344 m1 q67b 220k
+Q67 m2 q67b 0 2SC945
+R343 b8 m2 100k
+R341 m2 m3 470k
+D66 m2 m3 1S2473
+C134 m3 0 0.033u
+Q66 0 m3 q66e 2SA733
+R337 q66e x 10k
+R335 wn r335 6.8k
+C130 r335 q65b 0.047u
+R336 q65b 0 1meg
+Q65 q65c q65b b8 2SA733
+D65 q65c x 1S2473
+C131 x y 0.01u
+R338 y 0 15k
+C132 y h 0.001u
+R339 h e68 3.3k
+C133 h q68b 0.001u
+R340 q68b 0 68k
+Q68 b8 q68b e68 2SC945
+R347 e68 nb8 22k
+C151 e68 c151 0.01u
+R377 c151 s19 100k
+* mixer IC19b with LEVEL (VR17) in its feedback
+R373 p19 0 47k
+X19B p19 s19 o19 opamp {gbw}
+R375 s19 o19 470k
+C149 s19 o19 220p
+P17 c145 c145 s19 100k level a0.15
+C145 c145 o19 33u
+R296 o19 out 1k
+* the mix resistor on the jack's normal contact (Jack board B), into IC4a's virtual ground
+* with a cable in the jack (plug), the contact opens and the cable's input loads the voice
+SMIX out 0 !plug 33k 100k
+.control plug 0
+.control level 0.8
+.output out out
+* Runtime partitions (docs/model.md, "Partitions"): run in this order; in= nodes come from the others.
+.part trig in=x R103 R104 Q28 R106 R105 Q29 D67 C135 R345 R344 Q67 R343 R341 D66 C134 Q66 R337
+.part noise in=m3,s19 Q66 R337 R335 C130 R336 Q65 D65 C131 R338 C132 R339 C133 R340 Q68 R347
++ C151 R377
+.part out in=c151 R377 R373 X19B R375 C149 P17 C145 R296 SMIX
