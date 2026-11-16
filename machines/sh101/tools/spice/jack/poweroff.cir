@@ -1,0 +1,31 @@
+* SH-101 jack board A switched off (OPH178-2; mute.cir's parts): +9 V falls from {TOFF} with a
+* time constant of {TAU} (JackBoard's kRailTau). IC1a's output, a sine of {AMP} V on the +5 V bus,
+* can't rise above +9 V less 1.2 V or fall below ground, and the sine stops once +9 V is under
+* {VDIES} (the +15 V regulator out: Ba662Vca::kVoiceDiesBelow).
+.include ../filter/models.lib
+.options temp=25 tnom=25
+B9 p9 0 V = 9*(time < {TOFF} ? 1 : exp(-(time-{TOFF})/{TAU}))
+Bw w 0 V = max(min(5 + (v(p9) > {VDIES} ? {AMP}*sin(2*3.14159265358979*{HZ}*time) : 0), v(p9)-1.2), 0)
+C2 w y 2.2u
+R30 y 0 100k
+R29 y x 2.2k
+C12 x 0 1n
+R28 x j 1k
+RL j 0 {LOAD}
+Q7 x b7 0 Q2SC1815
+R35 nb b7 47k
+D4 na nb D1S
+D3 0 na D1S
+R36 na 0 220k
+C13 p9 na 10u
+Q8 nb b8 e8 Q2SA1015
+R37 b8 p9 10k
+D5 p9 e8 D1S
+C14 e8 0 47u
+.tran {STEP} {TSTOP} 0 {STEP}
+.control
+run
+set wr_singlescale
+wrdata OUT.txt v(j)
+.endc
+.end

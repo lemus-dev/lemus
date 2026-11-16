@@ -1,0 +1,73 @@
+* Device models for the SH-101 filter section (docs/circuit-filter.md), typical values.
+* The discrete parts' values are for 25 C (TNOM=25), the temperature the model (core/filter.cpp,
+* V_T 25.693 mV) runs at and the netlists set; at ngspice's default TNOM of 27 C a 2SA1015 at 25 C
+* would sit 8 mV above the model's V_EB, which moved the cutoff summer by 13 cents.
+*
+* 2SC1815-GR (Toshiba; TR26, TR27, TR29, TR31, TR32, TR35, TR37): hFE 200-400 (GR rank) at 2 mA,
+* V_BE about 0.62 V at 1 mA (IS = 1 mA / exp(0.62/VT)), fT 80 MHz min (TF 1.5 ns), Cob 2 pF typ.
+.model Q2SC1815 NPN(IS=3.3e-14 BF=300 NF=1 VAF=100 BR=5 IKF=0.15 ISE=1e-15 NE=1.5 RB=50 RC=1
++ CJE=8p MJE=0.33 VJE=0.75 CJC=3.5p MJC=0.33 VJC=0.75 TF=1.5n TR=40n TNOM=25)
+* 2SA1015-GR (Toshiba; TR28, TR30, TR33, TR34, TR36, TR42): hFE 200-400, V_BE about 0.62 V at
+* 1 mA, fT 80 MHz min, Cob 4 pF typ.
+.model Q2SA1015 PNP(IS=3.3e-14 BF=300 NF=1 VAF=80 BR=5 IKF=0.2 ISE=1e-15 NE=1.5 RB=50 RC=1
++ CJE=12p MJE=0.33 VJE=0.75 CJC=7p MJC=0.33 VJC=0.75 TF=1.5n TR=40n TNOM=25)
+* 1S2473 (D30, D31, D32-D34, D11-D14): small-signal silicon, the usual 1N4148 parameters.
+.model D1S D(IS=2.52n RS=0.568 N=1.752 CJO=4p M=0.4 TT=20n TNOM=25)
+
+* IR3109 (IC14). No data sheet with a circuit or SPICE model exists; this is the chip as Open Music
+* Labs reverse engineered it and as the model (core/vcf_ir3109.cpp) uses it: four bare
+* differential-pair OTAs (no linearising diodes) whose inverting input is the IN pin, output
+* current I_ABC tanh((V(IN) - V(GND))/2V_T) taken from the CAP pin; P-MOS source-follower buffers,
+* OUT = CAP + V_GS (2.9 V), topped at 2.5 V (stages 1, 3: 20k pull-ups) or 3.8 V (2, 4: current
+* sources) above pin 1; the OTA outputs clamped 0.8 V from the rails (CAP between 0.8 V and 8.2 V
+* above pin 8): coarser than the model since 2026-11-14, which has the Wilson mirrors' soft
+* saturation (ir3109/ir3109t.lib is the reference; only compare_vcf.py's behavioural cases use this
+* one). I_ABC is a parameter here (the expo converter is checked on its own, cv.cir).
+*   1 GND(ref)  2 IN1  3 CAP1  4 OUT1  5 IN2  6 CAP2  7 OUT2  8 VEE  9 VC  10 IN3  11 CAP3
+*   12 OUT3  13 IN4  14 CAP4  15 OUT4  16 VCC
+.subckt IR3109 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 PARAMS: iabc=10u
+.param vt=0.025693 vgs=2.9 w=0.05
+B1 3 1 I = {iabc}*tanh((V(2)-V(1))/(2*{vt}))
+B2 6 1 I = {iabc}*tanh((V(5)-V(1))/(2*{vt}))
+B3 11 1 I = {iabc}*tanh((V(10)-V(1))/(2*{vt}))
+B4 14 1 I = {iabc}*tanh((V(13)-V(1))/(2*{vt}))
+* buffers: smooth min of CAP + V_GS and the top (relative to pin 1)
+E1x x1 1 3 1 1
+E2x x2 1 6 1 1
+E3x x3 1 11 1 1
+E4x x4 1 14 1 1
+B1o 4 1 V = (V(x1,1)+{vgs}) - {w}*ln(1+exp(((V(x1,1)+{vgs})-2.5)/{w}))
+B2o 7 1 V = (V(x2,1)+{vgs}) - {w}*ln(1+exp(((V(x2,1)+{vgs})-3.8)/{w}))
+B3o 12 1 V = (V(x3,1)+{vgs}) - {w}*ln(1+exp(((V(x3,1)+{vgs})-2.5)/{w}))
+B4o 15 1 V = (V(x4,1)+{vgs}) - {w}*ln(1+exp(((V(x4,1)+{vgs})-3.8)/{w}))
+* OTA output compliance: CAP between VEE + 0.8 V and VEE + 8.2 V
+Vlo lo 8 0.8
+Vhi hi 8 8.2
+Dl1 lo 3 DCLAMP
+Dh1 3 hi DCLAMP
+Dl2 lo 6 DCLAMP
+Dh2 6 hi DCLAMP
+Dl3 lo 11 DCLAMP
+Dh3 11 hi DCLAMP
+Dl4 lo 14 DCLAMP
+Dh4 14 hi DCLAMP
+.model DCLAMP D(IS=1e-14 N=0.05)
+Rvc 9 1 10Meg
+.ends IR3109
+
+* IR9022 (IC16, IC18; Sharp data sheet, private/docs/datasheets/ir9022-sharp.pdf): a low-power
+* dual op-amp, slew 0.5 V/us, output +-6 mA short-circuit current, swing 2 V from the rails.
+* Behavioural: gain 1e5 (gm 1 mS into 100 Meg), fT 1 MHz, slew 0.5 V/us (80 uA into 159 pF), the
+* integrator clamped near the rails, output 2 V from either rail through 50 ohm, limited to +-6 mA.
+.subckt IR9022 inp inn out vcc vee
+Bgm 0 g I = 80e-6*tanh((V(inp)-V(inn))*12.5)
+Rg g 0 1e8
+Cg g 0 159p
+Vt t vcc -1.5
+Vb b vee 1.5
+Dt g t DCLAMP9
+Db b g DCLAMP9
+.model DCLAMP9 D(IS=1e-14 N=0.05)
+Bclip m 0 V = min(max(V(g), V(vee)+2), V(vcc)-2)
+Bout out m I = max(min((V(out)-V(m))/50, 6e-3), -6e-3)
+.ends IR9022

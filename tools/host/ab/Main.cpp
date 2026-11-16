@@ -4,7 +4,8 @@
 // crossfades over 5 ms, and blind mode hides which is which until you reveal it. The other
 // scenes in the same folder are a click (or Up/Down) away. After changing a source in its editor
 // (its volume, say), Match levels (L) measures them again. The spectrum (Spectrum.h) shows what
-// is playing against the reference; Left/Right stop and step it through the loop a frame at a time.
+// is playing against the reference (hidden in blind mode until Reveal); Left/Right stop and step it
+// through the loop a frame at a time.
 // Dual mode (D) plays two at once, one in each ear, each in mono: the selected source left, another
 // right; Space swaps them.
 //
@@ -519,15 +520,14 @@ private:
 		repaint();
 	}
 
-	// The reference and the source playing; in blind mode, until Reveal, only the one playing,
-	// unnamed.
+	// The reference and the source playing; in blind mode, until Reveal, nothing: a spectrum would
+	// give the sources away.
 	void showSpectrum()
 	{
 		const int heard = m_selected;
+		m_spectrum.setVisible(!m_isBlind || m_revealed);
 		if (m_players.empty())
 			m_spectrum.show(-1, {}, -1, {});
-		else if (m_isBlind && !m_revealed)
-			m_spectrum.show(-1, {}, heard, {});
 		else
 			m_spectrum.show(m_reference, m_scene.sources[size_t(m_reference)].label, heard, m_scene.sources[size_t(heard)].label);
 	}

@@ -1,0 +1,31 @@
+* SH-101 grip LFO MOD (bender board): TR2 sine shaper, IC2a, the TR3 tail with R22/C9 and TR6,
+* VR3 (docs/circuit-osc.md 6.2). Included by compare.py, which sets pushon (the MOD switch closes)
+* and the triangle source Vtri (ntri, absolute volts).
+V14 n14 0 14
+VM5 nm5 0 -5
+VREF nref 0 5
+R13 ntri nbl 100k
+R7 nbl nref 2.2k
+R20 nbr nref 2.2k
+Q2a nc1 nbl ntail Q2SC1583
+Q2b nc2 nbr ntail Q2SC1583
+R10 n14 nc1 68k
+R11 n14 nc2 68k
+* IC2a: TR2's left collector on pin 3 (with R8, R9 to the trim), the right one on pin 2 (R12)
+X2a nc1 nc2 nout n14 nm5 TL062
+R12 nout nc2 22k
+R8 nc1 nref 22k
+R9 nc1 nvr3 470k
+* VR3 set so IC2a sits on the bus with the MOD released
+Vvr3 nvr3 0 7.4445
+* the tail: TR3 follows C9; TR6 holds C9 empty until the MOD switch grounds its base
+Q3 ntail n9 ne3 Q2SC1815
+R25 ne3 0 68k
+C9 n9 0 0.47u IC=0
+R22 n14 n9 1Meg
+R27 n9 n6c 100
+Q6 n6c nb6 0 Q2SC1815
+R21 n14 nb6 220k
+Vsw nsw 0 PWL(0 0 {pushon} 0 {pushon+1u} 1)
+Ssw nb6 0 nsw 0 SWMOD
+.model SWMOD SW(VT=0.5 VH=0.1 RON=10 ROFF=1e12)

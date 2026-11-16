@@ -1,0 +1,31 @@
+* SH-101 pitch summing (docs/circuit-osc.md 2, 6): VR11 (VCO MOD) from IC18a to the bus, VR4 from
+* the lever buffer, into the bender board's IC3a (R1, R2, R4, R3); IC12b (R91, R90 from TUNE, R89
+* / C35); and the CEM3340's pin 15 as a 0 V source (KCV 4.75 V, RANGE 0, VR7 at the model's setting).
+* compare.py sets modv, k11t/k11b, k9t/k9b, lever (IC3b's output).
+V14 n14 0 14
+V15 n15 0 14.87
+VREF nref 0 5
+Vmod nmod 0 {modv}
+R11t nmod nw11 {k11t}
+R11b nw11 nref {k11b}
+Vlever nlever 0 {lever}
+R4t nlever nw4 1e-3
+R4b nw4 nref 1e12
+R1 nw11 n3m 150k
+R2 nref n3m 150k
+R4 nw4 n3m 100k
+R3 n3m n3a 100k
+X3a nref n3m n3a n14 0 IR9022
+* IC12b
+R9t nref nw9 {k9t}
+R9b nw9 0 {k9b}
+R91 n3a n12m 100k
+R90 nw9 n12m 4.7Meg
+R89 n12m n12b 100k
+C35 n12m n12b 680p
+X12b nref n12m n12b n15 0 IR9022
+* pin 15
+Vkcv nkcv 0 4.75
+R104 nkcv npin 100k
+R103 n12b npin 100k
+Vpin15 npin 0 0

@@ -1,0 +1,45 @@
+* Device models for the SH-101 oscillator section's SPICE checks (tools/spice/osc), set from the
+* parts' data sheets at typical values (copies in private/docs/datasheets where we have them).
+* Values for 25 C (TNOM=25), the temperature the model runs at (core/osc_circuit.h kVT) and compare.py
+* sets: the same as the filter section's (tools/spice/filter/models.lib), one set per part type.
+*
+* 2SC1815 GR (Toshiba): hFE 200-400 at 2 mA (GR), VBE 0.62 V typ at 1 mA, fT 80 MHz min,
+* Cob 2-3.5 pF. All NPNs on the synth and bender boards except TR2 and TR23 (parts list).
+.model Q2SC1815 NPN(IS=3.3e-14 BF=300 NF=1 VAF=100 BR=5 IKF=0.15 ISE=1e-15 NE=1.5 RB=50 RC=1
++ CJE=8p MJE=0.33 VJE=0.75 CJC=3.5p MJC=0.33 VJC=0.75 TF=1.5n TR=40n TNOM=25)
+* 2SA1015 GR (Toshiba): hFE 200-400, VBE 0.62 V at 1 mA, fT 80 MHz min, Cob 4-7 pF. All PNPs.
+.model Q2SA1015 PNP(IS=3.3e-14 BF=300 NF=1 VAF=80 BR=5 IKF=0.2 ISE=1e-15 NE=1.5 RB=50 RC=1
++ CJE=12p MJE=0.33 VJE=0.75 CJC=7p MJC=0.33 VJC=0.75 TF=1.5n TR=40n TNOM=25)
+* 2SC1583 (Mitsubishi, matched dual NPN): TR2, the grip LFO's sine shaper. As in the TB-303's set.
+.model Q2SC1583 NPN(IS=8.4e-14 BF=308 NF=1 VAF=100 BR=5 IKF=0.15 ISE=1e-15 NE=1.5 RB=50 RC=1
++ CJE=8p MJE=0.33 VJE=0.75 CJC=5p MJC=0.33 VJC=0.75 TF=1.06n TR=40n TNOM=25)
+* 1S2473 (1N4148 class small-signal diode).
+.model D1S D(IS=2.52n RS=0.568 N=1.752 CJO=4p M=0.4 TT=20n TNOM=25)
+* 2SK30A (Toshiba): IDSS 1 mA, VGS(off) about -1 V (the O rank's middle; the SH-101 parts list
+* gives no rank), so R_DS(on) = |VP| / (2 IDSS) = 500 ohm.
+.model J2SK30 NJF(VTO=-1.0 BETA=1.0m LAMBDA=0.01 IS=1e-14 CGS=8p CGD=3p TNOM=25)
+* A clamping diode for the op-amp macros.
+.model DCL D(IS=1e-12 N=1)
+
+* Op-amp macro: a transconductance into C1 (GBW = gm / (2 pi C1), slew = gm vlim / C1), open-loop
+* gain avol, the internal node and the output held vsat inside the supplies.
+.subckt OPAMP inp inn out vcc vee params: gbw=1e6 sr=1e6 avol=1e4 vsat=2
+.param c1=1n gm={2*3.14159265*gbw*c1} vlim={sr*c1/gm}
+B1 0 n1 I = {gm}*max(min(V(inp)-V(inn), {vlim}), -{vlim})
+C1 n1 0 {c1}
+R1 n1 0 {avol/gm}
+Bhi nhi 0 V = V(vcc) - {vsat} + 0.45
+Blo nlo 0 V = V(vee) + {vsat} - 0.45
+D1 n1 nhi DCL
+D2 nlo n1 DCL
+Bo out 0 V = max(min(V(n1), V(vcc) - {vsat}), V(vee) + {vsat})
+.ends
+* IR9022 (Sharp, low-power dual): slew 0.5 V/us typ, 26 Vpp on +-15 V (2 V inside each rail), Avol
+* 80 dB; the gain-bandwidth is not on the sheet (0.5 MHz assumed).
+.subckt IR9022 inp inn out vcc vee
+X1 inp inn out vcc vee OPAMP gbw=0.5e6 sr=0.5e6 avol=1e4 vsat=2
+.ends
+* TL062 (TI): GBW 1 MHz, slew 3.5 V/us, output swing about 1.5 V inside the rails.
+.subckt TL062 inp inn out vcc vee
+X1 inp inn out vcc vee OPAMP gbw=1e6 sr=3.5e6 avol=3e4 vsat=1.5
+.ends

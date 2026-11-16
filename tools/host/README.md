@@ -48,7 +48,7 @@ editor (a volume, say); blind mode keeps its order.
 - Edit opens a source's own plugin window, to change it while it plays.
 - The spectrum under the sources shows the reference (the scene's first recording, else its first
   source) filled, always, and the source you hear as a grey line over it, each after the level
-  match; in blind mode, until Reveal, only the one you hear. Peaks fall at 40 dB/s; stopped, it
+  match; in blind mode it is hidden until Reveal. Peaks fall at 40 dB/s; stopped, it
   holds. Left/Right stop and step it through the loop a frame (1/30 s) at a time, Shift a 16th:
   each frame is the spectrum there, from the loop rendered for the level match. Hover for a
   frequency and both levels there.

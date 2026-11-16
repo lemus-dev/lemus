@@ -39,8 +39,12 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.2.1', tag: 'ro-mono-303-v0.2.1', stage: 'beta', mac: 'ro-mono-303-0.2.1-mac.pkg', windows: 'ro-mono-303-0.2.1-windows.zip' },
+    release: { version: '0.2.2', tag: 'ro-mono-303-v0.2.2', stage: 'beta', mac: 'ro-mono-303-0.2.2-mac.pkg', windows: 'ro-mono-303-0.2.2-windows.zip' },
     changes: [
+      {
+        version: '0.2.2',
+        notes: ['Windows: built with JUCE 8.0.15, which fixes window drawing that could stop the host taking mouse clicks (seen with ro-drums-909 in Ableton Live).'],
+      },
       {
         version: '0.2.1',
         notes: [
@@ -105,8 +109,12 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.1', tag: 'ro-drums-909-v0.2.1', stage: 'beta', mac: 'ro-drums-909-0.2.1-mac.pkg', windows: 'ro-drums-909-0.2.1-windows.zip' },
+    release: { version: '0.2.2', tag: 'ro-drums-909-v0.2.2', stage: 'beta', mac: 'ro-drums-909-0.2.2-mac.pkg', windows: 'ro-drums-909-0.2.2-windows.zip' },
     changes: [
+      {
+        version: '0.2.2',
+        notes: ["Windows: in Ableton Live the window could stop taking mouse clicks, and Live's with it. Built with JUCE 8.0.15, which fixes the window drawing behind it."],
+      },
       {
         version: '0.2.1',
         notes: [
@@ -127,8 +135,14 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '808 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.1.0', tag: 'ro-drums-808-v0.1.0', stage: 'beta', mac: 'ro-drums-808-0.1.0-mac.pkg', windows: 'ro-drums-808-0.1.0-windows.zip' },
-    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+    release: { version: '0.1.1', tag: 'ro-drums-808-v0.1.1', stage: 'beta', mac: 'ro-drums-808-0.1.1-mac.pkg', windows: 'ro-drums-808-0.1.1-windows.zip' },
+    changes: [
+      {
+        version: '0.1.1',
+        notes: ['Windows: built with JUCE 8.0.15, which fixes window drawing that could stop the host taking mouse clicks (seen with ro-drums-909 in Ableton Live).'],
+      },
+      { version: '0.1.0', notes: ['The first release, a beta.'] },
+    ],
   },
   {
     slug: 'ac-digital-vc',
@@ -139,7 +153,25 @@ export const machines: Machine[] = [
     withoutRom: 'none',
     keywords: 'virus c access virtual analog va synth dsp osirus',
     nav: true,
-    release: { version: '0.1.0', tag: 'ac-digital-vc-v0.1.0', stage: 'beta', mac: 'ac-digital-vc-0.1.0-mac.pkg', windows: 'ac-digital-vc-0.1.0-windows.zip' },
+    release: { version: '0.1.1', tag: 'ac-digital-vc-v0.1.1', stage: 'beta', mac: 'ac-digital-vc-0.1.1-mac.pkg', windows: 'ac-digital-vc-0.1.1-windows.zip' },
+    changes: [
+      {
+        version: '0.1.1',
+        notes: ['Windows: built with JUCE 8.0.15, which fixes window drawing that could stop the host taking mouse clicks (seen with ro-drums-909 in Ableton Live).'],
+      },
+      { version: '0.1.0', notes: ['The first release, a beta.'] },
+    ],
+  },
+  {
+    slug: 'al-fx-quadgt',
+    emulates: 'Alesis QuadraVerb GT',
+    year: 1991,
+    type: 'guitar preamp and multi-effects',
+    status: 'working',
+    withoutRom: 'none',
+    keywords: 'quadraverb quadgt gt alesis guitar preamp amp distortion overdrive cabinet reverb delay chorus multi effects',
+    nav: true,
+    release: { version: '0.1.0', tag: 'al-fx-quadgt-v0.1.0', stage: 'beta', mac: 'al-fx-quadgt-0.1.0-mac.pkg', windows: 'al-fx-quadgt-0.1.0-windows.zip' },
     changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
   },
 ];

@@ -1,0 +1,521 @@
+[
+ {
+  "name": "stab-bass-r100",
+  "bpm": 130,
+  "lpb": 4,
+  "lines": 64,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 0,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.6,
+   "noiseLevel": 0.0,
+   "subMode": 1,
+   "vcfFreq": 0.45,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.6,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 0,
+   "attack": 0.0,
+   "decay": 0.3,
+   "sustain": 0.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 1,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 2,
+    "note": "A-4",
+    "len": 0.5
+   },
+   {
+    "line": 3,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 4,
+    "note": "C-4",
+    "len": 0.5
+   },
+   {
+    "line": 5,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 6,
+    "note": "E-4",
+    "len": 0.5
+   },
+   {
+    "line": 7,
+    "note": "G-4",
+    "len": 0.5
+   },
+   {
+    "line": 8,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 9,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 10,
+    "note": "A-4",
+    "len": 0.5
+   },
+   {
+    "line": 11,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 12,
+    "note": "C-4",
+    "len": 0.5
+   },
+   {
+    "line": 13,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 14,
+    "note": "E-4",
+    "len": 0.5
+   },
+   {
+    "line": 15,
+    "note": "G-4",
+    "len": 0.5
+   },
+   {
+    "line": 16,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 17,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 18,
+    "note": "A-4",
+    "len": 0.5
+   },
+   {
+    "line": 19,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 20,
+    "note": "C-4",
+    "len": 0.5
+   },
+   {
+    "line": 21,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 22,
+    "note": "E-4",
+    "len": 0.5
+   },
+   {
+    "line": 23,
+    "note": "G-4",
+    "len": 0.5
+   },
+   {
+    "line": 24,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 25,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 26,
+    "note": "A-4",
+    "len": 0.5
+   },
+   {
+    "line": 27,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 28,
+    "note": "C-4",
+    "len": 0.5
+   },
+   {
+    "line": 29,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 30,
+    "note": "E-4",
+    "len": 0.5
+   },
+   {
+    "line": 31,
+    "note": "G-4",
+    "len": 0.5
+   },
+   {
+    "line": 32,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 33,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 34,
+    "note": "A-4",
+    "len": 0.5
+   },
+   {
+    "line": 35,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 36,
+    "note": "C-4",
+    "len": 0.5
+   },
+   {
+    "line": 37,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 38,
+    "note": "E-4",
+    "len": 0.5
+   },
+   {
+    "line": 39,
+    "note": "G-4",
+    "len": 0.5
+   },
+   {
+    "line": 40,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 41,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 42,
+    "note": "A-4",
+    "len": 0.5
+   },
+   {
+    "line": 43,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 44,
+    "note": "C-4",
+    "len": 0.5
+   },
+   {
+    "line": 45,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 46,
+    "note": "E-4",
+    "len": 0.5
+   },
+   {
+    "line": 47,
+    "note": "G-4",
+    "len": 0.5
+   },
+   {
+    "line": 48,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 49,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 50,
+    "note": "A-4",
+    "len": 0.5
+   },
+   {
+    "line": 51,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 52,
+    "note": "C-4",
+    "len": 0.5
+   },
+   {
+    "line": 53,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 54,
+    "note": "E-4",
+    "len": 0.5
+   },
+   {
+    "line": 55,
+    "note": "G-4",
+    "len": 0.5
+   },
+   {
+    "line": 56,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 57,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 58,
+    "note": "A-4",
+    "len": 0.5
+   },
+   {
+    "line": 59,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 60,
+    "note": "C-4",
+    "len": 0.5
+   },
+   {
+    "line": 61,
+    "note": "A-3",
+    "len": 0.5
+   },
+   {
+    "line": 62,
+    "note": "E-4",
+    "len": 0.5
+   },
+   {
+    "line": 63,
+    "note": "G-4",
+    "len": 0.5
+   }
+  ],
+  "preroll": 4.0,
+  "ours_only": true,
+  "loop_lines": 8
+ },
+ {
+  "name": "stab-selfosc-mod",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 160,
+  "params": {
+   "lfoRate": 0.3,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 0.4,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.5,
+   "vcfMod": 0.5,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 0.5,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 160,
+    "vel": 100
+   }
+  ],
+  "tail": 1.0,
+  "preroll": 4.0,
+  "ours_only": true,
+  "loop_lines": 16
+ },
+ {
+  "name": "stab-noise-r100",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 160,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 1.0,
+   "subMode": 0,
+   "vcfFreq": 0.5,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 160,
+    "vel": 100
+   }
+  ],
+  "tail": 1.0,
+  "preroll": 4.0,
+  "ours_only": true,
+  "loop_lines": 16,
+  "check_low": false
+ },
+ {
+  "name": "stab-all-max",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 160,
+  "params": {
+   "lfoRate": 1.0,
+   "lfoWave": 3,
+   "vcoMod": 1.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 1.0,
+   "sawLevel": 1.0,
+   "subLevel": 1.0,
+   "noiseLevel": 1.0,
+   "subMode": 0,
+   "vcfFreq": 0.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 1.0,
+   "vcfMod": 1.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 1.0,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "C-4",
+    "len": 160,
+    "vel": 100
+   }
+  ],
+  "tail": 1.0,
+  "preroll": 4.0,
+  "ours_only": true,
+  "loop_lines": 16,
+  "check_low": false
+ }
+]

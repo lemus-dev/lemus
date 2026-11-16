@@ -1,0 +1,47 @@
+* SH-101 MODULATOR: IC3a integrator, IC3b Schmitt, TR4-TR8, the RATE divider and the waveform
+* switch's load on R31 (docs/circuit-osc.md 5). Included by compare.py, which sets:
+*   rt rb   VR10's track above and below the wiper (R168 is added here)
+*   load    1: pin 11 loaded by 100k to the bus (R169 or R188: TRIANGLE, RANDOM, SQUARE); 0: open (NOISE)
+*   ron roff CLK RST (P24 low) from ron to roff seconds
+V15 n15 0 14.87
+VM5 nm5 0 -5
+V9 n9 0 9
+VREF nref 0 5
+* IC3a: integrator, + input on the bus
+X3a nref n2 ntri n15 nm5 IR9022
+C9 n2 ntri 0.1u IC=-5.2
+R15 nw n2 120k
+* VR10 from IC3b's output to the bus through R168
+Rtop nsq nw {rt}
+Rbot nw nb {rb}
+R168 nb nref 220
+* CLK RST: TR7 off lets R24 lift its collector: TR6 on (R26), TR4 on (D10, R17)
+Vrst nrst 0 PWL(0 5 {ron} 5 {ron+1u} 0 {roff} 0 {roff+1u} 5)
+R36 nrst nb7 100k
+Q7 n7c nb7 0 Q2SC1815
+R24 n15 n7c 82k
+D10 n7c nd10 D1S
+R17 nd10 nb4 47k
+Q4 nd9 nb4 n2 Q2SC1815
+R16 nsq nr16 15k
+D9 nr16 nd9 D1S
+R26 n7c nb6 220k
+Q6 nnode nb6 0 Q2SC1815
+R35 n15 nnode 100k
+* TR5 follows IC3b's output
+R28 nsq nb5 220k
+R25 nb5 0 33k
+Q5 nnode nb5 0 Q2SC1815
+* pin 11 through R31, loaded by S2
+R31 nnode npin11 100k
+Rload npin11 nref {load*100e3 + (1-load)*1e12}
+* TR8: the CLK to the CPU
+R32 nnode nb8 220k
+R34 nb8 0 33k
+Q8 nclk nb8 0 Q2SC1815
+R33 n9 nclk 100k
+C15 nclk 0 10n
+* IC3b: the triangle against the node
+R30 ntri n5 10k
+R29 nnode n6 10k
+X3b n5 n6 nsq n15 nm5 IR9022

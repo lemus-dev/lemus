@@ -1,0 +1,276 @@
+* SH-101 whole voice (docs/model.md, "The schematic, in SPICE"): the block netlists of
+* tools/spice/osc and tools/spice/filter joined into one circuit from the VCO's outputs to the
+* OUTPUT jack, so the blocks load and drive each other as on the board:
+*   the VCO's saw, pulse (TR24 and the PWM network) and sub (the 4013's outputs, R181/R182,
+*   D38/D39, S5) and the noise generator, each through its slider and mixing resistor into the
+*   mixer node; C45 into the IR3109 (transistor level, ir3109t.lib) with its networks and the
+*   resonance loop; the output sum into C53 and the BA662 (ba662.lib); VOLUME, IC1a, C2 and jack
+*   board A into 47k;
+*   the cutoff: IC18b's summer (FREQ from +15 V, R187, ENV, KYBD through VR8/VR21/TR42), the pin-9
+*   divider and the IR3109's expo converter (transistor level, at the junction temperature that
+*   gives the model's mV/oct), whose output current is the OTAs' tail current;
+*   the ENV GEN at transistor level (env.cir) on the same gate, feeding VR19, the VCA's control
+*   (S6 ENV) and the GATE level (S6 GATE).
+* Only the VCO core itself is not simulated: its saw, the CEM3340's pulse comparator input and the
+* 4013's outputs are sources set by compare_voice.py from the model's own VCO frequency. Before
+* T0 every source sits at its mean, so the operating point charges the coupling capacitors as in
+* a unit that has been on a while.
+* compare_voice.py fills in the parameters, the sources, the gate, the VCA control and the analysis.
+.include ../filter/models.lib
+.include ../filter/ba662.lib
+.include ../filter/ir3109/ir3109t.lib
+.options temp=25
+{PARAMS}
+Vbus bus 0 5.0
+* The rails (SN p.7, docs/circuit-filter.md 1): the half-filled arrow is +15 V, IC1b's output
+* (14.87 V measured): FREQ's top, R187, IC12. The filled arrow is +14 V, TR3's emitter
+* (14.3 V measured, U-Labor): R92, R177/R178 (PWM), the 4013, the noise transistor's R83/R84, TR25, R135, R195,
+* IC16, IC18, the ENV GEN, R196 and the BA662.
+V15 v15 0 14.87
+V14 v14 0 14.3
+V9 v9 0 9.0
+
+*** VCO outputs (sources) ***
+{SOURCES}
+
+*** Pulse: the CEM3340's comparator (pulse high while saw/2 < pin 5) into TR24 (levels.cir) ***
+R95 np4 nb24 10k
+R93 nb24 0 1k
+Q24 npul nb24 0 Q2SC1815
+R92 v14 npul 68k
+* PWM network (pwm.cir): S4 on MAN, R178 120k from +14 V; VR12 PULSE WIDTH; TR25; R96; R94 + VR4
+* (rx: trimmed by compare_voice.py for a square at PULSE WIDTH 0, as SN p.6 (D) does); C37.
+R178 v14 ntop 120k
+R12t ntop nw12 {r12t}
+R12b nw12 bus {r12b}
+Q25 v14 nw12 ne25 Q2SC1815
+R96 ne25 npin5 100k
+Rx npin5 0 {rx}
+C37 npin5 0 10n
+
+*** Sub: the 4013's Q1/Q2 through R181/R182; D38/D39 for the 25 % pulse; S5 ***
+R181 nq1 ns1 47k
+R182 nq2 ns2 47k
+D38 ns1 nsp D1S
+D39 ns2 nsp D1S
+* The diodes' joined cathodes float when S5 isn't on the 25 % contact; the board's stray
+* capacitance and leakage keep SPICE's time step workable when Q1 and Q2 switch together.
+Cnsp nsp 0 10p
+Rnsp nsp 0 10Meg
+Rs1 ns1 nsel {sel == 0 ? 1e-3 : 1e12}
+Rs2 ns2 nsel {sel == 1 ? 1e-3 : 1e12}
+Rs3 nsp nsel {sel == 2 ? 1e-3 : 1e12}
+
+*** Noise generator (noise.cir): TR23's junction (a noise current into its dynamic resistance), TR22,
+*** C33, C31/R87 to the bus, IC12a ***
+R84 v14 nsrc 1Meg
+Rd nsrc 0 {rd}
+C34 nsrc nb22 10u
+R85 nc22 nb22 470k
+R83 v14 nc22 47k
+Q22 nc22 nb22 0 Q2SC1815
+C33 nc22 n3n 10u
+C31 n3n bus 10n
+R87 n3n bus 47k
+X12a n3n n2n nnoise v15 0 IR9022
+R88 n2n bus 10k
+R86 n2n nnoise 220k
+C32 n2n nnoise 240p
+
+*** Source mixer: VR14 SAW (bus), VR13 PULSE (bus), VR15 SUB (ground), VR16 NOISE (bus), all 100k B ***
+R14t nsaw nw14 {r14t}
+R14b nw14 bus {r14b}
+R111 nw14 mix 470k
+R13t npul nw13 {r13t}
+R13b nw13 bus {r13b}
+R110 nw13 mix 680k
+R15t nsel nw15 {r15t}
+R15b nw15 0 {r15b}
+R112 nw15 mix 820k
+R16t nnoise nw16 {r16t}
+R16b nw16 bus {r16b}
+R109 nw16 mix 150k
+C45 mix in1 10u
+
+*** IR3109 (transistor level) and its networks (vcf.cir) ***
+XIC14 bus in1 cap1 out1 in2 cap2 out2 0 pin9 in3 cap3 out3 in4 cap4 out4 v9 IR3109V
+R115 in1 b560 560
+R116 in2 b560 560
+R120 in3 b560 560
+R123 in4 b560 560
+C46 b560 0 2.2u
+Rb560 b560 bus 0.01
+R114 out1 in1 68k
+R117 out1 in2 68k
+R118 out2 in2 68k
+R119 out2 in3 68k
+R121 out3 in3 68k
+R124 out3 in4 68k
+R122 out4 in4 68k
+C48 cap1 bus 240p
+C47 cap2 bus 240p
+C50 cap3 bus 240p
+C51 cap4 bus 240p
+* Resonance: VR18 from OUT4 to the bus, TR26, TR27, C52, R129, D30/D31, R113.
+R18t out4 wip {r18t}
+R18b wip bus {r18b}
+Q26 c26 wip e26 Q2SC1815
+R131 e26 0 10k
+R136 c54 c26 15k
+R135 v14 c54 1k
+C54 c54 0 10u
+Q27 c54 c26 e27 Q2SC1815
+R137 e27 0 33k
+C52 e27 n52 10u
+R129 n52 dnode 5.6k
+D30 dnode bus D1S
+D31 bus dnode D1S
+R113 dnode in1 15k
+* Output sum into C53, R139 to the bus.
+R130 out4 jn 150k
+R132 e26 jn 150k
+C53 jn p3 10u
+R139 p3 bus 1k
+
+*** The IR3109 with its expo converter driving the OTAs' tails ***
+* The tail mirrors' master takes the expo converter's output current (its collector held at a
+* fixed voltage through Vsx), the rest as ir3109t.lib's IR3109T.
+.subckt IR3109V 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+Qref nref nb 8 QNI
+Qbh 16 nref nb QNI
+Rbh nb 8 {rbh}
+X1 2 1 3 16 8 nb IR3109OTA
+X2 5 1 6 16 8 nb IR3109OTA
+X3 10 1 11 16 8 nb IR3109OTA
+X4 13 1 14 16 8 nb IR3109OTA
+M1 8 3 4 4 PMB W=1 L=1
+M2 8 6 7 7 PMB W=1 L=1
+M3 8 11 12 12 PMB W=1 L=1
+M4 8 14 15 15 PMB W=1 L=1
+Rp1 16 4 20k
+Rp3 16 12 20k
+QPr nr nr 16 QPL
+Rr nr 8 22k
+QPl2 7 nr 16 QPL
+QPl4 15 nr 16 QPL
+* expo (OML's sketch, as ir3109t.lib's IR3109EXPO): pin 9 on Qr's base, Qo's base on pin 1
+Iref 16 r {iref}
+Qr r 9 e QNI temp={tj}
+Qo xo 1 e QNI temp={tj}
+R16 d e 1.6k
+Bop d 0 V = max(min(-1e4*(V(r)-V(1)-1.0), V(16)-1), V(8)+1)
+Vfix vfix 0 7
+Vsx vfix xo 0
+Babc 0 nref I = i(Vsx)
+.ends IR3109V
+
+*** Cutoff CV (cv.cir): IC18b summing FREQ, R187, ENV, KYBD; MOD and the bender at rest ***
+R17t v15 w17 {r17t}
+R17b w17 0 {r17b}
+R186 w17 sum 200k
+R187 v15 sum 680k
+R19t env w19 {r19t}
+R19b w19 bus {r19b}
+R189 w19 sum 100k
+R191 bus sum 100k
+Vkcv kcv 0 {vkcv}
+RVR8 kcv k21 {rvr8}
+R21t k21 w21 {r21t}
+R21b w21 0 {r21b}
+Q42 0 w21 e42 Q2SA1015
+R195 v14 e42 33k
+R193 e42 sum 150k
+R185 bus sum 100k
+R184 bus sum 220k
+XIC18b bus sum o18 v14 0 IR9022
+R192 o18 sum 33k
+R128 o18 n128 4.7k
+R127 n128 pin9 5.6k
+R126 n128 nth 1.8k
+RTH1 nth pin9 1k
+R125 pin9 bus 820
+
+*** ENV GEN (env.cir), on the gate; pin 84 low (no TRIG pulses) ***
+{GATE}
+Vp84 pin84 0 0
+R151 gate b29 100k
+R150 b29 0 33k
+Q29 g b29 0 Q2SC1815
+R145 v14 b30 10k
+R144 b30 g 100k
+Q30 c30 b30 v14 Q2SA1015
+R142 c30 n83 12k
+R41 n83 bus 33k
+C57 n83 0 47n
+R149 g b32 220k
+R147 pin84 b32 220k
+Q32 k b32 0 Q2SC1815
+R152 k l 100k
+R153 v14 l 10k
+Q33 p l v14 Q2SA1015
+R146 p bus 100k
+D33 m3 k D1S
+D32 p q D1S
+R157 p b31 47k
+Q31 c31 b31 e31 Q2SC1815
+R148 c31 rr 220
+RRel rr c59 {rrel}
+R163 e31 bus 47
+C58 e31 0 10u
+R156 o16a q 47k
+R155 q s34 10k
+R154 v14 s34 10k
+Q34 c34 s34 v14 Q2SA1015
+R141 c34 ra 270
+RAtt ra c59 {ratt}
+R162 env m3 100k
+XIC16a m3 th o16a v14 0 IR9022
+R161 v14 nn 33k
+R160 o16a nn 47k
+D34 nn m3 D1S
+R159 o16a b35 33k
+R165 b35 tt 10k
+Q35 c35 b35 tt Q2SC1815
+R164 c35 rd5 150
+RDec rd5 c59 {rdec}
+Q36 0 u tt Q2SA1015
+R166 u 0 33k
+Q37 v14 sw u Q2SC1815
+R158 v14 th 82k
+RSus1 th sw {rstop}
+RSus2 sw bus {rsbot}
+C59 c59 0 4.7u
+XIC16b c59 env env v14 0 IR9022
+
+*** VCA (vca.cir): TR28 from S6 (ENV: R133 from S6's ENV contact, which R197 feeds from the ENV
+*** line and R196 pulls towards +14 V, as the board diagram has them; GATE: R133 from pin 83) ***
+R197 env s6 3.3k
+R196 v14 s6 120k
+{VCA}
+Q28 c28 bus e28 Q2SA1015
+Vpin1 c28 p1 0
+R138 p2 bus 1k
+XIC15 p1 p2 p3 bus 0 p6 p6 p8 v14 BA662
+R140 p6 bus 47k
+C55 v14 0 22u
+* VOLUME 100k A, IC1a (M5218 on +9 V: 1.2-7.8 V), C2, jack board A, 47k load.
+RVt p8 vw {rvt}
+RVb vw bus {rvb}
+Bic1 o1 0 V = min(max(V(vw), 1.2), 7.8)
+C2 o1 ja 2.2u
+R30 ja 0 100k
+R29 ja jb 2.2k
+C12 jb 0 1n
+R28 jb jack 1k
+Rload jack 0 47k
+* Jack board A's mute (core/jack_board.h; ../jack/mute.cir), switched on long before: TR7 on the
+* R29/R28 node, its base through R35 and D4 from node A, which C13 (from +9 V), R36 and D3 hold.
+Q7 jb b7 0 Q2SC1815
+R35 nb7 b7 47k
+D4 na7 nb7 D1S
+D3 0 na7 D1S
+R36 na7 0 220k
+C13 v9 na7 10u
+
+{ANALYSIS}
+.end

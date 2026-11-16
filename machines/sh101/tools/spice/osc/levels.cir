@@ -1,0 +1,29 @@
+* SH-101 pulse and sub-oscillator output levels at DC (docs/circuit-osc.md 4.3, 4.5): TR24 with R92
+* into VR13 (to the bus), the 4013's outputs through R181/R182 and D38/D39 into VR15 (to ground),
+* each slider at 10 driving its mixing resistor into the mixer node, held at the bus (the zero-volt
+* sources measure the currents). compare.py sets pon (TR24 on), q1, q2 (the flip-flops) and sel
+* (the S5 contact: 0 1 OCT, 1 2 OCT, 2 the 25 % pulse). R92 and the 4013 are on +14 V (TR3's emitter,
+* SN p.7's filled arrow; circuit-osc.md 1).
+V14 n14 0 14.3
+VREF nref 0 5
+Vp4 np4 0 {pon*13.5}
+R95 np4 nb24 10k
+R93 nb24 0 1k
+Q24 npul nb24 0 Q2SC1815
+R92 n14 npul 68k
+R13a npul nref 100k
+R110 npul nmp 680k
+Vmp nmp nref 0
+Vq1 nq1 0 {q1*14.3}
+Vq2 nq2 0 {q2*14.3}
+R181 nq1 ns1 47k
+R182 nq2 ns2 47k
+D38 ns1 nsp D1S
+D39 ns2 nsp D1S
+* S5: the wiper of VR15 (at 10) is the selected contact
+Rs1 ns1 nsel {sel == 0 ? 1e-3 : 1e12}
+Rs2 ns2 nsel {sel == 1 ? 1e-3 : 1e12}
+Rs3 nsp nsel {sel == 2 ? 1e-3 : 1e12}
+R15 nsel 0 100k
+R112 nsel nms 820k
+Vms nms nref 0

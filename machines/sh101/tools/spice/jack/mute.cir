@@ -1,0 +1,31 @@
+* SH-101 jack board A (OPH178-2): R30, R29, C12, R28 into the load, the power-on mute (TR7, R35,
+* D4, D3, R36, C13 from +9 V) and the power-off mute (TR8, R37, D5, C14), driven through C2 by
+* IC1a's output: the +5 V bus from {TON}, when +9 V switches on, plus a sine from {TSIG}.
+.include ../filter/models.lib
+.options temp=25 tnom=25
+V9 p9 0 PWL(0 0 {TON} 0 {TON2} 9)
+Vw w 0 PWL(0 0 {TON} 0 {TON2} 5)
+Vs w2 w SIN(0 {AMP} {HZ} {TSIG})
+C2 w2 y 2.2u
+R30 y 0 100k
+R29 y x 2.2k
+C12 x 0 1n
+R28 x j 1k
+RL j 0 {LOAD}
+Q7 x b7 0 Q2SC1815
+R35 nb b7 47k
+D4 na nb D1S
+D3 0 na D1S
+R36 na 0 220k
+C13 p9 na 10u
+Q8 nb b8 e8 Q2SA1015
+R37 b8 p9 10k
+D5 p9 e8 D1S
+C14 e8 0 47u
+.tran {STEP} {TSTOP} 0 {STEP}
+.control
+run
+set wr_singlescale
+wrdata OUT.txt v(j)
+.endc
+.end

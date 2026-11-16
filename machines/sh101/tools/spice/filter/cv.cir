@@ -1,0 +1,58 @@
+* SH-101 cutoff CV (docs/circuit-filter.md 4): control board IC18b (IR9022) summing FREQ (VR17
+* from +15 V, R186), R187 from +15 V, the bender's VCF line (R185), the grip's LFO MOD (R184),
+* ENV (VR19, R189), MOD (VR20 from IC18a, R191) and KYBD (VR8, VR21, TR42 follower, R193), then
+* R128 and the TH1 divider into pin 9. compare_cv.py fills in the pot halves and sources.
+.include models.lib
+Vbus bus 0 5.0
+* Rails (SN p.7): the half-filled arrow is +15 V, IC1b's output (14.87 V): VR17's top and R187.
+* The filled one is +14 V, TR3's emitter (14.3 V, U-Labor): R195 and IC18's supply. 25 C, as the
+* model (models.lib).
+.options temp=25
+V15 v15 0 {V15}
+V14 v14 0 14.3
+
+* FREQ: VR17 100k B from +15 V to ground; R187 680k from +15 V.
+R17t v15 w17 {R17T}
+R17b w17 0 {R17B}
+R186 w17 sum 200k
+R187 v15 sum 680k
+* ENV: VR19 100k B from the ENV line to the bus.
+Venv env 0 {VENV}
+R19t env w19 {R19T}
+R19b w19 bus {R19B}
+R189 w19 sum 100k
+* MOD: VR20 100k A from IC18a's output (bus + MODV) to the bus.
+Vmod mod bus {VMOD}
+R20t mod w20 {R20T}
+R20b w20 bus {R20B}
+R191 w20 sum 100k
+* KYBD: the post-glide KCV through VR8 VCF WIDTH into VR21 100k B to ground, TR42 (2SA1015),
+* R195 33k from +14 V, R193 150k.
+Vkcv kcv 0 {VKCV}
+RVR8 kcv k21 {RVR8}
+R21t k21 w21 {R21T}
+R21b w21 0 {R21B}
+Q42 0 w21 e42 Q2SA1015
+R195 v14 e42 33k
+R193 e42 sum 150k
+* Bender board: the lever (bus + BEND) through VR5 100k B, R185; the grip's LFO MOD off.
+Vbend bend bus {VBEND}
+R5t bend w5 {R5T}
+R5b w5 bus {R5B}
+R185 w5 sum 100k
+R184 bus sum 220k
+* IC18b, R192 33k.
+XIC18b bus sum o18 v14 0 IR9022
+R192 o18 sum 33k
+* Pin-9 divider: R128 4.7k, R127 5.6k || (R126 1.8k + TH1), R125 820 to the bus.
+R128 o18 n128 4.7k
+R127 n128 pin9 5.6k
+R126 n128 nth 1.8k
+RTH1 nth pin9 {TH1}
+R125 pin9 bus 820
+
+.control
+op
+print v(pin9)-v(bus) v(o18)-v(bus) v(e42)
+.endc
+.end

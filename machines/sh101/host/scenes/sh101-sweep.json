@@ -1,0 +1,142 @@
+{
+  "name": "sh101-sweep",
+  "bpm": 125,
+  "bars": 4,
+  "tail": 1,
+  "params": {
+    "saw": 1.0,
+    "pulse": 0.0,
+    "sub": 0.6,
+    "noise": 0.0,
+    "freq": 0.2,
+    "res": 0.7
+  },
+  "automation": [
+    {
+      "param": "freq",
+      "points": [
+        [
+          0,
+          0.15
+        ],
+        [
+          16,
+          0.75
+        ]
+      ]
+    }
+  ],
+  "notes": [
+    {
+      "at": 0.0,
+      "note": "C-2",
+      "len": 0.15
+    },
+    {
+      "at": 0.25,
+      "note": "C-2",
+      "len": 0.15
+    },
+    {
+      "at": 0.5,
+      "note": "C-3",
+      "len": 0.15
+    },
+    {
+      "at": 0.75,
+      "note": "C-2",
+      "len": 0.3
+    },
+    {
+      "at": 1.0,
+      "note": "D#2",
+      "len": 0.15
+    },
+    {
+      "at": 1.25,
+      "note": "C-2",
+      "len": 0.15
+    },
+    {
+      "at": 1.5,
+      "note": "G-2",
+      "len": 0.15
+    },
+    {
+      "at": 1.75,
+      "note": "A#2",
+      "len": 0.15
+    },
+    {
+      "at": 2.0,
+      "note": "C-2",
+      "len": 0.15
+    },
+    {
+      "at": 2.25,
+      "note": "C-2",
+      "len": 0.15
+    },
+    {
+      "at": 2.5,
+      "note": "C-3",
+      "len": 0.3
+    },
+    {
+      "at": 2.75,
+      "note": "C-2",
+      "len": 0.15
+    },
+    {
+      "at": 3.0,
+      "note": "F-2",
+      "len": 0.15
+    },
+    {
+      "at": 3.25,
+      "note": "D#2",
+      "len": 0.15
+    },
+    {
+      "at": 3.5,
+      "note": "C-2",
+      "len": 0.15
+    },
+    {
+      "at": 3.75,
+      "note": "G-1",
+      "len": 0.15
+    }
+  ],
+  "repeat": 4,
+  "sources": [
+    {
+      "use": "sh101.lemus",
+      "params": {
+        "VCF Env": 0.55,
+        "VCF Kybd": 0.5,
+        "Attack": 0.0,
+        "Decay": 0.35,
+        "Sustain": 0.1,
+        "Release": 0.15,
+        "Sub Osc": "2 Oct Down"
+      }
+    },
+    {
+      "use": "sh101.roland",
+      "params": {
+        "VCF ENV": 0.773921568627451,
+        "VCF KEY FOLLOW": 0.7490196078431373,
+        "VCF ATTACK": 0.0,
+        "VCF DECAY": 0.35,
+        "VCF SUSTAIN": 0.1,
+        "VCF RELEASE": 0.15,
+        "VCA ATTACK": 0.0,
+        "VCA DECAY": 0.35,
+        "VCA SUSTAIN": 0.1,
+        "VCA RELEASE": 0.15,
+        "SUB OSC TYPE": 0.0
+      }
+    }
+  ]
+}

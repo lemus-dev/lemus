@@ -1,0 +1,13 @@
+* Semiconductor models for the QuadraVerb GT's netlists (DC equations: the solver has no charge
+* storage). Parts from the GT service manual's parts list (pp. 26-28) and their data sheets
+* (private/docs/datasheets/); docs/circuit.md says where each figure comes from.
+* 1N4148 (D1-D19, D25-D27): the common SPICE fit of the Philips/onsemi curve (0.62 V at 1 mA, 0.72 V
+* at 10 mA).
+.model 1N4148 D(IS=2.52n N=1.752 RS=0.568)
+* Strings of them in series, as one diode each: the same current through identical junctions, so
+* N and RS add up (the solver's diodes store no charge, so this is exact).
+.model 1N4148X2 D(IS=2.52n N=3.504 RS=1.136)
+.model 1N4148X3 D(IS=2.52n N=5.256 RS=1.704)
+* 2N5460 (Q1), P-channel JFET: V_GS(off) 0.75-6 V, I_DSS 1-5 mA (onsemi 2N5460/D); the sheet's
+* typical curves are drawn for V_GS(off) 2 V with I_DSS 3 mA: VTO -2, BETA = I_DSS / VTO^2.
+.model 2N5460 PJF(VTO=-2 BETA=0.75m LAMBDA=0.01 IS=1e-14 N=1)

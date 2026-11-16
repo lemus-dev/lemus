@@ -1,0 +1,43 @@
+{
+  "sh101.lemus": {
+    "label": "lemus",
+    "plugin": "Lemus",
+    "machine": "sh101",
+    "names": {
+      "lfoRate": "LFO Rate",
+      "vcoMod": "VCO Mod",
+      "pulseWidth": "Pulse Width",
+      "pulse": "Pulse Level",
+      "saw": "Saw Level",
+      "sub": "Sub Osc Level",
+      "noise": "Noise Level",
+      "freq": "VCF Freq",
+      "res": "VCF Res",
+      "env": "VCF Env",
+      "mod": "VCF Mod",
+      "kybd": "VCF Kybd",
+      "attack": "Attack",
+      "decay": "Decay",
+      "sustain": "Sustain",
+      "release": "Release",
+      "volume": "Volume",
+      "portamento": "Portamento"
+    }
+  },
+  "sh101.roland": {
+    "label": "roland",
+    "plugin": "Roland/SH-101",
+    "state": "../private/reference/roland-vst/base.ov3s",
+    "names": {
+      "lfoRate": "MODULATOR RATE",
+      "pulseWidth": "VCO PULSE WIDTH",
+      "pulse": "MIXER SQR",
+      "saw": "MIXER SAW",
+      "sub": "MIXER SUB OSC",
+      "noise": "MIXER NOISE",
+      "freq": "VCF FREQ",
+      "res": "VCF RESONANCE",
+      "portamento": "PORTAMENTO TIME"
+    }
+  }
+}

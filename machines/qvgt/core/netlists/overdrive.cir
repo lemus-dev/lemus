@@ -1,0 +1,29 @@
+* QuadraVerb GT preamp, the overdrive (sheet 1): U4 VCA 1's output current (an input here, the
+* VCA itself is core/ssm2120.h) into U1C's virtual ground (10 +, 9 -, 8 out). U3B (CD4053) picks
+* the feedback: off (od < 0.5), Bx: R39 36K from the output (R40 10K from that node to ground);
+* on, By: R38 4.7K into the T-node (R37 1K and C11 4.7u to ground) and R36 47K across two diode
+* strings, D6-D8 conducting toward U1C's output side, D9-D10 back (sheet 1 draws them so). C12 20p
+* across. The switches' on resistance is the CD4053B's at 17 V (125 ohms typical).
+* The TL084s without their slew limit (13 V/us; audio needs 1.3 at most): with it the solver fails
+* where a stage clips, and leaving it out moves a clipping stage's output 80-94 dB under the signal
+* against ngspice with it (docs/circuit.md).
+.param gbw=3meg gain=2e5 sat=10.5 sr=0 ron=125
+* Each op-amp's input noise as a source in series with its + input (input noise_<part>, 0 V
+* unless HISS is on: core/preamp.cpp).
+Ivca 0 n9 input vca
+X1C nz_1c n9 od8 opamp {gbw} {gain} {sat} {sr}
+VNZ_1C nz_1c 0 input noise_1c
+C12 n9 od8 20p
+R39 od8 nbx 36k
+R40 nbx 0 10k
+S3BX nbx n9 !od {ron} 1e9
+R38 od8 nb 4.7k
+R37 nb n37 1k
+C11 n37 0 4.7u
+R36 nb nby 47k
+* D6-D8 and D9-D10, each string as one diode (models.cir)
+D678 nby nb 1N4148X3
+D910 nb nby 1N4148X2
+S3BY nby n9 od {ron} 1e9
+.output od8 od8
+.control od 0

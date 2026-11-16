@@ -1,0 +1,68 @@
+* Rohm BA662 (IC15, docs/circuit.md section 6.1): OTA and output buffer, SIP-9.
+*   1 C (I_ABC in)  2 -IN  3 +IN  4 buffer bias  5 -V  6 OTA out  7 buffer in  8 buffer out  9 +V
+*
+* No Rohm data sheet or SPICE model of the BA662 exists. BA662 is built from:
+* - Open Music Labs' internal circuit, reverse engineered from an original BA662 by driving its
+*   pins (http://wiki.openmusiclabs.com/wiki/BA662, .../x0xb0x): a two-transistor control-current
+*   mirror (as the CA3080), a differential pair into three-transistor Wilson mirrors (as the
+*   LM13700), and an NPN/PNP complementary follower whose bias current is set from pin 4 (as the
+*   BA6110). Measured on the original: emitter resistors of ~500 ohm on the control mirror, a 1:1
+*   buffer bias mirror, and the buffer's pull-up (10k).
+* - Alfa's AS662 (a BA662 clone) data sheet, 2021 v1: the same circuit, with control-mirror
+*   emitter resistors 400 ohm, buffer bias resistor 40k, buffer collector resistor 500 ohm and
+*   pull-up 10k (+-20 %).
+* - Rohm's BA6110 data sheet (same maker, same buffer): pull-up 11k, gm 4800-12000 uS (typ 8000)
+*   at I_ABC 500 uA, OTA output to within ~1 V of the rails.
+* The transistors are generic IC devices of the period (vertical NPN, lateral PNP for the
+* Wilson mirrors, substrate PNP in the buffer); the circuit's gain depends on matching, not on
+* their parameters. Spread: .param ba_bfn (NPN gain), ba_bfp (lateral PNP gain), ba_is (NPN saturation
+* current: the I_ABC input's diode drop), ba_re (control
+* mirror emitter resistors), ba_rpu (buffer pull-up).
+.param ba_bfn=200 ba_bfp=50 ba_re=450 ba_rpu=10k ba_is=5e-16
+.model BA662N NPN(IS={ba_is} BF={ba_bfn} VAF=100 BR=1 RB=200 RE=2 RC=50 IKF=10m
++ CJE=0.6p CJC=0.5p CJS=1.5p TF=0.4n)
+.model BA662LP PNP(IS=5e-16 BF={ba_bfp} VAF=50 BR=1 RB=150 RE=5 RC=100 IKF=0.5m
++ CJE=0.4p CJC=1p TF=25n)
+.model BA662SP PNP(IS=5e-16 BF={1.5*ba_bfp} VAF=60 BR=1 RB=150 RE=5 RC=50 IKF=3m
++ CJE=0.6p CJC=1.5p TF=3n)
+
+.subckt BA662 1 2 3 4 5 6 7 8 9
+* control-current mirror: pin 1 into the diode side, the other side is the pair's tail
+Q1B 1 1 e1b BA662N
+R1B e1b 5 {ba_re}
+Q1A tail 1 e1a BA662N
+R1A e1a 5 {ba_re}
+* differential pair
+Q2A ca 2 tail BA662N
+Q2B cb 3 tail BA662N
+* -IN side: PNP Wilson mirror (Q3B diode, Q3A, Q5A), its output into the NPN Wilson mirror
+Q3B x1 x1 9 BA662LP
+Q3A ca x1 9 BA662LP
+Q5A o1 ca x1 BA662LP
+Q6B y y 5 BA662N
+Q6A o1 y 5 BA662N
+Q7B 6 o1 y BA662N
+* +IN side: PNP Wilson mirror sourcing into pin 6
+Q4B x2 x2 9 BA662LP
+Q4A cb x2 9 BA662LP
+Q5B 6 cb x2 BA662LP
+* buffer: Q7A NPN follower on a current sink set from pin 4, Q8A PNP follower with pull-up
+R3 4 nb 40k
+Q9B nb nb 5 BA662N
+Q9A e7 nb 5 BA662N
+R4 9 c7 500
+Q7A c7 7 e7 BA662N
+Q8A 5 e7 8 BA662SP
+R5 9 8 {ba_rpu}
+.ends BA662
+
+* The textbook OTA the voice model uses (core/voice.cpp vcaStep): output current
+* I_ABC tanh(v/2V_T) with I_ABC the current into pin 1 (which sits at a diode drop), unlimited
+* output swing and an ideal unity buffer. Pins 4 and 9 are unused.
+.subckt BA662IDEAL 1 2 3 4 5 6 7 8 9
+D1 1 n1 BA662ID
+Vabc n1 5 0
+Bota 5 6 I = I(Vabc)*tanh((V(3)-V(2))/(2*0.025865))
+Ebuf 8 5 7 5 1
+.model BA662ID D(IS=2e-15)
+.ends BA662IDEAL

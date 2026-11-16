@@ -56,7 +56,7 @@ void testUpdates()
 }
 
 // The prompt the first time a machine starts without an optional ROM, with the first machine that
-// has one.
+// has one. Its required ROMs (if any) come from the private folder; without them it isn't checked.
 void testRomPrompt()
 {
 	std::printf("\nFirst start without an optional ROM\n");
@@ -68,9 +68,25 @@ void testRomPrompt()
 		std::printf("      no machine here runs without an optional ROM: not checked\n");
 		return;
 	}
+	const auto &optional = *std::find_if(info->roms.begin(), info->roms.end(), [](const lemus::RomSpec &r) { return r.optional; });
 	RomFolder folder; // the answer is kept in memory, not in the user's settings
+	auto addRequired = [&] {
+		for (const auto &r : info->roms) {
+			if (r.optional)
+				continue;
+			const auto data = privateRom(info->id, r.name);
+			if (data.isEmpty()) {
+				std::printf("      no %s in the private ROM folder: %s's prompt not checked\n", r.name.toRawUTF8(), info->name.toRawUTF8());
+				return false;
+			}
+			folder.add(r.name, data);
+		}
+		return true;
+	};
+	if (!addRequired())
+		return;
 	lemus::setRomPromptAnswered(info->id, false);
-	const auto voice = "Use " + info->roms.front().mode.toLowerCase();
+	const auto voice = "Use " + optional.mode.toLowerCase();
 	{
 		LemusProcessor p;
 		check(p.selectMachine(info->id), info->name + " loads without its optional ROM");
@@ -105,6 +121,7 @@ void testRomPrompt()
 		check(p.romsWithout().empty() && !lemus::romPromptAnswered(info->id), "loaded with its ROM, the answer is forgotten");
 	}
 	folder.clear();
+	addRequired();
 	{
 		LemusProcessor p;
 		p.selectMachine(info->id);

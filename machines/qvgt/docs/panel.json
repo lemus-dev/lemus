@@ -1,0 +1,651 @@
+{
+ "source": "Front panel measured 2026-11-11 from a used-unit listing's photos (a straight-on view of the whole front at 1.58 px/mm, sections of it at 4-4.4 px/mm, the rear) and the quick-setup sheet's panel drawing, which is to scale within about 4 mm. Positions from the whole view anchored on the rack slots (465.1 mm apart) and the key section at 4.05 px/mm; about +-1.5 mm. Colours from the photos, their blue cast taken out.",
+ "units": "mm from the plate's top left corner",
+ "width": 482.6,
+ "height": 43.66,
+ "colours": {
+  "face": "#1c1c1f",
+  "legend": "#ececea",
+  "digit": "#8a8a8c",
+  "blue": "#3a7cc4",
+  "rule": "#3159a8",
+  "key": "#808581",
+  "key_power": "#8a8e8a",
+  "lcd_lit": "#d8a018",
+  "lcd_ink": "#3a2a08",
+  "lcd_off": "#2a2410",
+  "led_red": "#ff3324",
+  "led_green": "#46e85a"
+ },
+ "slots": {
+  "centres": [
+   [
+    8.75,
+    5.96
+   ],
+   [
+    8.75,
+    37.7
+   ],
+   [
+    473.85,
+    5.96
+   ],
+   [
+    473.85,
+    37.7
+   ]
+  ],
+  "w": 12.4,
+  "h": 7.2
+ },
+ "screws": {
+  "centres": [
+   [
+    30.4,
+    8.6
+   ],
+   [
+    30.4,
+    33.5
+   ],
+   [
+    453.5,
+    8.6
+   ],
+   [
+    453.5,
+    33.5
+   ]
+  ],
+  "d": 5.6
+ },
+ "logos": [
+  {
+   "place": "maker",
+   "mark": "alesis",
+   "label": "Alesis logo",
+   "box": [
+    42.8,
+    1.6,
+    27.7,
+    4.9
+   ]
+  },
+  {
+   "place": "name",
+   "mark": "quadraverb_gt",
+   "label": "QuadraVerb GT logo",
+   "box": [
+    134.7,
+    1.5,
+    66.6,
+    8.4
+   ]
+  }
+ ],
+ "rule": {
+  "from": [
+   42.8,
+   7.25
+  ],
+  "to": [
+   134.7,
+   7.25
+  ],
+  "w": 0.6
+ },
+ "meter": {
+  "labels_right": 48.2,
+  "led_x": 52.7,
+  "led_d": 2.6,
+  "rows": [
+   {
+    "label": "CLIP",
+    "y": 19.4,
+    "colour": "led_red"
+   },
+   {
+    "label": "-6 dB",
+    "y": 25.1,
+    "colour": "led_green"
+   },
+   {
+    "label": "-12 dB",
+    "y": 30.9,
+    "colour": "led_green"
+   },
+   {
+    "label": "-18 dB",
+    "y": 36.6,
+    "colour": "led_green"
+   }
+  ],
+  "cap": 2.6,
+  "italic": true
+ },
+ "knobs": [
+  {
+   "name": "INPUT",
+   "param": "input",
+   "c": [
+    75.3,
+    24.2
+   ],
+   "d": 15.8,
+   "label_y": 37.8
+  },
+  {
+   "name": "OUTPUT",
+   "param": "output",
+   "c": [
+    103.0,
+    24.2
+   ],
+   "d": 15.8,
+   "label_y": 37.8
+  }
+ ],
+ "knob_label_cap": 3.0,
+ "knob_pointer": {
+  "w": 2.3,
+  "from_r": 0.0,
+  "to_r": 3.2
+ },
+ "lcd": {
+  "window": [
+   135.2,
+   11.5,
+   65.4,
+   20.0
+  ],
+  "text": [
+   142.9,
+   15.0,
+   53.3,
+   13.1
+  ]
+ },
+ "texts": [
+  {
+   "text": "20K BANDWIDTH SIMULTANEOUS GUITAR EFFECTS PROCESSOR",
+   "box": [
+    136.9,
+    34.0,
+    64.9,
+    2.4
+   ],
+   "colour": "legend",
+   "bold": true,
+   "italic": true
+  },
+  {
+   "text": "FULLY PROGRAMMABLE",
+   "box": [
+    416.0,
+    28.6,
+    30.0,
+    1.9
+   ],
+   "colour": "blue",
+   "bold": true,
+   "italic": true,
+   "rule_below": 0.9
+  },
+  {
+   "text": "GUITAR AMP SIMULATOR",
+   "box": [
+    416.0,
+    31.2,
+    30.0,
+    1.7
+   ],
+   "colour": "blue",
+   "bold": true
+  },
+  {
+   "text": "AND DIGITAL EFFECTS",
+   "box": [
+    416.0,
+    33.5,
+    30.0,
+    1.7
+   ],
+   "colour": "blue",
+   "bold": true
+  }
+ ],
+ "triangles": [
+  {
+   "c": [
+    235.5,
+    10.6
+   ],
+   "w": 8.4,
+   "h": 4.3,
+   "up": true
+  },
+  {
+   "c": [
+    257.5,
+    10.6
+   ],
+   "w": 8.4,
+   "h": 4.3,
+   "up": true
+  },
+  {
+   "c": [
+    235.5,
+    40.2
+   ],
+   "w": 8.4,
+   "h": 4.0,
+   "up": false
+  },
+  {
+   "c": [
+    257.5,
+    40.2
+   ],
+   "w": 8.4,
+   "h": 4.0,
+   "up": false
+  }
+ ],
+ "key_cap": [
+  15.1,
+  5.7
+ ],
+ "key_label_cap": 2.7,
+ "rows": {
+  "upper": {
+   "key_y": 15.0,
+   "label_y": 11.4
+  },
+  "lower": {
+   "key_y": 30.3,
+   "label_y": 26.3
+  }
+ },
+ "keys": [
+  {
+   "key": 7,
+   "name": "PAGE up",
+   "x": 235.5,
+   "row": "upper",
+   "w": 16.0,
+   "led": null
+  },
+  {
+   "key": 6,
+   "name": "PAGE down",
+   "x": 235.5,
+   "row": "lower",
+   "w": 16.0,
+   "led": null
+  },
+  {
+   "key": 3,
+   "name": "VALUE up",
+   "x": 257.5,
+   "row": "upper",
+   "w": 16.0,
+   "led": null
+  },
+  {
+   "key": 2,
+   "name": "VALUE down",
+   "x": 257.5,
+   "row": "lower",
+   "w": 16.0,
+   "led": null
+  },
+  {
+   "key": 11,
+   "name": "PROG",
+   "x": 291.0,
+   "row": "upper",
+   "label": "PROG",
+   "label_colour": "digit",
+   "led": [
+    3,
+    7
+   ]
+  },
+  {
+   "key": 10,
+   "name": "STORE",
+   "x": 291.0,
+   "row": "lower",
+   "label": "STORE",
+   "led": [
+    2,
+    5
+   ]
+  },
+  {
+   "key": 15,
+   "name": "REVERB",
+   "x": 316.1,
+   "row": "upper",
+   "label": "REVERB",
+   "digit": "1",
+   "led": [
+    4,
+    1
+   ]
+  },
+  {
+   "key": 14,
+   "name": "CONFIG",
+   "x": 316.1,
+   "row": "lower",
+   "label": "CONFIG",
+   "digit": "6",
+   "led": [
+    4,
+    0
+   ]
+  },
+  {
+   "key": 12,
+   "name": "DELAY",
+   "x": 336.8,
+   "row": "upper",
+   "label": "DELAY",
+   "digit": "2",
+   "led": [
+    4,
+    3
+   ]
+  },
+  {
+   "key": 13,
+   "name": "MIX",
+   "x": 336.8,
+   "row": "lower",
+   "label": "MIX",
+   "digit": "7",
+   "led": [
+    4,
+    2
+   ]
+  },
+  {
+   "key": 8,
+   "name": "PITCH",
+   "x": 357.4,
+   "row": "upper",
+   "label": "PITCH",
+   "digit": "3",
+   "led": [
+    4,
+    5
+   ]
+  },
+  {
+   "key": 9,
+   "name": "NAME/MOD",
+   "x": 357.4,
+   "row": "lower",
+   "label": "NAME/MOD",
+   "digit": "8",
+   "led": [
+    4,
+    4
+   ]
+  },
+  {
+   "key": 0,
+   "name": "EQ",
+   "x": 378.1,
+   "row": "upper",
+   "label": "EQ",
+   "digit": "4",
+   "led": [
+    4,
+    7
+   ]
+  },
+  {
+   "key": 1,
+   "name": "PRE-AMP",
+   "x": 378.1,
+   "row": "lower",
+   "label": "PRE-AMP",
+   "digit": "9",
+   "led": [
+    4,
+    6
+   ]
+  },
+  {
+   "key": 4,
+   "name": "MIDI",
+   "x": 398.2,
+   "row": "upper",
+   "label": "MIDI",
+   "digit": "5",
+   "led": [
+    2,
+    7
+   ]
+  },
+  {
+   "key": 5,
+   "name": "BYPASS",
+   "x": 398.2,
+   "row": "lower",
+   "label": "BYPASS",
+   "digit": "0",
+   "led": [
+    2,
+    6
+   ]
+  }
+ ],
+ "labels_note": "PAGE and VALUE are printed between their keys (y 25.3); the function keys' labels sit over them with the number in grey; PROG is printed grey.",
+ "page_value_label_y": 25.3,
+ "led_in_key_d": 1.8,
+ "power": {
+  "box": [
+   425.8,
+   8.6,
+   16.4,
+   6.2
+  ],
+  "label": "POWER",
+  "label_y": 5.7,
+  "label_cap": 1.9
+ },
+ "rear": {
+  "source": "A listing's straight-on photo of the whole rear (positions, 1.61 px/mm) and another's straight-on close-ups (heights). The chassis face's width isn't in either: taken as 445 mm, centred (it has to clear the rails' 450 mm opening; the front photos put it at 440-450), so positions are +-5 mm. Seen from behind, x from the view's left edge.",
+  "face": [
+   18.8,
+   0.8,
+   445.0,
+   42.0
+  ],
+  "screws": [
+   [
+    21.0,
+    9.2
+   ],
+   [
+    21.0,
+    36.5
+   ],
+   [
+    461.6,
+    9.2
+   ],
+   [
+    461.6,
+    36.5
+   ]
+  ],
+  "screw_d": 4.5,
+  "jack_y": 17.6,
+  "label_y": [
+   29.7,
+   35.6
+  ],
+  "label_cap": 2.0,
+  "jacks": [
+   {
+    "name": "POWER",
+    "label": [
+     "POWER",
+     "9V AC"
+    ],
+    "x": 68.1,
+    "kind": "din",
+    "d": 17.0
+   },
+   {
+    "name": "ADVANCE",
+    "label": [
+     "ADVANCE"
+    ],
+    "x": 97.9,
+    "kind": "jack",
+    "d": 16.0,
+    "footswitch": 1
+   },
+   {
+    "name": "BYPASS",
+    "label": [
+     "BYPASS"
+    ],
+    "x": 119.2,
+    "kind": "jack",
+    "d": 16.0,
+    "footswitch": 0
+   },
+   {
+    "name": "MIDI THRU/OUT",
+    "label": [
+     "THRU/OUT"
+    ],
+    "x": 143.9,
+    "kind": "din",
+    "d": 17.0
+   },
+   {
+    "name": "MIDI IN",
+    "label": [
+     "IN"
+    ],
+    "x": 164.5,
+    "kind": "din",
+    "d": 17.0
+   },
+   {
+    "name": "OUTPUT L",
+    "label": [
+     "L"
+    ],
+    "x": 189.1,
+    "kind": "jack",
+    "d": 16.0
+   },
+   {
+    "name": "OUTPUT R",
+    "label": [
+     "R"
+    ],
+    "x": 209.7,
+    "kind": "jack",
+    "d": 16.0
+   },
+   {
+    "name": "EFFECTS RETURN",
+    "label": [
+     "RETURN"
+    ],
+    "x": 241.4,
+    "kind": "jack",
+    "d": 16.0
+   },
+   {
+    "name": "EFFECTS SEND",
+    "label": [
+     "SEND"
+    ],
+    "x": 263.2,
+    "kind": "jack",
+    "d": 16.0
+   },
+   {
+    "name": "INPUT L",
+    "label": [
+     "L"
+    ],
+    "x": 391.8,
+    "kind": "jack",
+    "d": 16.0
+   },
+   {
+    "name": "INPUT R",
+    "label": [
+     "R"
+    ],
+    "x": 412.4,
+    "kind": "jack",
+    "d": 16.0
+   }
+  ],
+  "brackets": [
+   {
+    "text": "MIDI",
+    "from": 143.9,
+    "to": 164.5
+   },
+   {
+    "text": "OUTPUT",
+    "from": 189.1,
+    "to": 209.7
+   },
+   {
+    "text": "EFFECTS",
+    "from": 241.4,
+    "to": 263.2
+   },
+   {
+    "text": "INPUT",
+    "from": 391.8,
+    "to": 412.4
+   }
+  ],
+  "logo": {
+   "mark": "alesis",
+   "box": [
+    287.3,
+    9.0,
+    80.4,
+    13.5
+   ]
+  },
+  "texts": [
+   {
+    "text": "THIS PRODUCT MEETS THE FCC REQUIREMENTS",
+    "box": [
+     298.0,
+     29.0,
+     58.0,
+     1.4
+    ]
+   },
+   {
+    "text": "FOR CLASS B COMPUTING EQUIPMENT.",
+    "box": [
+     302.0,
+     31.6,
+     50.0,
+     1.4
+    ]
+   }
+  ]
+ }
+}

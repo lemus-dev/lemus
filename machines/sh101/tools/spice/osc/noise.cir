@@ -1,0 +1,21 @@
+* SH-101 noise amplifier (docs/circuit-osc.md 4.6): TR23's junction as an AC current source with
+* its dynamic resistance rd (set by compare.py), R84, C34, TR22 with R83 / R85, C33, C31 and R87 to the
+* bus, IC12a with R88 10k and R86 220k / C32 240p. R84 and R83 are on +14 V (SN p.7's filled arrow,
+* circuit-osc.md 1); IC12a on +15 V.
+V15 n15 0 14.87
+V14 n14 0 14.3
+VREF nref 0 5
+R84 n14 nsrc 1Meg
+Rd nsrc 0 {rd}
+Iac 0 nsrc AC 1e-6
+C34 nsrc nb22 10u
+R85 nc22 nb22 470k
+R83 n14 nc22 47k
+Q22 nc22 nb22 0 Q2SC1815
+C33 nc22 n3 10u
+C31 n3 nref 10n
+R87 n3 nref 47k
+X12a n3 n2 nout n15 0 IR9022
+R88 n2 nref 10k
+R86 n2 nout 220k
+C32 n2 nout 240p

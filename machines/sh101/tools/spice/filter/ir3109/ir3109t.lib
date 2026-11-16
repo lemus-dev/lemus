@@ -1,0 +1,103 @@
+* IR3109 at transistor level, from the published decodes (none is a maker's circuit):
+*  - Open Music Labs' reverse-engineered schematic and sketches (2014): four bare differential-pair
+*    OTAs with Wilson mirrors, the non-inverting input to pin 1 through an internal resistor;
+*    P-channel MOS source-follower buffers, 20k pull-ups on stages 1 and 3, current sources set by
+*    a 22k reference on stages 2 and 4; an expo converter whose reference transistor an op-amp holds
+*    at ~3 uA, pin 9 on the other transistor's base.
+*  - Roland's IR3109 data sheet (10 May 1982 excerpt): "four variable transconductance amplifiers
+*    (1 u-mho .. 10 m-mho) ... four high input impedance buffers (MOS P-channel)", offset < +-3 mV.
+*  - The AS3109 data sheet (Alfa, 2022), Fig. 2 and "Rin in each amplifier is approximately 560 ohm";
+*    control input current 30 nA; stages 1/3 resistive load, 2/4 current-source load.
+* Device models are generic integrated ones (this file): no IR3109 device data exists. NPN: small
+* vertical, BF 150, VAF 80. PNP: lateral, BF 40, VAF 40, slow. PMOS: level 1, |VTO| 2.3 V, with
+* K' x W/L chosen so |V_GS| is 2.9-3.1 V at the buffers' currents (OML measured 2.9-3 V).
+*
+*   1 GND(ref)  2 IN1  3 CAP1  4 OUT1  5 IN2  6 CAP2  7 OUT2  8 VEE  9 VC  10 IN3  11 CAP3
+*   12 OUT3  13 IN4  14 CAP4  15 OUT4  16 VCC
+* PARAMS: iabc, each OTA's tail current (the expo converter is checked on its own: IR3109EXPO).
+
+.model QNI NPN(IS=5e-16 BF=150 VAF=80 IKF=10m RB=150 RE=2 RC=40 CJE=0.4p CJC=0.3p CJS=1p TF=0.4n TR=20n)
+.model QPL PNP(IS=5e-16 BF=40 VAF=40 IKF=1m RB=200 RE=5 RC=60 CJE=0.4p CJC=0.6p CJS=2p TF=25n TR=200n)
+.model PMB PMOS(LEVEL=1 VTO=-2.3 KP=1e-3 LAMBDA=0.01 CGSO=1p CGDO=0.5p)
+
+* One filter stage: input pair, Wilson mirrors, buffer. tb: the tail mirror's base line.
+* Q1 (IN) collector current is turned round by a PNP and an NPN Wilson and sinks from CAP; Q2's
+* is sourced into CAP by a PNP Wilson: I(CAP) = I_C2 - I_C1 = -I_ABC tanh(V_in/2V_T), so the stage
+* inverts relative to IN.
+.subckt IR3109OTA in ref cap vcc vee tb
+Q1 c1 in e QNI
+Q2 c2 b2 e QNI
+Rin b2 ref 560
+Qt e tb vee QNI
+* PNP Wilson from c1 (input) to m (output)
+QP1a c1 xa vcc QPL
+QP2a xa xa vcc QPL
+QP3a m c1 xa QPL
+* NPN Wilson from m (input) to cap (output, sinking)
+QN1 m yb vee QNI
+QN2 yb yb vee QNI
+QN3 cap m yb QNI
+* PNP Wilson from c2 (input) to cap (output, sourcing)
+QP1b c2 xb vcc QPL
+QP2b xb xb vcc QPL
+QP3b cap c2 xb QPL
+.ends IR3109OTA
+
+.subckt IR3109T 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 PARAMS: iabc=10u
+* Master of the tail mirrors (the expo converter's output, here a parameter), with a beta helper
+* biased lightly: a real chip's law stays exponential down to a few nanoamps, which a helper drawing
+* tens of nanoamps out of the master (100k) would bend (docs/model-filter.md 2).
+Iabc 16 nref {iabc}
+Qref nref nb 8 QNI
+Qbh 16 nref nb QNI
+Rbh nb 8 10Meg
+X1 2 1 3 16 8 nb IR3109OTA
+X2 5 1 6 16 8 nb IR3109OTA
+X3 10 1 11 16 8 nb IR3109OTA
+X4 13 1 14 16 8 nb IR3109OTA
+* Buffers: P-MOS source followers, drain to VEE.
+M1 8 3 4 4 PMB W=1 L=1
+M2 8 6 7 7 PMB W=1 L=1
+M3 8 11 12 12 PMB W=1 L=1
+M4 8 14 15 15 PMB W=1 L=1
+* Loads: 20k pull-ups (stages 1, 3); PNP current sources from a 22k reference (stages 2, 4).
+Rp1 16 4 20k
+Rp3 16 12 20k
+QPr nr nr 16 QPL
+Rr nr 8 22k
+QPl2 7 nr 16 QPL
+QPl4 15 nr 16 QPL
+* Pin 9: a bare base (AS3109: 30 nA); unused here.
+Rvc 9 1 100Meg
+.ends IR3109T
+
+* The expo converter alone (OML's sketch): a ~3 uA reference, held through Qr by an op-amp that
+* drives the joined emitters through 1.6k; pin 9 on Qr's base, Qo's base on pin 1, Qo's collector
+* the output current (into "out", held at a fixed voltage by the test).
+.subckt IR3109EXPO vc ref vcc vee out PARAMS: iref=3u
+Iref vcc r {iref}
+Qr r vc e QNI
+Qo out ref e QNI
+R16 d e 1.6k
+* op-amp (BA662-core in OML's sketch): high gain, output between the rails
+Bop d 0 V = max(min(-1e4*(V(r)-V(ref)-1.0), V(vcc)-1), V(vee)+1)
+.ends IR3109EXPO
+
+* Diagnostic: the transistor-level OTAs with the behavioural buffers (OUT = CAP + 2.9 V with the
+* soft tops of models.lib), to separate the OTAs' and the buffers' share of any difference.
+.subckt IR3109TI 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 PARAMS: iabc=10u
+.param vgs=2.9 w=0.05
+Iabc 16 nref {iabc}
+Qref nref nb 8 QNI
+Qbh 16 nref nb QNI
+Rbh nb 8 10Meg
+X1 2 1 3 16 8 nb IR3109OTA
+X2 5 1 6 16 8 nb IR3109OTA
+X3 10 1 11 16 8 nb IR3109OTA
+X4 13 1 14 16 8 nb IR3109OTA
+B1o 4 1 V = (V(3,1)+{vgs}) - {w}*ln(1+exp(((V(3,1)+{vgs})-2.5)/{w}))
+B2o 7 1 V = (V(6,1)+{vgs}) - {w}*ln(1+exp(((V(6,1)+{vgs})-3.8)/{w}))
+B3o 12 1 V = (V(11,1)+{vgs}) - {w}*ln(1+exp(((V(11,1)+{vgs})-2.5)/{w}))
+B4o 15 1 V = (V(14,1)+{vgs}) - {w}*ln(1+exp(((V(14,1)+{vgs})-3.8)/{w}))
+Rvc 9 1 100Meg
+.ends IR3109TI

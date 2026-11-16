@@ -1,0 +1,20 @@
+* SH-101 PULSE WIDTH network (control board S4, VR12; synth board TR25, R96, R94 + VR4, C37) at DC
+* (docs/circuit-osc.md 4.4). compare.py sets rt/rb (VR12 above/below the wiper), x (R94 + VR4),
+* src (0 MAN, 1 LFO, 2 ENV) and vin (the triangle or the ENV, absolute volts).
+V15 n15 0 14.87
+V14 n14 0 14.3
+VREF nref 0 5
+Vin nin 0 {vin}
+R178 n14 nman 120k
+Rman nman ntop {src == 0 ? 1 : 1e12}
+R176 nin nlfo 82k
+R177 n14 nlfo 150k
+Rlfo nlfo ntop {src == 1 ? 1 : 1e12}
+R190 nin nenv 18k
+Renv nenv ntop {src == 2 ? 1 : 1e12}
+Rt ntop nw {rt}
+Rb nw nref {rb}
+Q25 n14 nw ne Q2SC1815
+R96 ne npin5 100k
+Rx npin5 0 {x}
+C37 npin5 0 10n

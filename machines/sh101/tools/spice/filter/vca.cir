@@ -1,0 +1,44 @@
+* SH-101 VCA and output (docs/circuit-filter.md 6-7): TR28 (common base on the bus) from the ENV
+* through R197 3.3k and R133 12k (S6 ENV, R196 120k from +14 V on S6's side), IC15 BA662A (ba662.lib) with R138/R139 1k and R140
+* 47k, VOLUME 100k A, IC1a (M5218 on +9 V) and jack board A into the load.
+* compare_vca.py fills in the control, the input, the VOLUME halves and the analysis.
+.include models.lib
+.include ba662.lib
+Vbus bus 0 5.0
+* R196, the BA662's pin 9 and C55 are on SN p.7's filled arrow: +14 V, TR3's emitter (14.3 V,
+* U-Labor). 25 C, as the model (models.lib).
+.options temp=25
+V14 v14 0 14.3
+V9 v9 0 9.0
+
+* Control: ENV mode, the ENV line through R197 to S6's ENV contact, which R196 pulls towards
+* +14 V (the board diagram's placement), then R133 into TR28's emitter.
+Venv env 0 {VENV}
+R197 env s6 3.3k
+R196 v14 s6 120k
+R133 s6 e28 12k
+Q28 c28 bus e28 Q2SA1015
+Vpin1 c28 p1 0
+
+* Input: pin 3 through the R130/R132/C53 network's Thevenin (about 1k with R139), pin 2 R138.
+{VIN}
+Rin vin p3 75k
+R139 p3 bus 1k
+R138 p2 bus 1k
+XIC15 p1 p2 p3 bus 0 p6 p6 p8 v14 BA662 {BAPARAMS}
+R140 p6 bus 47k
+C55 v14 0 22u
+
+* VOLUME 100k A from pin 8 to the bus; IC1a follower (M5218 on +9 V: 1.2-7.8 V); C2; jack board.
+RVt p8 vw {RVT}
+RVb vw bus {RVB}
+Bic1 o1 0 V = min(max(V(vw), 1.2), 7.8)
+C2 o1 ja 2.2u
+R30 ja 0 100k
+R29 ja jb 2.2k
+C12 jb 0 1n
+R28 jb jack 1k
+Rload jack 0 47k
+
+{ANALYSIS}
+.end

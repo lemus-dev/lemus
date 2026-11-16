@@ -1,0 +1,36 @@
+* QuadraVerb GT preamp, after the gate (sheet 1): U4 VCA 2's output current (an input here) into
+* U13D (12 +, 13 -, 14 out; R101 20K, C38 20p), the effects loop (send: R96 910, R119 100 to J7;
+* return: J8 into U13B, a follower, then R120, R121), U3 picking the return (Y) or the send's signal
+* (X: R99 10K, R95 6.8K), and U13C (10 +, 9 -, 8 out; R102 10K): to the A/D (sheet 2, U16 pin 3).
+* With nothing in J8 the tip is R118's 0 V, and J8's switch grounds U3's select (the loop out
+* whatever U11 says: core/preamp.cpp).
+* The TL084s without their slew limit (13 V/us; audio needs 1.3 at most): with it the solver fails
+* where a stage clips, and leaving it out moves a clipping stage's output 80-94 dB under the signal
+* against ngspice with it (docs/circuit.md).
+.param gbw=3meg gain=2e5 sat=10.5 sr=0 ron=125
+* Each op-amp's input noise as a source in series with its + input (input noise_<part>, 0 V
+* unless HISS is on: core/preamp.cpp).
+Ivca 0 g13 input vca
+X13D nz_13d g13 u13d opamp {gbw} {gain} {sat} {sr}
+VNZ_13D nz_13d 0 input noise_13d
+R101 g13 u13d 20k
+C38 g13 u13d 20p
+R96 u13d snd 910
+R119 snd 0 100
+Vret ret 0 input ret
+R118 ret 0 47k
+R123 ret r5 1k
+X13B nz_13b r7 r7 opamp {gbw} {gain} {sat} {sr}
+VNZ_13B nz_13b r5 input noise_13b
+R120 r7 yy 1k
+R121 yy 0 680
+R99B u13d xx 10k
+R95 xx 0 6.8k
+S3Y yy n9c loop {ron} 1e9
+S3X xx n9c !loop {ron} 1e9
+X13C nz_13c n9c out opamp {gbw} {gain} {sat} {sr}
+VNZ_13C nz_13c 0 input noise_13c
+R102 n9c out 10k
+.output out out
+.output send snd
+.control loop 0

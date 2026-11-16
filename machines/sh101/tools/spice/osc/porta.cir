@@ -1,0 +1,28 @@
+* SH-101 portamento (bender board): VR2 into C10 and IC2b, TR1 2SK30A across VR2, TR4/TR5 driving its
+* gate through D1, S3 (docs/circuit-osc.md 3). Included by compare.py, which sets:
+*   rpot    VR2's resistance (the track between the wiper, tied to PORTA IN, and C10)
+*   mode    0 ON (TR5's base left to R23), 1 AUTO (the GATE IN differentiator and PORTA OFF),
+*           2 OFF (R24 from +14 V)
+* and the sources Vkcv (nporta), Vgate (ngate, 0/12 V) and Vpo (npo, PORTA OFF 0/5 V).
+V14 n14 0 14
+VM5 nm5 0 -5
+Rpot nporta nc10 {rpot}
+J1 nc10 ng nporta J2SK30
+R17 ng nporta 1Meg
+C10 nc10 0 0.33u
+X2b nc10 ncv ncv n14 nm5 TL062
+D1 ng n4c D1S
+Q4 n4c nb4 n14 Q2SA1015
+R18 n14 nb4 22k
+R19 nb4 n5c 100k
+R14 n4c nm5 100k
+Q5 n5c nx 0 Q2SC1815
+R23 nx 0 100k
+D2 0 nx D1S
+* S3: AUTO connects the differentiator and PORTA OFF; OFF connects R24
+R15 ngate ng15 47k
+C11 ng15 nxa 4.7n
+R16 npo nxa 220k
+Rauto nxa nx {mode == 1 ? 1 : 1e12}
+R24 n14 nr24 220k
+Roff nr24 nx {mode == 2 ? 1 : 1e12}

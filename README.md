@@ -3,30 +3,34 @@
 Legacy Electronic MUsic Systems: a MAME-style emulator for studio gear, as AU/VST3 plugins.
 One shared host runs many machines (drivers). Each machine ships as a plugin of its own, the host
 with that machine alone, named maker, kind, model: the TB-303 is **ro-mono-303**, the TR-909
-**ro-drums-909**, the TR-808 **ro-drums-808**, the Virus C **ac-digital-vc**. Downloads, user
+**ro-drums-909**, the TR-808 **ro-drums-808**, the Virus C **ac-digital-vc**, the QuadraVerb GT
+**al-fx-quadgt**, the SH-101 **ro-mono-101**. Downloads, user
 guides and measurements against real units are on https://lemusdev.org.
 
 Status: early. The machines released so far are the Roland TB-303 (ro-mono-303), the Roland
-TR-909 (ro-drums-909), the Roland TR-808 (ro-drums-808) and the Access Virus C (ac-digital-vc). Others are in development and join this repository when they're released.
+TR-909 (ro-drums-909), the Roland TR-808 (ro-drums-808), the Access Virus C (ac-digital-vc), the Alesis QuadraVerb GT (al-fx-quadgt) and the Roland SH-101 (ro-mono-101). Others are in development and join this repository when they're released.
 
 ## Building
 
 Needs CMake 3.22+ and JUCE, a submodule (`git submodule update --init`).
 
     cmake -S . -B build/cmake -DCMAKE_BUILD_TYPE=Release
-    cmake --build build/cmake -j --target plugin_tb303_All plugin_tr909_All plugin_tr808_All plugin_virusc_All Lemus_All lemustest_instrument lemustest_tb303 lemustest_tr909 lemustest_tr808 lemustest_virusc
+    cmake --build build/cmake -j --target plugin_tb303_All plugin_tr909_All plugin_tr808_All plugin_virusc_All plugin_qvgt_All plugin_sh101_All Lemus_All lemustest_instrument lemustest_tb303 lemustest_tr909 lemustest_tr808 lemustest_virusc lemustest_qvgt lemustest_sh101 lemustest_fx
     build/cmake/lemustest_instrument_artefacts/Release/lemustest_instrument
     build/cmake/lemustest_tb303_artefacts/Release/lemustest_tb303
     build/cmake/lemustest_tr909_artefacts/Release/lemustest_tr909
     build/cmake/lemustest_tr808_artefacts/Release/lemustest_tr808
     build/cmake/lemustest_virusc_artefacts/Release/lemustest_virusc
+    build/cmake/lemustest_qvgt_artefacts/Release/lemustest_qvgt
+    build/cmake/lemustest_sh101_artefacts/Release/lemustest_sh101
+    build/cmake/lemustest_fx_artefacts/Release/lemustest_fx
 
-`plugin_tb303_All` is ro-mono-303, `plugin_tr909_All` ro-drums-909, `plugin_tr808_All` ro-drums-808 and `plugin_virusc_All` ac-digital-vc (AU, VST3, standalone); `Lemus_All` is the development host,
+`plugin_tb303_All` is ro-mono-303, `plugin_tr909_All` ro-drums-909, `plugin_tr808_All` ro-drums-808, `plugin_virusc_All` ac-digital-vc, `plugin_qvgt_All` al-fx-quadgt and `plugin_sh101_All` ro-mono-101 (each AU, VST3, standalone); `Lemus_All` is the development host,
 which starts empty and loads a machine from its picker. The AU and VST3 are copied to
 `~/Library/Audio/Plug-Ins/` (`-DLEMUS_COPY_PLUGINS=OFF` while a host has them loaded), and
 `-DLEMUS_TOOLS=OFF` leaves out the test host and tests. Releases: `tools/release/README.md`.
 `auval -v aumu R303 Lmus` checks ro-mono-303's AU, `auval -v aumu R909 Lmus` ro-drums-909's,
-`auval -v aumu R808 Lmus` ro-drums-808's, `auval -v aumu Avrc Lmus` ac-digital-vc's.
+`auval -v aumu R808 Lmus` ro-drums-808's, `auval -v aumu Avrc Lmus` ac-digital-vc's, `auval -v aumf Aqvg Lmus` al-fx-quadgt's, `auval -v aumu R101 Lmus` ro-mono-101's.
 
 The machines' Python tools run from a virtual environment with pinned libraries (Python 3.14), set
 up once from the repo root: `python3.14 -m venv .venv && .venv/bin/pip install -r tools/requirements.txt`.
@@ -136,7 +140,9 @@ AGPL-3.0 (`LICENSE`). JUCE is used under the AGPLv3. The TB-303's, TR-808's and 
 are ports of MAME's uCOM-4 and uPD7810 cores, BSD 3-Clause (see their files' headers and
 `tools/release/NOTICES.txt`). The Virus C's 80C515 and LCD controller are ports of MAME's mcs51
 and hd44780, BSD 3-Clause; its DSP56362 is the dsp56300 emulator, GPL-3.0, with asmjit (Zlib),
-combined with the AGPL code under section 13 of both licences (`machines/virusc/README.md`).
+combined with the AGPL code under section 13 of both licences (`machines/virusc/README.md`). The
+QuadraVerb GT's 80C31 is a port of MAME's mcs51 too, and the SH-101's 80C49 of MAME's mcs48, BSD
+3-Clause.
 
 Machine names identify the original equipment and are trademarks of their owners. Lemus is not
 affiliated with or endorsed by them.

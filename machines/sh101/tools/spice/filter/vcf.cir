@@ -1,0 +1,61 @@
+* SH-101 VCF (docs/circuit-filter.md 2-3): source mixer input through R111 470k and C45, IC14
+* IR3109 with its 68k/68k/560 networks and 240 pF capacitors, the resonance loop (VR18, TR26,
+* TR27, C52, R129, D30/D31, R113), the output sum (R130, R132) into C53 and R139.
+* compare_vcf.py fills in IABC, the VR18 halves RTOP/RBOT, the source and the analysis.
+.include models.lib
+Vbus bus 0 5.0
+* R135 is on SN p.7's filled arrow: +14 V, TR3's emitter (14.3 V, U-Labor). 25 C, as the model.
+.options temp=25
+V14 v14 0 14.3
+V9 v9 0 9.0
+
+* Source mixer: one source through its mixing resistor (the saw's R111 470k), C45 10u BP.
+{SOURCE}
+R111 src mix 470k
+C45 mix in1 10u
+
+* IR3109 and its networks (R114/R117/R118/R119/R121/R124/R122 68k, R115/R116/R120/R123 560).
+XIC14 bus in1 cap1 out1 in2 cap2 out2 0 vc in3 cap3 out3 in4 cap4 out4 v9 IR3109 PARAMS: iabc={IABC}
+Vvc vc bus 0
+R115 in1 b560 560
+R116 in2 b560 560
+R120 in3 b560 560
+R123 in4 b560 560
+C46 b560 0 2.2u
+Rb560 b560 bus 0.01
+R114 out1 in1 68k
+R117 out1 in2 68k
+R118 out2 in2 68k
+R119 out2 in3 68k
+R121 out3 in3 68k
+R124 out3 in4 68k
+R122 out4 in4 68k
+C48 cap1 bus 240p
+C47 cap2 bus 240p
+C50 cap3 bus 240p
+C51 cap4 bus 240p
+
+* Resonance: VR18 100k B from OUT4 to the bus (OML's correction), wiper to TR26.
+RVtop out4 wip {RTOP}
+RVbot wip bus {RBOT}
+Q26 c26 wip e26 Q2SC1815
+R131 e26 0 10k
+R136 c54 c26 15k
+R135 v14 c54 1k
+C54 c54 0 10u
+Q27 c54 c26 e27 Q2SC1815
+R137 e27 0 33k
+C52 e27 n52 10u
+R129 n52 dnode 5.6k
+D30 dnode bus D1S
+D31 bus dnode D1S
+R113 dnode in1 15k
+
+* Output: R130 (OUT4) and R132 (TR26's emitter) into C53, R139 1k to the bus (R138 on pin 2).
+R130 out4 jn 150k
+R132 e26 jn 150k
+C53 jn p3 10u
+R139 p3 bus 1k
+
+{ANALYSIS}
+.end

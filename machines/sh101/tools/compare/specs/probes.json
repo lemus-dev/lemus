@@ -1,0 +1,3022 @@
+[
+ {
+  "name": "probe-range-raw0",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO RANGE": 0
+  }
+ },
+ {
+  "name": "probe-range-raw1",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO RANGE": 1
+  }
+ },
+ {
+  "name": "probe-range-raw2",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO RANGE": 2
+  }
+ },
+ {
+  "name": "probe-range-raw3",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO RANGE": 3
+  }
+ },
+ {
+  "name": "probe-range-raw4",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO RANGE": 4
+  }
+ },
+ {
+  "name": "probe-range-raw5",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO RANGE": 5
+  }
+ },
+ {
+  "name": "probe-sub-raw0",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 1.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "SUB OSC TYPE": 0
+  }
+ },
+ {
+  "name": "probe-sub-raw1",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 1.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "SUB OSC TYPE": 1
+  }
+ },
+ {
+  "name": "probe-sub-raw2",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 1.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "SUB OSC TYPE": 2
+  }
+ },
+ {
+  "name": "probe-lfo-raw0",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.3,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR WAVEFORM": 0
+  }
+ },
+ {
+  "name": "probe-lfo-raw1",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.3,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR WAVEFORM": 1
+  }
+ },
+ {
+  "name": "probe-lfo-raw2",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.3,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR WAVEFORM": 2
+  }
+ },
+ {
+  "name": "probe-lfo-raw3",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.3,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR WAVEFORM": 3
+  }
+ },
+ {
+  "name": "probe-lfo-raw4",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.3,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR WAVEFORM": 4
+  }
+ },
+ {
+  "name": "probe-lfo-raw5",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.3,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR WAVEFORM": 5
+  }
+ },
+ {
+  "name": "probe-pwm-raw0",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.6,
+   "pwmSource": 1,
+   "pulseLevel": 1.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 0.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO PULSE WIDTH MOD": 0
+  }
+ },
+ {
+  "name": "probe-pwm-raw1",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.6,
+   "pwmSource": 1,
+   "pulseLevel": 1.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 0.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO PULSE WIDTH MOD": 1
+  }
+ },
+ {
+  "name": "probe-pwm-raw2",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.6,
+   "pwmSource": 1,
+   "pulseLevel": 1.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 0.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO PULSE WIDTH MOD": 2
+  }
+ },
+ {
+  "name": "probe-pwm-raw3",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.6,
+   "pwmSource": 1,
+   "pulseLevel": 1.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 0.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO PULSE WIDTH MOD": 3
+  }
+ },
+ {
+  "name": "probe-pwm-raw4",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.6,
+   "pwmSource": 1,
+   "pulseLevel": 1.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 0.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO PULSE WIDTH MOD": 4
+  }
+ },
+ {
+  "name": "probe-pwm-raw5",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.6,
+   "pwmSource": 1,
+   "pulseLevel": 1.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 0.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCO PULSE WIDTH MOD": 5
+  }
+ },
+ {
+  "name": "probe-tune-raw00",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MASTER TUNE": 0
+  }
+ },
+ {
+  "name": "probe-tune-raw10",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MASTER TUNE": 10
+  }
+ },
+ {
+  "name": "probe-tune-raw20",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MASTER TUNE": 20
+  }
+ },
+ {
+  "name": "probe-bend-raw01",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 1.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "BEND RANGE": 1
+  },
+  "bend": [
+   {
+    "line": 4,
+    "value": 1.0
+   },
+   {
+    "line": 8,
+    "value": -1.0
+   },
+   {
+    "line": 12,
+    "value": 0.0
+   }
+  ]
+ },
+ {
+  "name": "probe-bend-raw11",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 1.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "BEND RANGE": 11
+  },
+  "bend": [
+   {
+    "line": 4,
+    "value": 1.0
+   },
+   {
+    "line": 8,
+    "value": -1.0
+   },
+   {
+    "line": 12,
+    "value": 0.0
+   }
+  ]
+ },
+ {
+  "name": "probe-bend-raw23",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 1.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "BEND RANGE": 23
+  },
+  "bend": [
+   {
+    "line": 4,
+    "value": 1.0
+   },
+   {
+    "line": 8,
+    "value": -1.0
+   },
+   {
+    "line": 12,
+    "value": 0.0
+   }
+  ]
+ },
+ {
+  "name": "probe-env-neg",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 16,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 0.8,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 16,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF ENV": 0
+  }
+ },
+ {
+  "name": "probe-kybd-neg-F3",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 0.5,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "F-3",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF KEY FOLLOW": 0
+  }
+ },
+ {
+  "name": "probe-kybd-neg-F5",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 0.5,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "F-5",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF KEY FOLLOW": 0
+  }
+ },
+ {
+  "name": "probe-freq-raw000",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 64,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 64,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 0
+  }
+ },
+ {
+  "name": "probe-freq-raw016",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 64,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 64,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 16
+  }
+ },
+ {
+  "name": "probe-freq-raw032",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 64,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 64,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 32
+  }
+ },
+ {
+  "name": "probe-freq-raw048",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 48
+  }
+ },
+ {
+  "name": "probe-freq-raw064",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 64
+  }
+ },
+ {
+  "name": "probe-freq-raw080",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 80
+  }
+ },
+ {
+  "name": "probe-freq-raw096",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 96
+  }
+ },
+ {
+  "name": "probe-freq-raw112",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 112
+  }
+ },
+ {
+  "name": "probe-freq-raw128",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 128
+  }
+ },
+ {
+  "name": "probe-freq-raw144",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 144
+  }
+ },
+ {
+  "name": "probe-freq-raw160",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 160
+  }
+ },
+ {
+  "name": "probe-freq-raw176",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 176
+  }
+ },
+ {
+  "name": "probe-freq-raw192",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 192
+  }
+ },
+ {
+  "name": "probe-freq-raw208",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 208
+  }
+ },
+ {
+  "name": "probe-freq-raw224",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 224
+  }
+ },
+ {
+  "name": "probe-freq-raw240",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 240
+  }
+ },
+ {
+  "name": "probe-freq-raw255",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 0.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 1.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "preroll": 4.0,
+  "roland_only": true,
+  "roland": {
+   "VCF FREQ": 255
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw128",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 128
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw144",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 144
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw160",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 160
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw176",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 176
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw192",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 192
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw208",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 208
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw224",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 224
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw240",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 240
+  }
+ },
+ {
+  "name": "probe-vcodepth-raw255",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 24,
+  "params": {
+   "lfoRate": 0.4,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-4",
+    "len": 24,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "MODULATOR VCO DEPTH": 255
+  }
+ },
+ {
+  "name": "probe-tone-raw000",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCA TONE": 0
+  }
+ },
+ {
+  "name": "probe-tone-raw255",
+  "bpm": 120,
+  "lpb": 4,
+  "lines": 8,
+  "params": {
+   "lfoRate": 0.5,
+   "lfoWave": 0,
+   "vcoMod": 0.0,
+   "range": 1,
+   "pulseWidth": 0.0,
+   "pwmSource": 1,
+   "pulseLevel": 0.0,
+   "sawLevel": 1.0,
+   "subLevel": 0.0,
+   "noiseLevel": 0.0,
+   "subMode": 0,
+   "vcfFreq": 1.0,
+   "vcfRes": 0.0,
+   "vcfEnv": 0.0,
+   "vcfMod": 0.0,
+   "vcfKybd": 0.0,
+   "vcaMode": 1,
+   "attack": 0.0,
+   "decay": 0.5,
+   "sustain": 1.0,
+   "release": 0.0,
+   "trigger": 0,
+   "volume": 0.5,
+   "tune": 0.5,
+   "portamento": 0.0,
+   "portaMode": 2,
+   "bendVco": 0.0,
+   "bendVcf": 0.0,
+   "lfoModDepth": 0.0,
+   "transpose": 1,
+   "sync": 0
+  },
+  "notes": [
+   {
+    "line": 0,
+    "note": "A-3",
+    "len": 8,
+    "vel": 100
+   }
+  ],
+  "roland_only": true,
+  "roland": {
+   "VCA TONE": 255
+  }
+ }
+]
