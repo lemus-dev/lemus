@@ -39,7 +39,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.2.2', tag: 'ro-mono-303-v0.2.2', stage: 'beta', mac: 'ro-mono-303-0.2.2-mac.pkg', windows: 'ro-mono-303-0.2.2-windows.zip' },
+    release: { version: '0.2.3', tag: 'ro-mono-303-v0.2.3', stage: 'beta', mac: 'ro-mono-303-0.2.3-mac.pkg', windows: 'ro-mono-303-0.2.3-windows.zip' },
     changes: [
       {
         version: '0.2.3',
@@ -116,7 +116,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.2', tag: 'ro-drums-909-v0.2.2', stage: 'beta', mac: 'ro-drums-909-0.2.2-mac.pkg', windows: 'ro-drums-909-0.2.2-windows.zip' },
+    release: { version: '0.2.3', tag: 'ro-drums-909-v0.2.3', stage: 'beta', mac: 'ro-drums-909-0.2.3-mac.pkg', windows: 'ro-drums-909-0.2.3-windows.zip' },
     changes: [
       {
         version: '0.2.3',
@@ -150,7 +150,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '808 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.1.1', tag: 'ro-drums-808-v0.1.1', stage: 'beta', mac: 'ro-drums-808-0.1.1-mac.pkg', windows: 'ro-drums-808-0.1.1-windows.zip' },
+    release: { version: '0.1.2', tag: 'ro-drums-808-v0.1.2', stage: 'beta', mac: 'ro-drums-808-0.1.2-mac.pkg', windows: 'ro-drums-808-0.1.2-windows.zip' },
     changes: [
       {
         version: '0.1.2',
@@ -193,7 +193,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '101 sh101 sh-101 mono synth bass lead arpeggio sequencer roland',
     nav: true,
-    release: { version: '0.1.0', tag: 'ro-mono-101-v0.1.0', stage: 'beta', mac: 'ro-mono-101-0.1.0-mac.pkg', windows: 'ro-mono-101-0.1.0-windows.zip' },
+    release: { version: '0.1.1', tag: 'ro-mono-101-v0.1.1', stage: 'beta', mac: 'ro-mono-101-0.1.1-mac.pkg', windows: 'ro-mono-101-0.1.1-windows.zip' },
     changes: [
       {
         version: '0.1.1',

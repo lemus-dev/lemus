@@ -8,10 +8,10 @@ private folder's `roms/qvgt/` for the firmware. Retrieved 2026-11-11.
 
 | File | From | SHA1 |
 |---|---|---|
-| `roms/qvgt/qvgtv103.bin` | archive.org "vintage-synth-firmware-collection", `Alesis_QuadraVerb_GT_Firmware_v1.03.zip` (zip SHA1 257d4caf0386c188e91fac6ed5748f53aa7a7cdb). 27C512 image as read, address lines A0-A7 reversed | 0ac063e74b6c6ecf9edda10824df9a79c621ccd9 |
-| `roms/qvgt/qvgtv100.bin` | same collection, `Alesis_QuadraVerb_GT_Firmware_v1.00.zip` (zip SHA1 450b4a1c3dbca956888011dac1d826d827497e66) | f09ee9d50425a407fa33b6ac8eb79eca660e491f |
-| `reference/firmware/qv+v203.bin` | same collection, `Alesis_QuadraVerb+_Firmware_v2.03.zip` (zip SHA1 61a342b5423df4d1de5f7e2dd7b1ac1cb6d7570a): the QuadraVerb Plus, same DSP programs family | 5f97c5cb6b209643bed6ec4046662c87c317a9ee |
-| `reference/firmware/quadraverb-fw-v107-raw.bin` | same collection, `Alesis_QuadraVerb_Firmware_v1.07.zip`: the original QuadraVerb, the firmware the DSP decode was first made on | 224b6a308552921e0fc6a916f900f57f6d5fa623 |
+| `roms/qvgt/qvgtv103.bin` | `Alesis_QuadraVerb_GT_Firmware_v1.03.zip` (zip SHA1 257d4caf0386c188e91fac6ed5748f53aa7a7cdb). 27C512 image as read, address lines A0-A7 reversed | 0ac063e74b6c6ecf9edda10824df9a79c621ccd9 |
+| `roms/qvgt/qvgtv100.bin` | `Alesis_QuadraVerb_GT_Firmware_v1.00.zip` (zip SHA1 450b4a1c3dbca956888011dac1d826d827497e66) | f09ee9d50425a407fa33b6ac8eb79eca660e491f |
+| `reference/firmware/qv+v203.bin` | `Alesis_QuadraVerb+_Firmware_v2.03.zip` (zip SHA1 61a342b5423df4d1de5f7e2dd7b1ac1cb6d7570a): the QuadraVerb Plus, same DSP programs family | 5f97c5cb6b209643bed6ec4046662c87c317a9ee |
+| `reference/firmware/quadraverb-fw-v107-raw.bin` | `Alesis_QuadraVerb_Firmware_v1.07.zip`: the original QuadraVerb, the firmware the DSP decode was first made on | 224b6a308552921e0fc6a916f900f57f6d5fa623 |
 
 Descrambled (A0-A7 reversed back), the GT images start `02 00 E0` (LJMP 00E0h); v1.03 descrambled
 SHA1 59c05f8db694f151c6cfad1cece2ce61759f3e82, v1.00 3d9b5b4a300f8a3ff8d24bb21cf81c4bd0d8b5ee.

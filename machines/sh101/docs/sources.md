@@ -20,8 +20,7 @@ Per-file URLs, where they were recorded, are in:
 ## The ROM
 
 `tmp80c49p-6-7301.ic6`, the TMP80C49P-6-7301 CPU's 2048-byte mask ROM. SHA1
-a84bb1758582dbb800001db3663eaf3fb9d0e25d, CRC32 4d9cb13c. It is Joe Britt's dump, `80C49_SH101.bin`
-in https://github.com/joebritt/SH101_Disassembled (commit 708cde0, 2018), which has no licence.
+a84bb1758582dbb800001db3663eaf3fb9d0e25d, CRC32 4d9cb13c. It is Joe Britt's dump (`80C49_SH101.bin`, 2018).
 MAME has no SH-101 set. The ROM is not in this repo; `docs/firmware.md` says how it was checked.
 
 ## Research sources (S1-S38)

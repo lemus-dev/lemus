@@ -177,6 +177,31 @@ void testKeyPlace()
 	      "German: usKey gives the 303's G# for Z and DOWN for Y, shifted too");
 	check(panel::usKey(juce::KeyPress('Z', juce::ModifierKeys::commandModifier, 'z')) == 0, "a Command/Ctrl key is left to the host");
 	check(panel::byPlace({"keys"}).size() == 3, "German: the key list says the keys go by place");
+	{
+		// Latching with keys by place, as the panels call panel::Keys: a right-click latches a key,
+		// a computer key holds its key while down (nothing is down here, so keysChanged() is its
+		// key-up), Escape lets go of all. The 303's map: the US Y is G# (8), the US Z is DOWN (13).
+		const auto key303 = [](juce::juce_wchar us) { return us == 'y' ? 8 : us == 'z' ? 13 : -1; };
+		panel::Keys keys;
+		int sends = 0;
+		keys.reset(24, [&](int, bool) { ++sends; });
+		keys.mouseDown(8, juce::ModifierKeys::rightButtonModifier);
+		const juce::KeyPress gSharp('Z', {}, 'z'), down('Y', {}, 'y');
+		keys.keyDown(gSharp.getKeyCode(), key303(panel::usKey(gSharp)));
+		keys.keysChanged();
+		check(keys.down(8) && keys.latched(8), "German: G# latched by a right-click stays down when its computer key (Z) comes up");
+		keys.keyDown(down.getKeyCode(), key303(panel::usKey(down)));
+		const bool held = keys.down(13);
+		keys.keysChanged();
+		check(held && !keys.down(13) && keys.down(8), "German: DOWN (Y) holds while its key is down and lets go after; G# stays latched");
+		keys.focusLost();
+		check(keys.down(8), "losing focus leaves the latched key down");
+		keys.mouseDown(8, {});
+		check(!keys.down(8) && !keys.latched(8), "a click on the latched key lets it go");
+		keys.mouseDown(8, juce::ModifierKeys::rightButtonModifier);
+		keys.releaseAll(true);
+		check(!keys.down(8) && !keys.latched(8) && sends == 6, "Escape lets go of a latched key; each change sent once");
+	}
 	g_layout = us;
 	check(panel::byPlace({"keys"}).size() == 1, "US: the key list doesn't");
 	panel::usKeyAt = saved;

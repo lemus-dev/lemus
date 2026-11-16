@@ -6,7 +6,7 @@ Every file is kept under `private/` (never in this repo). Paths are relative to 
 
 | File | Source | Size | SHA1 |
 |---|---|---|---|
-| `roms/virusc/virus_c_660x368.bin` | <https://archive.org/details/access-virus-b-c-roms>, `Access Virus C (am29f040b_6v6).zip`. Matches MAME `virusc`, BIOS `v6.6` | 524288 | `4c34546889d90522a8d85300c471f18339f88f72` |
+| `roms/virusc/virus_c_660x368.bin` | Matches MAME `virusc`, BIOS `v6.6` | 524288 | `4c34546889d90522a8d85300c471f18339f88f72` |
 
 MAME's DSP56362 bootstrap ROM `boot-362.bin` (CRC `fa69796b`, named in `dsp56362.cpp`) is not
 needed: the engine stands in for it (`firmware.md`).

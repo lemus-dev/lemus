@@ -665,7 +665,7 @@ with the component-value model, as follows.
   - v4 lacks the factory-pattern reload of v1 (Track 1 + Pattern 1 at power-up).
   - Version check: power on with TRACK 1 held; one of the LEDs 1–4 lights. The service notes
     instead say BASS DRUM key 2 blinks for Ver. 2.
-  - Whittle hosts `TR-909-firmware-V4.zip` and `TR-909-Firmware.pdf`, saved to `web/whittle/`.
+  - Whittle's V4 firmware notes (`TR-909-Firmware.pdf`) are saved to `web/whittle/`.
   - Service notes p7: ROM groups A (no version label, 2764) and B (Ver. 1, 2764 EPROM or 2364
     mask ROM 15179646). "Software revision 2 cures" stop/continue lag behind MIDI clock.
   - Service notes p14–16 have the MIDI implementation:
@@ -679,7 +679,6 @@ with the component-value model, as follows.
   - Whittle found a second soft OH burst at low HH tune, fixed with a diode on Q84's emitters.
   - Service notes change: HH C134 10 µF → 0.01 µF at SN 415300 "for rolling off unnecessary lower
     frequencies".
-  - The 9090 page links EPROM dumps of the three cymbal ROMs (nuxx.net mirror).
 - **Noise / clap / rim (A2):**
   - The noise generator is 2× HD14006BP (IC32/IC33, "32 stages") clocked by an XOR-gate RC
     oscillator: IC31, R185 33k, C47 100 pF, R184 10k. D48/C46 kick-start it at power-up.
@@ -708,10 +707,10 @@ with the component-value model, as follows.
 |---|---|---|---|
 | A1-1 | Roland TR-909 Service Notes, 1st ed., 15 Jun 1984 | https://archive.org/details/synth_Roland_TR-909_service_notes | `roland/TR-909_service_notes_A.pdf`, `roland/service_notes_pages/p01–p16.png`, OCR `.txt` (downloaded by the parent) |
 | A1-2 | network-909.de "Circuit Analysis" (BD, SD, toms, RS, HC, HH/cymbal pages and annotated schematic crops) | http://www.network-909.de/circuit.htm | `web/network909/*.htm, *.txt, *.jpg` |
-| A1-3 | Trevor Page, 9090 clone: user guide (16 Nov 2002), schematics (11 Sep 2006), parts list | http://nuxx.net/files/9090/ (mirror of introspectiv.org); http://www.synthdiy.com/show/?id=452 | `clones/9090_trevor_page/` |
+| A1-3 | Trevor Page, 9090 clone: user guide (16 Nov 2002), schematics (11 Sep 2006), parts list | — | `clones/9090_trevor_page/` |
 | A1-4 | Jörg Schmitz, TR909 bass drum PCB/schematic (based on Fraser and the 9090) | http://www.analog-synth.de/synths/tr909/tr909.htm | `clones/analog-synth_de_tr9090/` |
 | A1-5 | Colin Fraser, "909 Sound Mods" (2004) | http://www.colinfraser.com/tr909/909mods/909mods.htm | `web/colinfraser/909mods.{htm,txt}` |
-| A1-6 | Robin Whittle, TR-909 page and "TR-909 sound mods" PDF (2018) | https://www.firstpr.com.au/rwi/tr-909/ | `web/whittle/` (index, Sound-Mods PDF+txt, Firmware PDF, voicing-board PNG) |
+| A1-6 | Robin Whittle, TR-909 page and "TR-909 sound mods" PDF (2018) | — | `web/whittle/` (index, Sound-Mods PDF+txt, Firmware PDF, voicing-board PNG) |
 | A1-7 | G. Reid, Synth Secrets: "Practical Bass Drum Synthesis" (SOS Feb 2002), "Synthesizing Drums: The Bass Drum", "… The Snare Drum", "Practical Snare Drum Synthesis" | https://www.soundonsound.com/techniques/practical-bass-drum-synthesis (etc.) | `sos/*.html, *.txt` |
 | A1-8 | Tiptop Audio BD909 and SD909 manuals | http://www.tiptopaudio.com/manuals/Tiptop_Audio_BD909_ns.pdf (via Wayback) | `clones/tiptop/` |
 | A1-9 | Hexinverter NeinOhNein KICK: page, schematic, assembly and modification guides | http://www.hexinverter.net/neinohnein-kick | `clones/hexinverter/` |
@@ -1657,7 +1656,7 @@ Full AudioRealism table: ride 0–100 % in 10 % steps = 28 065, 28 585, 30 090, 
 - **Trevor Page, 9090 (1999–2006)** [B-6].
   - Full voice clone with 27C256 EPROMs in nominal order (4040 Q1..Q12 → A0..A11, 4520 → A12..A14; D7..D2 → 40174 → 5k1/10k/20k/40k2/80k6/160k 1 % DAC).
   - Otherwise the same values: 220 k, 1 µF, 1 M(A)/100 k(B), the same 4-pole filter, C152 0.01 µF (late HH coupling).
-  - Adds an HH tune. Schematics and hex mirrored at nuxx.net.
+  - Adds an HH tune.
 - **e-licktronic Nava v1.x** [B-21]. A one-to-one copy of the voicing board, keeping Roland's designators, with 27C256 EPROMs carrying the public data in nominal address order.
   - Every cymbal and hat value matches the Service Notes. It follows the late revision (C134 0.01 µF; R440/R442 10 k).
   - It is the most convenient machine-readable netlist of these circuits.
@@ -1763,12 +1762,12 @@ Full AudioRealism table: ride 0–100 % in 10 % steps = 28 065, 28 585, 30 090, 
 | B-1 | Roland TR-909 Service Notes, 1st ed., 15 Jun 1984 (p. 5 circuit description, p. 7 change information, p. 9 waveforms, p. 11 voicing-board schematic) | https://archive.org/details/synth_Roland_TR-909_service_notes | `docs/papers/roland/TR-909_service_notes_A.pdf`, `…_text.pdf`, `.txt`, `service_notes_pages/p01–p16.png`; crops `docs/papers/samples/service_notes_crops/` |
 | B-2 | Hitachi IC Memories Data Book (1985), HN61256P/FP datasheet pp. 226–227 | https://bitsavers.trailing-edge.com/components/hitachi/_dataBooks/1985_M11_Hitachi_IC_Memories_Data_Book.pdf | `docs/papers/samples/hitachi_HN61256P_datasheet_1985_IC_Memories_pp226-227.pdf`, `hitachi_HN61256P_pinout.png` |
 | B-3 | Colin Fraser, "Cloning the TR-909 Cymbals" (2003) | http://www.colinfraser.com/tr909/909cyms.htm | `docs/papers/samples/colinfraser_909cyms.{html,txt}` |
-| B-4 | Colin Fraser, "808/909 Clone — Nine-Oh-Ninestein" (2002) + r909hh/cr/rd.wav | http://www.colinfraser.com/tr909/my909.htm | `docs/papers/samples/colinfraser_my909.{html,txt}`, `colinfraser_wavs/` |
+| B-4 | Colin Fraser, "808/909 Clone — Nine-Oh-Ninestein" (2002) | — | `docs/papers/samples/colinfraser_my909.{html,txt}`, `colinfraser_wavs/` |
 | B-5 | MAME `src/mame/roland/roland_tr909.cpp`; ROM set `tr909.zip` | https://github.com/mamedev/mame | `reference/mame/…`, `rom/`, `tools/fetch_roms.sh` |
-| B-6 | Trevor Page, 9090 Analogue Drum Synth: schematics 11 Sep 2006, user guide 16 Nov 2002, ROM hex (nuxx.net mirror) | https://nuxx.net/wiki_archive/A/9090 , http://nuxx.net/files/9090/ | `docs/papers/samples/trevorpage_9090/` |
+| B-6 | Trevor Page, 9090 Analogue Drum Synth: schematics 11 Sep 2006, user guide 16 Nov 2002 | — | `docs/papers/samples/trevorpage_9090/` |
 | B-7 | Gearspace thread 438818 "analog 909 hi hats" (Nov 2009) | https://gearspace.com/board/electronic-music-instruments-and-electronic-music-production/438818-analog-909-hi-hats.html (read via web.archive.org) | `docs/papers/samples/forum_gearspace_438818_analog_909_hi_hats_2009.txt` |
-| B-8 | Mod Wiggler t=71285 "Anyone have original 909 6-bit rom samples?" (2012) | https://modwiggler.com/forum/viewtopic.php?t=71285 (via web.archive.org) | `docs/papers/samples/forum_modwiggler_t71285_909_6bit_rom_samples_2012.txt` |
-| B-9 | Mod Wiggler t=229113 "909 EPROM" (2020–2024) | https://www.modwiggler.com/forum/viewtopic.php?t=229113 (via web.archive.org) | `docs/papers/samples/forum_modwiggler_t229113_909_eprom_2020-2024.txt` |
+| B-8 | Mod Wiggler, "Anyone have original 909 6-bit rom samples?" (2012) | — | `docs/papers/samples/forum_modwiggler_t71285_909_6bit_rom_samples_2012.txt` |
+| B-9 | Mod Wiggler, "909 EPROM" (2020–2024) | — | `docs/papers/samples/forum_modwiggler_t229113_909_eprom_2020-2024.txt` |
 | B-10 | Mod Wiggler t=158736 "Chips for 909 clones" (search snippet only; 403, not archived) | https://www.modwiggler.com/forum/viewtopic.php?t=158736 | — |
 | B-11 | G. Reid, "Synth Secrets: Practical Cymbal Synthesis", Sound On Sound, Jul 2002 | https://www.soundonsound.com/techniques/practical-cymbal-synthesis | `docs/papers/sos/sos_cymbal_practical_cymbal_synthesis_2002-07.{html,txt}`, `sos_cymbal_fig02_tr909_cymbal_generator.gif`, `sos_cymbal_fig04_tr808_cymbal_block.gif` |
 | B-12 | A. Douglas, "Atsushi Hoshiai: the man behind the TR-909", Attack Magazine, 20 Aug 2024 | https://www.attackmagazine.com/features/interview/atsushi-hoshiai-the-man-behind-the-tr-909/ | `docs/papers/samples/interview_attackmag_2024_hoshiai_tr909.txt` |
@@ -1781,8 +1780,8 @@ Full AudioRealism table: ride 0–100 % in 10 % steps = 28 065, 28 585, 30 090, 
 | B-19 | Behringer RD-9: STM32F746 sample playback for hats/cymbals; HH tune in enhanced mode (search-result summaries of Mod Wiggler t=206572 p. 4 and retailer pages) | https://www.modwiggler.com/forum/viewtopic.php?t=206572&start=100 , https://www.sweetwater.com/store/detail/RD9--behringer-rd-9-analog-drum-machine | — |
 | B-20 | This work: decoded WAVs, figures, measurements and scripts | — | `reference/rom_decoded/` (`measurements.json`, `files.json`, `fig_*.png`, `scripts/`) |
 | B-21 | e-licktronic Nava v1.02 Eagle files (909 clone with Roland designators). Parts list confirms R492 12 k, R493 33 k, C160 470 p, R442/R440 10 k, R443/R441 6.8 k, VR25/27 10 kB, C130/131 470 p, R432 270 k, R439 470 k, R453 220 k, C135 1 µ/50, R451 10 k, VR21 100 kB, R452 100 k, VR23 1 MA, C134 0.01 (late revision), the filter parts and the 2SA798-pair resistors. Netlist shows 27C256 nominal wiring with D7..D2 used. | https://github.com/e-licktronic (collected by fork D) | `docs/papers/emulations/code/e-licktronic_Nava-v1.0/Eagle/Nava_v1.02_{parts.csv,netlist.txt}` |
-| B-22 | naokiiwakami tr909-clone-firmware: AVR hat player, CH start 0x6040, masks "dirty" LSBs | https://github.com/naokiiwakami (collected by fork D) | `docs/papers/emulations/code/naokiiwakami_tr909-clone-firmware/` |
-| B-23 | TylerK07 AVR909-HiHat: AVR hat player, 32 kHz, packed 6-bit data | https://github.com/TylerK07/AVR909-HiHat | `docs/papers/emulations/code/TylerK07_AVR909-HiHat/` |
+| B-22 | naokiiwakami tr909-clone-firmware: AVR hat player, CH start 0x6040, masks "dirty" LSBs | — (collected by fork D) | `docs/papers/emulations/code/naokiiwakami_tr909-clone-firmware/` |
+| B-23 | TylerK07 AVR909-HiHat: AVR hat player, 32 kHz, packed 6-bit data | — | `docs/papers/emulations/code/TylerK07_AVR909-HiHat/` |
 
 ---
 
@@ -2328,7 +2327,7 @@ The video survey's findings agree with the disassembly:
 
 ### C.9c Cross-check with prior firmware work: Jacquot-SFE `tr-909-analysis`
 
-The repository is https://github.com/Jacquot-SFE/tr-909-analysis (no licence), local copy
+The repository has no licence; local copy
 `docs/papers/emulations/code/Jacquot-SFE_tr-909-analysis/` [C-25]. It contains:
 
 - MAME-`unidasm` listings of v4 and v1, untouched and partly annotated;
@@ -2497,11 +2496,11 @@ What it covers, and how it compares:
 | C-10 | NEC µPD78C10/C11/C14 data sheet, Nov 1987. https://datasheets.chipdb.org/NEC/uPD78C1x/uPD78C10_Summary.pdf | `nec/uPD78C10-C11-C14_datasheet_Nov1987.pdf` |
 | C-11 | NEC µPD78C10A/11A/12A data sheet, 1995. http://bitsavers.trailing-edge.com/components/nec/_dataSheets/uPD78C10A_78C11A_78C12A_199502.pdf | `nec/uPD78C10A_78C11A_78C12A_datasheet_1995.pdf` (+ `.txt`) |
 | C-12 | NEC *87AD Series µPD78C18 User's Manual*, U10199EJ5V0UM00, 1995 (full 87AD instruction set). https://datasheets.chipdb.org/NEC/uPD78C1x/uPD78C18.pdf | `nec/NEC_87AD_uPD78C18_Users_Manual_1995.pdf` (+ `.txt`) |
-| C-13 | R. Whittle, *Modifications for the TR-909* and *TR-909 Version 4 firmware* (2018). https://www.firstpr.com.au/rwi/tr-909/ | `firmware/whittle/` (page text, firmware PDF, sound-mods PDF, voicing-board schematic PNG) |
+| C-13 | R. Whittle, *Modifications for the TR-909* and *TR-909 Version 4 firmware* (2018) | `firmware/whittle/` (page text, firmware PDF, sound-mods PDF, voicing-board schematic PNG) |
 | C-14 | This survey's disassembly: v1/v4 listings, annotations and tool | `firmware/disasm/` |
 | C-15 | Addictive Instruments, *Revolution 909 v5 Owner Manual* and product page (2024). https://addictiveinstruments.fr/en/kits/1-revolution909.html | `firmware/revolution909_v5_owner_manual_en.pdf` (+ `.txt`), `firmware/revolution909_v5_addictiveinstruments.txt` |
 | C-16 | The Modlin Beat, "Roland TR-909 Digital Mods" (Crowd Supply): OS versions, MIDI driver. https://www.crowdsupply.com/modlin-beat/909-mods | `firmware/crowdsupply_modlin_beat_909_mods.txt` |
-| C-17 | Mod Wiggler, "TR-909 OS Rom File or how is the shuffle exactly implemented" (2015), quoting Colin Fraser on the 2 ms scan. https://www.modwiggler.com/forum/viewtopic.php?t=135002 | `firmware/modwiggler_t135002_909_shuffle_implementation_2015.txt` |
+| C-17 | Mod Wiggler, "TR-909 OS Rom File or how is the shuffle exactly implemented" (2015), quoting Colin Fraser on the 2 ms scan. | `firmware/modwiggler_t135002_909_shuffle_implementation_2015.txt` |
 | C-18 | Innerclock Systems timing tests and statements (via Matrixsynth, 22 Jul 2014). Jitter figures from the Gearspace thread "Roland TR909 jitter test results" (t=1111455; page blocked to scripts, numbers from search excerpts). https://www.matrixsynth.com/2014/07/roland-tr-909-timing-issues.html · https://gearspace.com/board/electronic-music-instruments-and-electronic-music-production/1111455-roland-tr909-jitter-test-results-internal-sequencer-din-sync-midi-clock-slaved.html | `firmware/matrixsynth_2014-07_tr909_timing_innerclock.txt` |
 | C-19 | Gearspace, "Getting the TR 909 swing on the Jomox Xbase 999" (2/96-per-setting statement; page blocked, from search excerpt). https://gearspace.com/threads/getting-the-tr-909-swing-on-the-jomox-xbase-999.902028/ | — |
 | C-20 | D. Johnson and D. Poyser, "Roland TR909 (Retro)", *Sound On Sound*, Nov 1995. https://www.soundonsound.com/reviews/roland-tr909 | `firmware/sos_1995-11_tr909_retro_review_johnson_poyser.txt` |
@@ -2509,7 +2508,7 @@ What it covers, and how it compares:
 | C-22 | Colin Fraser, "909 Sound Mods" (BD ENV3 tune range "30 to 120 ms", C8/C9; voice-relevant). http://www.colinfraser.com/tr909/909mods/909mods.htm (Wayback) | `firmware/colinfraser_909_sound_mods.txt` |
 | C-23 | KVR "Roland TR-909 Midi Problems" (t=206368) and Gearspace "Roland tr 909 external midi problem" (900868): MIDI OUT sends only Ext-instrument data (search excerpts; pages blocked). https://www.kvraudio.com/forum/viewtopic.php?t=206368 | — |
 | C-24 | Reference videos and audio collected by the reference-audio survey: Starsky Carr, Regebro (timing, accent levels, revisions), GWEM flam tutorial, KS Music Lounge guide, Zibbybone factory song | `reference/real909/videos/<id>/` (each with `.description` and `.transcript.txt`) |
-| C-25 | Jacquot-SFE, *tr-909-analysis* (no licence): marked-up v4/v1 disassembly, globals, scan matrix, NEC docs, ROM dumps. https://github.com/Jacquot-SFE/tr-909-analysis | `emulations/code/Jacquot-SFE_tr-909-analysis/` (cloned by the emulations survey) |
+| C-25 | Jacquot-SFE, *tr-909-analysis* (no licence): marked-up v4/v1 disassembly, globals, scan matrix, NEC docs, ROM dumps. | `emulations/code/Jacquot-SFE_tr-909-analysis/` (cloned by the emulations survey) |
 | C-26 | EchoBoy, "Flam timings", e-licktronic forum, 22 Jul 2017: scope of the TRIG line, flam 9–16 → 10–38 ms. http://www.e-licktronic.com/forum/viewtopic.php?f=25&t=1430 | `emulations/web/elicktronic_forum_flam_t1430.txt` (saved by the emulations survey) |
 
 ---
@@ -2855,10 +2854,10 @@ All clones are reference text only (shallow copies or selected files, under
 | Project | URL | Licence | Method | Constants worth noting |
 |---|---|---|---|---|
 | MAME `roland_tr909.cpp` (AJR) | in `reference/mame/` | BSD-3 | skeleton driver, no sound | memory map: DAC1–8 at 0x4001–0x4008 (6-bit, D1–D6), TRIG1/2 at 0x4009/0x400A, switch rows 0x4000, cartridge 0x6000–0x7FFF; µPD7810 at 12 MHz. VintageEmulatorStudio's "patched MAME 0.289" copy of this file is identical [D-51]. |
-| **Jacquot-SFE/tr-909-analysis** | https://github.com/Jacquot-SFE/tr-909-analysis | none (all rights reserved) | **firmware reverse engineering**: marked-up V4 and V1 disassembly (unidasm), globals map, scan-matrix tables, µPD7811 / µPD78C10 datasheets, ROM dumps, 909 schematic PDF | Serial set to 31250 8N1. ADC ch0 = tempo, ch3 = total accent. Interrupt vector notes. Globals in on-chip RAM 0xFF00–0xFFFF via the V register. MIDI note map (above). **Relevant to fork C.** |
+| **Jacquot-SFE, tr-909-analysis** | — | none (all rights reserved) | **firmware reverse engineering**: marked-up V4 and V1 disassembly (unidasm), globals map, scan-matrix tables, µPD7811 / µPD78C10 datasheets, ROM dumps, 909 schematic PDF | Serial set to 31250 8N1. ADC ch0 = tempo, ch3 = total accent. Interrupt vector notes. Globals in on-chip RAM 0xFF00–0xFFFF via the V register. MIDI note map (above). **Relevant to fork C.** |
 | **e-licktronic Nava v1.0** | https://github.com/e-licktronic/Nava-v1.0 | none stated | replica hardware + ATmega firmware | 96 PPQN (16th = 24 ticks); shuffle table {0,−1…−6} ticks applied with alternating polarity; 7 shuffle types; flam OCR3A {4999…11999} @ 250 kHz = 20…48 ms. Plus parts and netlist (D.0). Forks: Oortone, Modularsoundsystems (fixes "timing jitter"), sandormatyi, BenZonneveld. |
-| **naokiiwakami/tr909-clone-firmware** | https://github.com/naokiiwakami/tr909-clone-firmware | GPL-3.0 | AVR firmware for an analog BD/SD/RS/HC + PCM-hat clone | Embeds the **original hat ROM** (`hi_hat_wav.hpp`, bytes identical to c43). **OH plays 0x0000–0x603F, CH plays 0x6040–0x7FFF.** `read_wav.py` masks the "dirty two LSBs". The PCM clock is variable (Timer2), giving about 11–40 kHz sample updates, so it is not authoritative. Noise LFSR clocked at about 250 kHz. |
-| **TylerK07/AVR909-HiHat** | https://github.com/TylerK07/AVR909-HiHat | GPL-3.0 | AVR player of the original hat ROM | Source WAV = the raw c43 ROM as 8-bit 32 kHz (identical bytes). Packs 6 bits/sample (masks `0xFC`). Segment ends at 18444 and 24576 packed bytes, i.e. **OH = samples 0–24591, CH = 24592–32767**. Plays at 20 MHz / 625 = **32 kHz**. |
+| **N. Iwakami, tr909-clone-firmware** | — | GPL-3.0 | AVR firmware for an analog BD/SD/RS/HC + PCM-hat clone | Embeds the **original hat ROM** (`hi_hat_wav.hpp`, bytes identical to c43). **OH plays 0x0000–0x603F, CH plays 0x6040–0x7FFF.** `read_wav.py` masks the "dirty two LSBs". The PCM clock is variable (Timer2), giving about 11–40 kHz sample updates, so it is not authoritative. Noise LFSR clocked at about 250 kHz. |
+| **TylerK07, AVR909-HiHat** | — | GPL-3.0 | AVR player of the original hat ROM | Source WAV = the raw c43 ROM as 8-bit 32 kHz (identical bytes). Packs 6 bits/sample (masks `0xFC`). Segment ends at 18444 and 24576 packed bytes, i.e. **OH = samples 0–24591, CH = 24592–32767**. Plays at 20 MHz / 625 = **32 kHz**. |
 | **ryandorward/tr-909-noise-source** | https://github.com/ryandorward/tr-909-noise-source | MIT (DSP) | 909 noise LFSR as a plug-in | **31-bit LFSR, x³¹ + x¹³ + 1, clocked at about 300 kHz**, start-up forces the input high for 7500 clocks (about 25 ms); 16-tap windowed-sinc decimation. From Electric Druid's analysis [D-46]. |
 | **andremichelle/tr-909** | https://github.com/andremichelle/tr-909 | MIT | web emulation; recorded one cycle of the BD and an attack transient from a DinSync RE-909, plus whole-hit samples for the other voices | BD: one-cycle wavetable swept **274 Hz → 53 Hz** exponentially, with τ_pitch = 7–29 ms via TUNE (exp mapping); amplitude τ = 12–100 ms after a **60 ms** hold. Tom decay τ 40–150 ms; SD noise τ 40–200 ms; OH τ 30–160 ms; CH τ 8–60 ms. Tempo 37–290. **Shuffle delay = index/32** (the author says this replaced KVR's "2/96"). **Flam = 10 + 4·i ms** (from [D-33]). Scale ratios 3/16, 3/32, 1/32, 1/16. |
 | **Mutable Instruments Plaits / Peaks** | https://github.com/pichenettes/eurorack | MIT (STM32 code) | generic drum models | `synthetic_bass_drum.h` "Inadvertently 909-ish": triangle → 2x/(1+\|x\|) sine shaper, FM pitch envelope 8 ms (×1–5), 1 ms body pulse, 5 ms click, transistor-VCA soft clip. `synthetic_snare_drum.h` uses "magic numbers taken from the 909 schematics": **mode ratio 1.47**, "Q40's collector resetting all oscillators allows some intermodulation", noise HP at 10·f0 and LP at 35·f0, snare hold 40–70 ms. Peaks and the Plaits analog models are 808-based. |
@@ -3045,7 +3044,7 @@ Local paths are relative to `docs/papers/emulations/`.
 - [D-29] Sonic State, "Replica 909" (DinSync RE-909, 8 Jun 2020).
   https://sonicstate.com/news/2020/06/08/replica-909/. Local:
   `web/sonicstate_dinsync_re909_replica.*`.
-- [D-30] C. Fraser, "808/909 Clone". http://www.colinfraser.com/tr909/my909.htm. Local:
+- [D-30] C. Fraser, "808/909 Clone". Local:
   `web/colinfraser_my909_clone.*`.
 - [D-31] *Sound On Sound*, Jomox XBase 09 review. https://www.soundonsound.com/reviews/jomox-xbase-09.
   Local: `web/sos_jomox_xbase09_review.*`.
@@ -3077,16 +3076,15 @@ Local paths are relative to `docs/papers/emulations/`.
   https://github.com/pichenettes/eurorack. Local: `code/pichenettes_eurorack_drums/`.
 - [D-43] M. Cieplak, ER-99 (GPL-3.0). https://github.com/matthewcieplak/er-99. Local:
   `code/matthewcieplak_er-99/`.
-- [D-44] N. Iwakami, tr909-clone-firmware (GPL-3.0).
-  https://github.com/naokiiwakami/tr909-clone-firmware. Local:
+- [D-44] N. Iwakami, tr909-clone-firmware (GPL-3.0). Local:
   `code/naokiiwakami_tr909-clone-firmware/`.
-- [D-45] TylerK07, AVR909-HiHat (GPL-3.0). https://github.com/TylerK07/AVR909-HiHat. Local:
+- [D-45] TylerK07, AVR909-HiHat (GPL-3.0). Local:
   `code/TylerK07_AVR909-HiHat/` (the ROM-copy WAV was not kept).
 - [D-46] R. Dorward, tr-909-noise-source (MIT), https://github.com/ryandorward/tr-909-noise-source;
   and Electric Druid, "A look at the TR-909's noise generator",
   https://electricdruid.net/tr-909-noise-generator/. Local: `code/ryandorward_tr-909-noise-source/`,
   `web/electricdruid_tr909_noise_generator.*`.
-- [D-47] Jacquot-SFE, tr-909-analysis (no licence). https://github.com/Jacquot-SFE/tr-909-analysis.
+- [D-47] Jacquot-SFE, tr-909-analysis (no licence).
   Local: `code/Jacquot-SFE_tr-909-analysis/`.
 - [D-48] SauersML, patina, `docs/tr909-circuit-reference.md` (no licence).
   https://github.com/SauersML/patina. Local: `code/SauersML_patina/tr909-circuit-reference.md`.

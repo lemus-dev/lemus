@@ -77,7 +77,7 @@ A machine can be emulated to the standard of the ones in this repo when four inp
 | Input | Where it comes from | If it's missing |
 |---|---|---|
 | Circuit | Service manual or schematic, data sheets, published analyses | Out of reach, unless a unit can be traced from photos |
-| Firmware (if it has a CPU) | A ROM dump (MAME set, archive.org) and a CPU core (MAME, BSD-3) | A mask ROM nobody has read ends it |
+| Firmware (if it has a CPU) | A ROM dump (a MAME set) and a CPU core (MAME, BSD-3) | A mask ROM nobody has read ends it |
 | Custom chips | A data sheet, a community decode, or one of our own from the firmware | A chip known only from a decap caps it at behaviour |
 | Reference | Free recordings of real units (several, to see the spread), captures, an open bit-exact emulator as an oracle, SPICE of the schematic | Checked against specs only |
 
@@ -102,7 +102,9 @@ inside the spread of real units, not a null against one.
 
 Every source is downloaded and kept in the private folder.
 
-- `machines/<id>/docs/sources.md`: every file with its URL and SHA1.
+- `machines/<id>/docs/sources.md`: every file with its URL and SHA1. ROMs are the exception: say
+  whose dump it is (or which MAME set) and give its SHA1, never where to download it. Nothing in
+  the repo, code included, says where to get a ROM.
 - `machines/<id>/docs/research.md`: a section per block (facts, models found, disagreements,
   recommendation), a table of constants, the open questions.
 

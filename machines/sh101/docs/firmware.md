@@ -13,8 +13,8 @@ Sources:
   driven by `tools/sh101seq` (scripts and `--selftest`).
 - The *SH-101 Owner's Manual* (`private/docs/sh101-owners-manual-archiveorg-text.pdf`), for what
   the panel is meant to do.
-- Joe Britt's commented disassembly, `SH101.asm` in github.com/joebritt/SH101_Disassembled at
-  commit `708cde0`. Used as a cross-check; every claim here was checked against the code.
+- Joe Britt's commented disassembly, `SH101.asm` (2018). Used as a cross-check; every claim
+  here was checked against the code.
 - Secondary sources: Electric Druid's "SH101 replacement processor: a feasibility study"
   (pin-function table) and the Tubbutec SH-1oh1 installation manuals. The Tubbutec manuals say
   pin 40 is about 5.3 V and that VR1 "D/A width" sets it.
@@ -70,12 +70,12 @@ dump of the same code, but they never published it.
 
 | Source | File | Archive SHA1 | ROM SHA1 / CRC32 | Status |
 |---|---|---|---|---|
-| Joe Britt, `github.com/joebritt/SH101_Disassembled` @ `708cde01906312de7801204989628aa4610a4e45` (2018-10-14; the README says it was read with a Data I/O 2900; the asm header is dated 2013-02-09). The forks `gbraad/` and `cozycactus/SH101_Disassembled` are at the same commit | `80C49_SH101.bin` (raw file, no archive) | – | `a84bb1758582dbb800001db3663eaf3fb9d0e25d` / `4d9cb13c` | **good**; installed as `private/roms/sh101/tmp80c49p-6-7301.ic6` |
-| Florian Anwander, `florian-anwander.de/roland_sh101/Roland_Sh101_8049_ROM.bin` (Last-Modified 2015-12-15). The link on his page is now inside an HTML comment | `Roland_Sh101_8049_ROM.bin` | – | `aeab5adeb739e560f01850f874c6e2756448c9a0` / `3e4201c7` | **bad** |
-| The same file zipped with Florian's `readme.txt`, on alexanderpeppe.com/eprom-bins, archive.org `httpsdbwbp.com` ("EPROM Pack 90s vintage synths"), archive.org `vintage-synth-firmware-collection`, dbwbp.com/synthbin and seriescircuits.com | `Roland_Sh101_8049_ROM.zip` | `f7f480ee4a49cae6ded8b963db0fea80214919b9` | as above | bad |
+| Joe Britt (2018-10-14; his README says it was read with a Data I/O 2900; the asm header is dated 2013-02-09) | `80C49_SH101.bin` (raw file, no archive) | – | `a84bb1758582dbb800001db3663eaf3fb9d0e25d` / `4d9cb13c` | **good**; installed as `private/roms/sh101/tmp80c49p-6-7301.ic6` |
+| Florian Anwander (Last-Modified 2015-12-15) | `Roland_Sh101_8049_ROM.bin` | – | `aeab5adeb739e560f01850f874c6e2756448c9a0` / `3e4201c7` | **bad** |
+| The same file zipped with Florian's `readme.txt`, in several ROM collections | `Roland_Sh101_8049_ROM.zip` | `f7f480ee4a49cae6ded8b963db0fea80214919b9` | as above | bad |
 
 Every file was downloaded into its own scratch directory and only hashed, extracted with bsdtar
-and disassembled. The Peppe archive mirrors faithfully: its `Roland_Juno-6.zip` matches MAME's
+and disassembled. One of those collections mirrors faithfully: its `Roland_Juno-6.zip` matches MAME's
 `upd8049c-238.ic56`, SHA1 `eebda5bb…`.
 
 **Why Florian's file is bad.**

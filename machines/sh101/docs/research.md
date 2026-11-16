@@ -136,7 +136,7 @@ Not obtained:
 
 Deliberately not downloaded:
 
-- `joebritt/SH101_Disassembled`: a commented 80C49 disassembly plus Roland's mask-ROM dump, with no
+- Joe Britt's SH-101 disassembly: a commented 80C49 disassembly plus Roland's mask-ROM dump, with no
   licence. It is the main community source for arpeggiator, sequencer and key-assignment
   behaviour and belongs to the firmware track (`docs/firmware.md`). Not downloaded for this
   research; the firmware track later took its ROM dump as the machine's ROM (`docs/sources.md`).
@@ -1359,7 +1359,7 @@ depths via the bender sliders. Bends upward only on the MG-1 grip.
 - **Gate path:** CPU gate → GATE OUT jack (0/+12 V) → GATE IN switching jack → envelope trigger logic
   and the portamento AUTO differentiator (S31, S27).
 - The firmware detail (exact gate gap, PRNG, priority tie-breaks, LOAD/HOLD behaviour) belongs to the
-  firmware track (`docs/firmware.md`; the joebritt disassembly, not downloaded here).
+  firmware track (`docs/firmware.md`; Joe Britt's disassembly, not downloaded here).
 
 ### 9.2 Recommendation
 
@@ -1392,7 +1392,7 @@ depths via the bender sliders. Bends upward only on the MG-1 grip.
 
 Not saved (see `opensource/found_not_saved.txt`):
 
-- joebritt/SH101_Disassembled: no licence, contains Roland's ROM; firmware track.
+- Joe Britt's SH-101 disassembly: no licence, contains Roland's ROM; firmware track.
 - jn60c99: decompiled Roland binary; excluded for clean-room reasons.
 - Several SH-101-titled hobby projects with generic DSP: pedal-sh101 (GPL-3), SH1012 (no licence;
   k = 5.2·res, "IR3109 clipping diodes" unsourced), SH-010 (BSD-3, Max `lores~`), Pd/Python toys.
