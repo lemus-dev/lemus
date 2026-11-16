@@ -4,6 +4,7 @@
 //   lemustest_instrument --snapshot <id>|picker <png> [about|roms|prompt|service] [noroms|noart] [2x]   the editor in Lemus, as a PNG
 //   lemustest_instrument --save-state <id> <file>   a session state with the machine loaded
 #include "common.h"
+#include "host/PanelFrame.h"
 
 #include <algorithm>
 
@@ -131,6 +132,59 @@ void testRomPrompt()
 	}
 }
 
+// Computer keys by place (host/KeyPlace.cpp): a panel's note and step keys sit where they do on a
+// US keyboard whatever the layout, so on a German keyboard the key typing z is the US y.
+const char *g_layout = nullptr;
+char32_t inTestLayout(char32_t c)
+{
+	return panel::usKeyIn(g_layout, c);
+}
+
+void testKeyPlace()
+{
+	std::printf("\nComputer keys by place\n");
+#if JUCE_MAC || JUCE_WINDOWS
+#if JUCE_MAC
+	const char *us = "com.apple.keylayout.US", *de = "com.apple.keylayout.German", *fr = "com.apple.keylayout.French";
+#else
+	const char *us = "00000409", *de = "00000407", *fr = "0000040C";
+#endif
+	check(panel::usKeyAt != nullptr, "the host looks keys up in the keyboard layout");
+	struct Case
+	{
+		const char *layout, *name;
+		char32_t typed, at;
+	};
+	const Case cases[] = {
+		{us, "US", U'a', U'a'},     {us, "US", U'y', U'y'},     {us, "US", U'z', U'z'},       {us, "US", U'1', U'1'},
+		{us, "US", U'!', U'1'},     {us, "US", U';', U';'},     {us, "US", U',', U','},       {de, "German", U'z', U'y'},
+		{de, "German", U'y', U'z'}, {de, "German", U'a', U'a'}, {de, "German", 0xf6, U';'},   {de, "German", 0xe4, U'\''},
+		{de, "German", U'1', U'1'}, {de, "German", U',', U','}, {fr, "French", U'a', U'q'},   {fr, "French", U'q', U'a'},
+		{fr, "French", U'z', U'w'}, {fr, "French", U'w', U'z'}, {fr, "French", U'm', U';'},   {fr, "French", U',', U'm'},
+		{fr, "French", U'&', U'1'}, {fr, "French", U'1', U'1'}, {fr, "French", U';', U','},
+	};
+	for (const auto &c : cases) {
+		const char32_t got = panel::usKeyIn(c.layout, c.typed);
+		check(got == c.at, juce::String(c.name) + ": the key typing " + juce::String::charToString(juce::juce_wchar(c.typed)) + " is the US "
+		                       + juce::String::charToString(juce::juce_wchar(c.at))
+		                       + (got == c.at ? juce::String() : " (got " + juce::String::charToString(juce::juce_wchar(got)) + ")"));
+	}
+	// The panel side, as JUCE hands a key over (its code is the typed character, upper case).
+	const auto saved = panel::usKeyAt;
+	panel::usKeyAt = &inTestLayout;
+	g_layout = de;
+	check(panel::usKey(juce::KeyPress('Z', {}, 'z')) == 'y' && panel::usKey(juce::KeyPress('Y', juce::ModifierKeys::shiftModifier, 'Y')) == 'z',
+	      "German: usKey gives the 303's G# for Z and DOWN for Y, shifted too");
+	check(panel::usKey(juce::KeyPress('Z', juce::ModifierKeys::commandModifier, 'z')) == 0, "a Command/Ctrl key is left to the host");
+	check(panel::byPlace({"keys"}).size() == 3, "German: the key list says the keys go by place");
+	g_layout = us;
+	check(panel::byPlace({"keys"}).size() == 1, "US: the key list doesn't");
+	panel::usKeyAt = saved;
+#else
+	check(panel::usKeyIn("", U'a') == 0, "no layout lookup on this platform: keys as typed");
+#endif
+}
+
 } // namespace
 
 int main(int argc, char **argv)
@@ -148,6 +202,7 @@ int main(int argc, char **argv)
 	testHashes();
 	testUpdates();
 	testRomPrompt();
+	testKeyPlace();
 	runHostTests();
 	finish();
 	return g_failures == 0 ? 0 : 1;

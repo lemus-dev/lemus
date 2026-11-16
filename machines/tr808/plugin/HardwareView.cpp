@@ -1077,7 +1077,7 @@ void HardwareView::drawBar(juce::Graphics &g)
 void HardwareView::drawHelp(juce::Graphics &g)
 {
 	lemus::panel::drawHelp(g, {0, 0, float(kWidth), float(kPanelHeight)}, "TR-808",
-	                       {
+	                       lemus::panel::byPlace({
 	                           "1 2 3 4 5 6 7 8               step keys 1-8   (BASIC RHYTHM 1-8)",
 	                           "Q W E R T Y U I               step keys 9-16  (BASIC RHYTHM 9-12, INTRO/FILL IN 1-4)",
 	                           "Backspace, Delete             CLEAR",
@@ -1096,7 +1096,7 @@ void HardwareView::drawHelp(juce::Graphics &g)
 	                           "Programming follows the original manual: PATTERN CLEAR a rhythm, 1st PART, START,",
 	                           "set PRE-SCALE and press CLEAR, pick the instrument, then the steps; hold a key about",
 	                           "a step's length, as the original reads one key a step.",
-	                       },
+	                       }),
 	                       kMono);
 }
 
@@ -1481,7 +1481,7 @@ bool HardwareView::keyPressed(const juce::KeyPress &k)
 		return true;
 	}
 	juce::String param;
-	const int step = stepForKey(code);
+	const int step = stepForKey(int(panel::usKey(k)));
 	if (step >= 0)
 		param = "step" + juce::String(step + 1);
 	else if (panel::isClear(k))

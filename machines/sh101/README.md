@@ -247,9 +247,9 @@ with the plan, in `docs/improvements.md`.
 - **Real units:** recordings of nine real SH-101s, per unit and per event (`tools/compare/units.py`:
   105 rows, 60 within their limits, 4 known gaps, 41 for information; settings read off video frames,
   `docs/online-references.md`):
-  - the Real unit calibration's unit: its rest, plateau and sweep (7.22 against 7.27 octaves),
-    release τ within 0.02 s;
-  - a second unit's ENV sweep in two takes, within 0.04 and 0.36 octave;
+  - the Real unit calibration's unit: its rest, plateau and sweep (7.28 against 7.27 octaves),
+    release τ within 0.04 s;
+  - a second unit's ENV sweep in two takes, each within 0.11 octave;
   - portamento at the top on another unit within 0.01 s;
   - the square and subs re the saw within 1 dB on every note of three units;
   - the resonance's height at two of three slider readings, and its peak moving with RES within
@@ -287,7 +287,7 @@ bends, and its KYBD pivots elsewhere. The Roland calibration (the tools') is fit
   sheet, with its law end to end from one Juno-106 voice. Its expo reference is fitted to a real
   unit at 1.7 times the decode's value. Its buffers' gain (0.89–0.96) is uncertain by a few
   percent.
-- As transcribed, the schematic can't sweep less than 8.1 octaves at ENV 10 while KYBD tracks, yet
+- As transcribed, the schematic can't sweep less than 7.7 octaves at ENV 10 while KYBD tracks, yet
   two real units sweep about 7.2 and Roland's plug-in 7.65. The Real unit and Roland calibrations
   scale the ENV's weight to match, and the cause is an open question (`docs/model.md`). The
   measurement, the tracking, the chip's law, the parts on that path and the VCA switch are ruled

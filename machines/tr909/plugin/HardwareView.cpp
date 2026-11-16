@@ -903,7 +903,7 @@ void HardwareView::drawBar(juce::Graphics &g)
 void HardwareView::drawHelp(juce::Graphics &g)
 {
 	lemus::panel::drawHelp(g, {0, 0, float(kWidth), float(kPanelHeight)}, "TR-909",
-	                       {
+	                       lemus::panel::byPlace({
 	                           "1 2 3 4 5 6 7 8  Q W E R T Y U I   step keys 1-16",
 	                           "A S D F  /  G H J  /  K            TRACK PLAY 1-4  /  PATTERN PLAY 1-3  /  EXT INST",
 	                           "Z X C V                            TEMPO (STEP), BACK (TAP), FWD (BANK I), AVAILABLE MEAS (BANK II)",
@@ -925,7 +925,7 @@ void HardwareView::drawHelp(juce::Graphics &g)
 	                           "MIDI out as the unit's: the EXT INST rows' notes (channel 11) and what comes in; not its own voices.",
 	                           "Programming follows the owner's manual: SHIFT + PATTERN PLAY for the write modes, INSTRUMENT",
 	                           "SELECT + a step key for the voice, the step keys for the steps (twice for an accent).",
-	                       },
+	                       }),
 	                       kMono);
 }
 
@@ -1498,7 +1498,7 @@ int panelKeyFor(const juce::KeyPress &k)
 		static const K f[] = {K::LastStep, K::Scale, K::ShuffleFlam, K::InstSelect};
 		return int(f[code - juce::KeyPress::F1Key]);
 	}
-	const auto c = juce::CharacterFunctions::toUpperCase(juce::juce_wchar(code));
+	const auto c = juce::CharacterFunctions::toUpperCase(lemus::panel::usKey(k));
 	static const char steps[] = "12345678QWERTYUI";
 	for (int i = 0; i < 16; ++i)
 		if (c == juce::juce_wchar(steps[i]))

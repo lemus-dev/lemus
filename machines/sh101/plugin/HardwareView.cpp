@@ -782,7 +782,7 @@ void HardwareView::drawBar(juce::Graphics &g)
 void HardwareView::drawHelp(juce::Graphics &g)
 {
 	lemus::panel::drawHelp(g, {0, 0, float(kWidth), float(kPanelHeight)}, "SH-101",
-	                       {
+	                       lemus::panel::byPlace({
 	                           "A W S E D F T G Y H U J K O L P ; '   keys C C# D D# E F F# G G# A A# B C C# D D# E F",
 	                           "Z  X                                  octave down / up (the 32 keys run F to C)",
 	                           "1 2                                   LOAD  PLAY            (SEQUENCER)",
@@ -798,7 +798,7 @@ void HardwareView::drawHelp(juce::Graphics &g)
 	                           "SYNC: HOST 1/16 clocks the arpeggio and sequencer from the DAW, a step per 16th; click SYNC for 1/8,",
 	                           "1/4, 1/32 or triplets. With SYNC off the MODULATOR clocks them, as with nothing in EXT CLK IN.",
 	                           "Sequence: LOAD, then one key per step (HOLD + key = legato, KEY TRANSPOSE = rest); PLAY.",
-	                       },
+	                       }),
 	                       kMono);
 }
 
@@ -1212,8 +1212,8 @@ bool HardwareView::keyPressed(const juce::KeyPress &k)
 	case lemus::panel::Common::None:
 		break;
 	}
-	const auto c = k.getTextCharacter();
-	const auto lc = juce::CharacterFunctions::toLowerCase(c);
+	const auto c = lemus::panel::usKey(k);
+	const auto lc = c;
 	if (lc == 'z' || lc == 'x') {
 		m_octave = juce::jlimit(-1, 1, m_octave + (lc == 'x' ? 1 : -1));
 		repaint();

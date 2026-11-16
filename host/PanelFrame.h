@@ -7,6 +7,8 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
+#include "KeyPlace.h"
+
 #include <algorithm>
 #include <functional>
 #include <map>
@@ -261,6 +263,30 @@ inline bool spaceIsOurs(const juce::KeyPress &k)
 inline bool isClear(const juce::KeyPress &k)
 {
 	return k.getKeyCode() == juce::KeyPress::backspaceKey || k.getKeyCode() == juce::KeyPress::deleteKey;
+}
+// The key pressed as the character it types on a US keyboard, lower case: the keys a panel picks
+// by place (note rows, step rows, Z X for octaves) go by where they sit, so QWERTZ and AZERTY
+// play the shape the key list shows (KeyPlace.h). 0 with Command or Ctrl down: those are the
+// host's shortcuts. A key picked for its label (E for EDIT) reads the KeyPress as typed instead.
+inline juce::juce_wchar usKey(const juce::KeyPress &k)
+{
+	if (k.getModifiers().isCommandDown() || k.getModifiers().isCtrlDown())
+		return 0;
+	const auto c = juce::CharacterFunctions::toLowerCase(juce::juce_wchar(k.getKeyCode()));
+	return usKeyAt != nullptr ? juce::juce_wchar(usKeyAt(char32_t(c))) : c;
+}
+// A key list whose keys go by place (usKey), with a line saying so when this computer's keyboard
+// isn't laid out like a US one (its A, Q, W, Y or Z elsewhere).
+inline std::vector<juce::String> byPlace(std::vector<juce::String> lines)
+{
+	if (usKeyAt != nullptr)
+		for (const char32_t c : {U'a', U'q', U'w', U'y', U'z'})
+			if (usKeyAt(c) != c) {
+				lines.push_back("");
+				lines.push_back("Letter, number and punctuation keys go by place, as on a US keyboard: press the key where the US one sits.");
+				break;
+			}
+	return lines;
 }
 
 // ====================================================================== the key list and tooltips

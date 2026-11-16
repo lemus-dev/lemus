@@ -42,6 +42,13 @@ export const machines: Machine[] = [
     release: { version: '0.2.2', tag: 'ro-mono-303-v0.2.2', stage: 'beta', mac: 'ro-mono-303-0.2.2-mac.pkg', windows: 'ro-mono-303-0.2.2-windows.zip' },
     changes: [
       {
+        version: '0.2.3',
+        notes: [
+          'Computer keys go by place, as on a US keyboard: on a German (QWERTZ) or French (AZERTY) keyboard the note, function and mode keys sit where the key list shows them.',
+          'Command (Ctrl on Windows) with a key now goes on to the DAW instead of pressing a panel key.',
+        ],
+      },
+      {
         version: '0.2.2',
         notes: ['Windows: built with JUCE 8.0.15, which fixes window drawing that could stop the host taking mouse clicks (seen with ro-drums-909 in Ableton Live).'],
       },
@@ -112,6 +119,14 @@ export const machines: Machine[] = [
     release: { version: '0.2.2', tag: 'ro-drums-909-v0.2.2', stage: 'beta', mac: 'ro-drums-909-0.2.2-mac.pkg', windows: 'ro-drums-909-0.2.2-windows.zip' },
     changes: [
       {
+        version: '0.2.3',
+        notes: [
+          'Computer keys go by place, as on a US keyboard: on a German (QWERTZ) or French (AZERTY) keyboard the step, track and function keys sit where the key list shows them.',
+          "With the computer's Shift (SHIFT) held, the number keys now press steps 1-8, as Q to I press 9-16.",
+          'Command (Ctrl on Windows) with a key now goes on to the DAW instead of pressing a panel key.',
+        ],
+      },
+      {
         version: '0.2.2',
         notes: ["Windows: in Ableton Live the window could stop taking mouse clicks, and Live's with it. Built with JUCE 8.0.15, which fixes the window drawing behind it."],
       },
@@ -138,6 +153,13 @@ export const machines: Machine[] = [
     release: { version: '0.1.1', tag: 'ro-drums-808-v0.1.1', stage: 'beta', mac: 'ro-drums-808-0.1.1-mac.pkg', windows: 'ro-drums-808-0.1.1-windows.zip' },
     changes: [
       {
+        version: '0.1.2',
+        notes: [
+          'Computer keys go by place, as on a US keyboard: on a German (QWERTZ) or French (AZERTY) keyboard the step keys sit where the key list shows them.',
+          'Command (Ctrl on Windows) with a key now goes on to the DAW instead of pressing a panel key.',
+        ],
+      },
+      {
         version: '0.1.1',
         notes: ['Windows: built with JUCE 8.0.15, which fixes window drawing that could stop the host taking mouse clicks (seen with ro-drums-909 in Ableton Live).'],
       },
@@ -163,16 +185,25 @@ export const machines: Machine[] = [
     ],
   },
   {
-    slug: 'al-fx-quadgt',
-    emulates: 'Alesis QuadraVerb GT',
-    year: 1991,
-    type: 'guitar preamp and multi-effects',
+    slug: 'ro-mono-101',
+    emulates: 'Roland SH-101',
+    year: 1982,
+    type: 'mono synth',
     status: 'working',
-    withoutRom: 'none',
-    keywords: 'quadraverb quadgt gt alesis guitar preamp amp distortion overdrive cabinet reverb delay chorus multi effects',
+    withoutRom: 'voice',
+    keywords: '101 sh101 sh-101 mono synth bass lead arpeggio sequencer roland',
     nav: true,
-    release: { version: '0.1.0', tag: 'al-fx-quadgt-v0.1.0', stage: 'beta', mac: 'al-fx-quadgt-0.1.0-mac.pkg', windows: 'al-fx-quadgt-0.1.0-windows.zip' },
-    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+    release: { version: '0.1.0', tag: 'ro-mono-101-v0.1.0', stage: 'beta', mac: 'ro-mono-101-0.1.0-mac.pkg', windows: 'ro-mono-101-0.1.0-windows.zip' },
+    changes: [
+      {
+        version: '0.1.1',
+        notes: [
+          'Computer keys go by place, as on a US keyboard: on a German (QWERTZ) or French (AZERTY) keyboard the note keys and Z X (octave) sit where the key list shows them.',
+          'Command (Ctrl on Windows) with a key now goes on to the DAW instead of pressing a panel key.',
+        ],
+      },
+      { version: '0.1.0', notes: ['The first release, a beta.'] },
+    ],
   },
 ];
 

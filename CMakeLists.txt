@@ -170,6 +170,7 @@ set(LEMUS_HOST_SOURCES
   host/Roms.cpp
   host/Updates.cpp
   host/Style.cpp
+  host/KeyPlace.cpp
 )
 
 # The font of Lemus's own screens (host/Style.h), SIL OFL.
@@ -183,6 +184,10 @@ function(lemus_add_host_with target list)
   target_sources(${target} PRIVATE ${LEMUS_HOST_SOURCES} ${LEMUS_GENERATED_DIR}/machines/${list}.cpp)
   target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${LEMUS_MACHINES_DIR} ${LEMUS_GENERATED_DIR})
   target_link_libraries(${target} PRIVATE juce::juce_audio_utils juce::juce_audio_processors lemus_host_fonts)
+  if(APPLE)
+    # host/KeyPlace.cpp reads the keyboard layout (TIS, UCKeyTranslate).
+    target_link_libraries(${target} PRIVATE "-framework Carbon")
+  endif()
   foreach(id ${ARGN})
     cmake_language(CALL lemus_add_${id} ${target})
   endforeach()

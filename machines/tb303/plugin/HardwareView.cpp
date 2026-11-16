@@ -847,7 +847,7 @@ void HardwareView::drawBar(juce::Graphics &g)
 void HardwareView::drawHelp(juce::Graphics &g)
 {
 	lemus::panel::drawHelp(g, {0, 0, float(kWidth), float(kPanelHeight)}, "TB-303",
-	                       {
+	                       lemus::panel::byPlace({
 	                           "A W S E D F T G Y H U J K   note keys C C# D D# E F F# G G# A A# B C (patterns 1-8)",
 	                           "Z X C V                     DOWN  UP  ACCENT  SLIDE   (note / tie / rest in TIME MODE)",
 	                           "Q                           PITCH MODE",
@@ -868,7 +868,7 @@ void HardwareView::drawHelp(juce::Graphics &g)
 	                           "SERVICE: the panel off. Pick a trimmer on the right (up/down), turn it there or on the board (left/right).",
 	                           "Programming follows the original manual: PATTERN WRITE, pick A/B and 1-8, hold the",
 	                           "pattern key + PATTERN CLEAR, PITCH MODE to enter notes, TIME MODE for note/tie/rest.",
-	                       },
+	                       }),
 	                       kMono);
 }
 
@@ -1227,7 +1227,7 @@ int keyIndexForChar(juce::juce_wchar c)
 
 bool HardwareView::keyPressed(const juce::KeyPress &k)
 {
-	const auto c = k.getTextCharacter();
+	const auto c = lemus::panel::usKey(k);
 	switch (lemus::panel::commonKey(k)) {
 	case lemus::panel::Common::Help:
 		m_showHelp = !m_showHelp;

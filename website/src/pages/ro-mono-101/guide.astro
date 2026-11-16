@@ -1,0 +1,544 @@
+---
+import Base from '../../layouts/Base.astro';
+import Shot from '../../components/Shot.astro';
+import Num from '../../components/Num.astro';
+import panel from '../../assets/ro-mono-101/panel.webp';
+
+// The window at 1200 × 691 (the shot's own 2400 × 1382 halved): the panel y 0–653, the bottom
+// bar y 653–691. There is no top bar in the shot.
+const base = { w: 1200, h: 691 };
+const at = {
+  tune: { x: 14, y: 94, w: 101, h: 160 },
+  modulator: { x: 118, y: 68, w: 128, h: 190 },
+  vco: { x: 248, y: 68, w: 222, h: 190 },
+  mixer: { x: 472, y: 68, w: 218, h: 190 },
+  vcf: { x: 692, y: 68, w: 201, h: 190 },
+  vca: { x: 895, y: 68, w: 57, h: 190 },
+  env: { x: 954, y: 68, w: 221, h: 190 },
+  power: { x: 48, y: 262, w: 58, h: 66 },
+  buttons: { x: 198, y: 262, w: 296, h: 66 },
+  seqButtons: { x: 200, y: 280, w: 68, h: 22 },
+  arpButtons: { x: 284, y: 280, w: 104, h: 22 },
+  hold: { x: 403, y: 280, w: 33, h: 22 },
+  keyTranspose: { x: 451, y: 280, w: 33, h: 22 },
+  knobs: { x: 14, y: 364, w: 170, h: 78 },
+  portamento: { x: 112, y: 458, w: 70, h: 48 },
+  transpose: { x: 112, y: 514, w: 70, h: 44 },
+  benderSliders: { x: 12, y: 444, w: 96, h: 136 },
+  lever: { x: 44, y: 596, w: 100, h: 50 },
+  keys: { x: 187, y: 342, w: 946, h: 306 },
+  bar: { x: 6, y: 657, w: 1188, h: 31 },
+};
+
+// The sections and their headings, for the contents at the top and the sidebar. Keep in step
+// with the ids and headings below.
+type Entry = { id: string; title: string; sub?: Entry[] };
+const toc: Entry[] = [
+  { id: 'start', title: 'Getting started', sub: [
+    { id: 'first-start', title: 'The first start' },
+    { id: 'rom', title: 'The ROM' },
+    { id: 'voice-mode', title: 'Voice mode' },
+    { id: 'add-rom', title: 'Adding the ROM later' },
+    { id: 'artwork', title: 'Panel artwork' },
+    { id: 'first-sound', title: 'Your first sound' },
+  ] },
+  { id: 'panel', title: 'The panel at a glance', sub: [
+    { id: 'power', title: 'POWER' },
+  ] },
+  { id: 'playing', title: 'Playing', sub: [
+    { id: 'priority', title: 'Note priority' },
+    { id: 'hold', title: 'HOLD' },
+    { id: 'key-transpose', title: 'KEY TRANSPOSE' },
+  ] },
+  { id: 'sequencer', title: 'The sequencer', sub: [
+    { id: 'load', title: 'LOAD' },
+    { id: 'play', title: 'PLAY' },
+  ] },
+  { id: 'arpeggio', title: 'The arpeggio' },
+  { id: 'bars', title: 'The bars', sub: [
+    { id: 'top-bar', title: 'The top bar' },
+    { id: 'bottom-bar', title: 'The bottom bar' },
+  ] },
+  { id: 'midi', title: 'MIDI and your DAW', sub: [
+    { id: 'midi-notes', title: 'MIDI notes' },
+    { id: 'cc', title: 'Controllers' },
+    { id: 'sync', title: 'Sync' },
+    { id: 'automation', title: 'Automation and sessions' },
+  ] },
+  { id: 'keyboard', title: 'Keyboard and mouse', sub: [
+    { id: 'keys', title: 'Computer keys' },
+    { id: 'mouse', title: 'Mouse' },
+  ] },
+];
+
+// Controllers, after Roland's SH-01A: three columns of CC and control.
+const cc: [string, string, string, string, string, string][] = [
+  ['3', 'LFO RATE', '19', 'PULSE level', '27', 'BENDER VCF'],
+  ['5', 'PORTAMENTO', '20', 'SAW level', '28', 'VCA mode'],
+  ['12', 'LFO waveform', '21', 'SUB level', '29', 'ENV trigger'],
+  ['13', 'VCO MOD', '22', 'SUB OSC', '30', 'S'],
+  ['14', 'RANGE', '23', 'NOISE', '31', 'Portamento mode'],
+  ['15', 'PULSE WIDTH', '24', 'VCF ENV', '71', 'RES'],
+  ['16', 'PWM source', '25', 'VCF MOD', '72', 'R'],
+  ['17', 'BENDER LFO MOD', '26', 'KYBD', '73', 'A'],
+  ['18', 'BENDER VCO', '', '', '74', 'FREQ'],
+  ['', '', '', '', '75', 'D'],
+  ['', '', '', '', '76', 'TUNE'],
+  ['', '', '', '', '77', 'TRANSPOSE'],
+];
+---
+<Base title="ro-mono-101 user guide · Lemus" description="How to use ro-mono-101: the ROM and voice mode, panel artwork, POWER, note priority, the SH-101's own sequencer and arpeggio, the plugin bars, MIDI and DAW sync." current="ro-mono-101">
+
+<div class="sheet">
+<div class="col guide">
+
+<!-- Beside the guide on a wide window; on a narrow one, a drawer behind the Contents button. -->
+<nav class="side" id="contents" aria-label="Contents">
+<div class="label">Contents</div>
+<ol>
+{toc.map((s, i) => (
+<li>
+<a href={`#${s.id}`} class="top"><span class="n">{i + 1}</span>{s.title}</a>
+{s.sub && <ol>
+{s.sub.map((h) => (
+<li>
+<a href={`#${h.id}`}>{h.title}</a>
+{h.sub && <ol>{h.sub.map((g) => <li><a href={`#${g.id}`} class="deep">{g.title}</a></li>)}</ol>}
+</li>
+))}
+</ol>}
+</li>
+))}
+</ol>
+</nav>
+<button type="button" class="toc-button" aria-controls="contents" aria-expanded="false" hidden>
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h8"></path></svg>
+<span>Contents</span>
+</button>
+
+<div class="main">
+<header class="intro">
+<nav aria-label="Breadcrumb" class="crumbs"><a href="/ro-mono-101">ro-mono-101</a> / User guide</nav>
+<h1><span class="nowrap">ro-mono-101</span> user guide</h1>
+<p class="lede">ro-mono-101 runs the SH-101's own program for the keyboard, the sequencer and the arpeggio: what you know from an SH-101 applies here. Installing is on the <a href="/download#installing">download page</a>; the ROM folder, artwork files, the update check and contact are on <a href="/support">Support</a>.</p>
+<ol class="toc">
+{toc.map(({ id, title }) => <li><a href={`#${id}`}>{title}</a></li>)}
+</ol>
+</header>
+
+<!-- ===================================================================== -->
+<section id="start">
+<div class="eyebrow">1</div>
+<h2>Getting started</h2>
+
+<h3 id="first-start">The first start</h3>
+<p>The program for the keyboard, the sequencer and the arpeggio is in the CPU's 2 KB mask ROM, Roland's copyrighted work, so Lemus doesn't include it. The first time ro-mono-101 starts without it, it asks how to continue.</p>
+<ul>
+<li><span class="k">I have the ROM</span> (Locate ROM…) takes the ROM image, a zip holding it, or a folder. A file is checked and copied into the ROM folder; a folder becomes the ROM folder. The full SH-101 starts at once, settings kept.</li>
+<li><span class="k">Use voice mode</span> carries on without it.</li>
+</ul>
+<p>The prompt doesn't come back, unless the ROM goes missing after ro-mono-101 has run with it. In voice mode the top bar keeps <span class="k">Add CPU ROM…</span>.</p>
+
+<h3 id="rom">The ROM</h3>
+<p>One optional image, found by checksum under any name anywhere in the <a href="/support#rom">ROM folder</a>. MAME has no SH-101 set: the image is the dump published with the SH101_Disassembled project on GitHub, <span class="mono">80C49_SH101.bin</span> there.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">What</th><th scope="col">Without it</th></tr></thead>
+<tbody>
+<tr><td class="mono">tmp80c49p-6-7301.ic6</td><td>The program: the TMP80C49P-6-7301 CPU's mask ROM (IC6, 2 KB)</td><td><a href="#voice-mode">Voice mode</a></td></tr>
+</tbody>
+</table>
+</div>
+<div class="card">
+<div class="label">The ROM Lemus looks for</div>
+<p class="mono">tmp80c49p-6-7301.ic6 · 2,048 bytes · CRC 4d9cb13c<br>SHA1 a84bb1758582dbb800001db3663eaf3fb9d0e25d</p>
+</div>
+<p>Another image in circulation, <span class="mono">Roland_Sh101_8049_ROM.bin</span> (CRC 3e4201c7), is a bad read: from byte 0x0B0 on it holds the low byte of each address instead of code. Lemus doesn't take it.</p>
+
+<h3 id="voice-mode">Voice mode</h3>
+<p>Without the ROM, ro-mono-101 is the SH-101's synth board, played from MIDI: the same sound, without anything the CPU does.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col"></th><th scope="col">With the ROM</th><th scope="col">Voice mode</th></tr></thead>
+<tbody>
+<tr><th scope="row">Sound</th><td>The synth board</td><td>The same</td></tr>
+<tr><th scope="row">MIDI notes, HOLD pedal, pitch bend, mod wheel</th><td>Yes, through the firmware</td><td>Yes, with the keyboard's note priority</td></tr>
+<tr><th scope="row">Sliders, knobs, switches, automation</th><td>Yes</td><td>Yes</td></tr>
+<tr><th scope="row">Sequencer and arpeggio</th><td>The original firmware</td><td>None</td></tr>
+<tr><th scope="row">Panel keys and buttons</th><td>Work as on the unit</td><td>No effect</td></tr>
+<tr><th scope="row">SYNC</th><td>Yes</td><td>No</td></tr>
+<tr><th scope="row">The MODULATOR's RANDOM wave</th><td>Steps with the clock</td><td>Holds still: the CPU steps it</td></tr>
+</tbody>
+</table>
+</div>
+<p>A session keeps its sequence in voice mode. Adding the ROM later switches it to the full SH-101, keeping its settings and sequence.</p>
+
+<h3 id="add-rom">Adding the ROM later</h3>
+<ol>
+<li>Click <span class="k">Add CPU ROM…</span> in the top bar (with the ROM in place, the same button is <span class="k">ROMs</span>).</li>
+<li>Put the ROM in the folder shown, or choose your own with <span class="k">Change…</span>.</li>
+<li>Click <span class="k">Rescan</span>. ro-mono-101 reloads as the full SH-101.</li>
+</ol>
+
+<h3 id="artwork">Panel artwork</h3>
+<p>The two blank places take an SVG or PNG of your own each, named as below, anywhere in the ROM folder (<a href="/support#artwork">how artwork files work</a>). <span class="k">ROMs</span> in the top bar lists them with what each has, opens the folder, and reads it again with Rescan.</p>
+<Shot src={panel} base={base} alt="The panel right of the buttons with the two blank artwork places outlined: maker, and model to its right" crop={{ x: 600, y: 250, w: 600, h: 100 }} marks={[{ x: 827, y: 307, w: 134, h: 20, n: 'maker' }, { x: 971, y: 283, w: 183, h: 45, n: 'model' }]} caption="The two artwork places, by the last part of their file names." />
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Place</th><th scope="col">Size</th><th scope="col">A sharp PNG</th></tr></thead>
+<tbody>
+<tr><td class="mono">ro-mono-101-maker.svg or .png</td><td>Roland logo</td><td>63.5 × 9.7 mm</td><td>559 × 85 px</td></tr>
+<tr><td class="mono">ro-mono-101-model.svg or .png</td><td>SH-101, dot matrix</td><td>87.0 × 21.4 mm</td><td>766 × 188 px</td></tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>The plain names (<span class="mono">maker.png</span>…) in <span class="path">artwork/sh101/</span> or <span class="mono">artwork/sh101.zip</span> work too, and win over these.</li>
+<li>An <span class="mono">sh101.svg</span>, or an SVG in <span class="mono">sh101.zip</span>, anywhere in the folder still fills the places without a file: its elements <span class="mono">roland</span> and <span class="mono">sh101</span>, in panel millimetres from the rear-left corner of the case, as outlines in the print colour.</li>
+</ul>
+
+<h3 id="first-sound">Your first sound</h3>
+<ul>
+<li><span class="k">From MIDI</span>, in both modes: see <a href="#midi-notes">MIDI notes</a>.</li>
+<li><span class="k">From the arpeggio</span>, with the ROM: press UP and hold two or more keys. The MODULATOR's RATE sets the speed, or with SYNC on, the DAW: see <a href="#sync">Sync</a>.</li>
+<li><span class="k">From the sequencer</span>, with the ROM: a new instance has no sequence, as on a new unit, so <a href="#load">load one</a> first.</li>
+</ul>
+
+</section>
+
+<!-- ===================================================================== -->
+<section id="panel">
+<div class="eyebrow">2</div>
+<h2>The panel at a glance</h2>
+<p>Drawn from measurements of a straight-on photo, legends and controls placed to about 0.5 mm.</p>
+<Shot src={panel} base={base} alt="The whole ro-mono-101 window with its controls numbered 1 to 16" marks={[
+  { ...at.tune, n: 1 }, { ...at.modulator, n: 2 }, { ...at.vco, n: 3 }, { ...at.mixer, n: 4 }, { ...at.vcf, n: 5 }, { ...at.vca, n: 6 }, { ...at.env, n: 7 },
+  { ...at.power, n: 8 }, { ...at.buttons, n: 9 }, { ...at.knobs, n: 10 }, { ...at.portamento, n: 11 }, { ...at.transpose, n: 12 },
+  { ...at.benderSliders, n: 13 }, { ...at.lever, n: 14 }, { ...at.keys, n: 15 }, { ...at.bar, n: 16 },
+]} />
+<dl class="legend">
+<div><dt><Num n="1" /> TUNE</dt><dd>Fine tuning, ±64 cents.</dd></div>
+<div><dt><Num n="2" /> MODULATOR</dt><dd>LFO/CLK RATE, about 0.08 to 36.4 Hz, and WAVE FORM: triangle, square, RANDOM, NOISE. Its square is the clock for the arpeggio and sequencer while SYNC is off.</dd></div>
+<div><dt><Num n="3" /> VCO</dt><dd>MOD, the MODULATOR on the pitch; RANGE, 16' to 2'; PULSE WIDTH and its source: LFO, MAN or ENV.</dd></div>
+<div><dt><Num n="4" /> SOURCE MIXER</dt><dd>The levels of the pulse, the saw, the sub-oscillator and NOISE. The SUB OSC switch: a square 1 OCT DOWN, a square 2 OCT DOWN, or a 25 % pulse 2 OCT DOWN.</dd></div>
+<div><dt><Num n="5" /> VCF</dt><dd>FREQ, RES, ENV, MOD (the MODULATOR) and KYBD (the keyboard's follow). Near RES 8 the filter starts to oscillate.</dd></div>
+<div><dt><Num n="6" /> VCA</dt><dd>ENV, or GATE: open while the gate is on.</dd></div>
+<div><dt><Num n="7" /> ENV</dt><dd>The trigger switch, GATE+TRIG, GATE or LFO (see <a href="#priority">Note priority</a>), and A, D, S and R.</dd></div>
+<div><dt><Num n="8" /> POWER</dt><dd>See <a href="#power">POWER</a>.</dd></div>
+<div><dt><Num n="9" /> Buttons</dt><dd>LOAD and PLAY (SEQUENCER); DOWN, U&amp;D and UP (ARPEGGIO); HOLD (LEGATO while loading); KEY TRANSPOSE (REST while loading). Their LEDs are the firmware's.</dd></div>
+<div><dt><Num n="10" /> VOLUME, PORTAMENTO</dt><dd>The output level, and the glide's time.</dd></div>
+<div><dt><Num n="11" /> PORTAMENTO switch</dt><dd>ON glides between every note; AUTO only between legato notes, and not in the arpeggio; OFF, the default, not at all.</dd></div>
+<div><dt><Num n="12" /> TRANSPOSE</dt><dd>L, M or H: the keyboard an octave down, as it is, or an octave up. PLAY ignores it.</dd></div>
+<div><dt><Num n="13" /> BENDER sliders</dt><dd>VCO and VCF: how far the lever bends the pitch and the cutoff. LFO MOD: how much of the MODULATOR the lever's push adds to them.</dd></div>
+<div><dt><Num n="14" /> BENDER lever</dt><dd>Drag sideways to bend, forward to push (LFO MOD); it springs back.</dd></div>
+<div><dt><Num n="15" /> Keys</dt><dd>32 keys, F3 to C6: MIDI notes 53 to 84.</dd></div>
+<div><dt><Num n="16" /> Bottom bar</dt><dd>SYNC, the status line and ?: see <a href="#bottom-bar">the bottom bar</a>.</dd></div>
+</dl>
+<p>The jacks along the top edge are legends only. CV/GATE in and out, EXT CLK IN, PHONES, the MGS-1 grip's own controls and the battery aren't emulated: SYNC stands in for a clock cable, CC 64 for a pedal in HOLD, and the memory always keeps the sequence.</p>
+
+<h3 id="power">POWER</h3>
+<p>Off, every LED is dark, keys and notes are ignored and the CPU stops; the sequence is kept. Within a millisecond the output is shunted, a faint thump is left, and after half a second the output is exact zeros. On, the CPU starts afresh and the output is muted while the mute's capacitor charges: a note is held about 30 dB down for the first quarter second, and the output is open after about 1.4 s. The status line says MUTED meanwhile.</p>
+<p>A new instance starts switched on, playable at once, and a session always loads switched on.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="playing">
+<div class="eyebrow">3</div>
+<h2>Playing</h2>
+
+<h3 id="priority">Note priority</h3>
+<p>The firmware scans the keys and sets the priority from the ENV's trigger switch.</p>
+<ul>
+<li><span class="k">GATE+TRIG:</span> the last key pressed plays, and each new key starts the ENV again. Letting go of it plays the lowest key still held, not the one before.</li>
+<li><span class="k">GATE:</span> the lowest key held plays. Legato keys change the pitch with no new ENV.</li>
+<li><span class="k">LFO:</span> the lowest key held plays, and the ENV starts again at the MODULATOR's rate.</li>
+</ul>
+<p>In every mode the gate stays on from one held key to the next.</p>
+
+<h3 id="hold">HOLD</h3>
+<p>HOLD keeps the gate on after the keys are let go; new keys change the pitch under it. Its LED shows it. CC 64 is the HOLD pedal: it holds while down, and letting it go also stops PLAY.</p>
+
+<h3 id="key-transpose">KEY TRANSPOSE</h3>
+<p>Hold KEY TRANSPOSE and press a key: F3 to B3 transpose down 7 to 1 semitones, C4 back to none, C♯4 to C5 up 1 to 12, and C♯5 to C6 do the same. The key pressed doesn't play.</p>
+<ul>
+<li>It moves the pitch, not the filter's keyboard follow.</li>
+<li>Its LED is lit while a transpose is set.</li>
+<li>It works on held notes, a latched arpeggio and a playing sequence. LOAD cancels it.</li>
+</ul>
+</section>
+
+<!-- ===================================================================== -->
+<section id="sequencer">
+<div class="eyebrow">4</div>
+<h2>The sequencer</h2>
+<p>Up to 100 steps, each a note, a legato note or a rest, kept in the CPU's memory. A new instance has none, as a new unit; the sequence is saved with the session.</p>
+<Shot src={panel} base={base} alt="LOAD and PLAY, HOLD and KEY TRANSPOSE outlined" crop={{ x: 0, y: 250, w: 600, h: 100 }} marks={[{ ...at.seqButtons, n: 1 }, { ...at.hold, n: 2 }, { ...at.keyTranspose, n: 3 }]} />
+
+<h3 id="load">LOAD</h3>
+<ol>
+<li>Press LOAD <Num n="1" />. Its LED lights.</li>
+<li>Play one key per step. A step is the key at the TRANSPOSE switch's setting, so the 32 keys cover 56 notes; each key sounds as it is stored.</li>
+<li>For a legato step, hold HOLD (LEGATO) <Num n="2" /> while pressing the key: PLAY plays it with no gap in the gate, a slur, or a tie on the same note.</li>
+<li>For a rest, press KEY TRANSPOSE (REST) <Num n="3" />, once per rest.</li>
+</ol>
+<ul>
+<li>Loading from the start clears the old sequence at the first key or rest.</li>
+<li>LOAD pressed while the sequence plays keeps it, and new steps overwrite from the step after the one playing.</li>
+<li>After step 100 the next key plays without being stored, and leaves LOAD.</li>
+<li>Steps loaded with the ENV's trigger switch on LFO are all legato.</li>
+</ul>
+
+<h3 id="play">PLAY</h3>
+<ul>
+<li>Press PLAY <Num n="1" /> to start; it lights, and each clock steps one step: the MODULATOR's square, or the DAW with SYNC on. PLAY again stops.</li>
+<li>It loops from the last step to the first.</li>
+<li>A note's gate drops for one pass of the program, about 2 ms, at the start of its step; a legato step's doesn't; a rest's is off.</li>
+<li>TRANSPOSE doesn't move it. KEY TRANSPOSE does, and keys alone do nothing.</li>
+<li>HOLD keeps the gate on through every step and rest.</li>
+<li>With the ENV on LFO, the ENV starts again with each clock.</li>
+</ul>
+</section>
+
+<!-- ===================================================================== -->
+<section id="arpeggio">
+<div class="eyebrow">5</div>
+<h2>The arpeggio</h2>
+<Shot src={panel} base={base} alt="DOWN, U&amp;D and UP, and HOLD outlined" crop={{ x: 0, y: 250, w: 600, h: 100 }} marks={[{ ...at.arpButtons, n: 1 }, { ...at.hold, n: 2 }]} />
+<ul>
+<li>DOWN, U&amp;D or UP <Num n="1" /> chooses the pattern; the lit one pressed again turns it off.</li>
+<li>It runs while two or more keys are held, one key per clock; a single key plays as usual.</li>
+<li>U&amp;D plays the top and bottom keys once a turn: C E G C′ G E C E….</li>
+<li>HOLD <Num n="2" /> latches it. Keys added while some are still held join it; a new chord with none held replaces it, and a single key holds that note.</li>
+<li>The gate stays on: with GATE+TRIG each step starts the ENV again, with GATE it runs once, with LFO it follows the MODULATOR.</li>
+<li>TRANSPOSE and RANGE move it at once; KEY TRANSPOSE moves a latched one.</li>
+<li>The MODULATOR restarts with each new chord.</li>
+</ul>
+</section>
+
+<!-- ===================================================================== -->
+<section id="bars">
+<div class="eyebrow">6</div>
+<h2>The bars</h2>
+
+<h3 id="top-bar">The top bar</h3>
+<ul>
+<li><span class="k">BETA</span> after the name: this version is a beta. About shows the version.</li>
+<li><span class="k">VOICE MODE</span> and a line saying what's missing, while ro-mono-101 runs without its ROM.</li>
+<li><span class="k">ROMs:</span> the ROM folder, the ROM and the <a href="#artwork">artwork</a>, with their full paths, and Show, Change… and Rescan for the folder. In voice mode it reads <span class="k">Add CPU ROM…</span>: see <a href="#add-rom">Adding the ROM later</a>.</li>
+<li><span class="k">State:</span> Save to file… saves the instance, every control and the sequence; Load from file… loads one, the standalone app's saved states too. Reset… makes it a new instance: no sequence, every control at its default.</li>
+<li><span class="k">About:</span> the version, the ROM folder and artwork in use, the <a href="/support#updates">update check</a>, and links to this guide, the site and the forum. A newer version shows as a button in the bar.</li>
+</ul>
+
+<h3 id="bottom-bar">The bottom bar</h3>
+<Shot src={panel} base={base} alt="The bottom bar: SYNC, the status line in voice mode, and the question mark at the right" crop={{ x: 0, y: 644, w: 1200, h: 47 }} marks={[{ x: 10, y: 659, w: 153, h: 27, n: 1 }, { x: 170, y: 659, w: 400, h: 27, n: 2 }, { x: 1157, y: 659, w: 34, h: 27, n: 3 }]} />
+<dl class="legend">
+<div><dt><Num n="1" /> SYNC</dt><dd>OFF, or HOST with its step: 1/16 (HOST's default), 1/8, 1/4, 1/32, 1/16T, 1/8T. A click steps to the next, back to OFF after 1/8T; shift-click goes back. See <a href="#sync">Sync</a>.</dd></div>
+<div><dt><Num n="2" /> Status line</dt><dd>The clock, LFO CLOCK or HOST with the DAW's tempo; the key CV and GATE; the VCO's and the VCF's frequencies; the computer keys' octave (OCT). Or POWER OFF, MUTED while the mute holds, voice mode, or a key or button held by a right-click.</dd></div>
+<div><dt><Num n="3" /> ?</dt><dd>Shows the list of computer keys over the panel. Any click, ? or Escape closes it.</dd></div>
+</dl>
+</section>
+
+<!-- ===================================================================== -->
+<section id="midi">
+<div class="eyebrow">7</div>
+<h2>MIDI and your DAW</h2>
+
+<h3 id="midi-notes">MIDI notes</h3>
+<ul>
+<li>Notes on any channel press the keys, so the firmware does the note priority, the arpeggio and loading steps. Velocity is ignored.</li>
+<li>Notes 53 to 84 are the 32 keys at the panel's TRANSPOSE. A note beyond them moves TRANSPOSE an octave while it is the newest note; beyond L and H, notes fold by octaves.</li>
+<li>A note started again while its key is down lifts the key first, so the gate drops, as a key pressed again does.</li>
+<li>With an arpeggio button on, a chord arriving all at once is pressed lowest key first (highest for DOWN), so the pattern starts there.</li>
+<li>Pitch bend moves the bender lever, the mod wheel (CC 1) pushes it, and CC 64 is the HOLD pedal. All notes off lets go of every key.</li>
+<li>The arpeggio and sequencer run only when PLAY or an arpeggio button is on, never from MIDI notes alone.</li>
+</ul>
+
+<h3 id="cc">Controllers</h3>
+<p>After Roland's SH-01A.</p>
+<div class="scroll">
+<table class="cc">
+<thead><tr><th scope="col">CC</th><th scope="col">Control</th><th scope="col">CC</th><th scope="col">Control</th><th scope="col">CC</th><th scope="col">Control</th></tr></thead>
+<tbody>
+{cc.map((r) => <tr>{r.map((c, i) => <td class:list={{ n: i % 2 === 0 }}>{c}</td>)}</tr>)}
+</tbody>
+</table>
+</div>
+
+<h3 id="sync">Sync</h3>
+<p>SYNC works like a cable in EXT CLK IN.</p>
+<ul>
+<li><span class="k">SYNC: OFF</span> (the default): the MODULATOR's square clocks the arpeggio and sequencer, as with nothing plugged in.</li>
+<li><span class="k">SYNC: HOST</span>: the DAW's transport clocks them, a step per 1/16 or the step chosen. The first step falls on the first grid line at or after where the DAW starts. While the DAW is stopped there is no clock, so a running arpeggio or sequence waits.</li>
+</ul>
+
+<h3 id="automation">Automation and sessions</h3>
+<p>These parameters can be automated, in this order: LFO Rate, LFO Waveform, VCO Mod, VCO Range, Pulse Width, PWM Source, Pulse Level, Saw Level, Sub Osc Level, Noise Level, Sub Osc, VCF Freq, VCF Res, VCF Env, VCF Mod, VCF Kybd, VCA Mode, Attack, Decay, Sustain, Release, Env Trigger, Volume, Tune, Portamento, Portamento Mode, Bend VCO, Bend VCF, Bend LFO Mod, Transpose, Sync to Host and Sync Clock.</p>
+<p>A session saves every parameter and the sequence, with the model's version, so that a later change to the sound can keep old projects as they were.</p>
+<p>Once a note has died away the voice sleeps: exact zeros, about 0.5 % of a core instead of 4–8 %. A note, the arpeggio or sequencer, a control or the bender wakes it; the CPU and the MODULATOR keep running. ro-mono-101 reports a 36 s tail, RELEASE at maximum. Don't let the DAW suspend it on silent tracks, or the SH-101 can't play its own arpeggio and sequence.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="keyboard">
+<div class="eyebrow">8</div>
+<h2>Keyboard and mouse</h2>
+
+<h3 id="keys">Computer keys</h3>
+<p>Click the panel first. Keys stay down while held, so two-key steps work.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">Keys</th><th scope="col">Panel</th></tr></thead>
+<tbody>
+<tr><td class="mono">A W S E D F T G Y H U J K O L P ; '</td><td>Keys from C up to F</td></tr>
+<tr><td class="mono">Z X</td><td>Those keys an octave down, up</td></tr>
+<tr><td class="mono">1 2</td><td>LOAD, PLAY</td></tr>
+<tr><td class="mono">3 4 5</td><td>DOWN, U&amp;D, UP</td></tr>
+<tr><td class="mono">6</td><td>HOLD (LEGATO while loading)</td></tr>
+<tr><td class="mono">7</td><td>KEY TRANSPOSE (REST while loading)</td></tr>
+<tr><td class="mono">Space</td><td>PLAY, in the standalone app (in a DAW, Space is the DAW's)</td></tr>
+<tr><td class="mono">← →</td><td>Bend the lever</td></tr>
+<tr><td class="mono">↑</td><td>Push the lever (LFO MOD)</td></tr>
+<tr><td class="mono">?</td><td>The key list</td></tr>
+<tr><td class="mono">Escape</td><td>Closes the key list and lets go of every key</td></tr>
+</tbody>
+</table>
+</div>
+<p>Some DAWs keep letter keys for themselves.</p>
+
+<h3 id="mouse">Mouse</h3>
+<ul>
+<li><span class="k">Sliders:</span> drag; shift is finer, double-click resets.</li>
+<li><span class="k">Knobs:</span> drag. <span class="k">Switches:</span> click or drag.</li>
+<li><span class="k">Bender:</span> drag the lever sideways to bend, forward to push; it springs back.</li>
+<li><span class="k">Keys and buttons</span> are held while the mouse button is. A right-click (ctrl-click on a Mac) holds one down until it's clicked again, for steps that need two at once, such as HOLD with a key; the status line names it. Escape lets go of all.</li>
+<li><span class="k">Window:</span> drag the bottom-right corner, half to twice the size.</li>
+</ul>
+</section>
+
+</div>
+
+</div>
+</div>
+
+</Base>
+
+<script>
+// The sidebar marks the heading being read and opens its section; the button opens it as a
+// drawer on a narrow window. Without this script the sidebar shows every heading.
+const nav = document.querySelector<HTMLElement>('.side')!;
+const button = document.querySelector<HTMLButtonElement>('.toc-button')!;
+const links = [...nav.querySelectorAll<HTMLAnchorElement>('a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+nav.classList.add('spy');
+button.hidden = false;
+
+let current = -1;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 120) i = j; });
+  // At the end of the page the last headings can't reach the top: take the one jumped to, if
+  // it's in view, or else the last.
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) {
+    const jumped = targets.findIndex((t) => '#' + t.id === location.hash);
+    i = jumped >= 0 && targets[jumped].getBoundingClientRect().top < innerHeight ? jumped : targets.length - 1;
+  }
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => {
+    a.classList.toggle('on', j === i);
+    if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+  });
+  const section = i >= 0 ? links[i].closest('.side > ol > li') : null;
+  for (const li of nav.querySelectorAll(':scope > ol > li')) li.classList.toggle('open', li === section);
+  reveal();
+}
+
+// Keep the marked heading in view when the sidebar is taller than the window.
+function reveal() {
+  const a = links[current];
+  if (!a || nav.scrollHeight <= nav.clientHeight) return;
+  if (a.offsetTop < nav.scrollTop || a.offsetTop + a.offsetHeight > nav.scrollTop + nav.clientHeight)
+    nav.scrollTop = a.offsetTop - nav.clientHeight / 3;
+}
+
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+addEventListener('hashchange', later);
+mark();
+
+function open(on: boolean) {
+  nav.classList.toggle('open', on);
+  button.setAttribute('aria-expanded', String(on));
+  button.querySelector('span')!.textContent = on ? 'Close' : 'Contents';
+  if (on) reveal();
+}
+button.addEventListener('click', () => open(!nav.classList.contains('open')));
+nav.addEventListener('click', (e) => { if ((e.target as Element).closest('a')) open(false); });
+document.addEventListener('click', (e) => {
+  if (nav.classList.contains('open') && !nav.contains(e.target as Node) && !button.contains(e.target as Node)) open(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && nav.classList.contains('open')) { open(false); button.focus(); }
+});
+</script>
+
+<style>
+.guide { padding-bottom: 96px; }
+.main { min-width: 0; max-width: 1000px; }
+
+.side { font-size: 14px; line-height: 1.45; }
+.side .label { padding: 0 0 10px 12px; }
+.side ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; max-width: none; }
+.side li { font-size: inherit; color: inherit; }
+.side > ol > li + li { margin-top: 6px; }
+.side a { display: flex; gap: 8px; padding: 3px 10px 3px 30px; border-left: 2px solid var(--rule); color: var(--ink2); text-decoration: none; }
+.side a.top { padding-left: 10px; color: var(--ink); font-weight: 600; }
+.side a.deep { padding-left: 44px; }
+.side .n { flex: 0 0 auto; min-width: 12px; font: 12px/1.7 var(--mono); color: var(--ink3); }
+.side a:hover { color: var(--ink); border-left-color: var(--ink2); }
+.side a.on { color: var(--wire-text); border-left-color: var(--wire); }
+.side a.on .n { color: var(--wire-text); }
+.toc-button { display: none; }
+
+@media (min-width: 1080px) {
+  .guide { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 56px; }
+  .side { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; box-sizing: border-box; padding: 56px 0 32px; scrollbar-width: thin; }
+  .side.spy > ol > li:not(.open) > ol { display: none; }
+  .intro .toc { display: none; }
+}
+@media (max-width: 1079.98px) {
+  .side { display: none; }
+  .side.open { display: block; position: fixed; top: 0; bottom: 0; left: 0; z-index: 20; width: min(320px, 85vw); box-sizing: border-box; overflow-y: auto; padding: 24px 16px 96px; background: var(--paper); border-right: 2px solid var(--ink); box-shadow: 0 0 0 100vmax rgba(22, 26, 38, 0.45); }
+  .toc-button:not([hidden]) { display: inline-flex; align-items: center; gap: 8px; position: fixed; left: 16px; bottom: 16px; z-index: 21; min-height: 44px; padding: 0 18px; box-sizing: border-box; border: 2px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); font-family: var(--display); font-size: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 20px rgba(22, 26, 38, 0.25); }
+  .toc-button:hover { background: var(--wire-text); border-color: var(--wire-text); }
+}
+.intro { padding: 56px 0 24px; display: flex; flex-direction: column; gap: 18px; }
+.crumbs { font-size: 14px; color: var(--ink2); }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(40px, 5.4vw, 68px); line-height: 0.95; }
+.lede { margin: 0; color: var(--ink2); font-size: 18px; max-width: 44em; }
+.nowrap { white-space: nowrap; }
+.toc { margin: 8px 0 0; padding: 16px 20px 16px 44px; border: 2px solid var(--ink); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 4px 24px; color: var(--ink3); }
+section { padding: 48px 0 8px; border-top: 1.5px solid var(--ink); margin-top: 32px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+.eyebrow { width: 44px; height: 44px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(32px, 3.8vw, 44px); line-height: 1; text-transform: uppercase; }
+h3 { margin: 20px 0 0; font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.15; letter-spacing: 0.02em; text-transform: uppercase; scroll-margin-top: 16px; }
+p, li, dd { color: var(--ink2); font-size: 16px; }
+p { margin: 0; max-width: 46em; }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.k { color: var(--ink); font-weight: 600; }
+.mono { font-family: var(--mono); font-size: 0.88em; color: var(--ink); overflow-wrap: anywhere; }
+.card { border: 2px solid var(--ink); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.label { font-family: var(--display); font-size: 13px; letter-spacing: 0.1em; font-weight: 600; color: var(--ink2); text-transform: uppercase; }
+.scroll { overflow-x: auto; border: 2px solid var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 520px; }
+th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink2); }
+thead th { background: var(--paper2); border-bottom: 2px solid var(--ink); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+tbody th { color: var(--ink); font-weight: 600; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+.cc td { padding-block: 7px; }
+.cc td.n { font-family: var(--mono); font-size: 14px; color: var(--ink); width: 3em; }
+.legend { margin: 0; display: flex; flex-direction: column; gap: 12px; max-width: 52em; }
+.legend dt { color: var(--ink); font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.legend dd { margin: 2px 0 0; }
+</style>
