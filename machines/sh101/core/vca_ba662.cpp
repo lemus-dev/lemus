@@ -36,6 +36,7 @@ void Ba662Vca::prepare(double fs)
 {
 	m_fs = fs;
 	m_t = 1 / fs;
+	m_stats = {};
 	const double rl = m_p.loadOhms;
 	// C2 into R30 in parallel with the rest of the jack board and the load.
 	const double rHp = 1 / (1 / kR30 + 1 / (kR29 + kR28 + rl));
@@ -82,6 +83,7 @@ double Ba662Vca::controlCurrent(double volts, double ohms)
 		return m_ie;
 	}
 	double i = std::max(m_ie, 1e-12);
+	bool converged = false;
 	for (int k = 0; k < 20; ++k) {
 		const double veb = p.vt * std::log1p(i / p.tr28Is);
 		const double f = i * ohms + veb - drive;
@@ -91,9 +93,14 @@ double Ba662Vca::controlCurrent(double volts, double ohms)
 		if (i + di <= 0)
 			di = -0.5 * i;
 		i += di;
-		if (std::abs(di) < 1e-13)
+		if (std::abs(di) < 1e-13) {
+			converged = true;
 			break;
+		}
 	}
+	++m_stats.solves;
+	if (!converged)
+		++m_stats.failures;
 	m_ie = i;
 	m_ccOut = i;
 	return i;

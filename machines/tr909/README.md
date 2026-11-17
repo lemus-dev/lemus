@@ -52,8 +52,8 @@ into the ROM folder; an untouched copy is taken out when the 909 loads.
 
 The machine builds into Lemus from the repo root (see the top-level README). Its own targets:
 
-    cmake --build build/cmake -j --target plugin_tr909_All tr909plugintest tr909seq tr909voicerun \
-        tr909circuitrun tr909hhrun tr909cyrun tr909factory dis7810
+    cmake --build build/cmake -j --target plugin_tr909_All tr909plugintest tr909corners tr909seq \
+        tr909voicerun tr909circuitrun tr909hhrun tr909cyrun tr909factory dis7810
 
 - `tr909plugintest [OUT_DIR]` runs the processor headless: every voice from MIDI through the
   firmware and in voice mode, accent, the missing sample ROMs, sleep (exact zeros, and a hit after
@@ -61,6 +61,11 @@ The machine builds into Lemus from the repo root (see the top-level README). Its
   `--panel OUT.png [SCALE] [running] [--artwork PACK.svg]` renders the editor; `--render HITS.json
   OUT.wav` plays a list of notes through the processor (the main pair and the ten MULTI OUTs, a
   cable in each). It reads the ROMs from `../private/roms/tr909/`.
+- `tr909corners [--rate HZ] [--only TEXT] [--each] [--wav DIR]` renders the controls' extremes
+  through the processor (every voice's knobs at both ends, soft and hard hits, rolls, flams, the
+  kit at every knob's ends, swept and jumping) at 44.1, 48 and 88.2 kHz, and fails on any circuit
+  step that didn't converge, on broadband noise from the BD, toms or rim shot, or on output that
+  isn't finite or bounded (`docs/improvements.md`, 2026-11-16). About half a minute.
 - `tr909seq [--rom FILE] [COMMAND ...]` scripts the panel and MIDI against the firmware (keys held
   for a time, tempo, TOTAL ACCENT, MIDI bytes, DIN sync) and logs every trigger and DAC write, the
   LEDs, the display, MIDI out, coverage and jump traces: how `docs/firmware.md` and

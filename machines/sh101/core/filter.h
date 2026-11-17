@@ -1,5 +1,7 @@
 #pragma once
 
+#include "solver_stats.h"
+
 #include "lines.h"
 #include "osc.h"
 
@@ -12,6 +14,10 @@ struct FilterCalibration {
 	// IR3109 expo converter: control scale at pin 9 and the OTAs' current with pin 9 at the bus.
 	double vcfMvPerOct = 19.0; // AS3109 data sheet -19 mV/oct (-17.5 to -20.5); OML measured 20.8
 	double vcfI0uA = 2.4;      // AS3109: 250 Hz per stage at V9 = 0 (68k/68k/560, 240 pF)
+	// The expo's compression at the top: I = I_knee q / (1 + q^n)^(1/n), q the exponential current
+	// over I_knee. 408 uA, order 3 fit a Juno-106 voice's IR3109 (docs/model-filter.md 2).
+	double vcfKneeUA = 408;
+	double vcfKneeOrder = 3;
 	double th1Ohms = 1000;     // TH1 SDT1000 at 25 C (the pin-9 divider)
 	double vr8Ohms = 0;        // VR8 VCF WIDTH; 0 = trimmed as the service notes do (F4/F5, 1 oct/oct)
 	// The +15 V rail at FREQ's top and R187: IC1b's output (SN p.7's half-filled arrow), 3 x the bus,
@@ -71,6 +77,7 @@ public:
 	double out4() const;  // the VCF's OUT4 against the bus
 	double pin9() const;  // the expo's control against the bus
 	double iAbc() const;  // the VCF OTAs' current
+	SolverStats solverStats() const; // the VCF's and the VCA's (solver_stats.h)
 
 	struct Impl;
 

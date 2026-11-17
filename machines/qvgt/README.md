@@ -112,6 +112,7 @@ What works:
 | `qvgtbench ROM time\|golden DIR\|check DIR\|list\|run NAME` | The workloads: cost, golden renders, the difference against them |
 | `tools/bench/mins.sh` | Millions of instructions per audio second, per workload |
 | `qvgtdspcheck ROM` | The GT's own DSP configurations (ring modulator, resonators, sampling, the audio trigger) against what they must compute |
+| `qvgtcorners [--rate hz] [--only text] [--wav dir]` | The extremes (every PRE-AMP setting and factory program under hard input, both rates): fails on any unconverged solve, output out of bounds, or noise from a pure tone |
 | `tools/service/check.py` | The service manual's self-diagnostics (MIDI looped back, BYPASS and CONFIG at power-on) |
 | `qvgtrun ... -l` | MIDI out looped back to MIDI in |
 | `tools/port_i8031.py <mame mcs51 folder>` | Regenerates the 80C31's instruction bodies from MAME |

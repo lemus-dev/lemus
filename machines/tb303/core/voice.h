@@ -2,6 +2,7 @@
 
 #include "midi.h"
 #include "oversampler.h"
+#include "solver_stats.h"
 
 #include <memory>
 #include <vector>
@@ -107,6 +108,11 @@ public:
 	// Probes for the editor and tests, updated each render.
 	struct Probe {
 		double cvVolts = 0, vcoHz = 0, vcfHz = 0, meg = 0, veg = 0, gate = 0, accentSweep = 0;
+		// Every iterative solve since prepare(), by solver (solver_stats.h) and all together, and
+		// how many times a non-finite output made the voice restart its circuit (render()).
+		SolverStats solvers[kSolverCount];
+		SolverStats solver;
+		long restarts = 0;
 	};
 	Probe probe() const;
 
@@ -119,6 +125,7 @@ private:
 	unsigned m_triggers = 0;
 	bool m_retrigger = false;
 	bool m_needsReset = false, m_inWarmup = false;
+	long m_restarts = 0;
 	double m_hostRate = 44100, m_rate = 176400;
 	int m_factor = 4;
 	Decimator m_decimator;

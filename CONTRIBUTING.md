@@ -164,6 +164,8 @@ Done when the firmware boots, the panel works and every output behaves as the ow
   dielectric absorption, leakage). Real voltages.
 - Nonlinear nodes inside a loop gain above 1 are solved implicitly (Newton); explicit updates of
   them blow up. Keep a NaN guard; log when the DC operating point fails to converge.
+- Every per-sample solve counts the samples it didn't converge on, and retries them in shorter
+  steps rather than taking what it has (`machines/sh101/core/vcf_ir3109.cpp`, `solveSample`).
 - Check each netlist against ngspice (the machine's `tools/spice/suite.py`, a deck exported from our own
   netlist) before any fitting. It is the cheapest test the solver has.
 - Part models from data sheets. No fitting beyond data-sheet ranges and part tolerances; anything
@@ -207,6 +209,7 @@ Every round runs all of it, before and after. Tool paths are the machine's (`mac
 | `tests/host.cpp` (`lemustest_instrument`, `lemustest_fx`) | slots, audio bit-identical to the machine alone, sessions |
 | `<id>bench time` | per workload (idle, one note or hit, busy, everything, automation): CPU % at 44.1 and 48 kHz, worst block, time asleep |
 | `<id>bench golden DIR`, `check DIR` | renders of every workload, and the largest difference in dB against them |
+| `<id>corners` | the controls' extremes (filter tops, full resonance, both ends of the keyboard, fastest envelopes, hard modulation, sweeps and jumps) at 44.1 and 48 kHz: no implicit solve left unconverged, no broadband noise where nothing makes it, output finite and bounded |
 | `tools/spice/suite.py` | every netlist against ngspice |
 | `tools/service/check.py` | the service manual's checks |
 | `tools/compare/` | per unit, per event, against the real recordings: levels in dB, pitch in cents, times in ms |
@@ -252,6 +255,7 @@ improvements.md is the one tracker, and it is public: it names no one ("decided 
 ## Ship gate
 
 - Every service-manual check passes.
+- `<id>corners` passes: no unconverged solve anywhere in the controls' range.
 - The CPU budget in improvements.md is met.
 - No open item marked as a release blocker.
 - The machine's README has its numbers, its known differences and what isn't emulated.
@@ -266,6 +270,11 @@ changes the sound bumps `kModelVersion` and keeps the old behaviour for old sess
 ## Lessons
 
 - Short renders miss slow instabilities: put stability workloads in fits and plugin tests.
+- An unconverged solve is silent in every check that compares: SPICE, recordings and golden
+  renders only cover where their references exist, and a golden render keeps whatever it was
+  made with. The SH-101's VCF gave up after 12 iterations at the top of FREQ with RES high, and its
+  ultrasonic self-oscillation came out as white noise; its golden renders had the noise in them.
+  Count convergence and check the corners nobody recorded (`<id>corners`).
 - Align against captures in a narrow window (±12 samples); a wide cross-correlation locks onto the
   wrong period of a steady wave.
 - The development hosts link every machine into one binary: namespace every class and helper.

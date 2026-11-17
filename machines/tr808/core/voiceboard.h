@@ -161,6 +161,19 @@ public:
 	};
 	Stats stats() const;
 	std::string blockReport() const; // tools: each circuit's steps, Newton iterations, linear steps
+	// What each circuit's solver did since prepare() (circuit::Circuit::Stats), for tools: one entry
+	// per partition, with its unit (a Voice, kMaracasUnit, kCommonUnit for the accent, the common
+	// trig, the noise and the metal source, or kMixUnit) and name ("bd:vca"); every circuit, whichever
+	// side of a switch is playing. A step whose Newton solve fails at every step size is accepted as
+	// it stands and counted (stats.failures): tools/corners checks there are none over the controls'
+	// extremes, since an unconverged sample is silent in every other check. Between render()s.
+	static constexpr int kMaracasUnit = kVoices, kCommonUnit = kVoices + 1, kMixUnit = kVoices + 2;
+	struct SolverStats {
+		int unit = 0;
+		std::string name;
+		circuit::Circuit::Stats stats;
+	};
+	std::vector<SolverStats> solverStats() const;
 	bool runsJobs() const;           // tools: render() runs the voices as jobs (checkJobs passed), not interleaved
 
 	struct Impl;

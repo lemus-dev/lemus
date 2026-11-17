@@ -85,6 +85,9 @@ public:
 		int headroom = 0; // the AUDIO SIGNAL DISPLAY's LEDs lit, 0-4
 	};
 	Display display() const;
+	// What the unit's iterative solves did since the last prepare (core/solver_stats.h), as of the
+	// end of the last block: tools/corners.
+	qvgt::SolverStats solverStats() const;
 
 private:
 	static juce::AudioProcessorValueTreeState::ParameterLayout layout();
@@ -126,6 +129,7 @@ private:
 
 	mutable juce::SpinLock m_displayLock;
 	Display m_display;
+	qvgt::SolverStats m_solverStats; // with the display, under its lock
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(QVGTProcessor)
 };

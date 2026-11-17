@@ -187,6 +187,8 @@ public:
 	// One sample: solves the nonlinear devices, updates the capacitors and the outputs. A sample
 	// whose Newton solve fails (a stiff switching event) is redone in 4, 16 or 64 steps, and the
 	// next 32 samples then run in 4 steps each; substeps(n) asks for that ahead of a known event.
+	// One that fails even in 64ths is done again from its start in 64ths to 1024ths with Newton
+	// damped (retry); one that fails even then is accepted as it stands and counted (Stats::failures).
 	void step();
 	void substeps(int samples) { m_subLeft = std::max(m_subLeft, samples); }
 	// The next `quarters` quarter steps by backward Euler (the samples they fall in are substepped):
@@ -226,9 +228,11 @@ public:
 	void setState(const State &s);
 
 	// Statistics since the last reset of them: Newton iterations and steps, the worst residual,
-	// steps that needed smaller steps, and steps that failed even then.
+	// steps that needed smaller steps, steps that failed even then and were done again more
+	// carefully (retried), and those that failed even that, accepted as they stood (failures).
 	struct Stats {
 		long steps = 0, iterations = 0, substepped = 0, failures = 0, factorizations = 0;
+		long retried = 0;
 		long linearSteps = 0, linearizations = 0; // steps taken in linear mode, and its rebuilds
 		long softened = 0; // smallest steps that needed the comparators softened to converge
 		long nyquist = 0;  // TR909_NYQ: full steps where a port reversed direction by over 0.1 mV twice running
@@ -284,7 +288,10 @@ private:
 		int nActive = 0;
 		std::vector<double> fColMax; // each column of F's largest entry
 	};
-	static constexpr int kLevels = 4;
+	// Levels 0-3 are the sample's steps (advanceSplit goes no deeper than kSplitLevels); 4 and 5,
+	// 256ths and 1024ths, only a failed sample's retry's.
+	static constexpr int kLevels = 6, kSplitLevels = 4;
+	int m_splitLevels = kSplitLevels; // advanceSplit's deepest level + 1
 
 	void build();
 	void buildLevel(Level &L, bool allBackwardEuler);
@@ -301,9 +308,10 @@ private:
 	void deviceEval(const Device &d, const double *v, double *i, double *jac) const; // one device's ports
 	void deviceEvalRaw(const Device &d, const double *v, double *i, double *jac) const; // without anchor and gmin
 	// Newton and its linear algebra, compiled for the port counts up to 8 (NP; 0 = any): the same
-	// operations, with the loops over the ports unrolled.
+	// operations, with the loops over the ports unrolled. Careful (retry, any port count): a fresh
+	// factorisation every iteration, and the step damped while the residual doesn't fall.
 	bool newton(Level &L, const double *p, double *v, double *i, int maxIterations);
-	template <int NP> bool newtonT(Level &L, const double *p, double *v, double *i, int maxIterations);
+	template <int NP, bool Careful = false> bool newtonT(Level &L, const double *p, double *v, double *i, int maxIterations);
 	template <int NP> bool factor(Level &L);
 	template <int NP> void solveActive(Level &L, double *r) const;
 	// Advances by one step of level `lv` to inputs `u`; false (state unchanged) if Newton fails.
@@ -332,6 +340,11 @@ private:
 		std::vector<double> x, xpLast, vc, ic, v, i, vOld, y;
 		bool xValid = false, capsStale = false, prevValid = false;
 	} m_saved;
+	Saved m_start; // the sample's start where m_saved doesn't hold it, for retry
+	// A sample that failed at every step size, done again from `start` (its state at the sample's
+	// start) more carefully; false (counted a failure) if even that fails.
+	bool retry(const Saved &start, const double *u0, const double *u1);
+	bool m_careful = false; // Newton damped and plain (retry)
 	bool flipped(const Saved &s) const; // a comparator flipped since s
 	bool flipped() const { return flipped(m_saved); }
 	bool flipAhead() const; // a comparator's input crosses in the next sample

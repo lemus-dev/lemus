@@ -67,7 +67,7 @@ set(TR808_PLUGIN_INCLUDES ${TR808_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHINES
 set_source_files_properties(${TR808_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${TR808_PLUGIN_INCLUDES}")
 
 lemus_machine(tr808 instrument)
-lemus_plugin(tr808 NAME "ro-drums-808" CODE R808 VERSION 0.1.2 STAGE beta STANDALONE
+lemus_plugin(tr808 NAME "ro-drums-808" CODE R808 VERSION 0.1.3 STAGE beta STANDALONE
   DESCRIPTION "Emulation of the Roland TR-808. Not affiliated with Roland.")
 function(lemus_add_tr808 target)
   target_sources(${target} PRIVATE ${TR808_DIR}/tr808.cpp ${TR808_PLUGIN_SOURCES})
@@ -105,3 +105,13 @@ target_compile_definitions(tr808bench PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0
   TR808_ROM_PATH="${TR808_ROM_PATH}")
 target_link_libraries(tr808bench PRIVATE lemus_tr808core lemus_tr808_fonts lemus_tr808_panel lemus_tr808_boards
   juce::juce_audio_utils juce::juce_audio_processors juce::juce_recommended_config_flags)
+
+# The controls' extremes: unconverged circuit steps, noise where nothing makes it, output bounds
+# (tools/corners).
+juce_add_console_app(tr808corners PRODUCT_NAME "tr808corners")
+target_sources(tr808corners PRIVATE ${TR808_DIR}/tools/corners/main.cpp ${TR808_PLUGIN_SOURCES})
+target_include_directories(tr808corners PRIVATE ${TR808_PLUGIN_INCLUDES})
+target_compile_definitions(tr808corners PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0
+  TR808_ROM_PATH="${TR808_ROM_PATH}")
+target_link_libraries(tr808corners PRIVATE lemus_tr808core lemus_tr808_fonts lemus_tr808_panel lemus_tr808_boards
+  juce::juce_audio_utils juce::juce_audio_processors juce::juce_audio_formats juce::juce_recommended_config_flags)

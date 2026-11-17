@@ -1,5 +1,7 @@
 #pragma once
 
+#include "solver_stats.h"
+
 namespace sh101 {
 
 // The SH-101's VCA and output (docs/circuit-filter.md 6-7): TR28, a PNP in common base (base on
@@ -53,6 +55,9 @@ public:
 
 	static constexpr double kR196 = 120e3, kR197 = 3.3e3, kR133 = 12e3, kR140 = 47e3, kR138 = 1e3;
 
+	// What controlCurrent()'s Newton did since prepare() (solver_stats.h; no retries).
+	const SolverStats &stats() const { return m_stats; }
+
 private:
 	Params m_p;
 	double m_fs = 176400, m_t = 1 / 176400.0;
@@ -67,6 +72,7 @@ private:
 	double m_hpA = 0, m_hpX = 0, m_hpY = 0;
 	double m_lpA = 0, m_lpB = 0, m_lpX = 0, m_lpY = 0;
 	double m_jackGain = 1;
+	SolverStats m_stats;
 };
 
 } // namespace sh101

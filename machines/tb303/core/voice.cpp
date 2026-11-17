@@ -14,6 +14,22 @@
 namespace tb303 {
 
 namespace {
+#if defined(__GNUC__) || defined(__clang__)
+#define TB303_INLINE __attribute__((always_inline))
+#else
+#define TB303_INLINE
+#endif
+
+// One solve counted: whether it converged and how many iterations it took.
+void tally(SolverStats &st, bool converged, int iterations)
+{
+	++st.solves;
+	if (!converged)
+		++st.failures;
+	if (iterations > st.maxIterations)
+		st.maxIterations = iterations;
+}
+
 constexpr double kVt = 0.025693; // thermal voltage at 25 C
 constexpr double kV12 = 11.85;   // "+12 V" rail: 5.333 V x (1 + 2.2k/1.8k)
 constexpr double kVref = 5.333;  // reference rail
@@ -52,21 +68,29 @@ struct Diode {
 		return is / nvt * std::exp(std::min(a, 40.0));
 	}
 	// Voltage across the diode in series with resistance r, driven by voltage v (v = vd + i*r).
-	double solve(double v, double r, double guess) const
+	// Counted in st. From a guess under the answer Newton overshoots to v and then comes down
+	// about n V_T an iteration: a drive that has just jumped by a few volts takes up to ~40
+	// iterations (D24 when an accent starts, 2026-11-16), so the cap is 50.
+	double solve(double v, double r, double guess, SolverStats &st) const
 	{
 		double vd = std::clamp(guess, -1.0, v > 0 ? v : 0.0);
 		if (v <= 0)
 			return v;
-		for (int i = 0; i < 30; ++i) {
+		int i = 0;
+		bool converged = false;
+		for (; i < 50; ++i) {
 			const double f = vd + current(vd) * r - v;
 			const double df = 1 + slope(vd) * r;
 			const double step = f / df;
 			vd -= step;
 			if (vd > v)
 				vd = v;
-			if (std::abs(step) < 1e-9)
+			if (std::abs(step) < 1e-9) {
+				converged = true;
 				break;
+			}
 		}
+		tally(st, converged, converged ? i + 1 : i);
 		return vd;
 	}
 };
@@ -129,6 +153,9 @@ struct HighPass {
 } // namespace
 
 struct Voice::Impl {
+	// What the solves did (solver_stats.h); Voice::reset() keeps it.
+	SolverStats stats[kSolverCount];
+
 	// ------------------------------------------------------------------ constants
 	double fs = 176400, h = 1 / 176400.0; // internal rate
 	double fsv = 352800, hv = 1 / 352800.0; // VCO rate (2x internal)
@@ -200,6 +227,7 @@ struct Voice::Impl {
 	// VEG (§6.2)
 	double c42 = 11.5, iVeg = 0;
 	double iE31 = 0, iB31 = 0, q31Ve = 0.6, vdD35 = 0.5; // Q31: emitter and base currents, V_E
+	double vdD36 = 0.5; // D36's drop, the last step's (the C41 solve starts its diode there)
 	double iAbcPrev = 0, iAbcNow = 0;
 	// cutoff / expo (§4.5)
 	// Node E: Q9's emitter (2SA733 follower, base at 2.667 V from R64/R65). It sinks the converter's
@@ -328,15 +356,20 @@ struct Voice::Impl {
 		double x = std::max(1e-12, a * (vth - nodeE - 0.52) / r);
 		// The pot's current feeds Q10's emitter and Q11's base (I/beta): x = a (I_pot - x/beta).
 		constexpr double beta11 = 300;
-		for (int it = 0; it < 40; ++it) {
+		int it = 0;
+		bool converged = false;
+		for (; it < 40; ++it) {
 			const double g = x - a * ((vth - nodeE - kVt * std::log(x / kQ11Is)) / r - x / beta11);
 			const double dg = 1 + a * (kVt / (x * r) + 1 / beta11);
 			const double nx = std::max(1e-12, x - g / dg);
 			const bool done = std::abs(nx - x) < 1e-6 * x;
 			x = nx;
-			if (done)
+			if (done) {
+				converged = true;
 				break;
+			}
 		}
+		tally(stats[kSolverExpo], converged, converged ? it + 1 : it);
 		return x;
 	}
 
@@ -409,7 +442,9 @@ struct Voice::Impl {
 			for (int k = 0; k < sub; ++k) {
 				// Intrinsic V_EB v from c72 = v + R147 i_E + r_b i_B (Newton).
 				double v = q36Veb, iC = 0, iB = 0, diB = 0, dr = 1;
-				for (int it = 0; it < 30; ++it) {
+				int it = 0;
+				bool converged = false;
+				for (; it < 30; ++it) {
 					const double iF = q36Is * std::exp(std::min(v, 0.95) / kVt);
 					const double dF = iF / kVt;
 					const bool sat = iF > iSat;
@@ -421,9 +456,12 @@ struct Voice::Impl {
 					dr = 1 + 22.0 * (diC + diB) + q36Rb * diB;
 					const double step = std::clamp(r / dr, -0.05, 0.05);
 					v -= step;
-					if (std::abs(step) < 1e-10)
+					if (std::abs(step) < 1e-10) {
+						converged = true;
 						break;
+					}
 				}
+				tally(stats[kSolverGate], converged, converged ? it + 1 : it);
 				q36Veb = v;
 				// C72: R143 charges it while the gate is on; R142 and the base current discharge
 				// it (backward Euler, linearised through the junction). Q37 saturates at ~30 mV.
@@ -459,7 +497,11 @@ struct Voice::Impl {
 		}
 		{
 			// Implicit step of C62 discharging into R and the diode string. With i = 0 the string
-			// stands at vStr0; while C62 is below that, every iteration gives i = 0 again.
+			// stands at vStr0; while C62 is below that, every iteration gives i = 0 again. Four damped
+			// fixed-point steps, a fixed count, not iterated to convergence: they leave the current
+			// 2-5 % under the string's own solution over most of the MEG's fall (C62 above ~3 V), so
+			// the MEG falls a few % slower than the circuit would. The unit's DECAY and MEG were fitted
+			// with them (docs/model.md); converging it changes the sound (docs/improvements.md).
 			static const double vStr0 = kSignalDiode.nvt * std::log1p(0.19e-3 / kSignalDiode.is);
 			double i = 0;
 			for (int it = 0; it < 4 && c62 > vStr0; ++it) {
@@ -496,11 +538,13 @@ struct Voice::Impl {
 		// D24 path, by Newton on its voltage (an explicit update is unstable at full ACCENT).
 		{
 			double v = vAcc;
-			for (int it = 0; it < 8; ++it) {
+			int it = 0;
+			bool converged = false;
+			for (; it < 8; ++it) {
 				const double drive = v - v0;
 				double id = 0, did = 0;
 				if (drive > 0) {
-					vdD24 = kSignalDiode.solve(drive, rtot, vdD24);
+					vdD24 = kSignalDiode.solve(drive, rtot, vdD24, stats[kSolverD24]);
 					id = std::max(0.0, (drive - vdD24) / rtot);
 					const double rd = kSignalDiode.nvt / (id + kSignalDiode.is);
 					did = 1 / (rtot + rd);
@@ -510,9 +554,12 @@ struct Voice::Impl {
 				const double step = f / df;
 				v -= step;
 				iD24 = id;
-				if (std::abs(step) < 1e-7)
+				if (std::abs(step) < 1e-7) {
+					converged = true;
 					break;
+				}
 			}
+			tally(stats[kSolverAccent], converged, converged ? it + 1 : it);
 			vAcc = v;
 			if (vAcc - v0 <= 0)
 				iD24 = 0;
@@ -612,8 +659,14 @@ struct Voice::Impl {
 		double ve = q8Ve, q = q8Q, vb = q8Vb, vc = q8Vc;
 		const double ve0 = q8Ve, q0 = q8Q;
 		// The C10 row couples only q and V_B: it is eliminated first (k), leaving 3 x 3.
+		// Most samples converge in 2-3 iterations. Where the saw resets, the 5 V jump through C10
+		// moves V_B by volts, and the step limits below take up to ~30 (measured over the
+		// controls' extremes, tools/corners): the cap is 40. It was 8, and about one sample in a
+		// thousand, one at nearly every reset, went on from wherever the iterations had got to.
 		const double j11 = cC10 + g34, k = -g34 / j11, i11 = 1 / j11;
-		for (int it = 0; it < 8; ++it) {
+		int it = 0;
+		bool converged = false;
+		for (; it < 40; ++it) {
 			// Junction exponentials, linear above 40 V_T so Newton stays sane. Below -50 V_T a
 			// junction's current is -Is to double precision and its slope negligible: no exp.
 			const double aF = (ve - vb) * iVt, aR = (vc - vb) * iVt;
@@ -652,9 +705,12 @@ struct Voice::Impl {
 			q += std::clamp(d1, -2.0, 2.0);
 			vb += std::clamp(d2, -lim * 5, lim * 5);
 			vc += std::clamp(d3, -2.0, 2.0);
-			if (std::abs(d0) + std::abs(d2) + std::abs(d3) < 1e-7)
+			if (std::abs(d0) + std::abs(d2) + std::abs(d3) < 1e-7) {
+				converged = true;
 				break;
+			}
 		}
+		tally(stats[kSolverShaper], converged, converged ? it + 1 : it);
 		q8Ve = ve;
 		q8Q = q;
 		q8Vb = vb;
@@ -663,6 +719,8 @@ struct Voice::Impl {
 	}
 
 	// ------------------------------------------------------------------ VCF (runs at fs)
+	static constexpr int kLadderIterations = 8; // Newton's cap for one step (vcfStep)
+	static constexpr int kLadderMaxParts = 16;  // a retried sample's most steps
 	// x_in: Q12 left-base signal (V). Returns VCF OUT (V, AC) and leaves the wiper voltage.
 	double vcfStep(double xIn, double iF, double resKnob)
 	{
@@ -695,92 +753,127 @@ struct Voice::Impl {
 			return A * t + B;
 		};
 
-		// Trapezoidal step, Newton on u1..u4, starting from an Adams-Bashforth step (about one
-		// iteration fewer than starting from u; the tolerance is the same).
-		double un[4];
-		for (int i = 0; i < 4; ++i)
-			un[i] = u[i] + h * (1.5 * fPrev[i] - 0.5 * fPrev2[i]);
-		const double hh = 0.5 * h;
-		double x = 0, tc[5];
-		bool converged = false;
-		for (int it = 0; it < 6; ++it) {
-			double dfb;
-			const double fb = feedback(un[3], dfb);
-			x = xIn - fb;
-			const double t0 = std::tanh(x * kInv2Vt);
-			const double t1 = std::tanh((un[0] - un[1]) * kInv2Vt);
-			const double t2 = std::tanh((un[1] - un[2]) * kInv2Vt);
-			const double t3 = std::tanh((un[2] - un[3]) * kInv2Vt);
-			const double t4 = std::tanh(un[3] * kInv2Vt);
-			// The top node also feeds Q21 through C25/C27: w/rLoad leaves C26.
-			const double iLC = (aW * un[3] + bW) * gTop; // i_L / C26
-			const double f[4] = {kc[0] * (t0 - t1), kc[1] * (t1 - t2), kc[2] * (t2 - t3), kc[3] * (t3 - t4) - iLC};
-			double F[4];
-			for (int i = 0; i < 4; ++i)
-				F[i] = un[i] - u[i] - hh * (f[i] + fPrev[i]);
-			const double d0 = (1 - t0 * t0) * kInv2Vt, d1 = (1 - t1 * t1) * kInv2Vt, d2 = (1 - t2 * t2) * kInv2Vt,
-			             d3 = (1 - t3 * t3) * kInv2Vt, d4 = (1 - t4 * t4) * kInv2Vt;
-			// df/du: tridiagonal, plus the feedback in row 0, column 3.
-			const double j00 = -kc[0] * d1, j01 = kc[0] * d1, j03 = kc[0] * d0 * (-dfb);
-			const double j10 = kc[1] * d1, j11 = -kc[1] * (d1 + d2), j12 = kc[1] * d2;
-			const double j21 = kc[2] * d2, j22 = -kc[2] * (d2 + d3), j23 = kc[2] * d3;
-			const double j32 = kc[3] * d3, j33 = -kc[3] * (d3 + d4) - aW * gTop;
-			// Solve (I - hh J) d = -F. Partial pivoting would never swap here: each diagonal is 1
-			// plus the magnitudes the row's sub-diagonal entry is made of, and C18 < C19 = C24 = C26.
-			// So this is the same elimination, on the nonzero entries only (row 1 fills in column 3).
-			const double m00 = 1.0 - hh * j00, m01 = 0.0 - hh * j01, m03 = 0.0 - hh * j03;
-			const double m10 = 0.0 - hh * j10, m12 = 0.0 - hh * j12;
-			const double m21 = 0.0 - hh * j21, m23 = 0.0 - hh * j23;
-			const double m32 = 0.0 - hh * j32;
-			double m11 = 1.0 - hh * j11, m22 = 1.0 - hh * j22, m33 = 1.0 - hh * j33;
-			double d[4] = {-F[0], -F[1], -F[2], -F[3]};
-			const double e1 = m10 / m00;
-			m11 -= e1 * m01;
-			const double m13 = 0.0 - e1 * m03;
-			d[1] -= e1 * d[0];
-			const double e2 = m21 / m11;
-			m22 -= e2 * m12;
-			const double m23f = m23 - e2 * m13;
-			d[2] -= e2 * d[1];
-			const double e3 = m32 / m22;
-			m33 -= e3 * m23f;
-			d[3] -= e3 * d[2];
-			d[3] = d[3] / m33;
-			d[2] = (d[2] - m23f * d[3]) / m22;
-			d[1] = (d[1] - m12 * d[2] - m13 * d[3]) / m11;
-			d[0] = (d[0] - m01 * d[1] - m03 * d[3]) / m00;
-			double mx = 0;
-			for (int i = 0; i < 4; ++i) {
-				un[i] += std::clamp(d[i], -0.1, 0.1);
-				mx = std::max(mx, std::abs(d[i]));
+		// The derivatives at a point, given its tanh terms tc.
+		auto derivatives = [&](const double *tc, const double *un, double *f) {
+			f[0] = kc[0] * (tc[0] - tc[1]);
+			f[1] = kc[1] * (tc[1] - tc[2]);
+			f[2] = kc[2] * (tc[2] - tc[3]);
+			f[3] = kc[3] * (tc[3] - tc[4]) - (aW * un[3] + bW) * gTop;
+		};
+		// One trapezoidal step of length hs from u0 (derivatives f0), Newton on u1..u4 from the
+		// guess in un. Leaves the end point in un and its tanh terms in tc, converged or not (then
+		// the last iterate's), adds the iterations taken to `iterations`, and returns whether it
+		// converged. Inlined into both calls: as a call it costs ~1 % of the voice.
+		auto step = [&](const double *u0, const double *f0, double hs, double *un, double *tc, int &iterations) TB303_INLINE {
+			const double hh = 0.5 * hs;
+			double x = 0;
+			for (int it = 0; it < kLadderIterations; ++it) {
+				double dfb;
+				const double fb = feedback(un[3], dfb);
+				x = xIn - fb;
+				const double t0 = std::tanh(x * kInv2Vt);
+				const double t1 = std::tanh((un[0] - un[1]) * kInv2Vt);
+				const double t2 = std::tanh((un[1] - un[2]) * kInv2Vt);
+				const double t3 = std::tanh((un[2] - un[3]) * kInv2Vt);
+				const double t4 = std::tanh(un[3] * kInv2Vt);
+				// The top node also feeds Q21 through C25/C27: w/rLoad leaves C26.
+				const double iLC = (aW * un[3] + bW) * gTop; // i_L / C26
+				const double f[4] = {kc[0] * (t0 - t1), kc[1] * (t1 - t2), kc[2] * (t2 - t3), kc[3] * (t3 - t4) - iLC};
+				double F[4];
+				for (int i = 0; i < 4; ++i)
+					F[i] = un[i] - u0[i] - hh * (f[i] + f0[i]);
+				const double d0 = (1 - t0 * t0) * kInv2Vt, d1 = (1 - t1 * t1) * kInv2Vt, d2 = (1 - t2 * t2) * kInv2Vt,
+				             d3 = (1 - t3 * t3) * kInv2Vt, d4 = (1 - t4 * t4) * kInv2Vt;
+				// df/du: tridiagonal, plus the feedback in row 0, column 3.
+				const double j00 = -kc[0] * d1, j01 = kc[0] * d1, j03 = kc[0] * d0 * (-dfb);
+				const double j10 = kc[1] * d1, j11 = -kc[1] * (d1 + d2), j12 = kc[1] * d2;
+				const double j21 = kc[2] * d2, j22 = -kc[2] * (d2 + d3), j23 = kc[2] * d3;
+				const double j32 = kc[3] * d3, j33 = -kc[3] * (d3 + d4) - aW * gTop;
+				// Solve (I - hh J) d = -F. Partial pivoting would never swap here: each diagonal is 1
+				// plus the magnitudes the row's sub-diagonal entry is made of, and C18 < C19 = C24 = C26.
+				// So this is the same elimination, on the nonzero entries only (row 1 fills in column 3).
+				const double m00 = 1.0 - hh * j00, m01 = 0.0 - hh * j01, m03 = 0.0 - hh * j03;
+				const double m10 = 0.0 - hh * j10, m12 = 0.0 - hh * j12;
+				const double m21 = 0.0 - hh * j21, m23 = 0.0 - hh * j23;
+				const double m32 = 0.0 - hh * j32;
+				double m11 = 1.0 - hh * j11, m22 = 1.0 - hh * j22, m33 = 1.0 - hh * j33;
+				double d[4] = {-F[0], -F[1], -F[2], -F[3]};
+				const double e1 = m10 / m00;
+				m11 -= e1 * m01;
+				const double m13 = 0.0 - e1 * m03;
+				d[1] -= e1 * d[0];
+				const double e2 = m21 / m11;
+				m22 -= e2 * m12;
+				const double m23f = m23 - e2 * m13;
+				d[2] -= e2 * d[1];
+				const double e3 = m32 / m22;
+				m33 -= e3 * m23f;
+				d[3] -= e3 * d[2];
+				d[3] = d[3] / m33;
+				d[2] = (d[2] - m23f * d[3]) / m22;
+				d[1] = (d[1] - m12 * d[2] - m13 * d[3]) / m11;
+				d[0] = (d[0] - m01 * d[1] - m03 * d[3]) / m00;
+				double mx = 0;
+				for (int i = 0; i < 4; ++i) {
+					un[i] += std::clamp(d[i], -0.1, 0.1);
+					mx = std::max(mx, std::abs(d[i]));
+				}
+				// tanh at the updated state: after a converged step (|d| < 1e-10) the first-order
+				// correction is exact to well below double precision.
+				if (mx < 1e-10) {
+					tc[0] = t0;
+					tc[1] = t1 + (1 - t1 * t1) * ((d[0] - d[1]) * kInv2Vt);
+					tc[2] = t2 + (1 - t2 * t2) * ((d[1] - d[2]) * kInv2Vt);
+					tc[3] = t3 + (1 - t3 * t3) * ((d[2] - d[3]) * kInv2Vt);
+					tc[4] = t4 + (1 - t4 * t4) * (d[3] * kInv2Vt);
+					iterations += it + 1;
+					return true;
+				}
 			}
-			// tanh at the updated state: after a converged step (|d| < 1e-10) the first-order
-			// correction is exact to well below double precision.
-			if (mx < 1e-10) {
-				tc[0] = t0;
-				tc[1] = t1 + (1 - t1 * t1) * ((d[0] - d[1]) * kInv2Vt);
-				tc[2] = t2 + (1 - t2 * t2) * ((d[1] - d[2]) * kInv2Vt);
-				tc[3] = t3 + (1 - t3 * t3) * ((d[2] - d[3]) * kInv2Vt);
-				tc[4] = t4 + (1 - t4 * t4) * (d[3] * kInv2Vt);
-				converged = true;
-				break;
-			}
-		}
-		// Commit the step: ladder state, derivatives, and the feedback-chain filters.
-		if (!converged) {
+			iterations += kLadderIterations;
 			tc[0] = std::tanh(x * kInv2Vt);
 			tc[1] = std::tanh((un[0] - un[1]) * kInv2Vt);
 			tc[2] = std::tanh((un[1] - un[2]) * kInv2Vt);
 			tc[3] = std::tanh((un[2] - un[3]) * kInv2Vt);
 			tc[4] = std::tanh(un[3] * kInv2Vt);
+			return false;
+		};
+
+		// Trapezoidal step, Newton on u1..u4, starting from an Adams-Bashforth step (about one
+		// iteration fewer than starting from u; the tolerance is the same). Every sample measured
+		// over the controls' extremes converges within 5 iterations (tools/corners; the cap was 6).
+		// The safety net, should one not: the sample again from where it started in 2, then 4, 8
+		// and 16 steps, with its inputs (x_in, the ladder current, the feedback chain's high-passes)
+		// held across it, each step's Newton starting from an Euler, then an Adams-Bashforth, step.
+		double un[4], tc[5];
+		for (int i = 0; i < 4; ++i)
+			un[i] = u[i] + h * (1.5 * fPrev[i] - 0.5 * fPrev2[i]);
+		int iterations = 0;
+		bool converged = step(u, fPrev, h, un, tc, iterations);
+		if (!converged) {
+			++stats[kSolverLadder].retried;
+			for (int parts = 2; parts <= kLadderMaxParts && !converged; parts *= 2) {
+				const double hs = h / parts;
+				double us[4], fs[4], fsPrev[4];
+				std::copy(u, u + 4, us);
+				std::copy(fPrev, fPrev + 4, fs);
+				// Until a step fails; the last try goes on to the sample's end regardless.
+				converged = true;
+				for (int k = 0; k < parts && (converged || parts == kLadderMaxParts); ++k) {
+					for (int i = 0; i < 4; ++i)
+						un[i] = us[i] + hs * (k == 0 ? fs[i] : 1.5 * fs[i] - 0.5 * fsPrev[i]);
+					converged = step(us, fs, hs, un, tc, iterations) && converged;
+					std::copy(fs, fs + 4, fsPrev);
+					derivatives(tc, un, fs);
+					std::copy(un, un + 4, us);
+				}
+			}
 		}
-		const double t0 = tc[0], t1 = tc[1], t2 = tc[2], t3 = tc[3], t4 = tc[4];
+		tally(stats[kSolverLadder], converged, iterations);
+		// Commit the step: ladder state, derivatives, and the feedback-chain filters.
 		for (int i = 0; i < 4; ++i)
 			fPrev2[i] = fPrev[i];
-		fPrev[0] = kc[0] * (t0 - t1);
-		fPrev[1] = kc[1] * (t1 - t2);
-		fPrev[2] = kc[2] * (t2 - t3);
-		fPrev[3] = kc[3] * (t3 - t4) - (hpC25.a() * un[3] + hpC25.b()) * gTop;
+		derivatives(tc, un, fPrev);
 		for (int i = 0; i < 4; ++i)
 			u[i] = un[i];
 		const double w = hpC25.process(u[3]);
@@ -803,17 +896,20 @@ struct Voice::Impl {
 	{
 		constexpr double is = 3.3e-14, bf = 300, br = 5;
 		const double vE = 100 * iB32; // R130 carries the base current too
-		// C41: f(v) rises with v.
+		// C41: f(v) rises with v. D36 starts from its last drop (from 0 its first solve each step
+		// took 34 iterations).
 		{
-			double vD = 0;
+			double &vD = vdD36;
 			double v = vb32;
-			for (int it = 0; it < 30; ++it) {
+			int it = 0;
+			bool converged = false;
+			for (; it < 30; ++it) {
 				const auto net = [&](double x) {
 					double i134 = 0;
 					if (oneShot) {
 						const double drive = 11.7 - x; // Q38 saturated
 						if (drive > 0) {
-							vD = kSignalDiode.solve(drive, 22e3, vD);
+							vD = kSignalDiode.solve(drive, 22e3, vD, stats[kSolverD36]);
 							i134 = std::max(0.0, (drive - vD) / 22e3);
 						}
 					}
@@ -826,9 +922,12 @@ struct Voice::Impl {
 				const double slope = (net(v + dv) - fv) / dv;
 				const double step = std::clamp(fv / slope, -0.05, 0.05);
 				v -= step;
-				if (std::abs(step) < 1e-9)
+				if (std::abs(step) < 1e-9) {
+					converged = true;
 					break;
+				}
 			}
+			tally(stats[kSolverC41], converged, converged ? it + 1 : it);
 			vb32 = v;
 			iB32 = is / bf * junctionExpm1((vb32 - vE) / kVt) +
 			       is / br * junctionExpm1((vb32 - c42) / kVt);
@@ -844,15 +943,20 @@ struct Voice::Impl {
 			};
 			const auto g = [&](double vN) { return vN - c42 - dt / 1e-6 * ((kV12 - vN) / 1.5e6 + iB31 - iC32(vN)); };
 			double v = c42;
-			for (int it = 0; it < 30; ++it) {
+			int it = 0;
+			bool converged = false;
+			for (; it < 30; ++it) {
 				const double gv = g(v);
 				const double dv = 1e-6;
 				const double slope = (g(v + dv) - gv) / dv;
 				const double step = std::clamp(gv / slope, -0.5, 0.5);
 				v -= step;
-				if (std::abs(step) < 1e-9)
+				if (std::abs(step) < 1e-9) {
+					converged = true;
 					break;
+				}
 			}
+			tally(stats[kSolverC42], converged, converged ? it + 1 : it);
 			c42 = v;
 		}
 	}
@@ -871,7 +975,7 @@ struct Voice::Impl {
 		const double head = gateInt - q31Ve;
 		double iE = 0;
 		if (head > 0) {
-			vdD35 = kSignalDiode.solve(head, 222.2e3, vdD35);
+			vdD35 = kSignalDiode.solve(head, 222.2e3, vdD35, stats[kSolverD35]);
 			iE = std::max(0.0, (head - vdD35) / 222.2e3);
 		}
 		// Q31 (2SA733, Ebers-Moll, tools/spice/models-datasheet.lib) with its emitter current
@@ -886,16 +990,20 @@ struct Voice::Impl {
 			const double drive = c36 - vP;
 			iD = 0;
 			if (drive > 0) {
-				vdD27 = kSignalDiode.solve(drive, 22e3, vdD27);
+				vdD27 = kSignalDiode.solve(drive, 22e3, vdD27, stats[kSolverD27]);
 				iD = std::max(0.0, (drive - vdD27) / 22e3);
 			}
 			return iC + iD - i;
 		};
 		double lo = 0, hi = iE + iAcc + 1e-6;
-		for (int k = 0; k < 60 && f(hi) > 0; ++k)
+		int k = 0;
+		for (; k < 60 && f(hi) > 0; ++k)
 			hi *= 2;
+		const bool bracketed = k < 60;
 		double i = std::clamp(iAbcNow, lo, hi);
-		for (int it = 0; it < 40; ++it) {
+		int it = 0;
+		bool converged = false;
+		for (; it < 40; ++it) {
 			const double fi = f(i);
 			if (fi > 0)
 				lo = i;
@@ -908,9 +1016,27 @@ struct Voice::Impl {
 				next = 0.5 * (lo + hi);
 			const bool done = std::abs(next - i) < 1e-11;
 			i = next;
-			if (done || hi - lo < 1e-11)
+			if (done || hi - lo < 1e-11) {
+				converged = true;
 				break;
+			}
 		}
+		// With the VCA all but shut (i under a nanoamp) the slope's difference step (1e-10) is a
+		// third of i, and Newton can bounce between the bracket's ends for ever, ~2e-11 apart
+		// (2026-11-16: a few samples in a million with the knobs jumping). Bisection finishes it.
+		// The tolerance is absolute (1e-11 A): below a nanoamp, in a note's first ~0.2 ms and
+		// the end of its release, it leaves i good to tens of per cent only (docs/improvements.md).
+		int iterations = converged ? it + 1 : it;
+		while (!converged && iterations < 100) {
+			i = 0.5 * (lo + hi);
+			if (f(i) > 0)
+				lo = i;
+			else
+				hi = i;
+			converged = hi - lo < 1e-11;
+			++iterations;
+		}
+		tally(stats[kSolverPin1], bracketed && converged, k + iterations);
 		f(i);
 		iVeg = iC;
 		iAcc = iD;
@@ -998,6 +1124,9 @@ void Voice::setCalibration(const Calibration &c)
 void Voice::prepare(double hostRate)
 {
 	m_hostRate = hostRate;
+	for (auto &st : m_impl->stats)
+		st = {};
+	m_restarts = 0;
 	int stages = 0;
 	while (stages < 3 && hostRate * (1 << stages) < 176000)
 		++stages;
@@ -1020,8 +1149,11 @@ void Voice::reset()
 	auto &v = *m_impl;
 	const Calibration cal = v.cal;
 	const double rate = m_rate, host = m_hostRate;
+	SolverStats stats[kSolverCount];
+	std::copy(v.stats, v.stats + kSolverCount, stats);
 	*m_impl = Impl();
 	m_impl->cal = cal;
+	std::copy(stats, stats + kSolverCount, m_impl->stats);
 	m_impl->setRates(rate, host);
 	m_decimator.reset();
 	m_lines = CpuLines();
@@ -1054,6 +1186,11 @@ Voice::Probe Voice::probe() const
 	p.veg = std::max(0.0, v.iVeg);
 	p.gate = v.gateInt;
 	p.accentSweep = v.sweepWiper;
+	for (int s = 0; s < kSolverCount; ++s) {
+		p.solvers[s] = v.stats[s];
+		p.solver += v.stats[s];
+	}
+	p.restarts = m_restarts;
 	return p;
 }
 
@@ -1110,6 +1247,7 @@ void Voice::render(float *out, int n, float *s1, float *tp6)
 			for (int r = s; r < n; ++r)
 				out[r] = 0;
 			m_needsReset = true;
+			++m_restarts;
 			return;
 		}
 	}

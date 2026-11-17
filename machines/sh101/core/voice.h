@@ -72,6 +72,7 @@ public:
 	// Probes for the editor and tests, updated each render.
 	struct Probe {
 		double cvVolts = 0, vcoHz = 0, vcfHz = 0, iAbc = 0, env = 0, vca = 0, gate = 0;
+		SolverStats solver; // every implicit solve since prepare() (solver_stats.h)
 	};
 	Probe probe() const;
 

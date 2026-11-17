@@ -35,7 +35,7 @@ set(TB303_PLUGIN_INCLUDES ${TB303_DIR}/plugin ${LEMUS_ROOT_DIR})
 set_source_files_properties(${TB303_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${TB303_PLUGIN_INCLUDES}")
 
 lemus_machine(tb303 instrument)
-lemus_plugin(tb303 NAME "ro-mono-303" CODE R303 VERSION 0.2.3 STAGE beta STANDALONE
+lemus_plugin(tb303 NAME "ro-mono-303" CODE R303 VERSION 0.2.4 STAGE beta STANDALONE
   DESCRIPTION "Emulation of the Roland TB-303. Not affiliated with Roland.")
 function(lemus_add_tb303 target)
   target_sources(${target} PRIVATE ${TB303_DIR}/tb303.cpp ${TB303_PLUGIN_SOURCES})
@@ -77,3 +77,12 @@ target_compile_definitions(tb303bench PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0
   TB303_ROM_PATH="${LEMUS_PRIVATE_DIR}/roms/tb303/d650c-133.ic8")
 target_link_libraries(tb303bench PRIVATE lemus_tb303core lemus_tb303_fonts
   juce::juce_audio_utils juce::juce_audio_processors juce::juce_recommended_config_flags)
+
+# The controls' extremes: unconverged solves, noise where nothing makes it, bounds (tools/corners).
+juce_add_console_app(tb303corners PRODUCT_NAME "tb303corners")
+target_sources(tb303corners PRIVATE ${TB303_DIR}/tools/corners/main.cpp ${TB303_PLUGIN_SOURCES})
+target_include_directories(tb303corners PRIVATE ${TB303_PLUGIN_INCLUDES})
+target_compile_definitions(tb303corners PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0
+  TB303_ROM_PATH="${LEMUS_PRIVATE_DIR}/roms/tb303/d650c-133.ic8")
+target_link_libraries(tb303corners PRIVATE lemus_tb303core lemus_tb303_fonts
+  juce::juce_audio_utils juce::juce_audio_processors juce::juce_audio_formats juce::juce_recommended_config_flags)

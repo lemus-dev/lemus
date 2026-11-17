@@ -32,7 +32,7 @@ set(SH101_PLUGIN_INCLUDES ${SH101_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHINES
 set_source_files_properties(${SH101_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${SH101_PLUGIN_INCLUDES}")
 
 lemus_machine(sh101 instrument)
-lemus_plugin(sh101 NAME "ro-mono-101" CODE R101 VERSION 0.1.1 STAGE beta STANDALONE
+lemus_plugin(sh101 NAME "ro-mono-101" CODE R101 VERSION 0.1.2 STAGE beta STANDALONE
   DESCRIPTION "Emulation of the Roland SH-101. Not affiliated with Roland.")
 function(lemus_add_sh101 target)
   target_sources(${target} PRIVATE ${SH101_DIR}/sh101.cpp ${SH101_PLUGIN_SOURCES})
@@ -70,6 +70,14 @@ target_sources(sh101bench PRIVATE ${SH101_DIR}/tools/bench/main.cpp ${SH101_PLUG
 target_include_directories(sh101bench PRIVATE ${SH101_PLUGIN_INCLUDES})
 target_compile_definitions(sh101bench PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 SH101_ROM_PATH="${SH101_ROM_PATH}")
 target_link_libraries(sh101bench PRIVATE lemus_sh101core lemus_sh101_fonts
+  juce::juce_audio_utils juce::juce_audio_processors juce::juce_audio_formats juce::juce_recommended_config_flags)
+
+# The controls' extremes: unconverged solves, noise where nothing makes it (tools/corners).
+juce_add_console_app(sh101corners PRODUCT_NAME "sh101corners")
+target_sources(sh101corners PRIVATE ${SH101_DIR}/tools/corners/main.cpp ${SH101_PLUGIN_SOURCES})
+target_include_directories(sh101corners PRIVATE ${SH101_PLUGIN_INCLUDES})
+target_compile_definitions(sh101corners PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 SH101_ROM_PATH="${SH101_ROM_PATH}")
+target_link_libraries(sh101corners PRIVATE lemus_sh101core lemus_sh101_fonts
   juce::juce_audio_utils juce::juce_audio_processors juce::juce_audio_formats juce::juce_recommended_config_flags)
 
 # Tests of the voice against SPICE of the transcribed schematic (tools/spice): each section, and

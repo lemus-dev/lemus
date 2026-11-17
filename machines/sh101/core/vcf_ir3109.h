@@ -1,5 +1,7 @@
 #pragma once
 
+#include "solver_stats.h"
+
 namespace sh101 {
 
 // The IR3109 VCF as the SH-101 wires it (docs/circuit-filter.md 2-3): four OTA integrators with
@@ -80,12 +82,15 @@ public:
 	double otaGain(double iAbc) const;
 	double poleHz(double iAbc) const;
 
+	// What the solve did since prepare() (solver_stats.h).
+	const SolverStats &stats() const { return m_stats; }
+
 	// Probes.
 	double out4() const { return m_y[3]; }   // OUT4 against the bus
 	double diode() const { return m_x[4]; }  // the D30/D31 node
 	double tr27() const { return m_x[5]; }   // TR27's emitter, AC
 	double stage(int i) const { return m_y[i]; }
-	int lastIterations() const { return m_iters; }
+	int lastIterations() const { return m_iters; } // the last sample's, retries included
 
 	// Component values (docs/circuit-filter.md).
 	static constexpr double kR68 = 68e3, kR560 = 560, kR113 = 15e3, kR129 = 5.6e3;
@@ -93,7 +98,15 @@ public:
 	static constexpr double kC45 = 10e-6, kC52 = 10e-6, kC53 = 10e-6;
 
 private:
-	void solve(double iAbc, double a, double vm, double gmix);
+	// One step of m_t. Starts Newton from a quadratic prediction off the last three samples, or,
+	// with linear > 0, from the last point plus linear times the last step's change (the retries'
+	// shorter steps). Returns whether Newton converged; either way the step is taken.
+	bool solve(double iAbc, double a, double vm, double gmix, double linear = 0);
+	// A sample: solve(), and if it doesn't converge, the sample again from where it started in 2,
+	// 4, 8 and then 16 steps, until every step converges (kMaxParts).
+	bool solveSample(double iAbc, double a, double vm, double gmix);
+	static constexpr int kMaxParts = 16;
+	SolverStats m_stats;
 
 	Params m_p;
 	double m_fs = 176400, m_t = 1 / 176400.0;

@@ -1680,6 +1680,22 @@ std::string VoiceBoard::blockReport() const
 	return r;
 }
 
+std::vector<VoiceBoard::SolverStats> VoiceBoard::solverStats() const
+{
+	const auto &im = *m_impl;
+	std::vector<SolverStats> r;
+	const std::pair<const Block *, const char *> common[] = {{&im.accent, "accent"}, {&im.mtrig, "common trig"}, {&im.noise, "noise"}, {&im.metal, "metal"}};
+	for (const auto &[b, name] : common)
+		r.push_back({kCommonUnit, name, b->c.stats()});
+	for (int v = 0; v < kVoices; ++v)
+		for (const auto &b : im.units[size_t(v)].blocks)
+			r.push_back({v, b.c.name(), b.c.stats()});
+	for (const auto &b : im.ma.blocks) // named after the clap's jack ("cp:..."), which they share
+		r.push_back({kMaracasUnit, "ma/" + b.c.name(), b.c.stats()});
+	r.push_back({kMixUnit, "mix", im.mix.c.stats()});
+	return r;
+}
+
 VoiceBoard::Stats VoiceBoard::stats() const
 {
 	const auto &im = *m_impl;

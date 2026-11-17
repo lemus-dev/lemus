@@ -268,7 +268,7 @@ int main(int argc, char **argv)
 		}
 		std::printf("    peak %.1f dBFS\n", 20 * std::log10(peak + 1e-30f));
 		check(finite, "random knobs and keys for 24 s: the output stays finite");
-		check(peak < 6.5f, "and under the output stages' swing (+16 dBFS)");
+		check(peak <= 6.05f, "and within the output stages' swing (10.5 V, +15.6 dBFS)");
 		for (auto *param : a.getParameters())
 			param->setValueNotifyingHost(param->getDefaultValue());
 	}
@@ -286,7 +286,7 @@ int main(int argc, char **argv)
 					peak = std::max(peak, std::abs(chunk.getSample(ch, i)));
 				}
 		}
-		check(finite && peak < 6.5f, "60 s of playing: finite, no runaway");
+		check(finite && peak <= 6.05f, "60 s of playing: finite, no runaway");
 	}
 
 	std::printf("Power\n");

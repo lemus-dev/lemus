@@ -37,7 +37,7 @@ when the 808 loads.
 
 The machine builds into Lemus from the repo root (see the top-level README). Its own targets:
 
-    cmake --build build/cmake -j --target plugin_tr808_All tr808plugintest tr808seq voicerun circuitrun tr808bench
+    cmake --build build/cmake -j --target plugin_tr808_All tr808plugintest tr808corners tr808seq voicerun circuitrun tr808bench
 
 - `tr808plugintest` runs the processor headless: the sequencer against a host transport (DIN
   sync) and on its own clock, MIDI and accent, sleep (exact zeros, and a hit after it sounding as
@@ -46,6 +46,12 @@ The machine builds into Lemus from the repo root (see the top-level README). Its
   renders the editor (SERVICE zoomed Z times onto panel mm X, Y; trimmer N's procedure on the
   scope). `--service [DIR]` runs the SERVICE checks alone and writes the view's shots, whole and
   zoomed, into DIR. It reads the ROM from `../private/roms/tr808/`.
+- `tr808corners [--rate HZ] [--only TEXT] [--each] [--wav DIR]` renders the controls' extremes
+  through the processor (every voice's knobs, switches and trimmers at both ends, unaccented and
+  accented, rolls, the kit at every knob's ends, swept and jumping, the first board) at 44.1, 48
+  and 88.2 kHz, and fails on any circuit step that didn't converge, on broadband noise from the
+  BD, toms and congas, rim shot and claves or cowbell, or on output that isn't finite or bounded
+  (`docs/improvements.md`, 2026-11-16). About half a minute.
 - `tr808seq ROM SCRIPT` scripts the panel against the firmware (mode, instrument, keys held for a
   time, tempo, DIN sync, patterns written straight into RAM) and logs every step pulse with its
   instrument data, the LEDs and the RAM: how `docs/firmware.md` was worked out.

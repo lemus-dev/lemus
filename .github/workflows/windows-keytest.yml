@@ -1,0 +1,59 @@
+# Computer keys by place, end to end on Windows: each machine's VST3 built as release.yml builds
+# it (same compiler), loaded in tools/keytest's host, the keys at the US Y and US Z places pressed
+# as real input in the US and German layouts, the panel compared (tools/keytest/CMakeLists.txt).
+# The runner has no ROMs: the ROM prompt is answered beforehand, the panels run in voice mode.
+# Run by hand:
+#   gh workflow run windows-keytest.yml -R lemus-dev/lemus-build
+name: windows-keytest
+
+on:
+  workflow_dispatch:
+
+jobs:
+  keytest:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { machine: tb303, plugin: ro-mono-303, toolset: msvc, click: "840 292" }
+          - { machine: tr909, plugin: ro-drums-909, toolset: clangcl, click: "610 151" }
+          - { machine: tr808, plugin: ro-drums-808, toolset: clangcl, click: "488 432" }
+          - { machine: sh101, plugin: ro-mono-101, toolset: clangcl, click: "687 343" }
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Screen
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          Set-DisplayResolution -Width 1920 -Height 1080 -Force
+          Get-CimInstance Win32_VideoController | Select-Object CurrentHorizontalResolution, CurrentVerticalResolution
+      - name: Build the plugin
+        shell: pwsh
+        run: |
+          $toolset = if ('${{ matrix.toolset }}' -eq 'clangcl') { @('-T', 'ClangCL') } else { @() }
+          cmake -S . -B build/win -G "Visual Studio 17 2022" -A x64 @toolset -DLEMUS_MACHINES=${{ matrix.machine }} -DLEMUS_COPY_PLUGINS=OFF
+          cmake --build build/win --config Release --parallel --target plugin_${{ matrix.machine }}_VST3
+      - name: Build the key host
+        shell: pwsh
+        run: |
+          cmake -S tools/keytest -B build/keytest -G "Visual Studio 17 2022" -A x64
+          cmake --build build/keytest --config Release --parallel --target keyhost
+      - name: Answer the ROM prompt
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force "$env:APPDATA\Lemus" | Out-Null
+          Set-Content -Encoding UTF8 "$env:APPDATA\Lemus\Lemus.settings" '<?xml version="1.0" encoding="UTF-8"?><PROPERTIES><VALUE name="romPromptAnswered.tb303" val="1"/><VALUE name="romPromptAnswered.tr909" val="1"/><VALUE name="romPromptAnswered.tr808" val="1"/><VALUE name="romPromptAnswered.sh101" val="1"/></PROPERTIES>'
+      - name: Keys by place
+        shell: pwsh
+        run: |
+          $click = '${{ matrix.click }}'.Split(' ')
+          build/keytest/keyhost_artefacts/Release/keyhost.exe VST3 "build/win/plugin_${{ matrix.machine }}_artefacts/Release/VST3/${{ matrix.plugin }}.vst3" keytest-out $click[0] $click[1]
+          exit $LASTEXITCODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: keytest-${{ matrix.machine }}
+          path: keytest-out

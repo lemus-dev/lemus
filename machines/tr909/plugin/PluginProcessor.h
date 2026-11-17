@@ -131,6 +131,9 @@ public:
 		int tempo = -1;       // the firmware's tempo value (VV:30) in INT sync, which it runs at; -1 none
 	};
 	Snapshot snapshot() const;
+	// What the board's circuit solvers did since prepare(), per partition (VoiceBoard::solverStats):
+	// tools (tools/corners), between blocks.
+	std::vector<tr909::VoiceBoard::SolverStats> solverStats() const { return m_board.solverStats(); }
 
 	// TEMPO (VR601) rotation to the BPM the v4.0 firmware runs at after a power-on or a session
 	// load with the knob there, and back. The firmware follows the knob with a dead band (13FC,

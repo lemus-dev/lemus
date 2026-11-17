@@ -42,6 +42,13 @@ export const machines: Machine[] = [
     release: { version: '0.2.3', tag: 'ro-mono-303-v0.2.3', stage: 'beta', mac: 'ro-mono-303-0.2.3-mac.pkg', windows: 'ro-mono-303-0.2.3-windows.zip' },
     changes: [
       {
+        version: '0.2.4',
+        notes: [
+          'Computer keys by place now work in the plugin: 0.2.3 had left them out of the build, so German (QWERTZ) and French (AZERTY) keyboards still played the keys by their labels.',
+          'A few rare circuit solves that could stop short (the square shaper, two envelope diodes, the VCA near silence) now always finish. No audible change.',
+        ],
+      },
+      {
         version: '0.2.3',
         notes: [
           'Computer keys go by place, as on a US keyboard: on a German (QWERTZ) or French (AZERTY) keyboard the note, function and mode keys sit where the key list shows them.',
@@ -119,6 +126,13 @@ export const machines: Machine[] = [
     release: { version: '0.2.3', tag: 'ro-drums-909-v0.2.3', stage: 'beta', mac: 'ro-drums-909-0.2.3-mac.pkg', windows: 'ro-drums-909-0.2.3-windows.zip' },
     changes: [
       {
+        version: '0.2.4',
+        notes: [
+          'Computer keys by place now work in the plugin: 0.2.3 had left them out of the build, so German (QWERTZ) and French (AZERTY) keyboards still played the keys by their labels.',
+          'Fixed: rare mistimed tom and clap transients on fast retriggers (rolls, flams, a tom hit while one still rings).',
+        ],
+      },
+      {
         version: '0.2.3',
         notes: [
           'Computer keys go by place, as on a US keyboard: on a German (QWERTZ) or French (AZERTY) keyboard the step, track and function keys sit where the key list shows them.',
@@ -152,6 +166,12 @@ export const machines: Machine[] = [
     nav: true,
     release: { version: '0.1.2', tag: 'ro-drums-808-v0.1.2', stage: 'beta', mac: 'ro-drums-808-0.1.2-mac.pkg', windows: 'ro-drums-808-0.1.2-windows.zip' },
     changes: [
+      {
+        version: '0.1.3',
+        notes: [
+          'Computer keys by place now work in the plugin: 0.1.2 had left them out of the build, so German (QWERTZ) and French (AZERTY) keyboards still played the keys by their labels.',
+        ],
+      },
       {
         version: '0.1.2',
         notes: [
@@ -195,6 +215,14 @@ export const machines: Machine[] = [
     nav: true,
     release: { version: '0.1.1', tag: 'ro-mono-101-v0.1.1', stage: 'beta', mac: 'ro-mono-101-0.1.1-mac.pkg', windows: 'ro-mono-101-0.1.1-windows.zip' },
     changes: [
+      {
+        version: '0.1.2',
+        notes: [
+          'Computer keys by place now work in the plugin: 0.1.1 had left them out of the build, so German (QWERTZ) and French (AZERTY) keyboards still played the keys by their labels.',
+          "Fixed: FREQ near the top with RES high made white noise instead of the filter's whistle.",
+          "FREQ's top range now matches real units: at FREQ 10 the filter self-oscillates around 14.7 kHz (it was 28 kHz), and above about FREQ 8 it sits up to an octave lower. Sessions saved with FREQ high sound darker; move FREQ up for the old brightness.",
+        ],
+      },
       {
         version: '0.1.1',
         notes: [

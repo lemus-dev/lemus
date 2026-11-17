@@ -118,6 +118,11 @@ method doesn't matter.
   step would fail at the flip); if the sixteenths fail, quarters as before. The SD reproducer's
   period at 96 kHz: 0.079 % long redone in quarters, 0.008 % short in sixteenths, 0.003 % long in
   sixty-fourths.
+- **A failed sample done again (2026-11-16).** Where Newton goes round a cycle on a comparator's
+  input stage (its tanh's knee, crossed back and forth) at every step size, the toms' VCOs at a
+  retrigger and the clap's envelope, the sample was accepted half advanced. It is now done again
+  from where it started in 64ths with Newton damped, then 256ths and 1024ths where a 64th still
+  fails (`Circuit::retry`); `tr909corners` checks that none is left (`improvements.md`, 2026-11-16).
 - **Linear mode when saturated.** A slew device past kSlewSat (10) linear ranges carries imax to
   4e-9 and may stay so; a limiter in its anti-windup's linear part with its output four knee widths
   past the knee keeps a window in which tanh's curvature stays under kLinTolerance. A comparator in

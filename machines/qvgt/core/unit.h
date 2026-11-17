@@ -14,6 +14,7 @@
 #include "noise.h"
 #include "preamp.h"
 #include "resampler.h"
+#include "solver_stats.h"
 #include "ssm2120.h"
 
 #include <array>
@@ -86,6 +87,15 @@ public:
 	int headroom() const { return m_headroom; }
 	bool clip() const { return m_ovfHold > 0; }
 
+	// What the iterative solves did since prepare() (solver_stats.h): the preamp's and the dry
+	// VCA's control voltage.
+	SolverStats solverStats() const
+	{
+		SolverStats s = m_preamp.solverStats();
+		s += m_dryStats;
+		return s;
+	}
+
 private:
 	void dspSample(double adc, double envelope, double dryL, double dryR, double &outL, double &outR);
 	void hold(int key, double seconds);
@@ -147,6 +157,7 @@ private:
 	Biquad m_reconL, m_reconR;     // U16's Sallen-Key low-passes (R134, R133 1.1K, C51 .01u, C49 3300p)
 	SeriesRc m_dryInL, m_dryInR;   // R97, R98 10K and C37, C36 4.7u into the CEM3381's inputs
 	uint8_t m_dryCode = 0xff;      // latch 0600h b0-b4 as last solved
+	SolverStats m_dryStats;        // updateDryCv's solves
 	double m_cvTarget = 0, m_cvCoef = 0, m_cv = 0; // VCA C.V. (C100 0.1u)
 	FirstOrder m_couplingL, m_couplingR; // C45, C44 10u into the OUTPUT pot
 	FirstOrder m_bufferL, m_bufferR;     // U15's output stages: R125 4.7K, R126 2K, C53 4.7u

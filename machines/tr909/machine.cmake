@@ -116,7 +116,7 @@ set(TR909_PLUGIN_INCLUDES ${TR909_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHINES
 set_source_files_properties(${TR909_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${TR909_PLUGIN_INCLUDES}")
 
 lemus_machine(tr909 instrument)
-lemus_plugin(tr909 NAME "ro-drums-909" CODE R909 VERSION 0.2.3 STAGE beta STANDALONE MIDI_OUT
+lemus_plugin(tr909 NAME "ro-drums-909" CODE R909 VERSION 0.2.4 STAGE beta STANDALONE MIDI_OUT
   DESCRIPTION "Emulation of the Roland TR-909. Not affiliated with Roland.")
 function(lemus_add_tr909 target)
   target_sources(${target} PRIVATE ${TR909_DIR}/tr909.cpp ${TR909_PLUGIN_SOURCES})
@@ -140,3 +140,12 @@ target_include_directories(tr909bench PRIVATE ${TR909_PLUGIN_INCLUDES})
 target_compile_definitions(tr909bench PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 TR909_ROM_DIR="${TR909_ROM_DIR}")
 target_link_libraries(tr909bench PRIVATE lemus_tr909core lemus_tr909_fonts lemus_tr909_panel lemus_tr909_boards
   juce::juce_audio_utils juce::juce_audio_processors juce::juce_recommended_config_flags)
+
+# The controls' extremes: unconverged circuit steps, noise where nothing makes it, output bounds
+# (tools/corners).
+juce_add_console_app(tr909corners PRODUCT_NAME "tr909corners")
+target_sources(tr909corners PRIVATE ${TR909_DIR}/tools/corners/main.cpp ${TR909_PLUGIN_SOURCES})
+target_include_directories(tr909corners PRIVATE ${TR909_PLUGIN_INCLUDES})
+target_compile_definitions(tr909corners PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 TR909_ROM_DIR="${TR909_ROM_DIR}")
+target_link_libraries(tr909corners PRIVATE lemus_tr909core lemus_tr909_fonts lemus_tr909_panel lemus_tr909_boards
+  juce::juce_audio_utils juce::juce_audio_processors juce::juce_audio_formats juce::juce_recommended_config_flags)

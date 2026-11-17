@@ -188,8 +188,9 @@ public:
 	double inputValue(int index) const { return m_u[size_t(m_constCount + index)]; }
 
 	// One sample: solves the nonlinear devices, updates the capacitors and the outputs. A sample
-	// whose Newton solve fails (a stiff switching event) is redone in 4, 16 or 64 steps, and the
-	// next 32 samples then run in 4 steps each; substeps(n) asks for that ahead of a known event.
+	// whose Newton solve fails (a stiff switching event) is redone in 4, 16 or 64 steps (advanceSplit),
+	// and the next 32 samples then run in 4 steps each; substeps(n) asks for that ahead of a known
+	// event. A sample that fails even then is taken as far as it got and counted (Stats::failures).
 	void step();
 	void substeps(int samples) { m_subLeft = std::max(m_subLeft, samples); }
 	// The next `quarters` quarter steps by backward Euler (the samples they fall in are substepped):
@@ -234,6 +235,7 @@ public:
 		long steps = 0, iterations = 0, substepped = 0, failures = 0, factorizations = 0;
 		long linearSteps = 0, linearizations = 0; // steps taken in linear mode, and its rebuilds
 		long softened = 0; // smallest steps that needed the comparators softened to converge
+		long damped = 0;   // smallest steps that needed damped Newton to converge (advanceSplit)
 		long nyquist = 0;  // TR909_NYQ: full steps where a port reversed direction by over 0.1 mV twice running
 		double worstResidual = 0;
 	};
@@ -311,7 +313,8 @@ private:
 	template <int NP> void solveActive(Level &L, double *r) const;
 	// Advances by one step of level `lv` to inputs `u`; false (state unchanged) if Newton fails.
 	bool advance(int lv, const double *u);
-	// Advances by one step of level `lv`, splitting it into four of the next level if it fails.
+	// Advances by one step of level `lv`, splitting it into four of the next level if it fails; at
+	// the last level, it tries again with the comparators softened, then by damped Newton.
 	bool advanceSplit(int lv, const double *u0, const double *u1);
 	// Four steps of level `lv`, the inputs moving from u0 to u1.
 	bool advanceFour(int lv, const double *u0, const double *u1);
@@ -451,6 +454,7 @@ private:
 	double m_tolerance = defaultTolerance(); // Newton: largest port-voltage residual accepted, volts
 	static double defaultTolerance();
 	double m_soften = 1;       // the comparators' transition widths are multiplied by this (DC solve)
+	bool m_damped = false;     // Newton halves its steps while the residual doesn't fall (advanceSplit's last resort)
 	double m_dcGmin = 0;       // a conductance across every port (the DC solve's gmin stepping)
 	double m_dcGain = 1;       // the op-amps' open-loop gain is multiplied by this (DC gain stepping)
 	bool m_dcFailed = false;   // the last solveDc didn't converge (toSpice then starts ngspice from this state)

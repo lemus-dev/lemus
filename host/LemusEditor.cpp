@@ -2,6 +2,7 @@
 #include "Artwork.h"
 #include "Style.h"
 #include "Updates.h"
+#include "KeyPlace.h"
 
 #include <algorithm>
 
@@ -1877,6 +1878,7 @@ static void deleteMachineEditor(std::unique_ptr<juce::AudioProcessorEditor> &edi
 
 LemusEditor::LemusEditor(LemusProcessor &p) : AudioProcessorEditor(&p), m_proc(p)
 {
+	lemus::panel::useKeyboardLayout();
 	setConstrainer(&m_constrainer);
 	m_proc.addChangeListener(this);
 	showCurrentMachine();

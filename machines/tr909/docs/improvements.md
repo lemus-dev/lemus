@@ -137,7 +137,10 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
   declined trade (plan item 1, Tried and dropped). For the ship gate (decided 2026-11-02: ship as it is), the last
   measurement plus about 10 %: `kit` under 2.65 G cycles a second over all threads at 48 kHz, its
   worst block under 60 %. Half a core stays plan item 1's goal.
-- **Check set:** there: `tr909plugintest` (MIDI and voice mode, accents, sync, sleep and wake,
+- **Check set:** there: `tr909corners` (2026-11-16: the controls' extremes, 84 cases at 44.1, 48
+  and 88.2 kHz, about 30 s; fails on any circuit step that didn't converge, broadband noise on the
+  BD, toms or rim shot, or output that isn't finite or bounded; `--each`, `--wav`),
+  `tr909plugintest` (MIDI and voice mode, accents, sync, sleep and wake,
   state, power-on; `--panel`; `--service`: the serial number's revisions, TM, the scope's probes),
   `lemustest_instrument` (`tests/host.cpp`), `tr909bench golden|check|time` (CPU %, cycles over all
   threads, worst block, Mins/s; envelope and spectrum against golden renders), `tr909replay`,
@@ -150,8 +153,8 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
   fails: the unit's TM (4.1 Vp-p, not 2), the snare's V_DD peak (4.1 V, not 5), and from p.9 the
   LT and CH accent ratios, the snare's spike as its trigger ends, the CH-accent and OH
   lopsidedness; each on both calibrations but TM. Missing: a random-settings stress and a long-run
-  case in plugintest; golden renders of the current code on disk (`build/tr909-golden-k3` is gone; the
-  flips research kept one in `build/tr909-research/flips-work/golden`).
+  case in plugintest. Golden renders of the current code: `build/tr909-golden-solver` (2026-11-16,
+  after the failed samples' retry; `build/tr909-golden-pre` is the code before it).
 
 ## Tried and dropped
 
@@ -206,6 +209,46 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-16, fix: a circuit step that failed in quarters, sixteenths and 64ths (even with the
+  comparators softened) was accepted as it stood, half advanced, and counted in
+  `Circuit::Stats::failures`, which nothing outside the tools read. A new check, `tr909corners`
+  (`tools/corners`), renders the controls' extremes through the plugin's processor (each voice with
+  every knob at both ends, velocities 1 and 127, rolls at 30 and 6 ms, flams at the shortest and
+  longest intervals, the kit with every knob at either end, swept, jumping, on the earliest board
+  and in voice mode; 84 cases at 44.1, 48 and 88.2 kHz) and fails on any unconverged step, on
+  broadband noise from the BD, the toms or the rim shot (median spectral flatness over 0.2), or on
+  output that isn't finite or past 4.0. The board's solver statistics reach it per partition
+  (`VoiceBoard::solverStats`, `TR909Processor::solverStats`). On the old solver it fails 96 of
+  252 cases: 339, 97 and 169 failed steps at the three rates, all in the toms' VCOs (`lt/mt/ht:vco1-3`,
+  at a retrigger: rolls, flams, a hit while one rings, and in the warm-up before the first block)
+  and the clap's envelope (`hc:env`, at its sawtooth's restarts, most at TM 10); never noise. The
+  bench's own workloads had four, all at 44.1 kHz: the clap at its default knobs, alone (`hc`), in
+  the busy kit (`kit`) and in `automation`, and HT with TUNE and DECAY at 10 (`ht-up`).
+  Newton went round a cycle on a comparator's input stage, stepping from one side of its tanh's
+  knee to the other and back, at every step size. The effect: one VCO flip or clap tooth slightly
+  mistimed, a transient 30-60 dB under the hit (-32 dB re the busy kit over 5 ms at every knob 10,
+  44.1 kHz), no click and no noise; then the VCO's phase runs on from there.
+  Now a failed sample is done again from where it started (`Circuit::retry`): in 64ths, Newton
+  damped (a step that doesn't lower the residual halves the next one), a fresh factorisation each
+  iteration, 400 iterations; a 64th that still fails splits into 256ths and 1024ths before the comparators are
+  softened (6 of the 436 retried at the corners need that). `tr909corners`: 0 failing, 159, 100
+  and 177 samples retried at 44.1, 48 and 88.2 kHz out of 266, 289 and 266 million steps (30 s),
+  each retry 70-820 Newton iterations; with the solver crippled (2 iterations, no substeps, no retry)
+  all 84 cases fail at 48 kHz. Converged samples are computed as before, to the bit: `tr909bench check`
+  against `build/tr909-golden-pre` identical in 64 of 68 workloads, and the 4 that move (`kit`,
+  `hc`, `automation`, `ht-up`, 44.1 kHz) each hold one retried sample (envelope within 0.03 dB,
+  spectrum 0.05 dB); `TR909_NORETRY=1` (the old behaviour, for tools) gives all 68 identical. The
+  SPICE suite: 78 of 82 cases' outputs identical; the four LT cases each had one failed step at
+  the trigger (20 ms), now converged and a little closer to ngspice (max 0.13 -> 0.12 %, rms
+  0.040 -> 0.037 % on `lt_10`; `lt_21_tune1_decay0` max 0.12 -> 0.14 %, rms 0.012 -> 0.010 %).
+  Instructions +0.2-0.35 % (`tr909bench time`, `TR909_WORKERS=0`: the kit 9170 -> 9201 Mins/s at
+  44.1 kHz). New golden `build/tr909-golden-solver`. `tr909plugintest` 0 failed, the service
+  checks 62 of 75 as before. Inventory: the netlist solver is the only iterative solve in the
+  voices (Newton in `Circuit::newtonT`; linear mode falls back to it, never accepts a step it
+  couldn't take); the cymbals' clocks are timed with it at 100 MHz when prepared (no failures at
+  any TUNE point, on either board), and `solveDc`'s failures (the free-running VCOs) are expected
+  and warmed through. The firmware, the noise generator, the hi-hat's and cymbals' counters and
+  the oversamplers have no iterations.
 - 2026-11-03: the TEMPO readout (the knob's tooltip, the bar, the parameter's text) is what the
   firmware runs at. The firmware follows the knob with a dead band (13FC: 128 at power-on, then a
   count short of the knob whenever it is two counts away), which the readout left out: the

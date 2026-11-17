@@ -36,28 +36,34 @@ it says otherwise. "Roland" is Roland's SH-101 plug-in v1.2.0: a cross-check, no
   unexplained, not fitted. The same take's sweep, tracked spectrally, gives the 0.77 above
   (`model.md`).
 - **FREQ's bottom: a slider reading, or unit spread.** The Friendly Noise unit's sub take (FREQ
-  1.5 ± 0.3, KYBD 10, lowest note) puts the cutoff at 21.4 Hz at KCV 0; ours is 12.7 / 16.6 /
-  21.7 Hz at FREQ 1.2 / 1.5 / 1.8 and matches at 1.79, inside the reading (`units.py`). loopop's unit goes the other way: its rest sits 0.54 and 0.66 octave under ours at
+  1.5 ± 0.3, KYBD 10, lowest note) puts the cutoff at 21.4 Hz at KCV 0; ours is 11.5 / 14.7 /
+  18.7 Hz at FREQ 1.2 / 1.5 / 1.8 and matches at 1.97, 0.17 division past the reading (`units.py`;
+  1.79 at 20.8 mV/oct, before 2026-11-16: the law is shallower now, with FREQ 0 kept in place). loopop's unit goes the other way: its rest sits 0.54 and 0.66 octave under ours at
   FREQ 4.7 and 3.9 (KYBD 0). Once Upon a Synth's unit sits above: read at FREQ 2.6 with ENV 5.5
   held (S 10, KYBD 0), its harmonics fit ours at FREQ 3.8 within 2 dB, about 1.2 octaves brighter
   (a held ENV can't tell FREQ from ENV depth; A/B scene 12, 2026-11-15). The service notes trim
   VCF WIDTH, not the absolute cutoff, so units
   differ there; the model's FREQ law (the linear pot loaded by R186, 1.1 to 1.7 octaves per
   division) is kept. Waits on data: a unit's cutoff at several legible FREQ positions.
-- **FREQ's law: one unit 5-8 % steeper per division.** AutomaticGainsay's unit, self-oscillating
+- **FREQ's law: one unit 13-14 % steeper per division.** AutomaticGainsay's unit, self-oscillating
   while FREQ is swept by hand (13 readings from 1.5 to 8.5, read per frame at 720p; `units.py`
-  `freqlaw`): 1.277 octaves per division over 1.5-8.5 against our 1.206, −5.6 % by the printed
-  ticks and −8 % by the slider's stops, the same at both ends of the travel. Before FREQ's top
-  moved to the +15 V rail (2026-11-13) three units read 11-16 % steeper; the rail takes about 6 %
-  off each. The same unit's RES law is stretched about as much. Two candidates, neither fitted:
-  the expo's slope (20.8 mV/oct, measured on one chip; 19.7 would do it) and the slide pots'
-  electrical travel (dead ends of about half a division), which the Friendly Noise unit's FREQ 1.5
-  and loopop's decay times argue against. Waits on data.
-- **The filter's top: unit spread or recording chains.** A saw at FREQ 10 against 1/n (`units.py`
-  `top`), at 9-11 / 11-13 kHz: gstormelectro's unit −2.7 / −3.5 dB, Perfect Circuit's −3.4 /
-  −4.8, AutomaticGainsay's −7.4 / −9.9; ours −2.1 / −2.9 (FREQ 10 at 28 kHz pole frequency).
-  With FREQ's top on +14 V, as it was before 2026-11-13, ours was −4.4 / −6.0: under the brightest
-  unit's recording, which a lossy chain can only have darkened. One clip per unit.
+  `freqlaw`): 1.277 octaves per division over 1.5-8.5 against our 1.098 (1.206 at 20.8 mV/oct,
+  before 2026-11-16), yet the same unit's top is 15.2 kHz: from 8.5 to 10 it rises only about one
+  octave per division. So its law is steep in the middle and flattens at the top, which no single
+  slope gives. The same unit's RES law reads stretched about as much, so part of it is the reading.
+  A compression at the top that would follow it (a knee in the expo) was tried and dropped
+  ('Tried and dropped', 2026-11-16). Waits on data.
+- **The filter's top: two units, and the cause.** FREQ 10 at KYBD 0 is fitted (2026-11-16, Done)
+  to two real units: Starsky Carr's self-oscillates at 13.93 kHz (FREQ 10, RES 10, ENV, MOD and
+  KYBD 0, all legible at 1080p) and AutomaticGainsay's puts a RES 7.1 saw's peak at 15.2 kHz
+  (three sweeps end there, the slider at 9.8-10.0; the same unit's open saw at FREQ 10 is
+  −7.4 dB at 9-11 kHz). Ours: 14.7 and 14.2 kHz (`units.py` `freqlaw`, "top"). Roland's
+  plug-in tops out at 15.6 kHz. What sets it is not identified: the expo's slope against the
+  pin-9 divider stands in (22.8 mV/oct where one chip measured 20.8), because with VR8 trimming
+  KYBD to 1 oct/oct that ratio alone sets FREQ's span. The Juno-106's chip law and the rails are
+  kept. Perfect Circuit's bright saw at FREQ 10 had ENV 5.5 with S 10 (read 2026-11-16), and
+  gstormelectro's take shows neither FREQ nor ENV, so neither says where FREQ 10 alone sits.
+  Waits on data: more units self-oscillating at the top with the sliders legible.
 - **LFO's top rate: unit spread.** RATE 10 is 36.4 Hz; Perfect Circuit's unit runs 38.2 Hz, 4 %
   faster, at the 65th percentile of the parts' spread with R31 and R35 at 100k (33.2-41.5 Hz,
   `spread.md`). R31 at 100k is confirmed by a real unit's sound (2026-11-13, `circuit-osc.md` 5.3).
@@ -102,10 +108,10 @@ it says otherwise. "Roland" is Roland's SH-101 plug-in v1.2.0: a cross-check, no
   cents is the decode's input pair losing transconductance with current, by 1/(1 + I_ABC /
   6.95 mA), which a real chip's law doesn't show (with it, the Juno-106's fit from 20 Hz to 28 kHz
   goes from 3.0 to 7.0 cents RMS), so a real chip's expo must rise as much, as Open Music Labs
-  measured its own doing. The model keeps the chain. The Real unit's expo current, 5.0 µA, is
-  1.7 times the decode's 2.96 µA, fitted so FREQ 0 sits where the real unit's does; FREQ 10 is
-  then 28 kHz pole frequency (19.0 kHz with FREQ's top on +14 V, as before 2026-11-13; the spec
-  says 20), which the units' saws support ('The filter's top').
+  measured its own doing. The model keeps the chain. The Real unit's expo current, 3.30 µA at
+  22.8 mV/oct, is fitted so FREQ 0 sits where the real unit's does; FREQ 10 is then 14.7 kHz
+  self-oscillating at KYBD 0, where two real units sit ('The filter's top'; 28 kHz at 20.8 mV/oct
+  and 5.0 µA before 2026-11-16; the spec says 20).
 - **Against the transcribed schematic** (`model.md`, "The whole voice", 43 cases): with the filter
   open the sources' level is within 0.11 dB of the joined circuit in ngspice, and their harmonics
   1-12 within 0.33 dB RMS (the full mix at 10 0.33 dB since the buffers' outputs at the rails
@@ -142,6 +148,18 @@ it says otherwise. "Roland" is Roland's SH-101 plug-in v1.2.0: a cross-check, no
   ideal 1/12 V per count); the CEM3340's triangle asymmetry, mid-ramp step and PWM-dependent pitch
   (later AS3340s show it, vintage CEM3340s reportedly don't); TR24's and the 4013's switching
   delays (µs); IC3b's slew within an LFO edge; temperature drift, part tempcos and TH1's tracking.
+
+- **Self-oscillation above the audio band aliases.** With KYBD pushing the cutoff to its top
+  (FREQ 10, RES 10, KYBD 10, C4, no sources) the filter oscillates at 36.1 kHz, ultrasonic as on
+  the real units, which are silent there. At the 4x internal rate (176.4 / 192 kHz) its harmonics
+  fold back into the audio band: 3449 Hz at -61.6 dBFS (and its harmonics) at 44.1 kHz, 11380 Hz
+  at -59.2 dBFS at 48 kHz; the lines are already in a 192 kHz render, so they're made in the
+  solve, not in the decimation (2026-11-17, Real unit calibration at 22.8 mV/oct). With KYBD 0,
+  FREQ 10 oscillates at 14.7 kHz, in band, as the real units do. The VCF alone, self-oscillating
+  at the top: at 4x the strongest in-band line is 42-46 dB under the oscillation; at 8x still
+  40-46 dB (the line moves, it doesn't drop); at 16x 82-88 dB. The VCF's own cost there is about
+  14 % of a core at 4x, 20 % at 8x, 26 % at 16x (fewer Newton iterations at the finer step), so
+  16x near the top would add about 12 % of a core per voice in that corner.
 
 ### Behaviour and features
 
@@ -201,13 +219,14 @@ Muso, Perfect Circuit, AutomaticGainsay, Once Upon a Synth).
   Mins/s, 12 624 M instructions/s; the 2026-11-14 accuracy round's IR3109 saturation costs about
   +12 %. The 2026-10-23 figures (11.2 % for `bright` at 44.1 kHz) were on an M1 Max by the wall
   clock.
-- **Check set baseline:** 2026-11-14, the CPU round. Golden renders `build/sh101-golden-7`; service
-  checks 34/34 in each calibration (`tools/service/check.py`); the SPICE suite 28 of 28 within its
-  limits (`tools/spice/suite.py`, 3 min 50 s); `units.py` 105 rows (60 ok, 0 over, 4 known, 41
-  info); against Roland's renders 6.1 / 5.4 dB (Real unit), 5.5 / 4.0 (Roland), 8.7 / 8.6 (service);
-  `sh101plugintest` 73 checks, 0 failures; the host tests (`lemustest_instrument`) pass;
-  `auval -v aumu R101 Lmus` passes.
-- **Check set:** `sh101plugintest` (MIDI, sync, sequencer and arpeggio, pitch at every rate, state,
+- **Check set baseline:** 2026-11-16, the filter's-top round. Golden renders `build/sh101-golden-9`
+  (the Real unit calibration at 22.8 mV/oct; golden-8 had 20.8); service checks 34/34 in each
+  calibration (`tools/service/check.py`); the SPICE suite 28 of 28 within its limits
+  (`tools/spice/suite.py`); `units.py` 107 rows (63 ok, 0 over, 7 known, 37 info); against
+  Roland's renders 5.55 / 4.38 dB (Real unit; 6.1 / 5.4 before), 5.5 / 4.0 (Roland), 8.7 / 8.6
+  (service); `sh101plugintest` 0 failures; the host tests (`lemustest_instrument`) pass;
+  `auval -v aumu R101 Lmus` passes; `sh101corners` 0 of 299 cases failing at each rate.
+- **Check set:** `sh101corners` (the controls' extremes: unconverged solves, noise, bounds), `sh101plugintest` (MIDI, sync, sequencer and arpeggio, pitch at every rate, state,
   120 s stability in every calibration, random-settings stress, sleep and wake, POWER on and off,
   voice mode; `--panel OUT.png [SCALE] [off|voice|keys|held]` draws the panel); `tests/host.cpp`
   (slots, bit-identical to the machine alone, sessions, artwork places and the older pack);
@@ -247,6 +266,13 @@ Waits on data:
 
 ## Tried and dropped
 
+- 2026-11-16 (accuracy, the filter's top): a knee in the expo instead of a new slope. Order 3 at
+  140-150 µA gives FREQ 10 13.3-14.1 kHz, but as a ceiling: Perfect Circuit's saw with ENV 5.5
+  on top of FREQ 10 needs a pole near 20 kHz or more, which it can't reach. Order 1 at 260-300 µA
+  reaches 14.3-15.4 kHz and lets ENV past it, but compresses from a few kHz up: about 50 cents
+  flat by 1 kHz on a keyboard-tracked self-oscillation, against AutomaticGainsay's law, which
+  stays exponential to 5.5 kHz, and Roland's, within 6 cents to 5.8 kHz. Neither has a part on
+  the schematic or in the chip's decode behind it.
 - 2026-11-14 (CPU): the OTAs' tanh as 1 − 2/(e^2x + 1) through exp instead of expm1: 2.5 % more
   cycles on `bright`, not fewer. A linear predictor for the jack board's Newton start: no fewer
   iterations (its steps are large for other reasons). Stopping the portamento's Newton at an exact
@@ -310,6 +336,48 @@ Waits on data:
 
 ## Done
 
+- 2026-11-16, accuracy round (the filter's top: is FREQ 10 with RES 10 silent on a real unit?).
+  No: two real units self-oscillate or peak at 13.93 and 15.2 kHz there (Starsky Carr
+  q0yu1txLd8I 7:05, every VCF slider legible; AutomaticGainsay VQXq7OmZCtY 3:19-3:38), Roland's
+  plug-in at 15.6 kHz; ours was at 28 kHz. 58 videos searched: the two above, and the bright saws
+  that had argued for a high top don't say it (Perfect Circuit's had ENV 5.5 with S 10;
+  gstormelectro's shows only stills). Real unit calibration: `vcfMvPerOct` 20.8 → 22.8,
+  `vcfI0uA` 5.0 → 3.30 (FREQ 0 kept: Friendly Noise's rest 31.0 Hz against 31.1), `envCvScale`
+  0.82 → 0.90 (its 7.27-octave sweep kept; loopop's two units now imply 0.885 and 0.901, Failed
+  Muso's ping 0.901, closer to the schematic's 1.0). FREQ 10 at KYBD 0: 28.1 → 14.7 kHz
+  self-oscillating, a RES 7.1 peak 27.5 → 14.2 kHz; AutomaticGainsay's open saw at FREQ 10 now
+  within 0.5 dB (it was 5.3 dB brighter). Costs: FREQ's law per division is shallower
+  (AutomaticGainsay's rows −12 to −14 %, were −4 to −6 %) and Friendly Noise's FREQ 1.5 reading
+  now matches at 1.97 (was 1.79). `units.py`: each unit's saw against ours at that unit's
+  settings (Perfect Circuit with ENV 5.5), the two tops as rows with a 0.15-octave limit (the
+  units' spread), the resonance grid to FREQ 8.8. The expo's knee became a calibration value
+  (`vcfKneeUA`, `vcfKneeOrder`; the Juno-106's 408 µA and 3 in every calibration, bit-exact).
+  Checks: `units.py` 107 rows, 0 over (7 known: the two above, AutomaticGainsay's RES 7.1 and
+  the LFO's top as before); against Roland's renders 6.1 / 5.4 → 5.55 / 4.38 dB; SPICE 28/28,
+  service 34/34, plugintest and host tests pass, corners 0 failing (596 / 616 retried, were
+  607 / 683), auval passes; golden-9. CPU: no workload costs more; `longrun-resmax` 10 % fewer
+  instructions, `automation` 5 % (fewer samples in the hard solves above 15 kHz).
+- 2026-11-16, fix (FREQ and RES high sounded "just like white noise"): the VCF's Newton stopped at
+  12 iterations and took what it had. With I_ABC above about 380 uA (the pole near 40 kHz) and RES
+  high, the ultrasonic self-oscillation needs 13-23 on some samples; the unconverged ones (up to
+  6 %) made it chaotic, white noise in the audio band at -11 dB of the oscillation (FREQ 10, RES 10,
+  C4, KYBD 10: -27 dBFS, flatness 0.87). Now up to 32 iterations, and a sample that still doesn't
+  converge is done again from where it started in 2, 4, 8 and 16 steps (`solveSample`); the
+  oscillation is a pure tone near 38 kHz under the decimator (-59 dBFS), as on the real unit.
+  Retrying from 12 iterations instead was tried: it retries up to 15 % of the samples there, and
+  steps of two lengths mixed leave a noise floor about 35 dB under the oscillation.
+  Every implicit solve (VCF, jack board, VCA control current) now counts its unconverged samples
+  (`SolverStats`, in the voice's probe), and `sh101corners` (tools/corners) renders 299 cases of
+  the controls' extremes at 44.1 and 48 kHz and fails on any unconverged solve, broadband noise
+  with no noise source, or output out of bounds (6 s). With the old solve it fails 187 cases;
+  now 0, 607 and 683 samples retried in shorter steps out of 59 and 64 million. What is left at
+  the top is aliasing ("Self-oscillation above the audio band aliases").
+  None of the other checks could see it: the SPICE comparisons stop at 100 uA, the recordings
+  never sit there, and the golden renders had it in them (`automation`'s first 1.4 s).
+  `sh101bench` bit-exact against golden-7 except `automation` (the noise gone, then the
+  self-oscillation's trajectory differs); new golden `build/sh101-golden-8`. Instructions +0.6 %
+  (12412 → 12484 M/s; `bright` 1109 → 1114 Mins/s at 48 kHz). plugintest 0 failures, service
+  checks 34/34, `units.py` 105 rows 0 over, auval passes.
 - 2026-11-16, release: `ro-mono-101` 0.1.0 beta, with a standalone app; Windows built with
   clang-cl (both compilers passed `windows-machine.yml`). The docs name sources by their channel,
   site or publication only.

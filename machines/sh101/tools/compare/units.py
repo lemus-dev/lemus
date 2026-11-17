@@ -105,13 +105,16 @@ LIMITS = {
     # The top's floor: the saw's level re 1/n reads to about +-0.3 dB per band (the three units'
     # notes agree that closely); 1 dB.
     "top_floor_db": 1.0,
+    # FREQ 10's cutoff at KYBD 0: Starsky Carr's unit 13.93 kHz (RES 10), AutomaticGainsay's
+    # 15.2 kHz (RES 7.1 peak): 0.13 octave apart.
+    "top_oct": 0.15,
 }
 KNOWN = {
     "lfo": "known: improvements.md 'LFO's top rate' (unit spread: 33-42 Hz across the parts)",
-    "freq": "known: improvements.md 'FREQ's bottom' (ours matches at FREQ 1.86 against the 1.5 +- 0.3 reading)",
+    "freq": "known: improvements.md 'FREQ's bottom' (ours matches at FREQ 1.97 against the 1.5 +- 0.3 reading since the 22.8 mV/oct top fit)",
     "noise": "known: improvements.md 'Noise' (the three units span 2.7 dB re their saws)",
     "res": "known: improvements.md 'Resonance' (ours matches 0.4 division past this unit's reading; one unit)",
-    "freqlaw": "known: improvements.md 'FREQ's law' (this unit 5-8 % steeper per division; cause not settled)",
+    "freqlaw": "known: improvements.md 'FREQ's law' (this unit 13-14 % steeper per division yet its top flattens; cause not settled)",
 }
 
 
@@ -306,7 +309,7 @@ LOOPOP = {  # take: (clip, onset search window s, FREQ, RES, DECAY, note length 
     "B": ("loopop_youtube_3JBFoXgtHvE__vcf_env_decay_res_sweep_saw_c2_setB", (0.1, 0.4), 0.39, 0.69, 0.48, 2.6),
 }
 FM_PING = "failed-muso_youtube_6NqaegXGbtE__vcf_res_full_env_half_cutoff_half"
-ENV_WEIGHT = 0.82      # envCvScale, Real unit calibration (model.md, "Calibrations"); for the notes only
+ENV_WEIGHT = 0.90      # envCvScale, Real unit calibration (model.md, "Calibrations"); for the notes only
 FM_ENVS = (0.4, 0.45, 0.5, 0.55, 0.6, 0.7)
 
 
@@ -458,6 +461,7 @@ def env_rows(ours):
 
 PC = "perfect-circuit_youtube_biuWnvJ0f7I__"
 GS = "gstormelectro_youtube_SsHcY4YQOfw__"
+GS_CLONE = "gstormelectro_101-vco__gstormelectro_youtube_SsHcY4YQOfw__"   # left channel: the 101-VCO module
 AG = "automaticgainsay_youtube_8jCX_EUNocI__"
 SRC = {"saw": dict(sawLevel=1), "square": dict(sawLevel=0, pulseLevel=1), "sub 1 OCT": dict(sawLevel=0, subLevel=1, subMode=0),
        "sub 2 OCT": dict(sawLevel=0, subLevel=1, subMode=1), "25% sub": dict(sawLevel=0, subLevel=1, subMode=2),
@@ -750,7 +754,7 @@ AG_RES = [  # AutomaticGainsay, saw on a held D3, cutoff swept by hand; RES read
     ("automaticgainsay_youtube_VQXq7OmZCtY__vcf_sweep_res50_saw_d3", 0.47),
     ("automaticgainsay_youtube_VQXq7OmZCtY__vcf_sweep_res_edge_of_selfosc_saw_d3", 0.71),
 ]
-RES_FREQS = np.round(np.arange(0.55, 0.8301, 0.005), 3)   # fine: the peak's height scallops between harmonics
+RES_FREQS = np.round(np.arange(0.55, 0.8801, 0.005), 3)   # fine: the peak's height scallops between harmonics
 RES_STEPS = (-0.10, -0.05, 0.0, 0.05, 0.10)
 LP_RES = "loopop_youtube_3JBFoXgtHvE__vcf_resonance_raise_saw_c2"
 LP_RISE = (1.5, 3.2)       # RES raised over 1.6 s (clip seconds); it is lowered again at 3.65-3.9 s,
@@ -1165,6 +1169,11 @@ def freq_rows(ours):
 TOP_SAW = {"Perfect Circuit": (PC + "saw_f2", None, 87.3), "gstormelectro": (GS + "saw_octave_seq_a2_a4", "seg", None),
            "AutomaticGainsay": (AG + "saw_only_ref_before_sub", "seg", None)}
 TOP_BANDS = [(5000, 7000), (7000, 9000), (9000, 11000), (11000, 13000)]
+# Ours at each unit's settings, where the video shows them (others are info): Perfect Circuit's
+# SH-101 at 1:48 has ENV 5.5 with S 10 (read 2026-11-16; "sliders at 10" before), AutomaticGainsay's
+# FREQ 10.1 with ENV 0 (readag.py, 360p).
+TOP_OURS = {"Perfect Circuit": "top-saw-F-2-env055", "AutomaticGainsay": "top-saw-F-2"}
+TOP_EVENT = {"Perfect Circuit": "saw, FREQ 10, ENV 5.5 (S 10), RES 0", "AutomaticGainsay": "saw, FREQ 10, ENV 0, RES 0"}
 NOISE_CLIPS = [  # unit, clip, window ("fm": as real.py, None: the held stretch), NOISE slider
     ("Failed Muso", "failed-muso_youtube_6NqaegXGbtE__noise_full_level_open_filter", "fm", 1.0),
     ("Failed Muso", "failed-muso_youtube_6NqaegXGbtE__noise_half_level_open_filter", "fm", 0.5),
@@ -1194,8 +1203,8 @@ def unit_tilt(unit):
     return grid, np.median(curves, axis=0)
 
 
-def ours_tilt(ours):
-    y, sr = ours("top-saw-F-2")
+def ours_tilt(ours, name="top-saw-F-2"):
+    y, sr = ours(name)
     return saw_tilt(y[int(0.6 * sr):int(3.0 * sr)], sr, 87.3)
 
 
@@ -1216,6 +1225,9 @@ def noise_specs():
     s = {"noise-%03d" % round(v * 100): spec("noise-%03d" % round(v * 100), dict(sawLevel=0, noiseLevel=v),
                                              [("A-3", 0.2, 3.0)]) for v in (1.0, 0.5)}
     s["top-saw-F-2"] = spec("top-saw-F-2", dict(sawLevel=1), [("F-2", 0.2, 3.0)])
+    # Perfect Circuit's take at 1:48 (1080p): FREQ 10, RES 0, ENV 5.5, KYBD 0, A 0, D 0, S 10, R 0.
+    s["top-saw-F-2-env055"] = spec("top-saw-F-2-env055", dict(sawLevel=1, vcfEnv=0.55, attack=0, decay=0, sustain=1),
+                                   [("F-2", 0.2, 3.0)])
     return s
 
 
@@ -1246,27 +1258,38 @@ def noise_rows(ours):
 
 
 def top_rows(ours):
-    """The saw at FREQ 10 re 1/n, per unit and band. A lossy chain takes highs away and doesn't add
-    them, so the brightest unit's recording is a floor for that unit's top: ours may not sit more
-    than the limit under it. The units spread far more than that (AutomaticGainsay 5-7 dB under
-    the other two above 9 kHz), so each unit alone is info."""
-    of, ol = ours_tilt(ours)
-    o = [float(np.median(ol[(of > lo) & (of < hi)])) for lo, hi in TOP_BANDS]
-    best = None
+    """The saw at FREQ 10 re 1/n, per unit and band, against ours at that unit's settings. A lossy
+    chain takes highs away and doesn't add them, so where the settings are seen the unit's recording
+    is a floor: ours may sit above it, not more than the limit under it. Where they aren't, info."""
     for unit in TOP_SAW:
         rf, rl = unit_tilt(unit)
         r = [float(np.median(rl[(rf > lo) & (rf < hi)])) for lo, hi in TOP_BANDS]
+        seen = unit in TOP_OURS
+        of, ol = ours_tilt(ours, TOP_OURS.get(unit, "top-saw-F-2"))
+        o = [float(np.median(ol[(of > lo) & (of < hi)])) for lo, hi in TOP_BANDS]
         for (lo, hi), rv, ov in zip(TOP_BANDS, r, o):
-            row("top", unit, "saw, FREQ 10, RES 0", "re 1/n at %d-%d kHz" % (lo // 1000, hi // 1000), rv, ov, ov - rv,
-                None, "%+.2f dB", "dB", note="re 200-800 Hz; the recording chain is in the real side")
-        if best is None or sum(r) > sum(best[1]):
-            best = (unit, r)
-    unit, r = best
-    for (lo, hi), rv, ov in zip(TOP_BANDS, r, o):
-        d = ov - rv
-        row("top", unit, "the brightest unit's saw: a floor", "re 1/n at %d-%d kHz" % (lo // 1000, hi // 1000), rv, ov,
-            d, LIMITS["top_floor_db"], "%+.2f dB", "dB", status="ok" if d > -LIMITS["top_floor_db"] else "OVER",
-            note="ours may sit above it (a chain only takes highs away), not under")
+            d = ov - rv
+            if seen:
+                row("top", unit, TOP_EVENT[unit], "re 1/n at %d-%d kHz" % (lo // 1000, hi // 1000), rv, ov, d,
+                    LIMITS["top_floor_db"], "%+.2f dB", "dB", status="ok" if d > -LIMITS["top_floor_db"] else "OVER",
+                    note="a floor: the chain is in the real side, so ours may sit above, not under")
+            else:
+                row("top", unit, "saw, FREQ and ENV unseen", "re 1/n at %d-%d kHz" % (lo // 1000, hi // 1000), rv, ov,
+                    d, None, "%+.2f dB", "dB", note="ours at FREQ 10, ENV 0; the take shows only stills")
+        if unit == "gstormelectro":
+            # The same take's other channel is GS_CLONE's VCO through the same chain: SH-101 less
+            # clone leaves this unit's filter and output stage, if the module went out bare (a
+            # 101-VCF is patched in the same case). Its KYBD is 0: the tilt is the same on A2, A3
+            # and A4 within 0.4 dB. FREQ and ENV are unseen (the take shows only stills).
+            cx, csr = A.load(os.path.join(WAV, GS_CLONE + "saw_octave_seq_a2_a4.wav"))
+            grid = np.linspace(100, 13000, 600)
+            cc = [np.interp(grid, *saw_tilt(cx[int(a * csr):int(b * csr)], csr, g)) for a, b, g in segments(cx, csr)[:5]]
+            cl = np.median(cc, axis=0)
+            c = [float(np.median(cl[(grid > lo) & (grid < hi)])) for lo, hi in TOP_BANDS]
+            for (lo, hi), rv, cv, ov in zip(TOP_BANDS, r, c, o):
+                row("top", unit, "saw less its 101-VCO, KYBD 0", "re 1/n at %d-%d kHz" % (lo // 1000, hi // 1000),
+                    rv - cv, ov, ov - (rv - cv), None, "%+.2f dB", "dB",
+                    note="FREQ and ENV unseen; chain out only if the module went out bare")
 
 
 # --- 8. FREQ's law along its travel ------------------------------------------------------------
@@ -1281,6 +1304,15 @@ def top_rows(ours):
 FL_AG = [(1.5, 10.86), (2.0, 16.81), (2.5, 26.26), (3.0, 40.05), (3.5, 62.40), (4.0, 98.31),
          (5.0, 234.17), (5.5, 339.58), (6.0, 534.51), (6.5, 814.14)]
 FL_AG_HI = [(7.0, 1345.0), (8.0, 3644.0), (8.5, 5538.0)]   # from the study's summary table
+# The same unit's top (VQXq7OmZCtY 199-218 s; private/sh101/reference/online/automaticgainsay_VQXq7OmZCtY):
+# a saw on D3, RES 7.1, KYBD 0, FREQ pushed up by hand three times; the resonant peak stops at
+# 15.08-15.23 kHz each time, its energy below the codec's 15.6 kHz band edge, not above it. FREQ's
+# index line reads 9.8 just after the hand leaves (the top stop reads 10.0 at 96, 142 and 168 s).
+AG_TOP_HZ, AG_TOP_READ, AG_TOP_RES = 15200.0, (9.8, 10.0), 0.71
+AG_TOP_FREQS = np.round(np.arange(8.8, 10.0001, 0.05), 3)
+# Starsky Carr's unit (q0yu1txLd8I 425.75-427.5 s, 1080p; private/sh101/reference/online/
+# starsky-carr_q0yu1txLd8I): FREQ 10, RES 10, ENV 0, MOD 0, KYBD 0, sources off: 13.93 kHz, pure.
+SC_TOP_HZ = 13930.0
 
 
 def freqlaw_specs():
@@ -1293,7 +1325,25 @@ def freqlaw_specs():
                           vcfKybd=0, bendVcf=1.0), [("D-3", 0.2, 5.0)], tail=0.05)
         sp["bend"] = [{"line": 0, "value": 1.0}, {"line": 100, "value": 0.0}]
         s[n] = sp
+    s["freqtop-sc"] = spec("freqtop-sc", dict(sawLevel=0, vcfFreq=1.0, vcfRes=1.0, vcfKybd=0), [("D-3", 0.2, 1.5)],
+                           tail=0.05)
+    for fq in AG_TOP_FREQS:
+        n = "freqtop-f%04d" % round(fq * 100)
+        s[n] = spec(n, dict(vcfFreq=fq / 10, vcfRes=AG_TOP_RES, vcfKybd=0), [("D-3", 0.2, 1.0)], tail=0.05)
     return s
+
+
+def saw_peak_hz(y, sr, f0):
+    """The resonant peak of a saw: the harmonic with the largest level x n, refined by a parabola."""
+    nh = int(0.45 * sr / f0)
+    h = harm(y, sr, f0, range(1, nh + 1), pad=2)
+    w = 20 * np.log10(10 ** (h[:, 1] / 20) * np.arange(1, nh + 1) + 1e-12)
+    k = int(np.argmax(w[2:])) + 2
+    d = 0.0
+    if k < nh - 1:
+        den = w[k - 1] - 2 * w[k] + w[k + 1]
+        d = 0.5 * (w[k - 1] - w[k + 1]) / den if den != 0 else 0.0
+    return f0 * (k + 1 + d)
 
 
 def freqlaw_rows(ours):
@@ -1313,6 +1363,21 @@ def freqlaw_rows(ours):
         sr_, so_ = np.polyfit(rr[m], lr[m], 1)[0], np.polyfit(rr[m], lo[m], 1)[0]
         row("freqlaw", "AutomaticGainsay", "FREQ %s" % name, "oct per division", sr_, so_, 100 * (so_ / sr_ - 1),
             LIMITS["freqlaw_pct"], "%.3f", "%", known=KNOWN["freqlaw"])
+    # The top, KYBD 0: two units, 0.13 octave apart (the limit is that spread, for each).
+    y, sr = ours("freqtop-sc")
+    o = A.f0_sine(y[int(1.0 * sr):int(1.6 * sr)], sr, fmin=1000.0)
+    row("freqlaw", "Starsky Carr", "top: self-oscillating, FREQ 10, RES 10", "cutoff", SC_TOP_HZ, o, oct_(o, SC_TOP_HZ),
+        LIMITS["top_oct"], "%.0f Hz", "oct", note="sliders read at 1080p; ENV, MOD, KYBD 0")
+    pk = []
+    for fq in AG_TOP_FREQS:
+        y, sr = ours("freqtop-f%04d" % round(fq * 100))
+        pk.append(saw_peak_hz(y[int(0.6 * sr):int(1.15 * sr)], sr, 146.83))
+    pk = np.array(pk)
+    at = float(np.interp(math.log2(AG_TOP_HZ), np.log2(pk), AG_TOP_FREQS)) if pk.max() > AG_TOP_HZ else math.nan
+    o10 = float(pk[-1])
+    row("freqlaw", "AutomaticGainsay", "top: saw D3, RES 7.1, FREQ %.1f-%.1f" % AG_TOP_READ, "resonant peak",
+        AG_TOP_HZ, o10, oct_(o10, AG_TOP_HZ), LIMITS["top_oct"], "%.0f Hz", "oct",
+        note="ours at FREQ 10" + ("; ours reaches it at FREQ %.2f" % at if np.isfinite(at) else "; ours stays under it"))
 
 
 GROUPS = ["env", "levels", "res", "porta", "lfo", "freq", "noise", "top", "freqlaw"]

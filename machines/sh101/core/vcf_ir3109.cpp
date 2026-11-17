@@ -62,6 +62,7 @@ void Ir3109Vcf::prepare(double fs)
 {
 	m_fs = fs;
 	m_t = 1 / fs;
+	m_stats = {};
 	// TR26: base at the bus (VR18 runs from OUT4 to the bus, OML's correction), emitter R131
 	// 10k: 0.438 mA. Its collector gain is R136/(R131 + r_e), less TR27's base loading.
 	// R132 (the output sum) loads the emitter too: 6.7 % more collector current per volt.
@@ -196,7 +197,7 @@ void Ir3109Vcf::reset()
 	m_settle = m_settleLen;
 }
 
-void Ir3109Vcf::solve(double iAbc, double a, double vm, double gmix)
+bool Ir3109Vcf::solve(double iAbc, double a, double vm, double gmix, double linear)
 {
 	const Params &p = m_p;
 	const double h2 = m_t / 2;
@@ -237,13 +238,13 @@ void Ir3109Vcf::solve(double iAbc, double a, double vm, double gmix)
 	const double jNode = m_v53 + m_v3;
 
 	// Start from a quadratic prediction off the last three samples (a linear one takes about half an
-	// iteration more per sample once the filter rings above a few hundred hertz). The diode node is
-	// bounded where its current would exceed what R129 and R113 can feed (m_dMax), where Newton's
-	// steps are sane.
+	// iteration more per sample once the filter rings above a few hundred hertz), or in a retry's
+	// shorter steps a linear one (solveSample). The diode node is bounded where its current would
+	// exceed what R129 and R113 can feed (m_dMax), where Newton's steps are sane.
 	const double dMax = m_dMax;
 	double x[6];
 	for (int i = 0; i < 6; ++i)
-		x[i] = 3 * (m_x[i] - m_xPrev[i]) + m_xPrev2[i];
+		x[i] = linear > 0 ? m_x[i] + linear * (m_x[i] - m_xPrev[i]) : 3 * (m_x[i] - m_xPrev[i]) + m_xPrev2[i];
 	// A capacitor can't settle more than a few V_T past where its mirrors saturate (otaOut), nor TR27's
 	// emitter beyond the rails, so the prediction starts no further out. Near the top of the range
 	// in self-oscillation the capacitors swing far within three samples, and an extrapolation deep
@@ -263,7 +264,8 @@ void Ir3109Vcf::solve(double iAbc, double a, double vm, double gmix)
 	const double h = m_t, band = 20 * p.vt; // otaOut's: exactly 0 further inside
 	bool converged = false;
 	int it = 0;
-	for (; it < 12; ++it) {
+	// Up to 32 iterations; a step that needs more is retried shorter (solveSample).
+	for (; it < 32; ++it) {
 		for (int i = 0; i < 4; ++i)
 			buffer(i, x[i], y[i], py[i]);
 		const double d = x[4], e = x[5];
@@ -446,6 +448,62 @@ void Ir3109Vcf::solve(double iAbc, double a, double vm, double gmix)
 	// C52 sits inside the resonance loop and starts at its rest charge: no speed-up, which would
 	// put a 300 Hz high-pass in the loop for the first 0.2 s.
 	m_v52 += m_t / kC52 * (m_x[5] - m_v52 - m_x[4]) / kR129;
+	return converged;
+}
+
+bool Ir3109Vcf::solveSample(double iAbc, double a, double vm, double gmix)
+{
+	// With the cutoff near its top (I_ABC above about 380 uA, the pole near 40 kHz) and RES high,
+	// the ultrasonic self-oscillation swings the diode node and TR27 hard within a sample, and
+	// Newton needs 13-23 iterations at 176-192 kHz on some samples. Accepted unconverged (the solve
+	// used to stop at 12 and take what it had), up to 6 % of the samples threw the oscillation into
+	// chaos: white noise in the audio band at -11 dB of the oscillation. Up to 32 iterations they
+	// converge, and the oscillation is a pure tone near 38 kHz that the decimator removes, as on the
+	// real unit. A sample that still fails is done again from where it started in 2, then 4, 8, 16
+	// steps, with the inputs held across it (in half steps the samples above converge within 11
+	// iterations, in quarters within 6). Retrying from 12 iterations instead would retry up to 15 %
+	// of the samples there, and steps of two lengths mixed leave a noise floor about 35 dB under
+	// the oscillation, where single steps leave none.
+	++m_stats.solves;
+	// What solve() overwrites and the retry needs. The capacitors' and the nodes' last two points
+	// it shifts into m_xPrev and m_xPrev2, so they come back from there.
+	double f0[4];
+	std::copy(m_f, m_f + 4, f0);
+	const double v45 = m_v45, v52 = m_v52;
+	if (solve(iAbc, a, vm, gmix))
+		return true;
+	++m_stats.retried;
+	double x0[6], xPrev0[6];
+	std::copy(m_xPrev, m_xPrev + 6, x0);
+	std::copy(m_xPrev2, m_xPrev2 + 6, xPrev0);
+	const double t = m_t;
+	int iters = m_iters;
+	bool ok = false;
+	for (int parts = 2; parts <= kMaxParts && !ok; parts *= 2) {
+		std::copy(x0, x0 + 6, m_x);
+		std::copy(xPrev0, xPrev0 + 6, m_xPrev);
+		std::copy(f0, f0 + 4, m_f);
+		m_v45 = v45;
+		m_v52 = v52;
+		m_t = t / parts;
+		m_kIabc = -1; // the prewarp is the step's
+		ok = true;
+		for (int k = 0; k < parts && ok; ++k) {
+			// The first short step goes on from the last sample's change, scaled to its length;
+			// the next from the step before it.
+			ok = solve(iAbc, a, vm, gmix, k == 0 ? 1.0 / parts : 1.0);
+			iters += m_iters;
+		}
+	}
+	m_t = t;
+	m_kIabc = -1;
+	// The prediction's history at the sample's spacing again.
+	std::copy(x0, x0 + 6, m_xPrev);
+	std::copy(xPrev0, xPrev0 + 6, m_xPrev2);
+	m_iters = iters;
+	if (!ok)
+		++m_stats.failures;
+	return ok;
 }
 
 double Ir3109Vcf::tick(double iAbc, double res, double mixVolts, double mixOhms)
@@ -461,7 +519,7 @@ double Ir3109Vcf::tick(double iAbc, double res, double mixVolts, double mixOhms)
 	const double rth = 100e3 * a * (1 - a);
 	const double rin26 = (m_p.beta + 1) * kR131;
 	const double aEff = a * rin26 / (rin26 + rth);
-	solve(std::max(iAbc, 0.0), aEff, mixVolts, gmix);
+	solveSample(std::max(iAbc, 0.0), aEff, mixVolts, gmix);
 	for (double x : m_x)
 		if (!std::isfinite(x)) {
 			reset();

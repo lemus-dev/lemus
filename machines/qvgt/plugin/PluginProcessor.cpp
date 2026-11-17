@@ -254,12 +254,19 @@ void QVGTProcessor::publishDisplay()
 	m_display.latch0800 = board.latch(qvgt::Board::kLatch0800);
 	m_display.clip = m_unit->clip();
 	m_display.headroom = m_unit->headroom();
+	m_solverStats = m_unit->solverStats();
 }
 
 QVGTProcessor::Display QVGTProcessor::display() const
 {
 	const juce::SpinLock::ScopedLockType lock(m_displayLock);
 	return m_display;
+}
+
+qvgt::SolverStats QVGTProcessor::solverStats() const
+{
+	const juce::SpinLock::ScopedLockType lock(m_displayLock);
+	return m_solverStats;
 }
 
 juce::AudioProcessorEditor *QVGTProcessor::createEditor() { return new QVGTEditor(*this); }

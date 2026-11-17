@@ -55,3 +55,12 @@ target_include_directories(qvgtplugintest PRIVATE ${QVGT_PLUGIN_INCLUDES})
 target_compile_definitions(qvgtplugintest PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 QVGT_ROM="${QVGT_ROM}" QVGT_LCD_ROM="${QVGT_LCD_ROM}")
 target_link_libraries(qvgtplugintest PRIVATE lemus_qvgtcore lemus_qvgt_fonts lemus_qvgt_panel
   juce::juce_audio_utils juce::juce_audio_processors juce::juce_recommended_config_flags)
+
+# The extremes: unconverged solves and output out of bounds, the preamp's settings and the unit's
+# programs under hard input (tools/corners).
+juce_add_console_app(qvgtcorners PRODUCT_NAME "qvgtcorners")
+target_sources(qvgtcorners PRIVATE ${QVGT_DIR}/tools/corners/main.cpp ${QVGT_PLUGIN_SOURCES} ${LEMUS_ROOT_DIR}/host/Roms.cpp)
+target_include_directories(qvgtcorners PRIVATE ${QVGT_PLUGIN_INCLUDES})
+target_compile_definitions(qvgtcorners PRIVATE JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 QVGT_ROM="${QVGT_ROM}" QVGT_LCD_ROM="${QVGT_LCD_ROM}")
+target_link_libraries(qvgtcorners PRIVATE lemus_qvgtcore lemus_qvgt_fonts lemus_qvgt_panel
+  juce::juce_audio_utils juce::juce_audio_processors juce::juce_audio_formats juce::juce_recommended_config_flags)

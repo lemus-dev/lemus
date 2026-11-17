@@ -252,8 +252,8 @@ int main(int argc, char **argv)
 	if (out != stdout)
 		std::fclose(out);
 	const auto &s = c.stats();
-	std::fprintf(stderr, "%ld steps, %.2f Newton iterations per step, %.2f factorisations, %ld substepped, %ld failures, worst residual %.3g; %d states, %d ports\n",
-	             s.steps, s.steps ? double(s.iterations) / double(s.steps) : 0.0, s.steps ? double(s.factorizations) / double(s.steps) : 0.0, s.substepped, s.failures, s.worstResidual, c.stateCount(),
-	             c.portCount());
+	std::fprintf(stderr, "%ld steps, %.2f Newton iterations per step, %.2f factorisations, %ld substepped, %ld retried, %ld failures, worst residual %.3g; %d states, %d ports\n",
+	             s.steps, s.steps ? double(s.iterations) / double(s.steps) : 0.0, s.steps ? double(s.factorizations) / double(s.steps) : 0.0, s.substepped, s.retried, s.failures, s.worstResidual,
+	             c.stateCount(), c.portCount());
 	return 0;
 }

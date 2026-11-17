@@ -45,6 +45,7 @@ constexpr int kDensePorts = 16; // Newton's residual over all currents up to thi
 const int kTrace = std::getenv("TR909_TRACE") ? std::atoi(std::getenv("TR909_TRACE")) : -1;
 const bool kNyquist = std::getenv("TR909_NYQ") != nullptr;
 const bool kFailDebug = std::getenv("TR909_FAILDEBUG") != nullptr;
+const bool kNoRetry = std::getenv("TR909_NORETRY") != nullptr; // tools: a failed sample accepted as it stands, as before 2026-11-16
 const bool kLinDebug = std::getenv("TR909_LINDEBUG") != nullptr;
 const bool kNoJump = std::getenv("TR909_NOJUMP") != nullptr; // tools: edges as ramps across their sample
 const bool kNoFetLim = std::getenv("TR909_NOFETLIM") != nullptr; // tools: MOSFETs' ports not limited
@@ -63,6 +64,8 @@ const double kAheadZone = std::getenv("TR909_AHEADZONE") ? std::atof(std::getenv
 const int kFlipSteps = std::getenv("TR909_FLIPSTEPS") ? std::atoi(std::getenv("TR909_FLIPSTEPS")) : 16;
 // Newton's iterations for a step, and for a trial step that is redone in smaller ones if it fails
 constexpr int kMaxIterations = 40;
+constexpr int kCarefulIterations = 400; // Newton's, damped, in a failed sample's retry
+constexpr double kCarefulDampMin = 1.0 / 1024;
 const int kTrialIterations = std::getenv("TR909_TRIALIT") ? std::atoi(std::getenv("TR909_TRIALIT")) : 8;
 constexpr double kComparatorBeta = -0.01;
 constexpr double kSlewSat = 10; // linear ranges: an op-amp's input stage counts as saturated past this
@@ -2300,6 +2303,8 @@ template <int NP> void Circuit::solveActive(Level &L, double *r) const
 
 bool Circuit::newton(Level &L, const double *p, double *v, double *i, int maxIterations)
 {
+	if (m_careful)
+		return newtonT<0, true>(L, p, v, i, maxIterations);
 	switch (m_np) {
 	case 1: return newtonT<1>(L, p, v, i, maxIterations);
 	case 2: return newtonT<2>(L, p, v, i, maxIterations);
@@ -2324,7 +2329,7 @@ bool Circuit::newton(Level &L, const double *p, double *v, double *i, int maxIte
 	}
 }
 
-template <int NP> bool Circuit::newtonT(Level &L, const double *p, double *v, double *i, int maxIterations)
+template <int NP, bool Careful> bool Circuit::newtonT(Level &L, const double *p, double *v, double *i, int maxIterations)
 {
 	if (kCheckJac && m_np > 0) {
 		// finite-difference check of the devices' Jacobians at the starting point
@@ -2358,6 +2363,7 @@ template <int NP> bool Circuit::newtonT(Level &L, const double *p, double *v, do
 	int *sig = m_sigPorts.data();
 	double last = 0;
 	bool fresh = false, plain = false;
+	double damp = 1; // Careful: the share of Newton's step taken
 	for (int it = 0; it < maxIterations; ++it) {
 		// The first iteration starts where the last step ended: its currents and Jacobian are known.
 		if (it > 0 || !m_current)
@@ -2427,6 +2433,13 @@ template <int NP> bool Circuit::newtonT(Level &L, const double *p, double *v, do
 		// last step's factorisation: the operating point has hardly moved.)
 		if ((it > 0 && worst > kChordRatio * last && !fresh) || (np <= kPlainPorts && it > 0))
 			plain = true;
+		if constexpr (Careful) {
+			// a step that didn't lower the residual halves the next one, one that did doubles it
+			// (back to Newton's own): Newton undamped can go round a cycle on a comparator's input
+			// stage in its tanh, from one side of the knee to the other
+			damp = it == 0 ? 1 : worst < last ? std::min(1.0, 2 * damp) : std::max(damp / 2, kCarefulDampMin);
+			plain = true;
+		}
 		if (!L.luValid || plain) {
 			if (!factor<NP>(L)) {
 				L.luValid = false;
@@ -2453,6 +2466,9 @@ template <int NP> bool Circuit::newtonT(Level &L, const double *p, double *v, do
 			m_stats.worstResidual = std::max(m_stats.worstResidual, stepMax);
 			return true;
 		}
+		if constexpr (Careful)
+			for (int a = 0; a < np; ++a)
+				r[a] *= damp;
 		double *mosOld = m_mosOld.data();
 		for (size_t k = 0; k < m_mos.size(); ++k) {
 			mosOld[2 * k] = v[m_mos[k].port];
@@ -2632,7 +2648,7 @@ bool Circuit::advanceSplit(int lv, const double *u0, const double *u1)
 {
 	if (advance(lv, u1))
 		return true;
-	if (lv + 1 >= kLevels) {
+	if (lv + 1 >= m_splitLevels) {
 		// The smallest step failed too: a comparator flipping faster than even it resolves (the
 		// clap's multivibrator). Widen the comparators' transitions for this one step, as the DC
 		// solve does, rather than leave the step undone.
@@ -2847,11 +2863,17 @@ void Circuit::step()
 	m_lastRedone = false;
 	const bool jump = m_jump && !kNoJump;
 	m_jump = false;
+	// The sample's start, for retry: m_saved where the flips' handling keeps it there, else m_start,
+	// saved only on the way to a substepped sample.
+	const Saved *start = &m_saved;
 	if (jump) {
 		if (m_lin.on)
 			leaveLinear();
 		m_subLeft = std::max(0, m_subLeft - 1);
 		++m_stats.substepped;
+		saveStep(m_start);
+		start = &m_start;
+		u0 = u1; // the inputs at their new values from the start (retry)
 		ok = advanceEdge(u1);
 	} else if (m_subLeft > 0 || m_edgeLeft > 0) {
 		if (m_lin.on)
@@ -2859,8 +2881,12 @@ void Circuit::step()
 		m_subLeft = std::max(0, m_subLeft - 1);
 		++m_stats.substepped;
 		const bool watch = m_comparators > 0 && m_edgeLeft == 0;
-		if (watch)
+		if (watch) {
 			saveStep();
+		} else {
+			saveStep(m_start);
+			start = &m_start;
+		}
 		ok = advanceFour(1, u0, u1);
 		if (ok && watch && flipped()) {
 			restoreStep();
@@ -2894,13 +2920,13 @@ void Circuit::step()
 				m_subLeft = 32;
 				ok = advanceFour(1, u0, u1);
 			}
-			for (int k = m_constCount; k < m_nu; ++k)
-				m_uLast[size_t(k)] = m_u[size_t(k)];
-			if (!ok) {
+			if (!ok && !retry(m_saved, u0, u1)) {
 				++m_stats.failures;
 				if (kFailDebug)
 					std::fprintf(stderr, "%s: step %ld failed\n", m_name.c_str(), m_stats.steps);
 			}
+			for (int k = m_constCount; k < m_nu; ++k)
+				m_uLast[size_t(k)] = m_u[size_t(k)];
 			return;
 		}
 		// a comparator's sample that Newton finds hard is a flip's: its sixteenths, not a long solve
@@ -2920,6 +2946,8 @@ void Circuit::step()
 			++m_stats.substepped;
 			m_subLeft = 32;
 			histKind = kHFullFail;
+			saveStep(m_start); // advance left the state as it was
+			start = &m_start;
 			ok = advanceFour(1, u0, u1);
 		}
 		bool redone = false;
@@ -2942,13 +2970,61 @@ void Circuit::step()
 		if (ok && full && !redone && !kLinOff && m_np > 0 && --m_lin.wait <= 0)
 			linearize();
 	}
-	if (!ok) {
+	if (!ok && !retry(*start, u0, u1)) {
 		++m_stats.failures;
 		if (kFailDebug)
 			std::fprintf(stderr, "%s: step %ld failed\n", m_name.c_str(), m_stats.steps);
 	}
 	for (int k = m_constCount; k < m_nu; ++k)
 		m_uLast[size_t(k)] = m_u[size_t(k)];
+}
+
+bool Circuit::retry(const Saved &start, const double *u0, const double *u1)
+{
+	// A sample that failed in quarters, sixteenths and 64ths, with the comparators softened at the
+	// last: Newton went round a cycle rather than converging, a comparator's input stage (its tanh)
+	// stepping from one side of its knee to the other and back (the toms' VCOs at a retrigger, the
+	// clap's envelope; tools/corners). It is done again from where it started in 64ths, with Newton
+	// damped (a step that doesn't lower the residual halves the next one) and given
+	// kCarefulIterations; a 64th that still fails is split into 256ths and those into 1024ths before
+	// the comparators are softened as before (6 of the 436 retried at the corners need that); then,
+	// if need be, the whole sample again in 256ths and in 1024ths. Accepted as it stands (the
+	// caller counts a failure) only if even that fails. Only failed samples come here: every other
+	// sample is computed as before, to the bit.
+	if (kNoRetry)
+		return false;
+	++m_stats.retried;
+	const long it0 = m_stats.iterations;
+	m_careful = true;
+	m_splitLevels = kLevels;
+	m_maxIt = kCarefulIterations;
+	bool ok = false;
+	for (int lv = 3; lv < kLevels && !ok; ++lv) {
+		restoreStep(start);
+		m_inEdge = false;
+		const int n = 1 << (2 * lv);
+		std::vector<double> &from = m_uMid, &to = m_uTo;
+		std::copy(u0, u0 + m_nu, from.begin());
+		std::copy(u1, u1 + m_nu, to.begin());
+		ok = true;
+		for (int k = 1; k <= n && ok; ++k) {
+			for (int j = m_constCount; j < m_nu; ++j)
+				to[size_t(j)] = u0[j] + (u1[j] - u0[j]) * k / double(n);
+			ok = advanceSplit(lv, from.data(), to.data());
+			std::copy(to.begin(), to.end(), from.begin());
+		}
+	}
+	if (kFailDebug)
+		std::fprintf(stderr, "%s: step %ld retried: %s, %ld Newton iterations\n", m_name.c_str(), m_stats.steps,
+		             ok ? "converged" : "failed", m_stats.iterations - it0);
+	m_careful = false;
+	m_splitLevels = kSplitLevels;
+	m_maxIt = kMaxIterations;
+	for (auto &L : m_levels)
+		L.luValid = false;
+	m_current = false;
+	m_prevValid = false;
+	return ok;
 }
 
 std::string Circuit::portName(int port) const

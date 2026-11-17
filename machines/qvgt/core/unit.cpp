@@ -140,6 +140,7 @@ void Unit::prepare(double hostRate)
 	m_dryInL.setup(10e3, 4.7e-6, kSampleRate);
 	m_dryInR.setup(10e3, 4.7e-6, kSampleRate);
 	m_dryCode = 0xff;
+	m_dryStats = {};
 	updateDryCv();
 	m_cv = m_cvTarget;
 	// The output: C45 10u into the 10K pot (a high-pass at 1.6 Hz), then the non-inverting stage
@@ -292,26 +293,39 @@ void Unit::updateDryCv()
 	// KCL at the C.V.: (vDac - v)/rDac + (d0 - v)/20K + D18's current through 4.7K = 0
 	const double is = 2.52e-9, nvt = 1.752 * 0.02585, rs = 4.7e3;
 	double v = (vDac / rDac + d0 / 20e3) / (1 / rDac + 1 / 20e3), gd = 0;
+	bool converged = false, inner = true;
 	for (int it = 0; it < 60; ++it) {
-		// the diode's current for v: solve id = is (exp((d0 - v - id rs) / nvt) - 1) by Newton in id
+		// the diode's current for v: solve id = is (exp((d0 - v - id rs) / nvt) - 1) by Newton in id.
+		// From id = 0 each iteration takes about one nVt off the exponent, which starts up to 72 deep
+		// (d0 5 V, v at least 1.75 V): code 1 (D0 alone) needs 65 in the first outer iteration. It
+		// used to stop at 60 there; the outer Newton reached the same v all the same.
 		double id = 0;
-		for (int k = 0; k < 60; ++k) {
+		bool idConverged = false;
+		for (int k = 0; k < 100; ++k) {
 			const double e = std::exp(std::min((d0 - v - id * rs) / nvt, 80.0));
 			const double f = is * (e - 1) - id, df = -is * e * rs / nvt - 1;
 			const double step = -f / df;
 			id += step;
-			if (std::abs(step) < 1e-15)
+			if (std::abs(step) < 1e-15) {
+				idConverged = true;
 				break;
+			}
 		}
+		inner = inner && idConverged;
 		const double e = std::exp(std::min((d0 - v - id * rs) / nvt, 80.0));
 		gd = (is * e / nvt) / (1 + is * e * rs / nvt); // d id / d(d0 - v)
 		const double f = (vDac - v) / rDac + (d0 - v) / 20e3 + id;
 		const double df = -1 / rDac - 1 / 20e3 - gd;
 		const double step = -f / df;
 		v += step;
-		if (std::abs(step) < 1e-12)
+		if (std::abs(step) < 1e-12) {
+			converged = true;
 			break;
+		}
 	}
+	// one solve a change of the code (all 32 converge, the worst in 5 outer and 65 inner iterations)
+	++m_dryStats.solves;
+	m_dryStats.failures += !(converged && inner);
 	m_cvTarget = v;
 	const double rth = 1 / (1 / rDac + 1 / 20e3 + gd);
 	m_cvCoef = 1 - std::exp(-1 / (kSampleRate * rth * 0.1e-6));
@@ -425,8 +439,13 @@ void Unit::process(const float *inL, const float *inR, float *outL, float *outR,
 			yr = m_fifoR.front();
 			m_fifoR.pop_front();
 		}
-		outL[i] = yl;
-		outR[i] = yr;
+		// The output stages' swing again, at the host's rate: the resampler up from the DSP's rate
+		// puts peaks between the samples clamped there (up to 2.22 times the swing, with full-scale
+		// content near 20 kHz), where the unit's output stages clip after the D/A's reconstruction.
+		// Inside the rails it changes nothing.
+		constexpr float kSwingFS = float(kSwing / kVoltsFS);
+		outL[i] = std::clamp(yl, -kSwingFS, kSwingFS);
+		outR[i] = std::clamp(yr, -kSwingFS, kSwingFS);
 
 		// Asleep once the input has been silent and the output under -120 dB for longer than the
 		// longest delay (65,536 words, 1.573 s): anything still circulating above that would have

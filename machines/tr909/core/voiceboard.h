@@ -128,6 +128,19 @@ public:
 	double internalRate() const { return m_rate; }
 	int factor() const { return m_factor; }
 	std::string blockReport() const; // tools: each circuit's steps, Newton iterations, linear steps
+	// What each circuit's solver did since prepare() (circuit::Circuit::Stats), for tools: one entry
+	// per partition, with its unit (a Voice, kTomNoiseUnit or kMixUnit) and name ("bd:vco"). A step
+	// whose Newton solve fails at every step size, and again in its retry (Circuit::retry), is
+	// accepted as it stands and counted (stats.failures; stats.retried counts the retries):
+	// tools/corners checks there are none over the controls' extremes, since an unconverged sample
+	// is silent in every other check. Between render()s.
+	static constexpr int kTomNoiseUnit = kVoices, kMixUnit = kVoices + 1;
+	struct SolverStats {
+		int unit = 0;
+		std::string name;
+		circuit::Circuit::Stats stats;
+	};
+	std::vector<SolverStats> solverStats() const;
 
 	struct Impl;
 

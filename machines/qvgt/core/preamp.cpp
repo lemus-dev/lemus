@@ -130,17 +130,37 @@ void Chain::setRate(double rate)
 		m_stages[s]->setRate(s < overStages() ? rate * m_over : rate);
 }
 
-void Chain::solveDc()
+int Chain::solveDc()
 {
+	int failed = 0;
 	for (size_t s = 0; s < m_stages.size(); ++s) {
 		for (const auto &l : m_links[s])
 			m_stages[s]->setInput(l.input, m_stages[size_t(l.from)]->output(l.output));
-		m_stages[s]->solveDc();
+		failed += !m_stages[s]->solveDc();
 	}
 	for (size_t i = 0; i < m_last.size(); ++i) {
 		const auto &[s, k] = m_ins[i].front();
 		m_last[i] = m_stages[size_t(s)]->inputValue(k);
 	}
+	return failed;
+}
+
+SolverStats Chain::stats() const
+{
+	SolverStats t;
+	for (const auto &c : m_stages) {
+		const auto &s = c->stats();
+		t.solves += s.steps;
+		t.retried += s.substepped + s.softened + s.damped;
+		t.failures += s.failures;
+	}
+	return t;
+}
+
+void Chain::resetStats()
+{
+	for (auto &c : m_stages)
+		c->resetStats();
 }
 
 void Chain::stepStages(size_t from, size_t to)
@@ -307,6 +327,9 @@ void Preamp::prepare(double rate)
 	m_vcaSigma = 19.6e-12 * std::sqrt(rate / 2);
 	m_det1.setup(m_dt);
 	m_det2.setup(m_dt);
+	for (auto *c : {&m_input, &m_od, &m_shaper, &m_gate})
+		c->resetStats();
+	m_stats = {};
 	reset();
 }
 
@@ -317,7 +340,9 @@ void Preamp::reset()
 	for (auto *c : {&m_input, &m_od, &m_shaper, &m_gate}) {
 		for (int i = 0; i < c->inputs(); ++i)
 			c->setInput(i, 0);
-		c->solveDc();
+		const int stages = c->stages(), failed = c->solveDc();
+		m_stats.solves += stages;
+		m_stats.failures += failed;
 	}
 	m_vca1In.reset();
 	m_det1In.reset();
@@ -409,6 +434,7 @@ double Preamp::compressorVcMinus(double conout) const
 		return 0; // U14's common grounded: the node at 0 V
 	const double rs = kU14[m_compChannel] + kRon + kR86, gs = 1 / rs, gl = 1 / (kR83 + kR81);
 	double x = m_d11;
+	bool converged = false;
 	for (int it = 0; it < 30; ++it) {
 		// current into the node: (conout - x)/rs + Is (exp(-x/nVt) - 1) - x gl = 0
 		const double e = std::exp(std::min(-x / kDiodeNVt, 80.0));
@@ -417,9 +443,13 @@ double Preamp::compressorVcMinus(double conout) const
 		double dx = -f / df;
 		dx = std::clamp(dx, -0.1, 0.1);
 		x += dx;
-		if (std::abs(dx) < 1e-9)
+		if (std::abs(dx) < 1e-9) {
+			converged = true;
 			break;
+		}
 	}
+	++m_stats.solves;
+	m_stats.failures += !converged;
 	const_cast<Preamp *>(this)->m_d11 = x;
 	return x * kR81 / (kR83 + kR81);
 }
@@ -503,6 +533,14 @@ double Preamp::vca1Db() const
 double Preamp::vca2Db() const
 {
 	return m_vcPlus2 / Ssm2120::kVoltsPerDb;
+}
+
+SolverStats Preamp::solverStats() const
+{
+	SolverStats t = m_stats;
+	for (const auto *c : {&m_input, &m_od, &m_shaper, &m_gate})
+		t += c->stats();
+	return t;
 }
 
 } // namespace qvgt

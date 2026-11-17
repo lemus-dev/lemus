@@ -94,6 +94,8 @@ void Voice::render(float *out, int n, const ModFrame *mod)
 	m->probe.iAbc = m->filter.iAbc();
 	m->probe.env = m->filter.env();
 	m->probe.vca = m->filter.vca();
+	m->probe.solver = m->filter.solverStats();
+	m->probe.solver += m->jack.stats();
 }
 
 void Voice::powerOn() { m->jack.powerOn(); }

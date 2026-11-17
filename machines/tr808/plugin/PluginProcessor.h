@@ -80,6 +80,9 @@ public:
 		double bpm = 120;
 	};
 	Snapshot snapshot() const;
+	// What the board's circuit solvers did since prepare(), per partition (VoiceBoard::solverStats):
+	// tools (tools/corners), between blocks.
+	std::vector<tr808::VoiceBoard::SolverStats> solverStats() const { return m_board.solverStats(); }
 
 	// The POWER switch (the panel's push button). Off: silent, the LEDs dark, the CPU, the clock,
 	// the keys' START/STOP and MIDI dead; ringing voices die away unheard. On: the CPU starts from

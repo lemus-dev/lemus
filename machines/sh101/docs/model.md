@@ -43,9 +43,9 @@ Three named calibrations. The plugin plays Real unit; the other two are the tool
 | `vcoTuneHz` | 442 | 440 | 440 | VR7: A4 at 8' M (the service notes tune to 442 Hz) |
 | `portaTauSec` | 0.66 | 0.78 | 0.66 | portamento τ at full: 2 MΩ × 0.33 µF; a real unit measures 0.78 s |
 | `noiseRms` | 1.05 | 1.05 | 1.30 | IC12a's noise, V RMS: not on the schematic; real units' +0.6 dB re the saw, Roland's +2.9 |
-| `vcfMvPerOct` | 19.0 | 20.8 | 22.1 | the IR3109's expo slope at pin 9 (AS3109 data sheet 17.5–20.5; measured on an original chip, 20.8; Roland's gives its plug-in's FREQ span) |
-| `vcfI0uA` | 2.4 | 5.0 | 3.9 | its expo current with pin 9 at the bus (AS3109 2.4; the decode 2.96) |
-| `envCvScale` | 1.0 | 0.82 | 0.89 | the ENV's weight at the cutoff summer against the schematic (below) |
+| `vcfMvPerOct` | 19.0 | 22.8 | 22.1 | the IR3109's expo slope at pin 9 (AS3109 data sheet 17.5–20.5; measured on an original chip, 20.8). With VR8 trimming KYBD it sets FREQ's span: the Real unit's puts FREQ 10 where two real units' tops are, Roland's gives its plug-in's span |
+| `vcfI0uA` | 2.4 | 3.30 | 3.9 | its expo current with pin 9 at the bus (AS3109 2.4; the decode 2.96) |
+| `envCvScale` | 1.0 | 0.90 | 0.89 | the ENV's weight at the cutoff summer against the schematic (below) |
 | `envPotScale` | 1.0 | 0.9 | 0.8 | the ENV's 1M pots against nominal (±20 %) |
 | VR8 | 27.9 k | 16.9 k | 10.1 k | trimmed by the service procedure for the values above, in each, making up TR42's own gain (about 0.995) as a technician trimming by ear would (16.9 k is near mid-travel of its 47 k, where a designer would put it) |
 
@@ -61,11 +61,13 @@ and `model-filter.md` ("Calibration").
   Friendly Noise unit, settings read from 1080p frames):
   - FREQ 0, KYBD 10, KCV 3.0 V, RES 10 rests at 26–32 Hz, and the ENV-10 plateau sits at 4.8 kHz
     (`units.py`: real 31.1 Hz and 4800 Hz, ours 31.1 Hz and 4817 Hz), so FREQ 0 at KYBD 0 sits
-    near 3.5–4 Hz (ours 3.75 Hz). With the slope measured on an original IR3109 (20.8 mV/oct),
-    the expo current that puts it there is 5.0 µA, 1.7× the decode's 2.96 µA (6 µA while FREQ's
-    top was read as +14 V); FREQ 10 then lands at 28 kHz pole frequency at KYBD 0, with the chip's
-    compression at the top (`model-filter.md` 2; 19 kHz before), so the top division and a half
-    are above the audio band.
+    near 3.5–4 Hz (ours 3.75 Hz).
+  - FREQ 10 at KYBD 0: Starsky Carr's unit self-oscillates at 13.93 kHz (RES 10, every VCF slider
+    legible) and AutomaticGainsay's peaks at 15.2 kHz (RES 7.1); ours 14.7 and 14.2 kHz. With VR8
+    trimming KYBD to 1 oct/oct, the expo's slope against the pin-9 divider alone sets FREQ's span,
+    so it takes 22.8 mV/oct (one chip measured 20.8, which put FREQ 10 at 28 kHz) and the expo
+    current that keeps FREQ 0 in place, 3.30 µA. The cause isn't identified; the slope stands in
+    (`improvements.md`, "The filter's top"; before 2026-11-16: 20.8 mV/oct, 5.0 µA).
   - ENV 10 sweeps 7.0–7.3 octaves: `units.py`'s release fit gives the real take 7.27 octaves and
     τ 4.24 s, ours 7.28 and 4.27 s.
   - Attack at 10 reaches 3.8 kHz from 53 Hz in 2.95 s (ours 2.77); release τ at 10 is 4.1–4.4 s
@@ -90,7 +92,7 @@ KYBD tracks 1 oct/oct: both reach the cutoff through IC18b, so their ratio is fi
 the ENV's 5.11 V swing (ENV octaves = 1.5 × 5.11 × KYBD tracking ÷ VR8's share, which is at most 1).
 Until 2026-11-13 the ENV GEN was read as being on +15 V (14.87 V): its swing was 5.42 V, the floor
 8.1 octaves and the weight the real units need 0.73–0.79. On +14 V (14.3 V, SN p.7's filled arrow)
-the same clips need 0.80–0.82: the rails close about a fifth of the gap to 1.0.
+the same clips need 0.80–0.82: the rails close about a fifth of the gap to 1.0. With the expo at 22.8 mV/oct (2026-11-16) VR8's trim moves and the same clips need 0.885–0.90.
 The real unit sweeps 7.0–7.3 octaves while tracking 1.024 oct/oct on the same day, and Roland's
 plug-in 7.65 at 0.995 oct/oct. Every part involved was re-read on the 400 dpi scan (R158 82k on the
 +14 V rail, R189 100k, R193 150k, R192 33k, VR19 100kB, IC2b a follower), and the parts-spread study
@@ -271,8 +273,8 @@ is the same on time-averaged spectra, which ignores modulation phase):
 Since 2026-11-14 (the rails, the loadings, the ENV GEN's TR35, the noise, the IR3109's output
 resistance and saturation; each calibration refitted) the Roland calibration went from 5.6 / 4.1 to
 5.5 / 4.0 dB, and the Real unit's from 5.6 / 4.0 to 6.1 / 5.4. The Real unit's calibration follows
-the real units where they and Roland's plug-in disagree: most of its rise is FREQ 8-10 (FREQ 10 is
-a 28 kHz pole, which the units' saws support, `improvements.md` "The filter's top"), and the LFO
+the real units where they and Roland's plug-in disagree: most of its rise was FREQ 8-10 (FREQ 10
+at 28 kHz then; 14.7 kHz since 2026-11-16, `improvements.md` "The filter's top"), and the LFO
 specs, which sit there. Before (2026-10-23 to 2026-11-13): Real unit 5.6 / 4.0, Roland 5.6 / 4.1,
 service notes 9.2 / 10.4.
 

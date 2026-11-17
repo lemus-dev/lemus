@@ -1581,4 +1581,15 @@ std::string VoiceBoard::blockReport() const
 	return r;
 }
 
+std::vector<VoiceBoard::SolverStats> VoiceBoard::solverStats() const
+{
+	static_assert(kTomNoiseUnit == Impl::kTomNoise && kMixUnit == Impl::kMix);
+	auto &im = *m_impl;
+	std::vector<SolverStats> r;
+	for (int u = 0; u <= Impl::kMix; ++u)
+		for (const auto &b : im.unit(u).blocks)
+			r.push_back({u, b.c.name(), b.c.stats()});
+	return r;
+}
+
 } // namespace tr909

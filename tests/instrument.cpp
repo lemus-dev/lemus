@@ -149,7 +149,12 @@ void testKeyPlace()
 #else
 	const char *us = "00000409", *de = "00000407", *fr = "0000040C";
 #endif
-	check(panel::usKeyAt != nullptr, "the host looks keys up in the keyboard layout");
+	panel::usKeyAt = nullptr;
+	{
+		LemusProcessor p;
+		std::unique_ptr<juce::AudioProcessorEditor> e(p.createEditorIfNeeded());
+	}
+	check(panel::usKeyAt != nullptr, "the host's editor looks keys up in the keyboard layout");
 	struct Case
 	{
 		const char *layout, *name;

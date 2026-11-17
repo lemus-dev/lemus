@@ -75,6 +75,17 @@ agreed before it ships.
 - **Pitch.** No gap: A 110.03 Hz, low C to high C 2.0006 : 1 (`tools/service/check.py`). Din Sync's
   unit plays C2 + 5 cents (TUNING not stated); acidvoice's octave is ~2.03 : 1 (its TM5 out of trim,
   which SERVICE's TM5 can set).
+- **The MEG's discharge isn't solved to convergence.** C62's current into DECAY and the diode string
+  is four damped fixed-point steps a sample, a fixed count: it comes out 2-5 % under the string's own
+  solution over most of the MEG's fall (C62 from its top down to ~3 V), so the MEG falls a few %
+  slower than the circuit as transcribed. The unit's DECAY and MEG were fitted with it; converging it means fitting them
+  again (a sound change). Found by the solver check, 2026-11-16.
+- **Pin 1's current near zero.** The BA662's I_ABC solve stops within 1e-11 A, absolute: under a
+  nanoamp (a note's first ~0.2 ms, the end of its release) that leaves the VCA's current good to
+  tens of per cent only, and where in that band it lands depends on the iterations' path. Against
+  a solve to 1e-10 of the current the golden renders differ by up to −51 dBFS, in events of 4-9
+  samples as the VCA opens (RMS 79 dB under the signal). A relative tolerance changes every note's
+  first samples (a sound change). Found by the solver check, 2026-11-16.
 
 Against Roland's TB-303 software (not a real unit; `docs/model.md`, "Roland TB-303 software"): mean
 log-spectral distance 2.8 dB over 56 tests. Where they differ the model follows the schematic: half
@@ -117,22 +128,26 @@ No paid sets, and no real unit here to measure.
   Last measured: 10.5-11.7 % of a core at 48 kHz playing (2026-10-09, 0837561; 17-19 % before it; the
   commit doesn't split it by workload), asleep about 0.1 % (443f49d). Not measured since the fits
   of 2026-10-12 and the trims of 2026-10-13.
-- **Check set baseline:** none kept: no `build/tb303-golden-*` on disk. Service checks 16 of 16
-  (`docs/model.md`, "Service notes"); SPICE per block as in `docs/model.md`'s table (2026-10-07).
-- **Check set:** there: `tb303plugintest` (ROM, sync with the host's transport, MIDI and accents,
-  sleep, wake and the same sound after, internal clock, power off and on, random-settings stress,
-  TM3's ring, FULL CUT OFF, long-run stability at both ends of TM3, each trimmer, state with the
-  model version); `lemustest_tb303` (`tests/host.cpp`: ROMs, the ROM folder, artwork pack and
-  places, editor, MIDI); `tb303bench time|golden|check` (CPU % per workload at 44.1 and 48 kHz, max
-  difference against golden renders); the SPICE checks (`tools/spice/compare_slide.py`,
-  `compare_vco.py`, `compare_vcf.py`, `compare_env.py`, `compare_out.py`, `compare_voice.py`, through
-  `tb303blocks`); `tools/service/check.py`; `tools/compare/` (`dinsync.py` note by note,
-  `acidvoice_check.py`, `compare.py` against Roland's software); the A/B scenes
-  (`host/scenes/tb303-sweep.json`; `private/tb303/reference/scenes/acidvoice-real/`, the three
-  accent tests against Lemus; `voice-ab/`, 21 against Roland's software); `auval -v aumu R303 Lmus`.
-  Missing: the bench's worst block, time asleep, Mins/s and instruction counts; one SPICE run with
-  pass or fail (`tools/spice/suite.py`); `tb303plugintest --panel`; golden renders on disk. The ship
-  gate needs none of them.
+- **Check set baseline:** 2026-11-16, the solver check. Golden renders `build/tb303-golden-1`
+  (golden-0 of 2026-11-11 plus the solver fixes); `tb303corners` 0 of 226 cases failing at each
+  of 44.1, 48 and 96 kHz; service checks 16 of 16 (`docs/model.md`, "Service notes");
+  `tb303plugintest` and `lemustest_tb303` pass; SPICE per block as in `docs/model.md`'s table
+  (2026-10-07).
+- **Check set:** there: `tb303corners` (the controls' extremes at 44.1, 48 and 96 kHz: unconverged
+  solves, noise, bounds; `tools/corners`), `tb303plugintest` (ROM, sync with the host's transport,
+  MIDI and accents, sleep, wake and the same sound after, internal clock, power off and on,
+  random-settings stress, TM3's ring, FULL CUT OFF, long-run stability at both ends of TM3, each
+  trimmer, state with the model version); `lemustest_tb303` (`tests/host.cpp`: ROMs, the ROM
+  folder, artwork pack and places, editor, MIDI); `tb303bench time|golden|check` (CPU % per
+  workload at 44.1 and 48 kHz, max difference against golden renders); the SPICE checks
+  (`tools/spice/compare_slide.py`, `compare_vco.py`, `compare_vcf.py`, `compare_env.py`,
+  `compare_out.py`, `compare_voice.py`, through `tb303blocks`); `tools/service/check.py`;
+  `tools/compare/` (`dinsync.py` note by note, `acidvoice_check.py`, `compare.py` against Roland's
+  software); the A/B scenes (`host/scenes/tb303-sweep.json`;
+  `private/tb303/reference/scenes/acidvoice-real/`, the three accent tests against Lemus;
+  `voice-ab/`, 21 against Roland's software); `auval -v aumu R303 Lmus`. Missing: the bench's
+  worst block, time asleep, Mins/s and instruction counts; one SPICE run with pass or fail
+  (`tools/spice/suite.py`); `tb303plugintest --panel`. The ship gate needs none of them.
 
 ## Plan, in order
 
@@ -167,6 +182,12 @@ No paid sets, and no real unit here to measure.
     show it too, it's the model.
 14. **sources.md** (tooling): every source file with its URL and SHA1; `docs/research.md` §0 lists
     the papers with URLs, without hashes, and the recordings' indexes are in the private folder.
+15. **Decision: the solver check's sound changes** (accuracy). The square shaper now converges at
+    the saw's resets, which moves square notes from C5 up a little (RMS −61 to −80 dB re the note
+    at C5, −50 to −62 dB above; Done, 2026-11-16): `kModelVersion` 2 with the old cap for older
+    sessions, or not? Then: solve C62's current to convergence (and fit DECAY and the MEG again)
+    and give pin 1 a relative tolerance (Known inaccuracies); both change the sound slightly, so
+    both go behind `kModelVersion`.
 
 No release blockers: sleep, the model version, artwork places and the plugin name are in, and the
 ship gate's checks (`tools/service/check.py`, `tb303bench time`) exist. Any item above that changes
@@ -222,6 +243,49 @@ Waits on data:
 
 ## Done
 
+- 2026-11-16, solver check (tooling): every iterative solve of the voice now counts what it did
+  (`core/solver_stats.h`, by solver, in the voice's probe: solves, retried, unconverged, the most
+  iterations), and `tb303corners` (`tools/corners`) renders 226 cases of the controls' extremes
+  (CUT OFF, RESONANCE, ENV MOD, ACCENT and DECAY at their ends, both waveforms, MIDI notes 0-127
+  with accents and slides, TM3 and FULL CUT OFF at their ends, knobs swept, jumped and set at
+  random every block) at 44.1, 48 and 96 kHz, and fails on any unconverged solve, broadband noise
+  (median spectral flatness over 0.2: the 303 has no noise source), output out of bounds, or a
+  restart after a non-finite sample (20-30 s). On an SH-101 one such solve, accepted unconverged,
+  had turned a self-oscillation into white noise, and no other check could see it. On the 303 as
+  it shipped (0.2.3) it found:
+  - the Q8 square shaper's Newton stopped at 8 iterations; where the saw resets, the jump through
+    C10 needs up to 29 (its steps are limited), and about one VCO sample in a thousand, one at
+    nearly every reset, went on unconverged (161 299 of 163 million at 48 kHz). Now up to 40;
+  - D36 (the one-shot into C41) started its solve from 0 V at every sample of the pulse and needed
+    34 iterations against a cap of 30 (the C41 solve around it converged regardless); it starts
+    from its last drop now. D24 needed up to 38 when an accent's drive jumps (184 samples at
+    48 kHz); the diodes' cap is 50;
+  - pin 1's current under a nanoamp: Newton's slope, from a difference step a third of the current,
+    bounced between the bracket's ends ~2e-11 A apart for good (4 samples at 48 kHz, the knobs
+    jumping); bisection finishes it now.
+  The ladder converges within 5 iterations everywhere (cap 6, now 8) and gets the SH-101's safety
+  net anyway: a sample that doesn't converge is done again from its start in 2, 4, 8 and 16 steps
+  with its inputs held (with the cap cut to 4, the 1669 samples that need 5 at 44.1 kHz all
+  converge in halves, no noise). The accent node, Q36, C41, C42 and the expo converter converge
+  with room to spare; no case has noise (the noisiest flatness 0.046). The check fails every case
+  with the shaper's old cap, and every case with the ladder's cut to 2 and no retry. Two solves
+  that stop short by design are left as they are (Known inaccuracies: the MEG's discharge, pin 1's
+  current near zero).
+  The sound: `tb303bench` bit-exact against golden-0 with the counting and the safety net alone.
+  With the fixes, at most −67.8 dBFS (`resmax-cutmax`, 44.1 kHz) and the difference's RMS 96 dB or
+  more under the signal; its peaks are events under a millisecond (under 0.09 % of the samples)
+  where a note's VCA opens or closes and pin 1's absolute tolerance lets a change far down the
+  digits move its current; `idle` identical. The shaper's fix changes the square's edges at high
+  notes: through the whole voice (a held note, CUT OFF full) RMS −98 dB re the note at C4 and
+  under, −61 to −80 dB at C5 (the top of the unit's range, TRANSPOSE UP), −50 to −62 dB at C6 and
+  above (MIDI only), harmonics within 0.3 dB to C6. Against SPICE the square at C1-C5 is as
+  before (C5's 8th-16th harmonics +2.79 dB, `compare_vco.py`); at C6-C7, outside the script's
+  notes, neither version is consistently closer. `kModelVersion` stays 1: whether the high square
+  notes' change needs version 2 (with the old cap for older sessions) is open. New golden renders
+  `build/tb303-golden-1`. Instructions +1.2 % (`tb303bench time`, 135.5 → 137.1 G; the counting
+  is most of it). `tb303plugintest` and `lemustest_tb303` pass, service checks 16 of 16; the
+  control circuits' model side (`tb303blocks env`, every `compare_env.py` scenario) within 1.3e-8 A
+  of I_ABC and 0.16 mV of GATE_INT of before.
 - 2026-11-11, accuracy round: a third unit, the RE-303 (32 clips at 16 knob settings). No change
   to the sound: its trims, pot law and envelope fitted within the parts' ranges explain all but
   ENV MOD at mid DECAY (plan item 13); the pot law is the unit's (worse on Din Sync's notes), the

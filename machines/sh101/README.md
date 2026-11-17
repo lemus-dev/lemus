@@ -245,7 +245,7 @@ with the plan, in `docs/improvements.md`.
     0.33 dB and a waveform error of −33 to −40 dB; the VCF's cutoff current within 4 cents and its
     self-oscillation within 9 cents; the ENV to the VCA within 0.05 dB.
 - **Real units:** recordings of nine real SH-101s, per unit and per event (`tools/compare/units.py`:
-  105 rows, 60 within their limits, 4 known gaps, 41 for information; settings read off video frames,
+  107 rows, 63 within their limits, 7 known gaps, 37 for information; settings read off video frames,
   `docs/online-references.md`):
   - the Real unit calibration's unit: its rest, plateau and sweep (7.28 against 7.27 octaves),
     release τ within 0.04 s;
@@ -256,9 +256,10 @@ with the plan, in `docs/improvements.md`.
     0.04 octave;
   - the noise's colour on three units, each with its own saw taken out (its filter's top and its
     recording chain), and its level inside their 2.7 dB spread;
-  - the filter's top: a saw at FREQ 10 at least as bright as the brightest unit's recording.
+  - the filter's top: FREQ 10 self-oscillating at 14.7 kHz against two units' 13.9 and 15.2 kHz,
+    and the open saw at each unit's own settings at least as bright as its recording.
 
-  Known gaps, with the plan, are in `docs/improvements.md`: one unit's FREQ law reads 5–8 % steeper
+  Known gaps, with the plan, are in `docs/improvements.md`: one unit's FREQ law reads 13–14 % steeper
   per division and its top RES reading 0.4 division past ours, and the LFO's top rate and FREQ's
   bottom sit at the edge of one unit's reading, inside the parts' spread.
 - **Real boards:** part values read from a dismantled unit's parts list (Din Sync), photos of

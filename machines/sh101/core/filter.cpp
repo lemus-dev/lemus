@@ -24,9 +24,6 @@ constexpr double kR189 = 100e3, kR191 = 100e3, kR193 = 150e3, kR195 = 33e3;
 // The pin-9 divider.
 constexpr double kR128 = 4.7e3, kR127 = 5.6e3, kR126 = 1.8e3, kR125 = 820;
 constexpr double kExpoSlewHz = 5e3; // OML: the CV input slew-limits above about 4 kHz
-// The IR3109's compression at the top of its range (expoCurrent), fitted to a Juno-106 voice: a
-// knee of order 3 (cube roots).
-constexpr double kExpoKneeAmps = 408e-6;
 
 double taperB(double x) { return std::clamp(x, 0.0, 1.0); }
 
@@ -55,18 +52,20 @@ double kybdEmitter(double kcvVolts, double k21, double vr8, double &vEb)
 } // namespace
 
 FilterCalibration FilterCalibration::serviceNotes() { return {}; }
-// A real unit (docs/model.md, "Calibrations"): the IR3109's expo slope as measured on a chip
-// (Open Music Labs, 20.8 mV/oct) with its reference set so FREQ 0 sits where a real unit's does
-// (its ENV plateau at 4.8 kHz and rest near 31 Hz at FREQ 0, KYBD 10, KCV 3.0 V); the ENV's weight
-// at the cutoff summer set to that unit's 7.27-octave sweep, which two more units confirm
-// (0.80-0.82); its ENV pots 0.9 x nominal (release 4.2 s, attack plateau 3.3 s). VR8 is trimmed by
-// the service procedure for these values.
+// A real unit (docs/model.md, "Calibrations"). The expo's slope against the pin-9 divider sets how
+// many octaves FREQ spans once VR8 trims KYBD to 1 oct/oct: 22.8 mV/oct puts FREQ 10 at KYBD 0
+// where two real units self-oscillate or peak (13.9 and 15.2 kHz; Open Music Labs measured
+// 20.8 on one chip at a temperature not stated, which put it at 28 kHz). The reference is set so
+// FREQ 0 sits where a real unit's does (its ENV plateau at 4.8 kHz and rest near 31 Hz at FREQ 0,
+// KYBD 10, KCV 3.0 V); the ENV's weight at the cutoff summer set to that unit's 7.27-octave sweep;
+// its ENV pots 0.9 x nominal (release 4.2 s, attack plateau 3.3 s). VR8 is trimmed by the
+// service procedure for these values.
 FilterCalibration FilterCalibration::realUnit()
 {
 	FilterCalibration c = serviceNotes();
-	c.vcfMvPerOct = 20.8;
-	c.vcfI0uA = 5.0;
-	c.envCvScale = 0.82;
+	c.vcfMvPerOct = 22.8;
+	c.vcfI0uA = 3.30;
+	c.envCvScale = 0.90;
 	c.envPotScale = 0.9;
 	return c;
 }
@@ -91,6 +90,8 @@ bool FilterCalibration::set(const std::string &name, double v)
 {
 	if (name == "vcfMvPerOct") vcfMvPerOct = v;
 	else if (name == "vcfI0uA") vcfI0uA = v;
+	else if (name == "vcfKneeUA") vcfKneeUA = v;
+	else if (name == "vcfKneeOrder") vcfKneeOrder = v;
 	else if (name == "th1Ohms") th1Ohms = v;
 	else if (name == "vr8Ohms") vr8Ohms = v;
 	else if (name == "v15Rail") v15Rail = v;
@@ -127,7 +128,7 @@ struct FilterSection::Impl {
 	double kybdKcv = 0, kybdK21 = 0, kybdVr8 = 0, kybdVe = 0;
 	bool kybdFixed = false;
 	// expoCurrent's last input and output, and ln(I0 / I_knee).
-	double expoIn = 0, expoOut = -1, lnI0Knee = 0;
+	double expoIn = 0, expoOut = -1, lnI0Knee = 0, kneeAmps = 408e-6, kneeN = 3;
 	// The circuit's own noise at the mixer node (resistors, the OTAs' inputs): far below anything
 	// audible, it is what starts self-oscillation with every source at 0, as in the real unit. A
 	// fixed-seed generator keeps renders repeatable.
@@ -179,7 +180,9 @@ struct FilterSection::Impl {
 			vr8 = std::clamp(b, 0.0, 47e3);
 		}
 		i0 = cal.vcfI0uA * 1e-6;
-		lnI0Knee = std::log(i0) - std::log(kExpoKneeAmps);
+		kneeAmps = cal.vcfKneeUA * 1e-6;
+		kneeN = cal.vcfKneeOrder;
+		lnI0Knee = std::log(i0) - std::log(kneeAmps);
 		expoOut = -1;
 		EnvGen::Params ep;
 		ep.potOhms = 1e6 * cal.envPotScale;
@@ -251,7 +254,8 @@ struct FilterSection::Impl {
 			return expoOut;
 		const double q = std::exp(lnI0Knee - v9rel / vExpo);
 		expoIn = v9rel;
-		expoOut = kExpoKneeAmps * q / std::cbrt(1 + q * q * q);
+		expoOut = kneeN == 3 ? kneeAmps * q / std::cbrt(1 + q * q * q)
+		                     : kneeAmps * q / std::pow(1 + std::pow(q, kneeN), 1 / kneeN);
 		return expoOut;
 	}
 };
@@ -347,5 +351,12 @@ double FilterSection::vca() const { return m->iVca / m->iPeak; }
 double FilterSection::out4() const { return m->vcf.out4(); }
 double FilterSection::pin9() const { return m->v9Lp; }
 double FilterSection::iAbc() const { return m->iAbcVcf; }
+
+SolverStats FilterSection::solverStats() const
+{
+	SolverStats s = m->vcf.stats();
+	s += m->vca.stats();
+	return s;
+}
 
 } // namespace sh101

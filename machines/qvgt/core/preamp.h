@@ -6,6 +6,7 @@
 
 #include "circuit.h"
 #include "noise.h"
+#include "solver_stats.h"
 #include "ssm2120.h"
 
 #include <algorithm>
@@ -41,7 +42,8 @@ public:
 	void setOver(int n, int stages = 0) { m_over = std::max(1, n); m_overStages = stages; } // before setRate
 	int over() const { return m_over; }
 	void setRate(double rate);
-	void solveDc();
+	// Each stage's DC operating point; returns how many didn't converge (those keep their state).
+	int solveDc();
 	void step();
 	int input(const std::string &name) const;   // -1: none
 	int output(const std::string &name) const;  // -1: none
@@ -56,6 +58,11 @@ public:
 	const std::string &name() const { return m_name; }
 	int stages() const { return int(m_stages.size()); }
 	circuit::Circuit &stage(int i) { return *m_stages[size_t(i)]; }
+	// Every stage's steps (solver_stats.h): a step its solver redid in shorter steps (or at the
+	// shortest with its comparators softened, or by damped Newton) is retried, one that failed even
+	// then a failure.
+	SolverStats stats() const;
+	void resetStats();
 
 private:
 	struct Link {
@@ -121,6 +128,9 @@ public:
 	void setTap(std::function<void(const Preamp &)> tap) { m_tap = std::move(tap); }
 	double vca1Db() const;
 	double vca2Db() const;
+	// What its solves did since prepare() (solver_stats.h): every circuit's steps and DC solves,
+	// and the compressor's control node.
+	SolverStats solverStats() const;
 	// The four netlists (input, overdrive, shaper, gateout), for their solver statistics.
 	Chain &chain(int i) { return i == 0 ? m_input : i == 1 ? m_od : i == 2 ? m_shaper : m_gate; }
 
@@ -151,6 +161,7 @@ private:
 
 	double m_conout1 = 0, m_conout2 = 0, m_vcMinus1 = 0, m_vcPlus2 = 0;
 	double m_d11 = 0;        // the last D11 node voltage (Newton's start)
+	mutable SolverStats m_stats; // the compressor's node and the DC solves (the circuits keep their own)
 	double m_env = 0, m_envDecay = 0, m_p8 = 0;
 	Probe m_probe{};
 	std::function<void(const Preamp &)> m_tap;

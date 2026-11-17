@@ -151,11 +151,14 @@ char32_t inNamedLayout(const char *layout, char32_t c)
 
 #endif
 
-#if defined(__APPLE__) || defined(_WIN32)
-[[maybe_unused]] const bool kSet = (usKeyAt = &fromLayout, true);
-#endif
-
 } // namespace
+
+void useKeyboardLayout()
+{
+#if defined(__APPLE__) || defined(_WIN32)
+	usKeyAt = &fromLayout;
+#endif
+}
 
 char32_t usKeyIn(const char *layout, char32_t c)
 {

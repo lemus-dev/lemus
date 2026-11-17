@@ -161,7 +161,7 @@ steps taken out (−8.7, +22.9, −4.5 cents):
   in ngspice with each part's capacitances taken out). The model takes all of the compression on
   the current.
 - **What it changes:** the cutoff between 1 and 10 kHz is up to about half a semitone lower than
-  before, before VR8's trim; FREQ 10 in the Real unit calibration is 19.0 kHz (28 kHz since FREQ's top went onto the +15 V rail, 2026-11-13; it was 20.9; the spec
+  before, before VR8's trim; FREQ 10 in the Real unit calibration was 19.0 kHz (28 kHz once FREQ's top went onto the +15 V rail, 2026-11-13; 14.7 kHz self-oscillating since the expo went to 22.8 mV/oct to meet two real units, 2026-11-16; the spec
   says 20). The Real unit's ENV sweep is unchanged within its fit: rest 31.7 Hz, depth 7.16
   octaves, τ 4.27 s (the real take: 31.2, 7.02, 4.23).
 - A Juno-6 measured for the same project (KR-106's `KR106VcfFreqJ6.h`) is exponential in its
@@ -281,12 +281,13 @@ IC18b's output is held 2 V inside its rails (0 and +14 V). The pin-9 divider inc
 
 | Field | Service notes | Real unit | Roland | Meaning |
 |---|---|---|---|---|
-| `vcfMvPerOct` | 19.0 | 20.8 | 22.1 | expo slope at pin 9 (AS3109 data sheet 17.5–20.5; the decode 17.9 at 27 °C, 20.2 at 65 °C; measured on an original chip 20.8). Roland's: what gives its plug-in's 12.2-octave FREQ span |
-| `vcfI0uA` | 2.4 | 5.0 | 3.9 | expo current at pin 9 = bus (AS3109 2.4; the decode 2.96) |
+| `vcfMvPerOct` | 19.0 | 22.8 | 22.1 | expo slope at pin 9 (AS3109 data sheet 17.5–20.5; the decode 17.9 at 27 °C, 20.2 at 65 °C; measured on an original chip 20.8). With VR8's trim it sets FREQ's span. Real unit: FREQ 10 where two real units' tops are (13.9, 15.2 kHz); Roland's: its plug-in's 12.2-octave span |
+| `vcfI0uA` | 2.4 | 3.30 | 3.9 | expo current at pin 9 = bus (AS3109 2.4; the decode 2.96) |
+| `vcfKneeUA`, `vcfKneeOrder` | 408, 3 | 408, 3 | 408, 3 | the expo's compression at the top, as a Juno-106's chip measures (§2); a lower knee as the cause of the SH-101's top was tried and dropped (`improvements.md`) |
 | `th1Ohms` | 1000 | 1000 | 1000 | TH1 at 25 °C |
 | `vr8Ohms` | 0 | 0 | 0 | VR8 VCF WIDTH; 0 = trimmed by the service procedure for the other values (below) |
 | `v15Rail` | 14.87 | 14.87 | 14.87 | the +15 V rail (IC1b) at FREQ's top and R187, as measured |
-| `envCvScale` | 1.0 | 0.82 | 0.89 | the ENV's weight at the cutoff summer against the schematic (`docs/model.md`, "Calibrations") |
+| `envCvScale` | 1.0 | 0.90 | 0.89 | the ENV's weight at the cutoff summer against the schematic (`docs/model.md`, "Calibrations") |
 | `envPotScale` | 1.0 | 0.9 | 0.8 | the 1M A ENV pots against nominal (±20 %) |
 | `envPotMid` | 0.15 | 0.15 | 0.15 | the ENV pots' A law at mid-travel (Japanese A: 10–20 %; Roland's curves fit best at 0.15) |
 | `vcaOffsetMv` | 0.1 | 0.1 | 0.1 | the BA662A's input offset |
@@ -430,7 +431,7 @@ These are cross-checks only. The model follows the schematic.
 
 | Measurement | Reference | Model |
 |---|---|---|
-| FREQ span | Roland 12.2 oct (3.4 Hz–15.6 kHz, 239 Hz at mid); a real unit's FREQ 0 near 3.5 Hz | service notes 14.2 oct, 1.1 Hz–22 kHz; Real unit 12.9 oct, 3.75 Hz–28 kHz (the expo compresses at the top); Roland 12.3 oct, 3.9 Hz–19.2 kHz (pole frequencies with the buffers' gain, KYBD 0). The digest's 4.4–5.1 octaves assumed FREQ's top at 5 V and is wrong |
+| FREQ span | Roland 12.2 oct (3.4 Hz–15.6 kHz, 239 Hz at mid); a real unit's FREQ 0 near 3.5 Hz | service notes 14.2 oct, 1.1 Hz–22 kHz; Real unit 11.9 oct, 3.75 Hz–14.7 kHz self-oscillating (12.9 oct to 28 kHz before 2026-11-16; two real units' tops 13.9 and 15.2 kHz); Roland 12.3 oct, 3.9 Hz–19.2 kHz (pole frequencies with the buffers' gain, KYBD 0). The digest's 4.4–5.1 octaves assumed FREQ's top at 5 V and is wrong |
 | KYBD at 10 | Roland 0.995, real ≈1.00 | 1.000 |
 | Passband with RES | Roland: no make-up | the circuit's make-up only partly offsets the loss: −8.8 dB at RES 7.5 |
 | Self-oscillation onset | Roland ≈8.2 | 7.9 |

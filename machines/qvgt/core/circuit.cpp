@@ -63,6 +63,8 @@ const double kAheadZone = std::getenv("TR909_AHEADZONE") ? std::atof(std::getenv
 const int kFlipSteps = std::getenv("TR909_FLIPSTEPS") ? std::atoi(std::getenv("TR909_FLIPSTEPS")) : 16;
 // Newton's iterations for a step, and for a trial step that is redone in smaller ones if it fails
 constexpr int kMaxIterations = 40;
+// The last resort's (advanceSplit): damped Newton, its step halved while the residual doesn't fall
+constexpr int kDampedIterations = 200;
 const int kTrialIterations = std::getenv("TR909_TRIALIT") ? std::atoi(std::getenv("TR909_TRIALIT")) : 8;
 constexpr double kComparatorBeta = -0.01;
 constexpr double kSlewSat = 10; // linear ranges: an op-amp's input stage counts as saturated past this
@@ -2356,7 +2358,8 @@ template <int NP> bool Circuit::newtonT(Level &L, const double *p, double *v, do
 	const double *fmax = L.fColMax.data();
 	double *r = m_r.data();
 	int *sig = m_sigPorts.data();
-	double last = 0;
+	double last = 0, damp = 1;
+	const bool damped = m_damped;
 	bool fresh = false, plain = false;
 	for (int it = 0; it < maxIterations; ++it) {
 		// The first iteration starts where the last step ended: its currents and Jacobian are known.
@@ -2436,6 +2439,11 @@ template <int NP> bool Circuit::newtonT(Level &L, const double *p, double *v, do
 		} else {
 			fresh = false;
 		}
+		if (damped) {
+			// the last resort (advanceSplit): while the residual doesn't fall, halve the step (to a
+			// 1/1024th), and let it grow back as it does
+			damp = it > 0 && worst >= last ? std::max(damp * 0.5, 1.0 / 1024) : std::min(damp * 2, 1.0);
+		}
 		last = worst;
 		solveActive<NP>(L, r);
 		// Converged when the Newton step itself is negligible (as SPICE's vntol/reltol): a node
@@ -2453,6 +2461,9 @@ template <int NP> bool Circuit::newtonT(Level &L, const double *p, double *v, do
 			m_stats.worstResidual = std::max(m_stats.worstResidual, stepMax);
 			return true;
 		}
+		if (damped)
+			for (int a = 0; a < np; ++a)
+				r[a] *= damp;
 		double *mosOld = m_mosOld.data();
 		for (size_t k = 0; k < m_mos.size(); ++k) {
 			mosOld[2 * k] = v[m_mos[k].port];
@@ -2648,8 +2659,26 @@ bool Circuit::advanceSplit(int lv, const double *u0, const double *u1)
 		m_soften = 1;
 		level(lv).luValid = false;
 		m_current = false;
-		if (ok)
+		if (ok) {
 			++m_stats.softened;
+			return true;
+		}
+		// Still not: damped Newton (newtonT), with more iterations. An op-amp driven past its rails
+		// whose input swings from one side to the other within a step (a follower's input far past
+		// its output's swing, as +24 dBFS of noise at the jacks gives) has Newton jump its limiter's
+		// control between the two rails' saturated sides, round and round, at every step size: a
+		// smaller step from the same start doesn't help. Only ever reached where everything above
+		// failed, so the samples that converge as before are untouched.
+		const int maxIt = m_maxIt;
+		m_damped = true;
+		m_maxIt = kDampedIterations;
+		ok = advance(lv, u1);
+		m_damped = false;
+		m_maxIt = maxIt;
+		level(lv).luValid = false;
+		m_current = false;
+		if (ok)
+			++m_stats.damped;
 		return ok;
 	}
 	// Four steps of the next level, the inputs moving linearly across them (the buffers are this

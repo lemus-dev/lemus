@@ -37,6 +37,7 @@ void JackBoard::prepare(double fs)
 {
 	m_fs = fs;
 	m_dt = 1 / fs;
+	m_stats = {};
 	setLoad(m_load);
 }
 
@@ -118,6 +119,7 @@ double JackBoard::solve(double x0)
 	const double vaPrev = m_va, yiPrev = m_yi, gc13 = kC13 / m_dt, gc2 = kC2 / m_dt;
 	const double gl = 1 / (kR28 + m_load);
 	double v[5] = {m_va, m_vb, m_vbase, m_x, m_yi};
+	bool converged = false;
 	for (int it = 0; it < 40; ++it) {
 		const double va = v[0], vb = v[1], vbase = v[2], x = v[3], yi = v[4];
 		const double e4 = kDIs * junction(va - vb, kDVt), e3 = kDIs * junction(-va, kDVt);
@@ -158,9 +160,14 @@ double JackBoard::solve(double x0)
 		// Converged once a step falls under 0.1 nV, or under 10 uV if the junctions' limit didn't
 		// cut it: Newton converges quadratically here, the step after one under 10 uV is about
 		// 1 nV, so the iterations that would only confirm it are skipped.
-		if (most < 1e-10 || (most < 1e-5 && k == 1.0))
+		if (most < 1e-10 || (most < 1e-5 && k == 1.0)) {
+			converged = true;
 			break;
+		}
 	}
+	++m_stats.solves;
+	if (!converged)
+		++m_stats.failures;
 	m_va = v[0];
 	m_vb = v[1];
 	m_vbase = v[2];
@@ -182,6 +189,7 @@ double JackBoard::solveDown(double x0, double p9Prev)
 	const double gc13 = kC13 / m_dt, gc2 = kC2 / m_dt, gc14 = kC14 / m_dt;
 	const double gl = 1 / (kR28 + m_load);
 	double v[7] = {m_va, m_vb, m_vbase, m_x, m_yi, m_e8, m_b8};
+	bool converged = false;
 	for (int it = 0; it < 60; ++it) {
 		const double va = v[0], vb = v[1], vbase = v[2], x = v[3], yi = v[4], e8 = v[5], b8 = v[6];
 		const double e4 = kDIs * junction(va - vb, kDVt), e3 = kDIs * junction(-va, kDVt);
@@ -265,9 +273,14 @@ double JackBoard::solveDown(double x0, double p9Prev)
 		// Converged once a step falls under 0.1 nV, or under 10 uV if the junctions' limit didn't
 		// cut it: Newton converges quadratically here, the step after one under 10 uV is about
 		// 1 nV, so the iterations that would only confirm it are skipped.
-		if (most < 1e-10 || (most < 1e-5 && k == 1.0))
+		if (most < 1e-10 || (most < 1e-5 && k == 1.0)) {
+			converged = true;
 			break;
+		}
 	}
+	++m_stats.solves;
+	if (!converged)
+		++m_stats.failures;
 	m_va = v[0];
 	m_vb = v[1];
 	m_vbase = v[2];

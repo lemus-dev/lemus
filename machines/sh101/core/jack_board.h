@@ -1,5 +1,7 @@
 #pragma once
 
+#include "solver_stats.h"
+
 namespace sh101 {
 
 // Jack board A's mute (docs/circuit-filter.md 7, docs/model-filter.md 5). C2's output reaches
@@ -50,6 +52,8 @@ public:
 	double tick(double jack);
 
 	double nodeA() const { return m_va; } // C13's lower plate (volts)
+	// What its Newton did since prepare() (solver_stats.h; no retries).
+	const SolverStats &stats() const { return m_stats; }
 
 private:
 	double solve(double vth);
@@ -67,6 +71,7 @@ private:
 	double m_v9 = 9, m_v9Prev = 9, m_e8 = 9, m_b8 = 9;
 	long m_downN = 0;
 	bool m_down = false;
+	SolverStats m_stats;
 };
 
 } // namespace sh101

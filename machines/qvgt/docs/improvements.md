@@ -73,14 +73,20 @@ above its background at those lags (continuous playing, camera audio, near-mono)
 
 - **CPU:** `qvgtbench`'s `p30-sweep-48k` (a sine sweep through program 30, the busiest) under
   4,000 Mins/s (`tools/bench/mins.sh`) and 17 % of a core at 48 kHz, HISS on. Last measured
-  2026-11-12: 3,608 Mins/s, 15 %, its worst 512-sample block 52 % (timings swing with the
-  machine's load; instructions don't). The others: p00-pluck 2,771, p05-pluck 2,159,
-  p00-strum-hot 3,106, p12-strum-44k 2,698, bypass-pluck 2,780, idle 1,175 (asleep after 1.6 s,
-  the hiss going on).
+  2026-11-16: 3,618 Mins/s; on 2026-11-12 15 % of a core, its worst 512-sample block 52 %
+  (timings swing with the machine's load; instructions don't). The others: p00-pluck 2,776,
+  p05-pluck 2,160, p00-strum-hot 3,113, p12-strum-44k 2,703, bypass-pluck 2,783, idle 1,176
+  (asleep after 1.6 s, the hiss going on).
 - **Check set baseline:** 2026-11-12, golden renders `build/qvgt-golden-6` (7 workloads, HISS on,
   bit-exact on re-render); service checks 9/9; SPICE suite 15/15 at 167 kHz (worst 0.31 % RMS,
   1.31 % peak); `tools/spice/tapcheck.py` (p00-pluck: the shaper 27.7 dB under, the rest 40-77);
   `qvgtplugintest` all; `qvgtdspcheck` all; `lemustest_qvgt`, `lemustest_fx` all; auval passes.
+  2026-11-16: all of it again but tapcheck and auval, the same; `qvgtcorners` 0 of 1,106 cases
+  failing at each rate.
+- **Check set:** `qvgtcorners` (the extremes: unconverged solves, noise from a pure tone, output
+  bounds; about a minute), `qvgtbench check` against the newest golden renders, `qvgtplugintest`,
+  `qvgtdspcheck`, `tools/service/check.py`, `tools/spice/suite.py` and `tapcheck.py`, the host
+  tests (`lemustest_qvgt`, `lemustest_fx`), auval.
 
 ## Plan, in order
 
@@ -121,6 +127,58 @@ known level).
   Chain can run it (setOver; QVGT_OVER=shaper:2 in the tools).
 
 ## Done
+
+- 2026-11-17, fix: the output went past the output stages' rails. Their swing (10.5 V, 6.048 of
+  full scale) was clamped only at the DSP's rate, and the resampler up to the host's rate put
+  peaks between those samples, up to 2.22 times it: with full-scale content near 20 kHz (programs
+  30, 32 and 34, a sweep at +12 dBFS, INPUT and OUTPUT at 10) the output reached 12.5-12.8 of full
+  scale (12.9 the most in any case, +22 dBFS), where a unit's output stages clip after the D/A's
+  reconstruction. Decided 2026-11-17: the same clamp again at the host's rate (`Unit::process`).
+  Those cases now peak at the rail (6.048);
+  every sample that was inside it is unchanged, and the golden renders `build/qvgt-golden-6` are
+  bit-exact. `qvgtcorners`' bound for the unit is the rail (6.05, was 13.5), and
+  `qvgtplugintest`'s random-settings and 60 s checks too (6.05, was 6.5, which its message called
+  +16 dBFS; the swing is +15.6). `qvgtcorners` 0 of 1,106 cases failing at each rate, the unit's
+  peak 6.048 at both; `qvgtplugintest` and `lemustest_fx` pass.
+
+- 2026-11-16, check: every iterative solve counts the ones that don't converge, and `qvgtcorners`
+  (tools/corners) fails on any. The solves: the preamp's circuits (the 909's solver: Newton, 40
+  iterations, a failing step redone in 4, 16 and 64 steps, then with the comparators softened;
+  one that failed even then was taken as far as it got, counted only in statistics that the
+  bench's QVGT_STATS and `qvgtpreamprun` print), their DC solves at prepare (a failure kept the
+  state, unreported), the compressor's D11 node (Newton, 30 iterations, steps of 0.1 V at most)
+  and the dry VCA's control voltage (Newton inside Newton, 60 iterations each, once per change of
+  latch 0600h). Linear mode's window widths (circuit.cpp, `junction`) iterate too, but in closed
+  form, within their caps for every input (at worst 1.6e-5 of their residual left): not solves
+  of the state, not counted. All of it sums into `SolverStats` (core/solver_stats.h), through
+  Unit and the processor (`solverStats()`). Two silent failures turned up:
+  - The dry VCA's control voltage at code 1 (D0 alone: programs 07, 34, 46, 70 and 86): the
+    diode's inner Newton needs 65 iterations from its start and stopped at 60. The outer Newton
+    reached the same voltage all the same (bit-identical). Its cap is 100.
+  - U1's input followers with white noise at +24 dBFS at the jacks (40-46 V on their inputs after
+    the input resampler): 1 or 2 steps in 1.5 million where Newton circles between the two
+    saturated sides of an op-amp's output at every step size (a scan of 17,616 preamp cases: 63
+    steps in 56 cases, every one of them that noise). A failed step left a difference peaking
+    14-25 dB under full scale in noise at -9 to +11 dBFS RMS: masked. The 64th step now has a last
+    resort, damped Newton (its step halved while the residual doesn't fall, up to 200
+    iterations), which converges them within a few. It is reached only where everything before it
+    failed, so every other sample is as it was.
+  `qvgtcorners`, 1,106 cases at each of 44.1 and 48 kHz: the preamp alone with its latches at the
+  PRE-AMP pages' extremes, fed through the unit's input resampler (every distortion, tone, bass
+  and cabinet at compression and overdrive 7; every compression and overdrive; sweeps, squares, DC
+  steps, sines at 20 Hz, 1 kHz and 20 kHz, noise and silence at -20 to +24 dBFS, the INPUT pot at
+  both ends, the gate off and at 16; 4 s of noise at +24 dBFS), 948 cases; and the processor with
+  every factory program (a 1 kHz sine at 0 dBFS, then a sweep at +12 dBFS, INPUT and OUTPUT at 10)
+  and the four with overdrive 7 and distortion on (30, 46, 62, 63) with every signal, 158. 1.1
+  billion solves a rate, 2.8-3.1 % retried in shorter steps, none unconverged; 65-80 s. It also
+  fails on broadband noise from a 1 kHz sine (the factory programs' worst median flatness 0.004,
+  limit 0.1) and on output out of bounds. Checked by crippling: the dry VCA's cap back at 60 fails
+  the five programs at each rate; the damped resort off fails the four programs' noise at +24
+  dBFS at 44.1 kHz and both 4 s noise cases at 48 kHz; Newton's cap at 3 with it off fails 311 of
+  the 411 distortion 8 cases at 48 kHz. Golden renders `build/qvgt-golden-6` bit-exact; Mins/s +0.0 to +0.3 % (p30-sweep 3,607 to
+  3,618, p00-pluck 2,771 to 2,776, idle 1,176 unchanged); `qvgtplugintest`, `qvgtdspcheck`, the
+  service checks 9/9, the SPICE suite 15/15 (unchanged), `lemustest_qvgt` and `lemustest_fx` pass.
+  It also found inter-sample peaks at the output (fixed 2026-11-17, above).
 
 - 2026-11-12, fix: program 10 (PSEUDO WAH, the factory set's one program with EFFECT LOOP IN) was
   silent. J8's switch had been read as grounding the return's tip; it grounds U3's select, so with

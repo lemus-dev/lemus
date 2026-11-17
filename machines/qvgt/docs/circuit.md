@@ -47,6 +47,14 @@ the model drives as ideal sources: the same equations, solved in pieces, so the 
 cover only the clipper. On the bench's plucks it comes out as close to ngspice as the netlist
 solved whole does (below); the two differ from each other only in where the solver halves a step.
 
+A step whose Newton solve doesn't converge in 40 iterations is redone in 4, 16 and then 64 steps;
+a 64th that still doesn't is tried with the comparators' transitions softened, then by damped
+Newton (its step halved while the residual doesn't fall, up to 200 iterations). The damped
+attempt is for U1's followers driven past their rails from one side to the other within a step
+(+24 dBFS of noise at the jacks puts 40 V on their inputs): plain Newton circles between the two
+saturated sides at every step size. Every solve is counted (`core/solver_stats.h`) and
+`qvgtcorners` checks that none fails over the extremes (`improvements.md`, 2026-11-16).
+
 ### Integration
 
 Each op-amp is a single pole, integrated by backward Euler in the input, overdrive and gate
