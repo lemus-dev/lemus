@@ -72,8 +72,7 @@ void VirusCProcessor::setPowered(bool on)
 void VirusCProcessor::stopBoot()
 {
 	m_cancelBoot = true;
-	if (m_boot.joinable())
-		m_boot.join();
+	waitForBoot();
 	m_cancelBoot = false;
 }
 
@@ -113,6 +112,7 @@ void VirusCProcessor::startBoot(const std::vector<uint8_t> &ram, const std::vect
 
 void VirusCProcessor::waitForBoot()
 {
+	const std::lock_guard<std::mutex> lock(m_joinLock);
 	if (m_boot.joinable())
 		m_boot.join();
 }
@@ -249,6 +249,10 @@ void VirusCProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiB
 	juce::ScopedNoDenormals noDenormals;
 	const juce::SpinLock::ScopedTryLockType audio(m_audioLock);
 	const int n = buffer.getNumSamples();
+	// Offline (a bounce) the host renders faster than real time from the first frame: hold until the
+	// firmware has booted, or a short render is silence from end to end. Live, the block is cleared instead.
+	if (audio.isLocked() && isNonRealtime() && !m_ready.load(std::memory_order_acquire))
+		waitForBoot();
 	if (!audio.isLocked() || !m_ready.load(std::memory_order_acquire)) {
 		buffer.clear();
 		midi.clear();
