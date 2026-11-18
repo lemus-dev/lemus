@@ -281,6 +281,9 @@ void Machine::setRam(const uint8_t *data, size_t n)
 }
 
 namespace {
+// Saved sessions hold the board as raw structs (ucom43::Cpu::State and the fields after the RAM):
+// their layout is part of every saved song. Change one and old songs still have to load: read the
+// old layout under its own version, never reinterpret it.
 constexpr uint32_t kStateMagic = 0x38303801; // "808" v1
 template <typename T> void put(std::vector<uint8_t> &v, const T &x)
 {
@@ -302,6 +305,15 @@ std::vector<uint8_t> Machine::saveState() const
 	std::vector<uint8_t> v;
 	put(v, kStateMagic);
 	v.insert(v.end(), m_xram.begin(), m_xram.end());
+	// then the CPU and its own RAM (the rhythm picked, the mode it is in) and the ports' latches,
+	// the struct with its padding zeroed so a state is the same bytes every time it is saved
+	ucom43::Cpu::State s;
+	std::memset(&s, 0, sizeof s);
+	m_cpu.save(s);
+	put(v, s);
+	for (uint8_t port : {m_portC, m_portD, m_portE, m_portF, m_portG, m_portH, m_portI})
+		put(v, port);
+	put(v, m_data);
 	return v;
 }
 
@@ -312,6 +324,25 @@ bool Machine::loadState(const std::vector<uint8_t> &v)
 	if (!get(v, pos, magic) || magic != kStateMagic || pos + m_xram.size() > v.size())
 		return false;
 	std::memcpy(m_xram.data(), v.data() + pos, m_xram.size());
+	pos += m_xram.size();
+	ucom43::Cpu::State s{};
+	std::array<uint8_t, 7> ports{};
+	uint16_t data = 0;
+	if (!get(v, pos, s) || !get(v, pos, ports) || !get(v, pos, data)) {
+		powerOn(); // RAM only (saved by 0.1.3 and before): cold boot
+		return true;
+	}
+	m_cpu.load(s);
+	m_portC = ports[0];
+	m_portD = ports[1];
+	m_portE = ports[2];
+	m_portF = ports[3];
+	m_portG = ports[4];
+	m_portH = ports[5];
+	m_portI = ports[6];
+	m_data = data;
+	m_cycleAcc = 0;
+	m_irqAcc = 0;
 	return true;
 }
 

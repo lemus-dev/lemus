@@ -336,6 +336,15 @@ Waits on data:
 
 ## Done
 
+- 2026-11-17, session load keeps the unit as it was (found checking a 303 report): a
+  session saved the CPU's RAM but booted the CPU on load, which cleared ARPEGGIO, HOLD and the
+  held keys, so a held arpeggio reopened silent. The session now carries the whole board
+  (`Machine::snapshot`: CPU, latches, sample-and-holds) and loads it as saved, as the 909, 303 and
+  808 do; only POWER boots. 0.1.2 sessions (RAM only) still boot; 0.1.2 reads new ones as it
+  always did (the sequence kept, the CPU booted). Saved and loaded under the processor's
+  callback lock, which its processBlock now takes. Check: `sh101plugintest` State. A held
+  arpeggio with SYNC off therefore plays as soon as a song opens, the DAW stopped, as a 101 left
+  on would: kept on purpose (Chris, 2026-11-18). With SYNC on it waits for the host's clock.
 - 2026-11-16, accuracy round (the filter's top: is FREQ 10 with RES 10 silent on a real unit?).
   No: two real units self-oscillate or peak at 13.93 and 15.2 kHz there (Starsky Carr
   q0yu1txLd8I 7:05, every VCF slider legible; AutomaticGainsay VQXq7OmZCtY 3:19-3:38), Roland's

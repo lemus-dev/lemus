@@ -142,6 +142,7 @@ private:
 	bool m_powered = true; // POWER SW, on VOLUME
 	bool m_hostWasPlaying = false;
 	bool m_midiActive = false;
+	bool m_linesStale = false; // a session loaded the board: its lines go to the voice
 
 	// UI -> machine queue
 	struct KeyEvent {

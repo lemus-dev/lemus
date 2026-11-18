@@ -122,6 +122,7 @@ commit.
 
 | When | What | Commit |
 |---|---|---|
+| 2026-11-17 | Session load keeps the picked rhythm: the state now carries the CPU (its RAM holds the rhythm picked and the mode) and the port latches, loaded as saved instead of a cold boot, as the 909 does; only POWER boots. 0.1.3 sessions (RAM only) still boot; 0.1.3 reads new ones as RAM. `tr808plugintest` 12b | |
 | 2026-10-12 | The TR-808, ro-drums-808 | `1f9afc2` |
 | 2026-10-12 | Factory rhythms on a new instance; MEMORY menu | `ee07461` |
 | 2026-10-12 | Claves' mute (edge backward Euler); op-amp limiter convergence (the accented hats); junction-node ringing (cowbell); IC2a's limit (metal accents within 0.5 dB); the squares' duty (cowbell LSD 2.74 -> 0.49, C9/R82 as printed); noise trim (toms' "harmonics", R194 as printed); R324 (rim shot level); PART LEDs (schematic swaps D78/D79) | `10ee374` |

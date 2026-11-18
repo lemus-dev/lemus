@@ -108,6 +108,8 @@ public:
 	// Battery-backed pattern RAM (3072 nibbles) and the full machine state.
 	const std::array<uint8_t, kRamNibbles> &patternRam() const { return m_xram; }
 	void setPatternRam(const uint8_t *data, size_t n);
+	// The board: the battery-backed RAM, then the CPU and the latches. A state with the RAM alone
+	// boots the CPU, as at power-on.
 	std::vector<uint8_t> saveState() const;
 	bool loadState(const std::vector<uint8_t> &data);
 

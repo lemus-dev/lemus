@@ -1,13 +1,14 @@
 // Headless plugin test: runs TB303Processor without a host. Checks that the firmware
 // sequencer follows a fake host transport (DIN sync), that MIDI plays the voice, that the
 // internal RUN/STOP clock works, and that state (parameters + pattern memory) round-trips.
-//   plugintest [OUT_DIR]   (writes sync.wav, midi.wav, internal.wav when given)
+//   plugintest [OUT_DIR]   (writes sync.wav, midi.wav, internal.wav and pattern4.state when given)
 #include "PluginProcessor.h"
 #include "tb303/core/patterns.h"
 
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <cmath>
 #include <cstdio>
+#include <set>
 
 namespace {
 struct FakePlayHead : juce::AudioPlayHead {
@@ -437,6 +438,80 @@ int main(int argc, char **argv)
 		const auto t = reloaded.trims();
 		std::printf("      reloaded trims %.9f %.9f %.9f %.9f %.9f %.9f\n", t.tm1, t.tm2, t.tm3, t.tm4, t.tm5, t.tm6);
 		check(same(fresh.trims(), TB303Processor::trimDefaults()) && same(t, TB303Processor::trimDefaults()), "a new instance is at factory trim, also after save and load");
+	}
+
+	// 6d. A session reopens as the unit was, not as at power-on: pattern 4 (key F) selected in
+	// PATTERN PLAY is still selected (the firmware keeps it in the CPU's own RAM, which a power-on
+	// clears). Notes heard while running, sampled every block with the gate high.
+	{
+		auto notesRunning = [&](TB303Processor &u) {
+			std::set<int> notes;
+			u.toggleRun();
+			for (int b = 0; b < int(2.0 * rate / 512); ++b) {
+				run(u, ph, 512 / rate, rate);
+				if (const auto s = u.snapshot(); s.lines.gate)
+					notes.insert(s.lines.note);
+			}
+			u.toggleRun();
+			run(u, ph, 0.3, rate);
+			return notes;
+		};
+		p.params().getParameter(TB303Processor::kModeId)->setValueNotifyingHost(2.0f / 3.0f); // PATTERN PLAY
+		p.writePattern(0, 0, 3, tb303::parsePattern("G G G G G G G G G G G G G G G G"));
+		run(p, ph, 0.3, rate);
+		const auto first = notesRunning(p);
+		p.setKey(tb303::Machine::Key::F, true);
+		run(p, ph, 0.1, rate);
+		p.setKey(tb303::Machine::Key::F, false);
+		run(p, ph, 0.1, rate);
+		const auto fourth = notesRunning(p);
+		check(fourth.size() == 1 && first.size() > 1, "key F selects pattern 4 (one note, pattern 1 has several)");
+		juce::MemoryBlock st;
+		p.getStateInformation(st);
+		if (dir != juce::File()) // for a built plugin's check (a host loading it as a session)
+			dir.getChildFile("pattern4.state").replaceWithData(st.getData(), st.getSize());
+		TB303Processor reopened(&rom);
+		reopened.setPlayHead(&ph);
+		reopened.prepareToPlay(rate, 512);
+		reopened.setStateInformation(st.getData(), int(st.getSize()));
+		run(reopened, ph, 0.3, rate);
+		const auto after = notesRunning(reopened);
+		check(after == fourth, "a reopened session still has pattern 4 selected");
+		check(!reopened.snapshot().running, "and opens stopped");
+
+		// Saved while the host played it (an autosave), with a note sounding: it reopens stopped
+		// and silent, with no note left hanging, and plays pattern 4 when the host plays.
+		p.params().getParameter("sync")->setValueNotifyingHost(1.0f);
+		ph.playing = true;
+		ph.ppq = 0;
+		run(p, ph, 1.0, rate);
+		for (int b = 0; b < 200 && !p.snapshot().lines.gate; ++b)
+			run(p, ph, 64 / rate, rate);
+		const bool sounding = p.snapshot().lines.gate;
+		juce::MemoryBlock mid;
+		p.getStateInformation(mid);
+		ph.playing = false;
+		run(p, ph, 0.5, rate);
+		TB303Processor fromMid(&rom);
+		fromMid.setPlayHead(&ph);
+		fromMid.prepareToPlay(rate, 512);
+		fromMid.setStateInformation(mid.getData(), int(mid.getSize()));
+		const auto opened = run(fromMid, ph, 1.0, rate);
+		check(sounding && !fromMid.snapshot().running && !fromMid.snapshot().lines.gate &&
+		          rms(opened, int(0.5 * rate), int(0.5 * rate)) < 1e-4,
+		      "saved mid-note while the host played: reopens stopped, silent, no note hanging");
+		ph.playing = true;
+		ph.ppq = 0;
+		std::set<int> notes;
+		for (int b = 0; b < int(2.0 * rate / 512); ++b) {
+			run(fromMid, ph, 512 / rate, rate);
+			if (const auto s = fromMid.snapshot(); s.lines.gate)
+				notes.insert(s.lines.note);
+		}
+		ph.playing = false;
+		run(fromMid, ph, 0.3, rate);
+		check(notes == fourth, "and plays pattern 4 when the host plays");
+		p.params().getParameter("sync")->setValueNotifyingHost(0.0f);
 	}
 
 	// 7. State round trip, including pattern memory.

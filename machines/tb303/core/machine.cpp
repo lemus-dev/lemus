@@ -318,6 +318,9 @@ void Machine::setPatternRam(const uint8_t *data, size_t n)
 }
 
 namespace {
+// Saved sessions hold the board as raw structs (ucom43::Cpu::State and the fields after the RAM):
+// their layout is part of every saved song. Change one and old songs still have to load: read the
+// old layout under its own version, never reinterpret it.
 constexpr uint32_t kStateMagic = 0x33303301; // "303" v1
 template <typename T> void put(std::vector<uint8_t> &v, const T &x)
 {
@@ -371,9 +374,13 @@ bool Machine::loadState(const std::vector<uint8_t> &v)
 	std::memcpy(m_xram.data(), v.data() + pos, m_xram.size());
 	pos += m_xram.size();
 	ucom43::Cpu::State s{};
-	if (!get(v, pos, s))
-		return true; // RAM only: cold boot
+	if (!get(v, pos, s)) {
+		powerOn(); // RAM only: cold boot
+		return true;
+	}
 	m_cpu.load(s);
+	m_cycleAcc = 0;
+	m_irqAcc = 0;
 	get(v, pos, m_addr);
 	get(v, pos, m_ramAddress);
 	get(v, pos, m_ramData);

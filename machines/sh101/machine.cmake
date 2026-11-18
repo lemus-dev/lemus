@@ -32,7 +32,7 @@ set(SH101_PLUGIN_INCLUDES ${SH101_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHINES
 set_source_files_properties(${SH101_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${SH101_PLUGIN_INCLUDES}")
 
 lemus_machine(sh101 instrument)
-lemus_plugin(sh101 NAME "ro-mono-101" CODE R101 VERSION 0.1.2 STAGE beta STANDALONE
+lemus_plugin(sh101 NAME "ro-mono-101" CODE R101 VERSION 0.1.3 STAGE beta STANDALONE
   DESCRIPTION "Emulation of the Roland SH-101. Not affiliated with Roland.")
 function(lemus_add_sh101 target)
   target_sources(${target} PRIVATE ${SH101_DIR}/sh101.cpp ${SH101_PLUGIN_SOURCES})

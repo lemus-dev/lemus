@@ -39,8 +39,14 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.2.3', tag: 'ro-mono-303-v0.2.3', stage: 'beta', mac: 'ro-mono-303-0.2.3-mac.pkg', windows: 'ro-mono-303-0.2.3-windows.zip' },
+    release: { version: '0.2.4', tag: 'ro-mono-303-v0.2.4', stage: 'beta', mac: 'ro-mono-303-0.2.4-mac.pkg', windows: 'ro-mono-303-0.2.4-windows.zip' },
     changes: [
+      {
+        version: '0.2.5',
+        notes: [
+          'A reopened song keeps its selected pattern. Sessions now save and load the whole unit, CPU included, instead of starting it as at power-on; only the POWER switch does that. Songs saved with earlier versions reopen on their pattern too.',
+        ],
+      },
       {
         version: '0.2.4',
         notes: [
@@ -123,7 +129,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.3', tag: 'ro-drums-909-v0.2.3', stage: 'beta', mac: 'ro-drums-909-0.2.3-mac.pkg', windows: 'ro-drums-909-0.2.3-windows.zip' },
+    release: { version: '0.2.4', tag: 'ro-drums-909-v0.2.4', stage: 'beta', mac: 'ro-drums-909-0.2.4-mac.pkg', windows: 'ro-drums-909-0.2.4-windows.zip' },
     changes: [
       {
         version: '0.2.4',
@@ -164,8 +170,14 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '808 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.1.2', tag: 'ro-drums-808-v0.1.2', stage: 'beta', mac: 'ro-drums-808-0.1.2-mac.pkg', windows: 'ro-drums-808-0.1.2-windows.zip' },
+    release: { version: '0.1.3', tag: 'ro-drums-808-v0.1.3', stage: 'beta', mac: 'ro-drums-808-0.1.3-mac.pkg', windows: 'ro-drums-808-0.1.3-windows.zip' },
     changes: [
+      {
+        version: '0.1.4',
+        notes: [
+          'A reopened song keeps the rhythm picked in MANUAL PLAY. Sessions now save and load the whole unit, CPU included, instead of starting it as at power-on; only the POWER switch does that. Songs saved with 0.1.3 and before start fresh once more.',
+        ],
+      },
       {
         version: '0.1.3',
         notes: [
@@ -213,8 +225,14 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '101 sh101 sh-101 mono synth bass lead arpeggio sequencer roland',
     nav: true,
-    release: { version: '0.1.1', tag: 'ro-mono-101-v0.1.1', stage: 'beta', mac: 'ro-mono-101-0.1.1-mac.pkg', windows: 'ro-mono-101-0.1.1-windows.zip' },
+    release: { version: '0.1.2', tag: 'ro-mono-101-v0.1.2', stage: 'beta', mac: 'ro-mono-101-0.1.2-mac.pkg', windows: 'ro-mono-101-0.1.2-windows.zip' },
     changes: [
+      {
+        version: '0.1.3',
+        notes: [
+          'A reopened song keeps ARPEGGIO, HOLD and the held keys. Sessions now save and load the whole unit instead of starting it as at power-on; only POWER does that. A held arpeggio with Sync to Host off plays as soon as the song opens, as a 101 left on would. Songs saved with 0.1.2 and before start fresh once more.',
+        ],
+      },
       {
         version: '0.1.2',
         notes: [

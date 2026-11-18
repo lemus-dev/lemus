@@ -255,6 +255,9 @@ void Machine::setRam(const uint8_t *data, size_t n)
 namespace {
 constexpr uint8_t kStateMagic[4] = {'S', '1', '0', '1'};
 constexpr uint8_t kStateRam = 1;      // battery-backed RAM
+// Saved sessions hold the board as raw structs (mcs48::Cpu::State and the fields after the RAM):
+// their layout is part of every saved song. Change one and old songs still have to load: read the
+// old layout under its own version, never reinterpret it.
 constexpr uint8_t kStateSnapshot = 2; // full machine
 template <typename T> void put(std::vector<uint8_t> &v, const T &x)
 {

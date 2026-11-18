@@ -207,7 +207,9 @@ Verdict: **straightforward**, and the sequencer can be the real firmware.
   - A separate "direct MIDI" mode bypasses the firmware to drive the voice (note, velocity as
     accent, legato as slide).
 - **State.** Save the 3072 RAM nibbles in the plugin state; that is the battery-backed memory.
-  Cold-boot on load, as the hardware does at power-on.
+  The plugin also saves the CPU (its 128-nibble internal RAM holds the selected pattern) and the
+  latches, and a session loads them as they were: a loaded session is a unit that has been on a
+  while. Only the POWER switch cold-boots, as the hardware does at power-on.
 
 Main unknowns to work out:
 

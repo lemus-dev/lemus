@@ -778,7 +778,12 @@ void TR808Processor::getStateInformation(juce::MemoryBlock &destData)
 {
 	auto state = m_params.copyState();
 	state.setProperty("model", m_modelVersion, nullptr);
-	const auto ram = m_machine.saveState();
+	// The board as it is (Machine::saveState). Without the ROM the CPU doesn't run: the board as
+	// the session left it.
+	const auto ram = [this] {
+		const juce::ScopedLock sl(getCallbackLock()); // between blocks: not a CPU half way through an instruction
+		return m_machine.saveState();
+	}();
 	state.setProperty("machine", juce::Base64::toBase64(ram.data(), ram.size()), nullptr);
 	// SERVICE's unit: its serial number, the snare's and clap's portion
 	state.setProperty("serial", m_serial, nullptr);
@@ -817,13 +822,14 @@ void TR808Processor::setStateInformation(const void *data, int sizeInBytes)
 		rebuild(false);
 	}
 	m_params.replaceState(tree);
-	if (machine.isNotEmpty()) {
-		juce::MemoryOutputStream mo;
-		if (juce::Base64::convertFromBase64(mo, machine)) {
-			const auto *p = static_cast<const uint8_t *>(mo.getData());
-			// The battery-backed RAM only; the CPU boots fresh, as at power-on.
-			if (m_machine.loadState(std::vector<uint8_t>(p, p + mo.getDataSize())))
-				m_machine.powerOn();
-		}
+	// A session loads as an 808 that has been on a while: the board as it was saved, CPU included,
+	// so the rhythm picked stays picked. Only the POWER switch runs the power-on. Hosts load a
+	// state while playing: not in the middle of a block.
+	juce::MemoryOutputStream mo;
+	if (machine.isNotEmpty() && juce::Base64::convertFromBase64(mo, machine)) {
+		const auto *p = static_cast<const uint8_t *>(mo.getData());
+		const juce::ScopedLock sl(getCallbackLock());
+		if (m_machine.loadState(std::vector<uint8_t>(p, p + mo.getDataSize())))
+			m_internalRun = false;
 	}
 }

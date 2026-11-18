@@ -952,6 +952,88 @@ int main(int argc, char **argv)
 		check(plugged && !p3.cable(Voice::BD), "MULTI OUT: a click on a jack plugs a cable in, another pulls it out");
 	}
 
+	// 12b. A session reopens as the unit was, not as at power-on: the rhythm picked in MANUAL PLAY
+	// (step key 3, the factory's ROCK) is still picked, its step LED flashing while stopped, and
+	// START plays it: which voices sound over three seconds from START.
+	{
+		auto lit = [&](TR808Processor &u, FakePlayHead &h) { // over a second: the picked key's LED flashes
+			std::array<float, 16> top{};
+			for (int b = 0; b < int(rate / 512); ++b) {
+				run(u, h, 512 / rate, rate);
+				const auto snap = u.snapshot();
+				for (int k = 0; k < 16; ++k)
+					top[size_t(k)] = std::max(top[size_t(k)], snap.steps[size_t(k)]);
+			}
+			juce::String s;
+			for (float x : top)
+				s << (x > 0.5f ? "1" : ".");
+			return s;
+		};
+		auto voices = [&](TR808Processor &u, FakePlayHead &h) {
+			std::array<float, tr808::kVoices> top{};
+			u.setKey(TR808Processor::StartStop, true);
+			run(u, h, 0.05, rate);
+			u.setKey(TR808Processor::StartStop, false);
+			for (int b = 0; b < int(3.0 * rate / 512); ++b) {
+				run(u, h, 512 / rate, rate);
+				const auto snap = u.snapshot();
+				for (int v = 0; v < tr808::kVoices; ++v)
+					top[size_t(v)] = std::max(top[size_t(v)], snap.voices[size_t(v)]);
+			}
+			u.setKey(TR808Processor::StartStop, true);
+			run(u, h, 0.05, rate);
+			u.setKey(TR808Processor::StartStop, false);
+			run(u, h, 1.0, rate);
+			juce::String s;
+			for (float x : top)
+				s << (x > 0.01f ? "1" : ".");
+			return s;
+		};
+		FakePlayHead h;
+		TR808Processor a(&rom), b(&rom);
+		for (auto *u : {&a, &b}) {
+			u->setPlayHead(&h);
+			u->prepareToPlay(rate, 512);
+			choose(*u, TR808Processor::kModeId, 3); // MANUAL PLAY
+		}
+		run(a, h, 0.2, rate);
+		const auto first = lit(a, h);
+		a.setKey(TR808Processor::Step1 + 2, true);
+		run(a, h, 0.15, rate);
+		a.setKey(TR808Processor::Step1 + 2, false);
+		run(a, h, 0.15, rate);
+		const auto picked = lit(a, h);
+		const auto rock = voices(a, h);
+		juce::MemoryBlock st;
+		a.getStateInformation(st);
+		b.setStateInformation(st.getData(), int(st.getSize()));
+		run(b, h, 0.2, rate);
+		const auto reopenedLit = lit(b, h);
+		const auto reopened = voices(b, h);
+		std::printf("      step LEDs stopped: new %s, picked %s, reopened %s; voices heard: rock %s, reopened %s\n", first.toRawUTF8(),
+		            picked.toRawUTF8(), reopenedLit.toRawUTF8(), rock.toRawUTF8(), reopened.toRawUTF8());
+		check(picked != first && rock.contains("1"), "step key 3 picks another rhythm, which plays");
+		check(reopenedLit == picked && reopened == rock, "a reopened session still has that rhythm picked, and START plays it");
+
+		// Saved while it played (an autosave): it reopens stopped and silent once the tails die
+		// away, and START plays the rhythm picked.
+		a.setKey(TR808Processor::StartStop, true);
+		run(a, h, 0.05, rate);
+		a.setKey(TR808Processor::StartStop, false);
+		run(a, h, 1.0, rate);
+		const bool playing = a.snapshot().running;
+		juce::MemoryBlock mid;
+		a.getStateInformation(mid);
+		TR808Processor c(&rom);
+		c.setPlayHead(&h);
+		c.prepareToPlay(rate, 512);
+		c.setStateInformation(mid.getData(), int(mid.getSize()));
+		const auto opened = run(c, h, 4.0, rate);
+		check(playing && !c.snapshot().running && rms(opened, int(3.0 * rate), int(1.0 * rate)) < 1e-5,
+		      "saved while playing: reopens stopped and silent");
+		check(voices(c, h) == rock, "and START plays the rhythm picked");
+	}
+
 	// 13. Random settings, and long runs at the extremes
 	stress(rom, rate);
 	longRun(rom, rate);

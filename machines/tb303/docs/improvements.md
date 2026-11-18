@@ -243,6 +243,13 @@ Waits on data:
 
 ## Done
 
+- 2026-11-17, session load keeps the selected pattern (a user's email report, in Bitwig): a session
+  restored the pattern RAM but then cold-booted the CPU, whose own RAM holds the selected pattern,
+  so it reopened on pattern 1. It now loads the whole board as saved (CPU, its RAM, the latches),
+  as the 909 does: a loaded session is a unit that has been on a while; only the POWER switch
+  boots. The state is also saved and loaded under
+  the processor's callback lock now, which its processBlock takes (a host may load a state while
+  playing). Check: `tb303plugintest` 6d.
 - 2026-11-16, solver check (tooling): every iterative solve of the voice now counts what it did
   (`core/solver_stats.h`, by solver, in the voice's probe: solves, retried, unconverged, the most
   iterations), and `tb303corners` (`tools/corners`) renders 226 cases of the controls' extremes

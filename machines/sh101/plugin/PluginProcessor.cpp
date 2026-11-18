@@ -245,6 +245,10 @@ void SH101Processor::handleMidi(const juce::MidiMessage &m)
 
 void SH101Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midi)
 {
+	// The plugin wrappers lock the processor they host: in the Lemus plugins that is the host
+	// shell (host/LemusProcessor), which calls this directly. So this processor's own lock
+	// (setStateInformation's board) is taken here.
+	const juce::ScopedLock sl(getCallbackLock());
 	juce::ScopedNoDenormals noDenormals;
 	const int n = buffer.getNumSamples();
 	const int channels = buffer.getNumChannels();
@@ -528,7 +532,13 @@ void SH101Processor::getStateInformation(juce::MemoryBlock &destData)
 {
 	auto state = m_params.copyState();
 	state.setProperty("model", m_modelVersion, nullptr);
-	const auto ram = m_machine.saveState();
+	// The whole board (Machine::snapshot): the CPU with its RAM (the sequence, and ARPEGGIO, HOLD,
+	// the held keys and KEY TRANSPOSE as the firmware keeps them), the latches, the
+	// sample-and-holds. Without the ROM the CPU doesn't run: the board as the session left it.
+	const auto ram = [this] {
+		const juce::ScopedLock sl(getCallbackLock()); // between blocks: not a CPU half way through an instruction
+		return m_machine.snapshot();
+	}();
 	state.setProperty("machine", juce::Base64::toBase64(ram.data(), ram.size()), nullptr);
 	if (auto xml = state.createXml())
 		copyXmlToBinary(*xml, destData);
@@ -546,12 +556,20 @@ void SH101Processor::setStateInformation(const void *data, int sizeInBytes)
 		m_modelVersion = juce::jlimit(1, kModelVersion, int(tree.getProperty("model", 1)));
 		tree.removeProperty("model", nullptr);
 		m_params.replaceState(tree);
-		if (machine.isNotEmpty()) {
-			juce::MemoryOutputStream mo;
-			if (juce::Base64::convertFromBase64(mo, machine)) {
-				const auto *p = static_cast<const uint8_t *>(mo.getData());
-				// The battery-backed RAM; the CPU boots fresh, as at power-on.
-				m_machine.loadState(std::vector<uint8_t>(p, p + mo.getDataSize()));
+		// A session loads as a 101 that has been on a while: the board as it was saved, so its modes
+		// and held keys stay as they were. Only POWER boots. A session with the RAM alone (0.1.2 and
+		// before) boots the CPU. Hosts load a state while playing: not in the middle of a block.
+		juce::MemoryOutputStream mo;
+		if (machine.isNotEmpty() && juce::Base64::convertFromBase64(mo, machine)) {
+			const auto *p = static_cast<const uint8_t *>(mo.getData());
+			const std::vector<uint8_t> v(p, p + mo.getDataSize());
+			const juce::ScopedLock sl(getCallbackLock());
+			if (!m_on) { // switched off until now: on, then the session's board
+				m_on = true;
+				switchOn();
+			}
+			if (!m_machine.restore(v)) {
+				m_machine.loadState(v);
 				m_machine.powerOn();
 			}
 		}

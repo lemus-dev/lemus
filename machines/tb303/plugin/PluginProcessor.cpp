@@ -3,6 +3,7 @@
 
 
 #include <cmath>
+#include <utility>
 
 namespace {
 juce::String knobText(float v) { return juce::String(v * 10.0f, 1); }
@@ -345,6 +346,10 @@ void TB303Processor::handleMidi(const juce::MidiMessage &m)
 
 void TB303Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midi)
 {
+	// The plugin wrappers lock the processor they host: in the Lemus plugins that is the host
+	// shell (host/LemusProcessor), which calls this directly. So this processor's own lock
+	// (setStateInformation's board) is taken here.
+	const juce::ScopedLock sl(getCallbackLock());
 	juce::ScopedNoDenormals noDenormals;
 	const int n = buffer.getNumSamples();
 	const int channels = buffer.getNumChannels();
@@ -426,7 +431,7 @@ void TB303Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	auto *out = buffer.getWritePointer(0);
 	auto midiIt = midi.cbegin();
 	int done = 0;
-	bool linesDirty = false;
+	bool linesDirty = std::exchange(m_linesStale, false); // a loaded board's lines to the voice
 	for (int i = 0; i < n; ++i) {
 		// MIDI at this sample
 		while (midiIt != midi.cend() && (*midiIt).samplePosition <= i) {
@@ -535,7 +540,12 @@ void TB303Processor::getStateInformation(juce::MemoryBlock &destData)
 {
 	auto state = m_params.copyState();
 	state.setProperty("model", m_modelVersion, nullptr);
-	const auto ram = m_machine.saveState();
+	// The board as it is: pattern RAM, the CPU and its own RAM (the selected pattern, the mode it
+	// is in), the latches. Without the ROM the CPU doesn't run: the board as the session left it.
+	const auto ram = [this] {
+		const juce::ScopedLock sl(getCallbackLock()); // between blocks: not a CPU half way through an instruction
+		return m_machine.saveState();
+	}();
 	state.setProperty("machine", juce::Base64::toBase64(ram.data(), ram.size()), nullptr);
 	if (auto xml = state.createXml())
 		copyXmlToBinary(*xml, destData);
@@ -552,16 +562,18 @@ void TB303Processor::setStateInformation(const void *data, int sizeInBytes)
 		m_modelVersion = juce::jlimit(1, kModelVersion, int(tree.getProperty("model", 1)));
 		tree.removeProperty("model", nullptr);
 		m_params.replaceState(tree);
-		if (machine.isNotEmpty()) {
-			juce::MemoryOutputStream mo;
-			if (juce::Base64::convertFromBase64(mo, machine)) {
-				const auto *p = static_cast<const uint8_t *>(mo.getData());
-				std::vector<uint8_t> v(p, p + mo.getDataSize());
-				// Restore only the battery-backed RAM; the CPU boots fresh, as at power-on.
-				std::vector<uint8_t> ramOnly(v.begin(), v.begin() + std::min<size_t>(v.size(), 4 + tb303::Machine::kRamNibbles));
-				m_machine.loadState(ramOnly);
-				m_machine.powerOn();
-			}
+		// A session loads switched on, as a 303 that has been on a while: the board as it was
+		// saved, CPU included, so it keeps its selected pattern. Only the POWER switch runs the
+		// power-on. Hosts load a state while playing: not in the middle of a block.
+		juce::MemoryOutputStream mo;
+		if (machine.isNotEmpty() && juce::Base64::convertFromBase64(mo, machine)) {
+			const auto *p = static_cast<const uint8_t *>(mo.getData());
+			const juce::ScopedLock sl(getCallbackLock());
+			m_machine.loadState(std::vector<uint8_t>(p, p + mo.getDataSize()));
+			m_internalRun = false;
+			m_linesStale = true;
+			if (m_volume->load() >= kPowerOnFrom)
+				m_powered = true;
 		}
 	}
 }

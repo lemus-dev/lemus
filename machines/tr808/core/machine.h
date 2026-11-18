@@ -96,6 +96,8 @@ public:
 	// firmware's own address bits, docs/firmware.md).
 	const std::array<uint8_t, kRamNibbles> &ram() const { return m_xram; }
 	void setRam(const uint8_t *data, size_t n);
+	// The board: the battery-backed RAM, then the CPU and the ports' latches. A state with the RAM
+	// alone (0.1.3 and before) boots the CPU, as at power-on.
 	std::vector<uint8_t> saveState() const;
 	bool loadState(const std::vector<uint8_t> &data);
 

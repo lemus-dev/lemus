@@ -21,6 +21,7 @@ const juce::MemoryBlock &sh101Rom()
 
 #include <juce_audio_formats/juce_audio_formats.h>
 #include <cmath>
+#include <set>
 #include <cstdio>
 #include <functional>
 #include <random>
@@ -627,6 +628,64 @@ void testState()
 	juce::MemoryBlock again;
 	b.getStateInformation(again);
 	check(again == state, "state is stable across save/load");
+
+	// A session reopens as the unit was, not as at power-on: ARPEGGIO UP and HOLD on, with a
+	// chord held, come back on with the chord still arpeggiating.
+	SH101Processor c(&sh101Rom());
+	plainPatch(c);
+	setParam(c, Id::lfoRate, 0.8);
+	auto ledsOf = [](const SH101Processor::Snapshot &s) {
+		juce::String l;
+		for (float x : s.leds)
+			l << (x > 0.5f ? "1" : ".");
+		return l;
+	};
+	auto notesOf = [&](Runner &r) {
+		std::set<int> notes;
+		juce::String lit(".......");
+		r.run(2.0, {}, [&](const SH101Processor::Snapshot &s, double) {
+			if (s.lines.gate)
+				notes.insert(cpuNote(s));
+			const auto l = ledsOf(s);
+			for (int i = 0; i < l.length(); ++i)
+				if (l[i] == '1')
+					lit = lit.replaceSection(i, 1, "1");
+		});
+		juce::String n;
+		for (int x : notes)
+			n << x << " ";
+		return lit + " notes " + n;
+	};
+	juce::String before;
+	{
+		Runner r(c, 48000, 64);
+		for (auto btn : {Button::ArpUp, Button::Hold}) {
+			c.setButton(btn, true);
+			r.run(0.05);
+			c.setButton(btn, false);
+			r.run(0.1);
+		}
+		bool sent = false;
+		r.run(0.5, [&](juce::MidiBuffer &m, double, int) {
+			if (!sent)
+				for (int n : {60, 64, 67})
+					m.addEvent(juce::MidiMessage::noteOn(1, n, juce::uint8(100)), 0);
+			sent = true;
+		});
+		r.run(0.1, [&](juce::MidiBuffer &m, double, int) {
+			for (int n : {60, 64, 67})
+				m.addEvent(juce::MidiMessage::noteOff(1, n), 0);
+		});
+		before = notesOf(r);
+	}
+	juce::MemoryBlock held;
+	c.getStateInformation(held);
+	SH101Processor d(&sh101Rom());
+	d.setStateInformation(held.getData(), int(held.getSize()));
+	Runner rd(d, 48000, 64);
+	const auto after = notesOf(rd);
+	std::printf("      LEDs (Load Play Down U&D Up Hold Transpose) and notes: saved %s; reopened %s\n", before.toRawUTF8(), after.toRawUTF8());
+	check(after == before, "a reopened session keeps ARPEGGIO, HOLD and the held chord");
 }
 
 void testRatesAndBlocks()
