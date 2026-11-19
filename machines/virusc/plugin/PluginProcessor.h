@@ -16,6 +16,7 @@
 
 #include <atomic>
 #include <memory>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -107,6 +108,7 @@ private:
 
 	std::unique_ptr<virusc::Machine> m_machine;
 	std::thread m_boot;
+	std::mutex m_joinLock; // one joiner at a time: the message thread and, offline, the audio thread
 	std::atomic<bool> m_ready{false}, m_cancelBoot{false};
 	juce::SpinLock m_audioLock;
 
