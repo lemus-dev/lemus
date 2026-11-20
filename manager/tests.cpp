@@ -354,7 +354,8 @@ void testSelfUpdate(const juce::File &sandbox)
 	juce::String error;
 	check(runSelfUpdate(e, error) == SelfUpdate::State::Failed && error.contains("SHA-256"), "self-update: a download that doesn't match isn't installed");
 	d.sha256 = sha;
-	check(runSelfUpdate(e, error) == SelfUpdate::State::Done, "self-update: done (" + error + ")");
+	const auto state = runSelfUpdate(e, error);
+	check(state == SelfUpdate::State::Done, "self-update: done (" + error + ")");
 #if JUCE_WINDOWS
 	check(exe.loadFileAsString() == "new" && old.loadFileAsString() == "old", "self-update: the new exe in place, the old one beside it");
 	removeOldSelf();

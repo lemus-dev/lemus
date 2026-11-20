@@ -3,10 +3,12 @@ import Base from '../layouts/Base.astro';
 import Stub from '../components/Stub.astro';
 import Prerelease from '../components/Prerelease.astro';
 import { machines, downloadLinks, platforms, sourceOf } from '../data/machines';
+import { manager } from '../data/manager';
 ---
 <Base title="Download · Lemus" description="Download Lemus plugins for macOS and Windows. Each machine is a separate, free plugin." current="download">
 <Stub heading="Download">
 <p>Lemus plugins are free. Each machine is a separate plugin.</p>
+{manager.release && <p><a href="/plugin-manager">Lemus Plugin Manager</a> installs, updates and removes them all, for macOS and Windows. It's optional.</p>}
 <ul class="machines">
 {machines.map((m) => {
   const links = downloadLinks(m);

@@ -1,0 +1,65 @@
+---
+// Lemus Plugin Manager (manager/ in the repo): what it does, its downloads (website/src/data/manager.ts
+// holds its release; none yet shows "not available"), how it installs, its own updates and what it
+// sends. The download page links here.
+import Base from '../layouts/Base.astro';
+import Stub from '../components/Stub.astro';
+import Shot from '../components/Shot.astro';
+import Prerelease from '../components/Prerelease.astro';
+import { assetOf } from '../data/machines';
+import { manager } from '../data/manager';
+import updates from '../assets/plugin-manager/updates.png';
+
+const r = manager.release;
+const source = r ? `https://github.com/lemus-dev/lemus/tree/${r.tag}/manager` : 'https://github.com/lemus-dev/lemus/tree/main/manager';
+---
+<Base title="Lemus Plugin Manager · Lemus" description="An app that installs, updates and removes the Lemus plugins on macOS and Windows. Optional: every plugin keeps its own download." current="download">
+<Stub heading="Lemus Plugin Manager">
+<p>An app that lists the released Lemus plugins and installs, updates and removes them. It is optional: every plugin keeps its own download on the <a href="/download">download page</a>, and the plugins never need it.</p>
+
+<div class="get">
+{r ? (
+<>
+<div class="buttons">
+<a href={assetOf(r, r.mac)} class="btn">macOS</a>
+<a href={assetOf(r, r.windows)} class="btn">Windows</a>
+</div>
+<div class="meta">
+<span>Version {r.version}{r.stage && ` ${r.stage}`}, source: <a href={source}>{r.tag} on GitHub</a> (GNU AGPLv3)</span>
+<span>macOS 11+: universal app</span>
+<span>Windows 10+: one .exe</span>
+</div>
+<Prerelease release={r} />
+</>
+) : (
+<p class="partial">Not available for download yet. The first release is being prepared.</p>
+)}
+</div>
+
+<Shot src={updates} alt="Lemus Plugin Manager: the list of plugins with the version installed and two updates, the TR-808's selected with what is new since its installed version." base={{ w: 900, h: 600 }} />
+
+<h2 id="what" class="h3">What it does</h2>
+<p>It reads the list of released plugins from lemusdev.org, the file the plugins' own update check reads, and shows each one with the version you have. Install puts the formats you tick where every DAW looks: /Library/Audio/Plug-Ins and /Applications on macOS; C:\Program Files\Common Files\VST3 and C:\Program Files\Lemus on Windows, with a Start menu shortcut. Update installs the new version over yours and keeps the formats you have; Update all does every plugin with an update. Remove deletes a plugin's copies; your ROMs, artwork and songs stay.</p>
+<p>It installs from the same files the plugin pages offer, downloaded from each plugin's GitHub release and checked against their SHA-256 first: a download that doesn't match is thrown away and the installed version stays. Each install, update, Update all or removal asks once for permission: your password on macOS, the permission prompt on Windows.</p>
+
+<h2 id="updates" class="h3">Its own updates</h2>
+<p>When a newer Plugin Manager is out, it offers it when it opens: Later, or Update now, which installs it and starts the new version. Plugins update only when you click.</p>
+
+<h2 id="privacy" class="h3">Privacy</h2>
+<p>It sends nothing about you: it reads the list from lemusdev.org and downloads installers from GitHub. When something fails, Copy details puts what helps a report on the clipboard (the version, your system, the error and the installer's log), to paste into a post on the <a href="https://lemus.discourse.group">forum</a>. After a crash, the next launch offers the same.</p>
+
+<h2 id="installing" class="h3">Installing it</h2>
+<p>macOS: the installer puts Lemus Plugin Manager in /Applications. It isn't signed or notarised yet, so macOS refuses it the first time: allow it with System Settings › Privacy &amp; Security › Open Anyway. The plugins it installs open without that step.</p>
+<p>Windows: unzip it and run Lemus Plugin Manager.exe from a folder you can write to, so it can update itself. It isn't signed yet: keep the download if the browser warns, and choose More info › Run anyway if SmartScreen stops it.</p>
+<p>The source is <a href={source}>manager/</a> in the Lemus repository, under the GNU AGPLv3.</p>
+</Stub>
+</Base>
+
+<style>
+.h3 { margin-top: 20px; font-size: 26px; scroll-margin-top: 16px; }
+p { margin: 0; max-width: 46em; color: var(--ink2); font-size: 16px; }
+.get { display: flex; flex-direction: column; gap: 14px; max-width: 46em; border: 2px solid var(--ink); padding: 22px 24px; }
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+.meta { display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: var(--ink2); }
+.partial { font-size: 15px; }
+</style>

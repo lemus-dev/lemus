@@ -154,6 +154,12 @@ settings, or a measured RAT2 DIST pot).
 
 ## Done
 
+- 2026-11-20, windows: the first Windows build crashed in every test (0xC0000005): a Pedal sat at
+  8 mod 16 and its constructor's 16-byte-aligned store faulted (cdb: movaps in rat::Pedal::Pedal).
+  The SIMD pairs now ask for 8-byte alignment (unaligned loads and stores; bit-identical,
+  85 of 85 golden cases; CPU unchanged). The artwork test's PNGs are software images, finished
+  before they are written (on Windows they came out blank). lemustest_rat, lemustest_fx and
+  ratplugintest pass on Windows (clang-cl, windows-fx.yml).
 - 2026-11-19, cpu round: Newton stops at a 3e-5 V step for the op amp and diodes and 1e-4 V
   for the JFET (was 1e-7 V for both): it converges quadratically, so the step before already
   had the solution within about 1e-9 V. 2.38 to 1.94 iterations a sample; per channel at
