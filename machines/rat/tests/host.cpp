@@ -192,9 +192,14 @@ void testArtwork()
 	folder.add("artwork/rat/Maker.PNG", pngOf(120, 100));
 	folder.add("artwork/rat/front.png", pngOf(300, 240));
 	LemusProcessor p;
-	check(p.selectMachine("rat") && artOf(p).marks().size() == 3 && artOf(p).find("rat") != nullptr && artOf(p).find("proco") != nullptr &&
+	const bool loaded = p.selectMachine("rat");
+	juce::StringArray found;
+	if (loaded)
+		for (const auto &m : artOf(p).marks())
+			found.add(m.id + (m.picture != nullptr ? "" : " (no picture)"));
+	check(loaded && artOf(p).marks().size() == 3 && artOf(p).find("rat") != nullptr && artOf(p).find("proco") != nullptr &&
 	          artOf(p).find("proco_front") != nullptr && artOf(p).find("rat")->picture != nullptr,
-	      "each place takes its own file from artwork/rat/ in the ROM folder");
+	      "each place takes its own file from artwork/rat/ in the ROM folder (found: " + found.joinIntoString(", ") + ")");
 
 	// The private place files, traced from photos of a 1984 unit (not in the repo), if there.
 	const juce::File priv(juce::String(LEMUS_PRIVATE_DIR) + "/roms/rat/artwork/rat");
