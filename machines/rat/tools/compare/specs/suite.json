@@ -1,0 +1,3567 @@
+{
+ "rate": 48000,
+ "signals": [
+  {
+   "name": "pluck-mf",
+   "file": "build/suite/signals/pluck-mf.wav",
+   "seconds": 3.2,
+   "description": "Plucked power chords and single notes, -12 dBFS peak"
+  },
+  {
+   "name": "pluck-soft",
+   "file": "build/suite/signals/pluck-soft.wav",
+   "seconds": 2.4,
+   "description": "Softly plucked chord and notes, -30 dBFS peak"
+  },
+  {
+   "name": "sine-steps",
+   "file": "build/suite/signals/sine-steps.wav",
+   "seconds": 1.75,
+   "description": "220 Hz sine at -42, -36, -30, -24, -18, -12, -6 dBFS, 0.25 s each"
+  },
+  {
+   "name": "sweep",
+   "file": "build/suite/signals/sweep.wav",
+   "seconds": 2.0,
+   "description": "Log sweep 30 Hz - 16 kHz at -24 dBFS"
+  },
+  {
+   "name": "twotone",
+   "file": "build/suite/signals/twotone.wav",
+   "seconds": 1.0,
+   "description": "330 + 495 Hz, -20 dBFS peak"
+  },
+  {
+   "name": "bursts",
+   "file": "build/suite/signals/bursts.wav",
+   "seconds": 1.0,
+   "description": "Low-passed noise bursts, -24 dBFS peak"
+  },
+  {
+   "name": "tb303",
+   "file": "build/suite/signals/tb303.wav",
+   "seconds": 4.0,
+   "description": "Our TB-303 playing an acid line, -12 dBFS peak"
+  }
+ ],
+ "captures": [
+  {
+   "capture": "stomptones-rat2",
+   "model": "private/reference/nam/stomptones-rat2/ST_RAT_DIST-MAX_FILTER-1200.nam",
+   "name": "ST_RAT_DIST-MAX_FILTER-1200",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 1.0,
+   "filter": 0.5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "stomptones-rat2",
+   "model": "private/reference/nam/stomptones-rat2/ST_RAT_DIST-1100_FILTER-1300.nam",
+   "name": "ST_RAT_DIST-1100_FILTER-1300",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.4,
+   "filter": 0.6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "stomptones-rat2",
+   "model": "private/reference/nam/stomptones-rat2/ST_RAT_DIST-1300_FILTER-1200.nam",
+   "name": "ST_RAT_DIST-1300_FILTER-1200",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.6,
+   "filter": 0.5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "stomptones-rat2",
+   "model": "private/reference/nam/stomptones-rat2/ST_RAT_DIST-0900_FILTER-1200.nam",
+   "name": "ST_RAT_DIST-0900_FILTER-1200",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.2,
+   "filter": 0.5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 7 Filter 5.nam",
+   "name": "ProCo Rat - Distortion 7 Filter 5",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 7,
+   "filter_index": 5,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 7 Filter 6.nam",
+   "name": "ProCo Rat - Distortion 7 Filter 6",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 7,
+   "filter_index": 6,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 7 Filter 7.nam",
+   "name": "ProCo Rat - Distortion 7 Filter 7",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 7,
+   "filter_index": 7,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 7 Filter 3.nam",
+   "name": "ProCo Rat - Distortion 7 Filter 3",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 7,
+   "filter_index": 3,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 7 Filter 2.nam",
+   "name": "ProCo Rat - Distortion 7 Filter 2",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 7,
+   "filter_index": 2,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 7 Filter 1.nam",
+   "name": "ProCo Rat - Distortion 7 Filter 1",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 7,
+   "filter_index": 1,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 7 Filter 4.nam",
+   "name": "ProCo Rat - Distortion 7 Filter 4",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 7,
+   "filter_index": 4,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 6 Filter 6.nam",
+   "name": "ProCo Rat - Distortion 6 Filter 6",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 6,
+   "filter_index": 6,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 6 Filter 7.nam",
+   "name": "ProCo Rat - Distortion 6 Filter 7",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 6,
+   "filter_index": 7,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 6 Filter 5.nam",
+   "name": "ProCo Rat - Distortion 6 Filter 5",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 6,
+   "filter_index": 5,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 6 Filter 1.nam",
+   "name": "ProCo Rat - Distortion 6 Filter 1",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 6,
+   "filter_index": 1,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 6 Filter 3.nam",
+   "name": "ProCo Rat - Distortion 6 Filter 3",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 6,
+   "filter_index": 3,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 6 Filter 4.nam",
+   "name": "ProCo Rat - Distortion 6 Filter 4",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 6,
+   "filter_index": 4,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 6 Filter 2.nam",
+   "name": "ProCo Rat - Distortion 6 Filter 2",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 6,
+   "filter_index": 2,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 5 Filter 6.nam",
+   "name": "ProCo Rat - Distortion 5 Filter 6",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 5,
+   "filter_index": 6,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 5 Filter 5.nam",
+   "name": "ProCo Rat - Distortion 5 Filter 5",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 5,
+   "filter_index": 5,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 5 Filter 7.nam",
+   "name": "ProCo Rat - Distortion 5 Filter 7",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 5,
+   "filter_index": 7,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 5 Filter 4.nam",
+   "name": "ProCo Rat - Distortion 5 Filter 4",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 5,
+   "filter_index": 4,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 5 Filter 1.nam",
+   "name": "ProCo Rat - Distortion 5 Filter 1",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 5,
+   "filter_index": 1,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 5 Filter 2.nam",
+   "name": "ProCo Rat - Distortion 5 Filter 2",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 5,
+   "filter_index": 2,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 5 Filter 3.nam",
+   "name": "ProCo Rat - Distortion 5 Filter 3",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 5,
+   "filter_index": 3,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 4 Filter 7.nam",
+   "name": "ProCo Rat - Distortion 4 Filter 7",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 4,
+   "filter_index": 7,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 4 Filter 5.nam",
+   "name": "ProCo Rat - Distortion 4 Filter 5",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 4,
+   "filter_index": 5,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 4 Filter 6.nam",
+   "name": "ProCo Rat - Distortion 4 Filter 6",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 4,
+   "filter_index": 6,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 4 Filter 2.nam",
+   "name": "ProCo Rat - Distortion 4 Filter 2",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 4,
+   "filter_index": 2,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 4 Filter 3.nam",
+   "name": "ProCo Rat - Distortion 4 Filter 3",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 4,
+   "filter_index": 3,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 4 Filter 1.nam",
+   "name": "ProCo Rat - Distortion 4 Filter 1",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 4,
+   "filter_index": 1,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 4 Filter 4.nam",
+   "name": "ProCo Rat - Distortion 4 Filter 4",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 4,
+   "filter_index": 4,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 3 Filter 5.nam",
+   "name": "ProCo Rat - Distortion 3 Filter 5",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 3,
+   "filter_index": 5,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 3 Filter 7.nam",
+   "name": "ProCo Rat - Distortion 3 Filter 7",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 3,
+   "filter_index": 7,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 3 Filter 6.nam",
+   "name": "ProCo Rat - Distortion 3 Filter 6",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 3,
+   "filter_index": 6,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 3 Filter 2.nam",
+   "name": "ProCo Rat - Distortion 3 Filter 2",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 3,
+   "filter_index": 2,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 3 Filter 3.nam",
+   "name": "ProCo Rat - Distortion 3 Filter 3",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 3,
+   "filter_index": 3,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 3 Filter 4.nam",
+   "name": "ProCo Rat - Distortion 3 Filter 4",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 3,
+   "filter_index": 4,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 3 Filter 1.nam",
+   "name": "ProCo Rat - Distortion 3 Filter 1",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 3,
+   "filter_index": 1,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 2 Filter 6.nam",
+   "name": "ProCo Rat - Distortion 2 Filter 6",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 2,
+   "filter_index": 6,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 2 Filter 5.nam",
+   "name": "ProCo Rat - Distortion 2 Filter 5",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 2,
+   "filter_index": 5,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 2 Filter 7.nam",
+   "name": "ProCo Rat - Distortion 2 Filter 7",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 2,
+   "filter_index": 7,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 2 Filter 1.nam",
+   "name": "ProCo Rat - Distortion 2 Filter 1",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 2,
+   "filter_index": 1,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 2 Filter 3.nam",
+   "name": "ProCo Rat - Distortion 2 Filter 3",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 2,
+   "filter_index": 3,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 2 Filter 4.nam",
+   "name": "ProCo Rat - Distortion 2 Filter 4",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 2,
+   "filter_index": 4,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 2 Filter 2.nam",
+   "name": "ProCo Rat - Distortion 2 Filter 2",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 2,
+   "filter_index": 2,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 1 Filter 7.nam",
+   "name": "ProCo Rat - Distortion 1 Filter 7",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 1,
+   "filter_index": 7,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 1 Filter 6.nam",
+   "name": "ProCo Rat - Distortion 1 Filter 6",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 1,
+   "filter_index": 6,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 1 Filter 5.nam",
+   "name": "ProCo Rat - Distortion 1 Filter 5",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 1,
+   "filter_index": 5,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 1 Filter 3.nam",
+   "name": "ProCo Rat - Distortion 1 Filter 3",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 1,
+   "filter_index": 3,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 1 Filter 1.nam",
+   "name": "ProCo Rat - Distortion 1 Filter 1",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 1,
+   "filter_index": 1,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 1 Filter 4.nam",
+   "name": "ProCo Rat - Distortion 1 Filter 4",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 1,
+   "filter_index": 4,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "romanrecords-rat-90s",
+   "model": "private/reference/nam/romanrecords-rat-90s/ProCo Rat - Distortion 1 Filter 2.nam",
+   "name": "ProCo Rat - Distortion 1 Filter 2",
+   "level_dbu": 3.981,
+   "out_level_dbu": 3.981,
+   "dist_index": 1,
+   "filter_index": 2,
+   "year": "1990s",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D1_F1.nam",
+   "name": "Proco RAT2_D1_F1",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 1,
+   "filter_index": 1,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D1_F2.nam",
+   "name": "Proco RAT2_D1_F2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 1,
+   "filter_index": 2,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D1_F3.nam",
+   "name": "Proco RAT2_D1_F3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 1,
+   "filter_index": 3,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D1_F4.nam",
+   "name": "Proco RAT2_D1_F4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 1,
+   "filter_index": 4,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D1_F5.nam",
+   "name": "Proco RAT2_D1_F5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 1,
+   "filter_index": 5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D1_F6.nam",
+   "name": "Proco RAT2_D1_F6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 1,
+   "filter_index": 6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D1_F7.nam",
+   "name": "Proco RAT2_D1_F7",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 1,
+   "filter_index": 7,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D2_F1.nam",
+   "name": "Proco RAT2_D2_F1",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 2,
+   "filter_index": 1,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D2_F2.nam",
+   "name": "Proco RAT2_D2_F2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 2,
+   "filter_index": 2,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D2_F3.nam",
+   "name": "Proco RAT2_D2_F3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 2,
+   "filter_index": 3,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D2_F4.nam",
+   "name": "Proco RAT2_D2_F4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 2,
+   "filter_index": 4,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D2_F5.nam",
+   "name": "Proco RAT2_D2_F5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 2,
+   "filter_index": 5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D2_F6.nam",
+   "name": "Proco RAT2_D2_F6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 2,
+   "filter_index": 6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D2_F7.nam",
+   "name": "Proco RAT2_D2_F7",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 2,
+   "filter_index": 7,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D3_F1.nam",
+   "name": "Proco RAT2_D3_F1",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 3,
+   "filter_index": 1,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D3_F2.nam",
+   "name": "Proco RAT2_D3_F2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 3,
+   "filter_index": 2,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D3_F3.nam",
+   "name": "Proco RAT2_D3_F3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 3,
+   "filter_index": 3,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D3_F4.nam",
+   "name": "Proco RAT2_D3_F4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 3,
+   "filter_index": 4,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D3_F5.nam",
+   "name": "Proco RAT2_D3_F5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 3,
+   "filter_index": 5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D3_F6.nam",
+   "name": "Proco RAT2_D3_F6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 3,
+   "filter_index": 6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D3_F7.nam",
+   "name": "Proco RAT2_D3_F7",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 3,
+   "filter_index": 7,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D4_F1.nam",
+   "name": "Proco RAT2_D4_F1",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 4,
+   "filter_index": 1,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D4_F2.nam",
+   "name": "Proco RAT2_D4_F2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 4,
+   "filter_index": 2,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D4_F3.nam",
+   "name": "Proco RAT2_D4_F3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 4,
+   "filter_index": 3,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D4_F4.nam",
+   "name": "Proco RAT2_D4_F4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 4,
+   "filter_index": 4,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D4_F5.nam",
+   "name": "Proco RAT2_D4_F5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 4,
+   "filter_index": 5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D4_F6.nam",
+   "name": "Proco RAT2_D4_F6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 4,
+   "filter_index": 6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D4_F7.nam",
+   "name": "Proco RAT2_D4_F7",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 4,
+   "filter_index": 7,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D5_F1.nam",
+   "name": "Proco RAT2_D5_F1",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 5,
+   "filter_index": 1,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D5_F2.nam",
+   "name": "Proco RAT2_D5_F2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 5,
+   "filter_index": 2,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D5_F3.nam",
+   "name": "Proco RAT2_D5_F3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 5,
+   "filter_index": 3,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D5_F4.nam",
+   "name": "Proco RAT2_D5_F4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 5,
+   "filter_index": 4,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D5_F5.nam",
+   "name": "Proco RAT2_D5_F5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 5,
+   "filter_index": 5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D5_F6.nam",
+   "name": "Proco RAT2_D5_F6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 5,
+   "filter_index": 6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D5_F7.nam",
+   "name": "Proco RAT2_D5_F7",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 5,
+   "filter_index": 7,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D6_F1.nam",
+   "name": "Proco RAT2_D6_F1",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 6,
+   "filter_index": 1,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D6_F2.nam",
+   "name": "Proco RAT2_D6_F2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 6,
+   "filter_index": 2,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D6_F3.nam",
+   "name": "Proco RAT2_D6_F3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 6,
+   "filter_index": 3,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D6_F4.nam",
+   "name": "Proco RAT2_D6_F4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 6,
+   "filter_index": 4,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D6_F5.nam",
+   "name": "Proco RAT2_D6_F5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 6,
+   "filter_index": 5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D6_F6.nam",
+   "name": "Proco RAT2_D6_F6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 6,
+   "filter_index": 6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D6_F7.nam",
+   "name": "Proco RAT2_D6_F7",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 6,
+   "filter_index": 7,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D7_F1.nam",
+   "name": "Proco RAT2_D7_F1",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 7,
+   "filter_index": 1,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D7_F2.nam",
+   "name": "Proco RAT2_D7_F2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 7,
+   "filter_index": 2,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D7_F3.nam",
+   "name": "Proco RAT2_D7_F3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 7,
+   "filter_index": 3,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D7_F4.nam",
+   "name": "Proco RAT2_D7_F4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 7,
+   "filter_index": 4,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D7_F5.nam",
+   "name": "Proco RAT2_D7_F5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 7,
+   "filter_index": 5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D7_F6.nam",
+   "name": "Proco RAT2_D7_F6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 7,
+   "filter_index": 6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "jakkwiat-rat2",
+   "model": "private/reference/nam/jakkwiat-rat2/Proco RAT2_D7_F7.nam",
+   "name": "Proco RAT2_D7_F7",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist_index": 7,
+   "filter_index": 7,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "index",
+   "knob_scale": "index 1-7",
+   "exclude": [
+    "index-knobs"
+   ]
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-12_00 F-12_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-12_00 F-12_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.5,
+   "filter": 0.5,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-12_00 F-3_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-12_00 F-3_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.5,
+   "filter": 0.8,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-12_00 F-2_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-12_00 F-2_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.5,
+   "filter": 0.7,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-12_00 F-1_30 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-12_00 F-1_30 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.5,
+   "filter": 0.65,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-12_00 F-1_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-12_00 F-1_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.5,
+   "filter": 0.6,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-7_30 F-12_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-7_30 F-12_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.05,
+   "filter": 0.5,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-10_30 F-3_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-10_30 F-3_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.35,
+   "filter": 0.8,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-10_30 F-12_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-10_30 F-12_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.35,
+   "filter": 0.5,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-9_00 F-1_30 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-9_00 F-1_30 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.2,
+   "filter": 0.65,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-9_00 F-1_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-9_00 F-1_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.2,
+   "filter": 0.6,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-7_30 F-3_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-7_30 F-3_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.05,
+   "filter": 0.8,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-7_30 F-2_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-7_30 F-2_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.05,
+   "filter": 0.7,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-7_30 F-1_30 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-7_30 F-1_30 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.05,
+   "filter": 0.65,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-7_30 F-1_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-7_30 F-1_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.05,
+   "filter": 0.6,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-10_30 F-2_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-10_30 F-2_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.35,
+   "filter": 0.7,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-10_30 F-1_30 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-10_30 F-1_30 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.35,
+   "filter": 0.65,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-10_30 F-1_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-10_30 F-1_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.35,
+   "filter": 0.6,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-9_00 F-12_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-9_00 F-12_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.2,
+   "filter": 0.5,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-9_00 F-3_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-9_00 F-3_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.2,
+   "filter": 0.8,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "outmoded-rat2-11dbu",
+   "model": "private/reference/nam/outmoded-rat2-11dbu/ProCo RAT2 D-9_00 F-2_00 V-3_00 TTSV10.nam",
+   "name": "ProCo RAT2 D-9_00 F-2_00 V-3_00 TTSV10",
+   "level_dbu": 11.5,
+   "out_level_dbu": 11.5,
+   "dist": 0.2,
+   "filter": 0.7,
+   "volume": 0.8,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": true,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": []
+  },
+  {
+   "capture": "lorenzobona-largebox-reissue",
+   "model": "private/reference/nam/lorenzobona-largebox-reissue/70_RAT 2.nam",
+   "name": "70%RAT 2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.7,
+   "filter": 0.0,
+   "volume": 0.5,
+   "variant": "large-box",
+   "year": "early 2000s (Vintage reissue)",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "large-box"
+   ]
+  },
+  {
+   "capture": "lorenzobona-largebox-reissue",
+   "model": "private/reference/nam/lorenzobona-largebox-reissue/Proco RAT 70_.nam",
+   "name": "Proco RAT 70%",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.7,
+   "filter": 0.0,
+   "volume": 0.5,
+   "variant": "large-box",
+   "year": "early 2000s (Vintage reissue)",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "large-box"
+   ]
+  },
+  {
+   "capture": "lorenzobona-largebox-reissue",
+   "model": "private/reference/nam/lorenzobona-largebox-reissue/Proco RAT 30_.nam",
+   "name": "Proco RAT 30%",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.3,
+   "filter": 0.0,
+   "volume": 0.5,
+   "variant": "large-box",
+   "year": "early 2000s (Vintage reissue)",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "large-box"
+   ]
+  },
+  {
+   "capture": "returntozero-turbo-rat",
+   "model": "private/reference/nam/returntozero-turbo-rat/Turbo RAT.nam",
+   "name": "Turbo RAT",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 1.0,
+   "filter": 0.0,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "min/max",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "pong-rat2-1996-usa",
+   "model": "private/reference/nam/pong-rat2-1996-usa/Proco Rat 2 Crunch.nam",
+   "name": "Proco Rat 2 Crunch",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.28,
+   "filter": 0.4,
+   "volume": 0.4,
+   "year": "1996 (USA)",
+   "opamp": "LM308",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": []
+  },
+  {
+   "capture": "pong-rat2-1996-usa",
+   "model": "private/reference/nam/pong-rat2-1996-usa/Proco Rat 2 Drive.nam",
+   "name": "Proco Rat 2 Drive",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.4,
+   "filter": 0.3,
+   "volume": 0.4,
+   "year": "1996 (USA)",
+   "opamp": "LM308",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": []
+  },
+  {
+   "capture": "pong-rat2-1996-usa",
+   "model": "private/reference/nam/pong-rat2-1996-usa/Proco Rat 2 Fuzz.nam",
+   "name": "Proco Rat 2 Fuzz",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.6,
+   "filter": 0.1,
+   "volume": 0.4,
+   "year": "1996 (USA)",
+   "opamp": "LM308",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": []
+  },
+  {
+   "capture": "rbrt-rat-1990s",
+   "model": "private/reference/nam/rbrt-rat-1990s/RAT 40 50 70.nam",
+   "name": "RAT 40 50 70",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.4,
+   "filter": 0.5,
+   "volume": 0.7,
+   "year": "about 1994 (\"I guess\")",
+   "opamp": "unknown (LM308 by era)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": []
+  },
+  {
+   "capture": "rbrt-rat-1990s",
+   "model": "private/reference/nam/rbrt-rat-1990s/RAT 15 50 70.nam",
+   "name": "RAT 15 50 70",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.15,
+   "filter": 0.5,
+   "volume": 0.7,
+   "year": "about 1994 (\"I guess\")",
+   "opamp": "unknown (LM308 by era)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": []
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 09 D0.5F3.7V6.nam",
+   "name": "ProCo Rat Vintage Reissue SS 09 D0.5F3.7V6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.125,
+   "filter": 0.605,
+   "volume": 0.95,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 11 D4.2F3V5.nam",
+   "name": "ProCo Rat Vintage Reissue SS 11 D4.2F3V5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.68,
+   "filter": 0.5,
+   "volume": 0.8,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 04 D0.5F2V6.nam",
+   "name": "ProCo Rat Vintage Reissue SS 04 D0.5F2V6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.125,
+   "filter": 0.35,
+   "volume": 0.95,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 12  D4.5F4.5V5 LED.nam",
+   "name": "ProCo Rat Vintage Reissue SS 12  D4.5F4.5V5 LED",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.725,
+   "filter": 0.725,
+   "volume": 0.8,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded",
+    "led-diodes"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 03 D2F5.3V4.nam",
+   "name": "ProCo Rat Vintage Reissue SS 03 D2F5.3V4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.35,
+   "filter": 0.845,
+   "volume": 0.65,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS JM D1F4.5V6.nam",
+   "name": "ProCo Rat Vintage Reissue SS JM D1F4.5V6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.2,
+   "filter": 0.725,
+   "volume": 0.95,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 02 D2F2V6.nam",
+   "name": "ProCo Rat Vintage Reissue SS 02 D2F2V6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.35,
+   "filter": 0.35,
+   "volume": 0.95,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 07 D0.7F2.5V6.nam",
+   "name": "ProCo Rat Vintage Reissue SS 07 D0.7F2.5V6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.155,
+   "filter": 0.425,
+   "volume": 0.95,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 08 D2.8F0V5.2.nam",
+   "name": "ProCo Rat Vintage Reissue SS 08 D2.8F0V5.2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.47,
+   "filter": 0.05,
+   "volume": 0.83,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue Nuno Beato.nam",
+   "name": "ProCo Rat Vintage Reissue Nuno Beato",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 01 D3F3.2V3.nam",
+   "name": "ProCo Rat Vintage Reissue SS 01 D3F3.2V3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.53,
+   "volume": 0.5,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 13 D4.5F4.5V5.nam",
+   "name": "ProCo Rat Vintage Reissue SS 13 D4.5F4.5V5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.725,
+   "filter": 0.725,
+   "volume": 0.8,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 06 D5F4.5V4.nam",
+   "name": "ProCo Rat Vintage Reissue SS 06 D5F4.5V4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.8,
+   "filter": 0.725,
+   "volume": 0.65,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 05 D0.5F1V6.nam",
+   "name": "ProCo Rat Vintage Reissue SS 05 D0.5F1V6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.125,
+   "filter": 0.2,
+   "volume": 0.95,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS JM D1F4.5V6 LED.nam",
+   "name": "ProCo Rat Vintage Reissue SS JM D1F4.5V6 LED",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.2,
+   "filter": 0.725,
+   "volume": 0.95,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded",
+    "led-diodes"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue Drums Ignored D2F0V6.nam",
+   "name": "ProCo Rat Vintage Reissue Drums Ignored D2F0V6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.35,
+   "filter": 0.05,
+   "volume": 0.95,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue SS 10 D2F4V4.5.nam",
+   "name": "ProCo Rat Vintage Reissue SS 10 D2F4V4.5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.35,
+   "filter": 0.65,
+   "volume": 0.725,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "ideofunk-vintage-reissue",
+   "model": "private/reference/nam/ideofunk-vintage-reissue/ProCo Rat Vintage Reissue Nuno Beato LED.nam",
+   "name": "ProCo Rat Vintage Reissue Nuno Beato LED",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "1990s (Vintage reissue)",
+   "opamp": "LM308 (fitted by the owner in place of the stock TL072)",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs",
+    "led-diodes"
+   ]
+  },
+  {
+   "capture": "imposteringtheband-1984-whiteface",
+   "model": "private/reference/nam/imposteringtheband-1984-whiteface/Rat_D4_F2_V4.nam",
+   "name": "Rat_D4_F2_V4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.65,
+   "filter": 0.35,
+   "volume": 0.65,
+   "variant": "large-box",
+   "year": "1984 (whiteface)",
+   "opamp": "unknown (LM308 by era)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "ticks 0-6",
+   "exclude": [
+    "large-box"
+   ]
+  },
+  {
+   "capture": "pablobarrasaa-bigbox-1995",
+   "model": "private/reference/nam/pablobarrasaa-bigbox-1995/Proco The Rat Big Box Reissue 1995.nam",
+   "name": "Proco The Rat Big Box Reissue 1995",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.4,
+   "filter": 0.7,
+   "volume": 0.8,
+   "variant": "large-box",
+   "year": "1995 (big-box reissue)",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "clock",
+   "exclude": [
+    "large-box"
+   ]
+  },
+  {
+   "capture": "mmasonmusic-rat2-lm308",
+   "model": "private/reference/nam/mmasonmusic-rat2-lm308/Pro Co Rat D3_ F3_ V8.nam",
+   "name": "Pro Co Rat D3, F3, V8",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.3,
+   "filter": 0.3,
+   "volume": 0.8,
+   "variant": "modded",
+   "year": "unknown",
+   "opamp": "LM308 (fitted by the owner)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "mmasonmusic-rat2-lm308",
+   "model": "private/reference/nam/mmasonmusic-rat2-lm308/Pro Co Rat 2_ D5_ F3_ V8.nam",
+   "name": "Pro Co Rat 2, D5, F3, V8",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.3,
+   "volume": 0.8,
+   "variant": "modded",
+   "year": "unknown",
+   "opamp": "LM308 (fitted by the owner)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": [
+    "modded"
+   ]
+  },
+  {
+   "capture": "autoguitarrig-rat2",
+   "model": "private/reference/nam/autoguitarrig-rat2/RAT 2_LOW_D3_F5_L6.nam",
+   "name": "RAT 2_LOW_D3_F5_L6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.3,
+   "filter": 0.5,
+   "volume": 0.6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": []
+  },
+  {
+   "capture": "autoguitarrig-rat2",
+   "model": "private/reference/nam/autoguitarrig-rat2/RAT 2_CLASSIC_D5_F5_L6.nam",
+   "name": "RAT 2_CLASSIC_D5_F5_L6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "volume": 0.6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": []
+  },
+  {
+   "capture": "autoguitarrig-rat2",
+   "model": "private/reference/nam/autoguitarrig-rat2/RAT 2_HIGH_D8_F5_L6.nam",
+   "name": "RAT 2_HIGH_D8_F5_L6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.8,
+   "filter": 0.5,
+   "volume": 0.6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": []
+  },
+  {
+   "capture": "autoguitarrig-rat2",
+   "model": "private/reference/nam/autoguitarrig-rat2/RAT 2_MAX_D10_F5_L6.nam",
+   "name": "RAT 2_MAX_D10_F5_L6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 1.0,
+   "filter": 0.5,
+   "volume": 0.6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": []
+  },
+  {
+   "capture": "cripplingguitaraddiction-rat",
+   "model": "private/reference/nam/cripplingguitaraddiction-rat/RAT 1234.nam",
+   "name": "RAT 1234",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.15,
+   "filter": 0.5,
+   "volume": 1.0,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "described",
+   "knob_scale": "described",
+   "exclude": [
+    "approx-knobs"
+   ]
+  },
+  {
+   "capture": "octaviofotografia-rat",
+   "model": "private/reference/nam/octaviofotografia-rat/ProCoRAT_D4_F3_V6.nam",
+   "name": "ProCoRAT_D4_F3_V6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.4,
+   "filter": 0.3,
+   "volume": 0.6,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": []
+  },
+  {
+   "capture": "hk-rat",
+   "model": "private/reference/nam/hk-rat/ProCo RAT.nam",
+   "name": "ProCo RAT",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "colossaldave-modded-rat",
+   "model": "private/reference/nam/colossaldave-modded-rat/Modded_Rat_3.nam",
+   "name": "Modded_Rat_3",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "unknown",
+   "opamp": "LM308N (vintage 1985 Motorola, fitted by the owner)",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "colossaldave-modded-rat",
+   "model": "private/reference/nam/colossaldave-modded-rat/Modded_Rat_1.nam",
+   "name": "Modded_Rat_1",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "unknown",
+   "opamp": "LM308N (vintage 1985 Motorola, fitted by the owner)",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "colossaldave-modded-rat",
+   "model": "private/reference/nam/colossaldave-modded-rat/Modded_Rat_2.nam",
+   "name": "Modded_Rat_2",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "unknown",
+   "opamp": "LM308N (vintage 1985 Motorola, fitted by the owner)",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "colossaldave-modded-rat",
+   "model": "private/reference/nam/colossaldave-modded-rat/Modded_Rat_4.nam",
+   "name": "Modded_Rat_4",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "unknown",
+   "opamp": "LM308N (vintage 1985 Motorola, fitted by the owner)",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "colossaldave-modded-rat",
+   "model": "private/reference/nam/colossaldave-modded-rat/Modded_Rat_5.nam",
+   "name": "Modded_Rat_5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "unknown",
+   "opamp": "LM308N (vintage 1985 Motorola, fitted by the owner)",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "colossaldave-modded-rat",
+   "model": "private/reference/nam/colossaldave-modded-rat/Modded_Rat_6.nam",
+   "name": "Modded_Rat_6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "unknown",
+   "opamp": "LM308N (vintage 1985 Motorola, fitted by the owner)",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "jtn191-80s-rat",
+   "model": "private/reference/nam/jtn191-80s-rat/ProcoRat_LED_diodesV2_ESR_0.008.nam",
+   "name": "ProcoRat_LED_diodesV2_ESR_0.008",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "1980s (tag)",
+   "opamp": "LM308",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs",
+    "led-diodes"
+   ]
+  },
+  {
+   "capture": "jtn191-80s-rat",
+   "model": "private/reference/nam/jtn191-80s-rat/ProcoRat_LED_diodes.nam",
+   "name": "ProcoRat_LED_diodes",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "1980s (tag)",
+   "opamp": "LM308",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs",
+    "led-diodes"
+   ]
+  },
+  {
+   "capture": "jtn191-80s-rat",
+   "model": "private/reference/nam/jtn191-80s-rat/ProcoRat_STD_diodesV2_ESR_0.010.nam",
+   "name": "ProcoRat_STD_diodesV2_ESR_0.010",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "variant": "modded",
+   "year": "1980s (tag)",
+   "opamp": "LM308",
+   "calibrated": false,
+   "knobs": "unknown",
+   "knob_scale": "unknown",
+   "exclude": [
+    "modded",
+    "unknown-knobs"
+   ]
+  },
+  {
+   "capture": "omarplastiko78-fat-rat",
+   "model": "private/reference/nam/omarplastiko78-fat-rat/FAT RAT Lm308 V8 F6 D6.nam",
+   "name": "FAT RAT Lm308 V8 F6 D6",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.6,
+   "filter": 0.6,
+   "volume": 0.8,
+   "variant": "fat-rat",
+   "year": "unknown",
+   "opamp": "LM308 (Motorola)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": [
+    "fat-rat"
+   ]
+  },
+  {
+   "capture": "omarplastiko78-fat-rat",
+   "model": "private/reference/nam/omarplastiko78-fat-rat/FAT RAT Lm308 V9 F7 D5.nam",
+   "name": "FAT RAT Lm308 V9 F7 D5",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.7,
+   "volume": 0.9,
+   "variant": "fat-rat",
+   "year": "unknown",
+   "opamp": "LM308 (Motorola)",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "0-10",
+   "exclude": [
+    "fat-rat"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D80-F80-V55.nam",
+   "name": "RAT-D80-F80-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.8,
+   "filter": 0.8,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D33-F50-V55.nam",
+   "name": "RAT-D33-F50-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.33,
+   "filter": 0.5,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D0-F70-V100.nam",
+   "name": "RAT-D0-F70-V100",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.0,
+   "filter": 0.7,
+   "volume": 1.0,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D50-F50-V55.nam",
+   "name": "RAT-D50-F50-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.5,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D50-F66-V55.nam",
+   "name": "RAT-D50-F66-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.66,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D50-F85-V55.nam",
+   "name": "RAT-D50-F85-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.85,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D33-F66-V55.nam",
+   "name": "RAT-D33-F66-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.33,
+   "filter": 0.66,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D50-F33-V55.nam",
+   "name": "RAT-D50-F33-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 0.33,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D66-F66-V55.nam",
+   "name": "RAT-D66-F66-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.66,
+   "filter": 0.66,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D66-F50-V55.nam",
+   "name": "RAT-D66-F50-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.66,
+   "filter": 0.5,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D33-F100-V55.nam",
+   "name": "RAT-D33-F100-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.33,
+   "filter": 1.0,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D50-F100-V55.nam",
+   "name": "RAT-D50-F100-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.5,
+   "filter": 1.0,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D66-F100-V55.nam",
+   "name": "RAT-D66-F100-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.66,
+   "filter": 1.0,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D100-F50-V55.nam",
+   "name": "RAT-D100-F50-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 1.0,
+   "filter": 0.5,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D66-F33-V55.nam",
+   "name": "RAT-D66-F33-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.66,
+   "filter": 0.33,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D80-F50-V55.nam",
+   "name": "RAT-D80-F50-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.8,
+   "filter": 0.5,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D66-F80-V55.nam",
+   "name": "RAT-D66-F80-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.66,
+   "filter": 0.8,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D10-F80-V60.nam",
+   "name": "RAT-D10-F80-V60",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.1,
+   "filter": 0.8,
+   "volume": 0.6,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D10-F33-V55.nam",
+   "name": "RAT-D10-F33-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.1,
+   "filter": 0.33,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D10-F50-V60.nam",
+   "name": "RAT-D10-F50-V60",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.1,
+   "filter": 0.5,
+   "volume": 0.6,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D10-F66-V60.nam",
+   "name": "RAT-D10-F66-V60",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.1,
+   "filter": 0.66,
+   "volume": 0.6,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D0-F60-V100.nam",
+   "name": "RAT-D0-F60-V100",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.0,
+   "filter": 0.6,
+   "volume": 1.0,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D0-F85-V100.nam",
+   "name": "RAT-D0-F85-V100",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.0,
+   "filter": 0.85,
+   "volume": 1.0,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D0-F100-V100.nam",
+   "name": "RAT-D0-F100-V100",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.0,
+   "filter": 1.0,
+   "volume": 1.0,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D33-F33-V55.nam",
+   "name": "RAT-D33-F33-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.33,
+   "filter": 0.33,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D0-F50-V100.nam",
+   "name": "RAT-D0-F50-V100",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.0,
+   "filter": 0.5,
+   "volume": 1.0,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D100-F66-V55.nam",
+   "name": "RAT-D100-F66-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 1.0,
+   "filter": 0.66,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D80-F66-V55.nam",
+   "name": "RAT-D80-F66-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 0.8,
+   "filter": 0.66,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D100-F100-V55.nam",
+   "name": "RAT-D100-F100-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 1.0,
+   "filter": 1.0,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  },
+  {
+   "capture": "tone3000slm-turbo-rat",
+   "model": "private/reference/nam/tone3000slm-turbo-rat/RAT-D100-F80-V55.nam",
+   "name": "RAT-D100-F80-V55",
+   "level_dbu": null,
+   "out_level_dbu": null,
+   "dist": 1.0,
+   "filter": 0.8,
+   "volume": 0.55,
+   "variant": "turbo",
+   "year": "unknown",
+   "opamp": "unknown",
+   "calibrated": false,
+   "knobs": "stated",
+   "knob_scale": "percent",
+   "exclude": [
+    "turbo"
+   ]
+  }
+ ]
+}

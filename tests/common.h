@@ -19,6 +19,9 @@ inline int g_failures = 0;
 inline void check(bool ok, const juce::String &what)
 {
 	std::printf("%s  %s\n", ok ? "ok  " : "FAIL", what.toRawUTF8());
+	// Flushed line by line: a test that crashes (on a Windows runner, where a pipe's output is
+	// buffered) still shows how far it got.
+	std::fflush(stdout);
 	if (!ok)
 		++g_failures;
 }

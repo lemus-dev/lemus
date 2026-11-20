@@ -4,8 +4,11 @@
 # 909's circuit solver runs about 15 % faster than with MSVC (windows-machine.yml's bench), and the 808's is the same solver.
 # The Virus C too, as the compiler closest to the macOS build's (its own code; the DSP engine compiles its own), and the
 # QuadraVerb GT (the 909's solver again; an effect, so the effects host's tests too), and the SH-101
-# (its voice is Newton solvers, as the 909's; both compilers pass windows-machine.yml). Runs on demand
-# and for release tags; the zips are the run's artifact. Each plugin has its own version (its
+# (its voice is Newton solvers, as the 909's; both compilers pass windows-machine.yml), and the RAT (a
+# nodal DK solver with Newton; an effect with no standalone app). Runs on demand
+# and for release tags; the zips are the run's artifact. A tag builds only in the public repo, where
+# Actions minutes are free: in the private repo it runs when started by hand, the check before a
+# release. Each plugin has its own version (its
 # lemus_plugin() VERSION) and its own tag, <plugin>-v<version> (ro-drums-909-v0.2.1): a tag's run
 # keeps only that plugin's zip, and fails if the plugin isn't at the tag's version. The macOS release
 # is built locally (tools/release/mac.sh), where the signing keys are.
@@ -22,6 +25,7 @@ on:
 
 jobs:
   windows:
+    if: github.event_name != 'push' || github.repository == 'lemus-dev/lemus'
     runs-on: windows-2022
     env:
       SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -37,6 +41,7 @@ jobs:
           cmake -S . -B build/release-win-virusc -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=virusc -DLEMUS_COPY_PLUGINS=OFF
           cmake -S . -B build/release-win-qvgt -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=qvgt -DLEMUS_COPY_PLUGINS=OFF
           cmake -S . -B build/release-win-sh101 -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=sh101 -DLEMUS_COPY_PLUGINS=OFF
+          cmake -S . -B build/release-win-rat -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=rat -DLEMUS_COPY_PLUGINS=OFF
       - name: Build
         run: |
           cmake --build build/release-win --config Release --parallel --target plugin_tb303_VST3 plugin_tb303_Standalone lemustest_tb303 lemustest_instrument
@@ -50,6 +55,8 @@ jobs:
           cmake --build build/release-win-qvgt --config Release --parallel --target plugin_qvgt_VST3 plugin_qvgt_Standalone lemustest_qvgt lemustest_fx
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           cmake --build build/release-win-sh101 --config Release --parallel --target plugin_sh101_VST3 plugin_sh101_Standalone lemustest_sh101
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cmake --build build/release-win-rat --config Release --parallel --target plugin_rat_VST3 lemustest_rat lemustest_fx ratplugintest
       - name: Test
         run: |
           build/release-win/lemustest_tb303_artefacts/Release/lemustest_tb303.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
@@ -59,6 +66,9 @@ jobs:
           build/release-win-qvgt/lemustest_qvgt_artefacts/Release/lemustest_qvgt.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
           build/release-win-qvgt/lemustest_fx_artefacts/Release/lemustest_fx.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
           build/release-win-sh101/lemustest_sh101_artefacts/Release/lemustest_sh101.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          build/release-win-rat/lemustest_rat_artefacts/Release/lemustest_rat.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          build/release-win-rat/lemustest_fx_artefacts/Release/lemustest_fx.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          build/release-win-rat/ratplugintest_artefacts/Release/ratplugintest.exe; if ($LASTEXITCODE) { exit $LASTEXITCODE }
           build/release-win/lemustest_instrument_artefacts/Release/lemustest_instrument.exe
       - name: Package
         shell: pwsh
@@ -69,6 +79,7 @@ jobs:
           tools/release/windows.ps1 -Build build/release-win-virusc
           tools/release/windows.ps1 -Build build/release-win-qvgt
           tools/release/windows.ps1 -Build build/release-win-sh101
+          tools/release/windows.ps1 -Build build/release-win-rat
       - name: Release
         id: version
         shell: pwsh

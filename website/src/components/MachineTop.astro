@@ -44,9 +44,9 @@ const links = downloadLinks(m);
 <div><dt class="lbl">Year</dt><dd>{m.year}</dd></div>
 <div><dt class="lbl">Type</dt><dd>{m.type}</dd></div>
 <div><dt class="lbl">Status</dt><dd class={m.status === 'working' ? 'ok' : 'partial'}>{m.status}</dd></div>
-<div><dt class="lbl">Without ROM</dt>{m.withoutRom === 'voice' ? <dd class="partial"><span class="mono">[~]</span> voice mode</dd> : <dd class="missing"><span class="mono">[✗]</span> ROM missing</dd>}</div>
+<div><dt class="lbl">Without ROM</dt>{m.withoutRom === 'voice' ? <dd class="partial"><span class="mono">[~]</span> voice mode</dd> : m.withoutRom === 'not-needed' ? <dd class="ok"><span class="mono">[✓]</span> no ROM needed</dd> : <dd class="missing"><span class="mono">[✗]</span> ROM missing</dd>}</div>
 <slot name="data" />
-{platforms.map(([os, formats]) => <div><dt class="lbl">{os}</dt><dd>{formats}</dd></div>)}
+{platforms.map(([os, formats]) => <div><dt class="lbl">{os}</dt><dd>{m.standalone === false ? formats.replace(/, standalone$/, '') : formats}</dd></div>)}
 </dl>
 </div>
 <div class="mailbox tapbox">

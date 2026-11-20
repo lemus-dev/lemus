@@ -1,7 +1,7 @@
 # Releases
 
-A release is each shipping machine's own plugin (`-DLEMUS_MACHINES`, for now `tb303;tr909;tr808;virusc;qvgt;sh101`),
-each a download of its own: the TB-303 is **ro-mono-303**, the TR-909 **ro-drums-909**, the TR-808 **ro-drums-808**, the Virus C **ac-digital-vc**, the QuadraVerb GT **al-fx-quadgt**, the SH-101 **ro-mono-101**. A machine's plugin is the host with that
+A release is each shipping machine's own plugin (`-DLEMUS_MACHINES`, for now `tb303;tr909;tr808;virusc;qvgt;sh101;rat`),
+each a download of its own: the TB-303 is **ro-mono-303**, the TR-909 **ro-drums-909**, the TR-808 **ro-drums-808**, the Virus C **ac-digital-vc**, the QuadraVerb GT **al-fx-quadgt**, the SH-101 **ro-mono-101**, the ProCo RAT **pr-dist-r** (an effect, no standalone app). A machine's plugin is the host with that
 machine alone, declared in its `machine.cmake` (`lemus_plugin`: name, plugin code, description,
 whether it has a standalone app, its version). The all-in-one Lemus and Lemus FX don't ship. Each
 plugin has its own version (`lemus_plugin(... VERSION x.y.z)`) and is released on its own: a
@@ -13,9 +13,9 @@ published at https://github.com/lemus-dev/lemus (AGPLv3), tagged `<plugin>-v<ver
 | Platform | Formats | Built by | Output |
 |---|---|---|---|
 | macOS 11+, universal | AU, VST3, standalone app | `tools/release/mac.sh`, locally | `dist/<plugin>-<version>-mac.pkg` per plugin |
-| Windows 10+, x64 | VST3, standalone app | `.github/workflows/release.yml` (GitHub Actions; the TR-909, TR-808, Virus C, QuadraVerb GT and SH-101 with clang-cl) | `<plugin>-<version>-windows.zip` per plugin, the run's artifact |
+| Windows 10+, x64 | VST3, standalone app | `.github/workflows/release.yml` (GitHub Actions; the TR-909, TR-808, Virus C, QuadraVerb GT, SH-101 and RAT with clang-cl) | `<plugin>-<version>-windows.zip` per plugin, the run's artifact |
 
-Both include `LICENSE.txt` (the AGPLv3, which must go with every copy) and `NOTICES.txt` (JUCE, MAME's uCOM-4, uPD7810, MCS-48, MCS-51 and HD44780, the dsp56300 emulator with the GPLv3's text, asmjit, JetBrains Mono, IBM Plex Mono, Michroma). The Mac installer puts the
+Both include `LICENSE.txt` (the AGPLv3, which must go with every copy) and `NOTICES.txt` (JUCE, MAME's uCOM-4, uPD7810, MCS-48, MCS-51 and HD44780, the dsp56300 emulator with the GPLv3's text, asmjit, JetBrains Mono, IBM Plex Mono, Michroma, URW's Nimbus Sans). The Mac installer puts the
 AU and VST3 in `/Library/Audio/Plug-Ins` and the app in `/Applications`; the Windows zip has a
 readme (`windows-readme.txt`) that says where the VST3 goes.
 
@@ -33,11 +33,13 @@ readme (`windows-readme.txt`) that says where the VST3 goes.
    (`LEMUS_MACHINES="tb303;tr808"`) and `LEMUS_SIGN_APP`, `LEMUS_SIGN_INSTALLER` and
    `LEMUS_NOTARY_PROFILE` set (see the script). Without the signing settings it builds an unsigned
    package for testing.
-4. Windows: tag the commit `<plugin>-v<version>` for each released plugin and push the tags (or
-   run the workflow by hand); download the zips from the runs. A tag's run keeps only that plugin's
-   zip, and fails if the plugin's VERSION isn't the tag's. The workflow lists the plugins it
-   builds and tests. Once SignPath is set up (below), take them from the public repo's runs for the
-   tags instead (step 5 pushes them there): those are signed.
+4. Windows: run the workflow by hand in the private repo
+   (`gh workflow run release.yml -R lemus-dev/lemus-build --ref main`), the check before the
+   release: it builds and tests every shipping plugin. Then tag the commit `<plugin>-v<version>`
+   for each released plugin. A tag builds only in the public repo, where Actions minutes are free
+   (step 5 pushes the tags there); download the zips from those runs. A tag's run keeps only that
+   plugin's zip, and fails if the plugin's VERSION isn't the tag's. The workflow lists the plugins
+   it builds and tests. Once SignPath is set up (below), the public runs' zips are signed.
 5. Publish the release's source to https://github.com/lemus-dev/lemus with the same tags
    (`tools/publish/publish.sh -t ro-mono-303-v0.2.1 -t ro-drums-808-v0.1.0 "..."`): the binaries
    are AGPLv3, so their source must be out when they are.

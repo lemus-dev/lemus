@@ -166,6 +166,8 @@ import { machines, platforms } from '../data/machines';
 <td><span class={m.status === 'working' ? 'ok' : 'partial'}>{m.status}</span></td>
 <td>{m.withoutRom === 'voice'
   ? <span class="partial"><span class="mono">[~]</span> voice mode</span>
+  : m.withoutRom === 'not-needed'
+  ? <span class="ok"><span class="mono">[✓]</span> no ROM needed</span>
   : <span class="missing"><span class="mono">[✗]</span> ROM missing</span>}</td>
 <td class="links"><a href={`/${m.slug}`}>Details</a><a href="/download">Download</a></td>
 </tr>
@@ -176,7 +178,7 @@ import { machines, platforms } from '../data/machines';
 </tbody>
 </table>
 </div>
-<p class="foot">Without its ROM image, a machine marked <span class="partial mono">[~]</span> plays its voice over MIDI; one marked <span class="missing mono">[✗]</span> doesn't run.</p>
+<p class="foot">Without its ROM image, a machine marked <span class="partial mono">[~]</span> plays its voice over MIDI; one marked <span class="missing mono">[✗]</span> doesn't run. One marked <span class="ok mono">[✓]</span> has no ROM.</p>
 </div>
 </section>
 

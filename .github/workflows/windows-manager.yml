@@ -1,0 +1,73 @@
+# Lemus Plugin Manager on Windows (manager/README.md): builds the app and its checks, runs the
+# checks (a zip installed and removed under a test root), then installs and removes a real plugin
+# on the runner the way a user would: the app downloads the release zip, checks its SHA-256, starts
+# itself elevated (--apply) and copies the VST3 and app into Program Files. The catalogue is made
+# from the public releases' digests, as website/src/pages/latest.json.ts makes it. Run by hand:
+#   gh workflow run windows-manager.yml -R lemus-dev/lemus-build
+name: windows-manager
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: the released plugin to install and remove
+        required: true
+        default: ro-mono-101
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Configure
+        run: cmake -S . -B build/win -G "Visual Studio 17 2022" -A x64 -DLEMUS_MACHINES=tb303 -DLEMUS_TOOLS=OFF -DLEMUS_COPY_PLUGINS=OFF
+      - name: Build
+        run: cmake --build build/win --config Release --parallel --target lemus_manager lemustest_manager
+      - name: Test
+        run: build/win/lemustest_manager_artefacts/Release/lemustest_manager.exe
+      - name: Catalogue
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $live = Invoke-RestMethod https://lemusdev.org/latest.json
+          $plugins = [ordered]@{}
+          foreach ($p in $live.plugins.PSObject.Properties) {
+            $v = $p.Value
+            $rel = Invoke-RestMethod -Headers @{ Authorization = "Bearer $env:GH_TOKEN" } "https://api.github.com/repos/lemus-dev/lemus/releases/tags/$($p.Name)-v$($v.version)"
+            $dl = [ordered]@{}
+            foreach ($a in $rel.assets) {
+              $system = if ($a.name -like '*-mac.pkg') { 'mac' } elseif ($a.name -like '*-windows.zip') { 'windows' } else { $null }
+              if ($system) { $dl[$system] = [ordered]@{ url = $a.browser_download_url; sha256 = $a.digest; size = $a.size } }
+            }
+            $plugins[$p.Name] = [ordered]@{ version = $v.version; url = $v.url; changes = $v.changes; emulates = $p.Name; downloads = $dl }
+          }
+          @{ plugins = $plugins } | ConvertTo-Json -Depth 10 | Set-Content -Encoding utf8 catalog.json
+          Get-Content catalog.json -TotalCount 30
+      - name: Install and remove a plugin
+        shell: pwsh
+        run: |
+          $app = Resolve-Path "build/win/lemus_manager_artefacts/Release/Lemus Plugin Manager.exe"
+          $plugin = '${{ inputs.plugin }}'
+          $vst3 = "C:\Program Files\Common Files\VST3\$plugin.vst3"
+          $exe = "C:\Program Files\Lemus\$plugin\$plugin.exe"
+          $p = Start-Process -FilePath $app -ArgumentList @('--catalog', 'catalog.json', '--snapshot', 'installed.png', '--select', $plugin, '--action', 'install', '--until-done') -Wait -PassThru
+          "install exit $($p.ExitCode)"
+          Get-ChildItem -Recurse $vst3 | Select-Object FullName
+          Get-ChildItem "C:\Program Files\Lemus\$plugin" | Select-Object FullName
+          Get-ChildItem "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Lemus" | Select-Object FullName
+          if ($p.ExitCode -ne 0 -or -not (Test-Path $vst3) -or -not (Test-Path $exe)) { throw "install failed" }
+          $p = Start-Process -FilePath $app -ArgumentList @('--catalog', 'catalog.json', '--snapshot', 'removed.png', '--select', $plugin, '--action', 'remove', '--until-done') -Wait -PassThru
+          "remove exit $($p.ExitCode)"
+          if ($p.ExitCode -ne 0 -or (Test-Path $vst3) -or (Test-Path $exe)) { throw "remove failed" }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lemus-plugin-manager-windows
+          path: |
+            build/win/lemus_manager_artefacts/Release/*.exe
+            *.png
+            catalog.json

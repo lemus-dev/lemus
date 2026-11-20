@@ -1,0 +1,55 @@
+# Lemus Plugin Manager
+
+An app that lists the released plugins and installs, updates and removes them. It is optional:
+every plugin still has its own download, and the plugins never need it.
+
+It reads the list from `https://lemusdev.org/latest.json`, the file the plugins' update check
+reads (`website/src/pages/latest.json.ts` builds it). Each entry there carries the machine's name,
+year and kind, and its installers with their SHA-256 and size, taken from the GitHub release when
+the site is built.
+
+It installs from the same files the download pages offer:
+
+- **macOS**: the release's `.pkg`, through `/usr/sbin/installer`, so the receipts are the same as
+  a manual install. The formats not wanted are switched off with `-applyChoiceChangesXML`; an
+  update keeps the formats installed. Removing deletes the bundles and forgets their receipts.
+- **Windows**: the release's `.zip`. The VST3 goes to `C:\Program Files\Common Files\VST3`, the
+  app with its licence and notices to `C:\Program Files\Lemus\<plugin>`, and a shortcut to the
+  Start menu.
+
+Plugins are installed for every user, where every DAW looks: `/Library/Audio/Plug-Ins` and
+`/Applications` on macOS. Every download is checked against its SHA-256 before anything is
+installed; one that doesn't match is thrown away and the installed version stays. A batch (Update
+all, or one plugin) asks for the password once: on macOS a shell script runs through `osascript`
+with administrator privileges; on Windows the app starts itself again elevated (`--apply <plan>`).
+Without a Developer ID there is no privileged helper, so each batch asks.
+
+A copy in the user's own `~/Library/Audio/Plug-Ins` (a development build) isn't the manager's;
+it's shown in the details, since a DAW may load either copy.
+
+Requests to lemusdev.org use the user agent `Lemus Plugin Manager`, not the plugins' `Lemus`, so
+the site's count of plugin installs stays the plugins'.
+
+## Build and check
+
+    cmake -S . -B build/manager -DLEMUS_MACHINES=tb303 -DLEMUS_TOOLS=OFF -DLEMUS_COPY_PLUGINS=OFF
+    cmake --build build/manager -j --target lemus_manager lemustest_manager
+    build/manager/lemustest_manager_artefacts/Release/lemustest_manager
+
+The checks cover the catalogue, version reading, the installer's choices, the Windows plan, and a
+whole batch (download, SHA-256 check, install, remove) under a test root, from
+`dist/ro-mono-303-0.2.4-mac.pkg` when it's there.
+
+The app takes, for testing:
+
+    --catalog <file or URL>   the list from there instead of the website
+    --root <folder>           install under this folder; nothing asks for a password
+    --snapshot <png> [--select <plugin>] [--action update-all|update|install|remove] [--wait <ms>]
+                              draw the window to a PNG once the list is read
+
+## Release
+
+`tools/release/manager-mac.sh` builds `dist/lemus-plugin-manager-<version>-mac.pkg` (universal, the
+app into `/Applications`). The Windows zip comes from the release workflow. Then
+`website/src/data/manager.ts` gets the release, and `/latest.json` lists the manager, so older
+copies say a newer one is out.

@@ -1,0 +1,49 @@
+# A Windows build of one effect machine's plugin, and its checks, on demand: the VST3 built as
+# release.yml builds it (clang-cl), its plugin test (lemustest_<id>), the effects host's checks
+# (lemustest_fx) and, if given, one more test target of the machine's own; each run with its exit
+# code printed, so a crash shows. Much quicker than release.yml, which builds every plugin.
+# Run by hand:
+#   gh workflow run windows-fx.yml -R lemus-dev/lemus-build -f machine=rat -f extra=ratplugintest
+name: windows-fx
+
+on:
+  workflow_dispatch:
+    inputs:
+      machine:
+        description: the effect machine's id (machines/<id>)
+        required: true
+        default: rat
+      extra:
+        description: one more test target of the machine's own (empty for none)
+        required: false
+        default: ratplugintest
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Configure
+        run: cmake -S . -B build/win -G "Visual Studio 17 2022" -A x64 -T ClangCL -DLEMUS_MACHINES=${{ inputs.machine }} -DLEMUS_COPY_PLUGINS=OFF
+      - name: Build
+        shell: pwsh
+        run: |
+          $targets = @("plugin_${{ inputs.machine }}_VST3", "lemustest_${{ inputs.machine }}", "lemustest_fx")
+          if ('${{ inputs.extra }}') { $targets += '${{ inputs.extra }}' }
+          cmake --build build/win --config Release --parallel --target @targets
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Test
+        shell: pwsh
+        run: |
+          $tests = @("lemustest_${{ inputs.machine }}", "lemustest_fx")
+          if ('${{ inputs.extra }}') { $tests += '${{ inputs.extra }}' }
+          $failed = 0
+          foreach ($t in $tests) {
+            Write-Host "== $t"
+            & "build/win/${t}_artefacts/Release/$t.exe"
+            Write-Host ("== $t exit code {0} (0x{0:X8})" -f $LASTEXITCODE)
+            if ($LASTEXITCODE) { $failed = 1 }
+          }
+          exit $failed

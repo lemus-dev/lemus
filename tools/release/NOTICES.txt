@@ -125,6 +125,19 @@ Font License 1.1 (its text is below):
 Copyright 2011 The Michroma Project Authors (https://github.com/googlefonts/Michroma-font)
 
 
+Panel legends that stand in for Helvetica use URW++'s base 35 fonts (the
+ProCo RAT's: Nimbus Sans Bold), from
+https://github.com/ArtifexSoftware/urw-base35-fonts (tag 20200910),
+unmodified. They are licensed under the AGPLv3, Lemus's own licence (its text
+is in LICENSE.txt), with this exception from their LICENSE file: "As a special
+exception, permission is granted to include these font programs in a
+Postscript or PDF file that consists of a document that contains text to be
+displayed or printed using this font, regardless of the conditions or license
+applying to the document itself."
+
+Copyright 2014 (URW)++ Design & Development
+
+
 Lemus's own screens use JetBrains Mono, licensed under the SIL Open Font
 License 1.1:
 

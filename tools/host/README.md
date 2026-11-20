@@ -93,7 +93,7 @@ A **source** is a plugin or a recording:
 | `use` | start from a template (below); the fields below override it |
 | `label` | names the output file and the A/B button |
 | `plugin` | `Lemus`, `Lemus FX`, `Roland/TB-303` (a VST3 in `~/Library/Audio/Plug-Ins` or `/Library/Audio/Plug-Ins`), `au:Name` for an AU, or a path |
-| `machine` | for Lemus and Lemus FX: the machine to load (`tb303`, `sh101`, `rat2`) |
+| `machine` | for Lemus and Lemus FX: the machine to load (`tb303`, `sh101`, `rat`) |
 | `state` | a saved plugin state, applied first: lemus-render/JUCE's host format, Onyx Tracker's (`OV3S`, as in a song's `plugin.state`), or a VST3 component's own |
 | `names` | generic parameter name -> the plugin's own (so one scene's `cutoff` reaches "Cut Off Freq" and "VCF CUTOFF") |
 | `params` | in the plugin's own names, after the scene's |

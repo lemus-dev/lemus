@@ -1,0 +1,419 @@
+{
+ "source_image": "private/docs/photos/whiteface/top_orig1984_rv103889534.jpg",
+ "source_note": "a 1984 original's top (serial RT-024885) from a Reverb listing, reference only; see private/docs/photos/whiteface/sources.md",
+ "units": "mm",
+ "view": "plan (orthographic top view): the print plane rectified with the fitted camera pose; parts above it moved back by their height",
+ "origin": "rear-left corner of the plan outline (outer face of the left cheek, rear end of the cheeks); x right, y towards the player",
+ "angles": "degrees from 12 o'clock, clockwise",
+ "pose": {
+  "f_px": 3028.4,
+  "tilt_deg": 2.46,
+  "camera_mm_over_print": 159.0,
+  "rms_units": 0.85,
+  "arc_radii_units": [
+   239.9,
+   240.0,
+   240.23
+  ]
+ },
+ "scale": {
+  "units_per_mm": 18.92,
+  "pot_pitch": {
+   "units_per_mm": 18.701,
+   "pitch_mm": 27.22,
+   "gut_fits_px": {
+    "left": [
+     526.4,
+     1198.3,
+     379.8
+    ],
+    "right": [
+     2246.3,
+     1219.9,
+     372.3
+    ]
+   }
+  },
+  "leaflet_length": {
+   "units_per_mm": 19.139,
+   "length_mm": 103.19,
+   "cheek_above_print_mm": 1.5
+  },
+  "uncertainty_pct": 1.2
+ },
+ "accuracy": "print positions +-0.05 mm relative (pose rms 0.85 units = 0.045 mm); overall size +-1.2 % (the scale); knob and footswitch sizes and heights +-0.5..2 mm (fitted on edges of 3-D parts)",
+ "outline": {
+  "w": 92.984,
+  "h": 104.397
+ },
+ "cheeks": {
+  "left": {
+   "x0": 0.0,
+   "x1": 2.01
+  },
+  "right": {
+   "x0": 90.78,
+   "x1": 92.984
+  },
+  "y0": 0.0,
+  "y1": 104.397,
+  "note": "the cheeks' top edges in plan, 1.5 mm over the print; the ends round over about 3 mm"
+ },
+ "gaps": {
+  "left": [
+   2.01,
+   3.62
+  ],
+  "right": [
+   89.11,
+   90.78
+  ]
+ },
+ "shell_top": {
+  "x0": 3.62,
+  "x1": 89.11,
+  "y0": 2.33,
+  "y1": 102.13,
+  "note": "the top plate; its rear and front edges bend down into the rear and front faces"
+ },
+ "legend_box": {
+  "x0": 6.73,
+  "x1": 86.52,
+  "y0": 6.17,
+  "y1": 16.1,
+  "divs": [
+   33.19,
+   59.98
+  ],
+  "stroke": 0.479
+ },
+ "labels": [
+  {
+   "text": "DISTORTION",
+   "x0": 7.79,
+   "x1": 32.21,
+   "y0": 9.82,
+   "y1": 13.05,
+   "cap_h": 3.224,
+   "font": "Helvetica Bold (screen print): drawn with Nimbus Sans Narrow Bold stretched to the box"
+  },
+  {
+   "text": "FILTER",
+   "x0": 40.03,
+   "x1": 53.14,
+   "y0": 9.82,
+   "y1": 13.0,
+   "cap_h": 3.171,
+   "font": "Helvetica Bold (screen print): drawn with Nimbus Sans Narrow Bold stretched to the box"
+  },
+  {
+   "text": "VOLUME",
+   "x0": 64.98,
+   "x1": 82.15,
+   "y0": 9.82,
+   "y1": 13.05,
+   "cap_h": 3.224,
+   "font": "Helvetica Bold (screen print): drawn with Nimbus Sans Narrow Bold stretched to the box"
+  }
+ ],
+ "scales": [
+  {
+   "name": "distortion",
+   "cx": 19.99,
+   "cy": 30.48,
+   "r": 12.68,
+   "stroke": 0.487,
+   "arc_deg": [
+    -135,
+    135
+   ],
+   "tick_deg": [
+    -135,
+    -90,
+    -45,
+    0,
+    45,
+    90,
+    135
+   ],
+   "ticks_measured": [
+    {
+     "nominal": -135,
+     "deg": -134.48,
+     "w": 0.62,
+     "visible_r_in": 10.83
+    },
+    {
+     "nominal": 45,
+     "deg": 44.88,
+     "w": 0.585,
+     "visible_r_in": 9.667
+    },
+    {
+     "nominal": 90,
+     "deg": 90.09,
+     "w": 0.565,
+     "visible_r_in": 12.046
+    },
+    {
+     "nominal": 135,
+     "deg": 134.87,
+     "w": 0.466,
+     "visible_r_in": 9.033
+    }
+   ]
+  },
+  {
+   "name": "filter",
+   "cx": 46.95,
+   "cy": 30.54,
+   "r": 12.685,
+   "stroke": 0.487,
+   "arc_deg": [
+    -135,
+    135
+   ],
+   "tick_deg": [
+    -135,
+    -90,
+    -45,
+    0,
+    45,
+    90,
+    135
+   ],
+   "ticks_measured": [
+    {
+     "nominal": -135,
+     "deg": -133.4,
+     "w": 0.552,
+     "visible_r_in": 9.725
+    },
+    {
+     "nominal": -90,
+     "deg": -89.56,
+     "w": 0.557,
+     "visible_r_in": 10.994
+    },
+    {
+     "nominal": 0,
+     "deg": -1.56,
+     "w": 0.48,
+     "visible_r_in": 11.364
+    },
+    {
+     "nominal": 45,
+     "deg": 45.13,
+     "w": 0.556,
+     "visible_r_in": 11.205
+    },
+    {
+     "nominal": 90,
+     "deg": 89.76,
+     "w": 0.531,
+     "visible_r_in": 10.888
+    },
+    {
+     "nominal": 135,
+     "deg": 134.63,
+     "w": 0.499,
+     "visible_r_in": 9.144
+    }
+   ]
+  },
+  {
+   "name": "volume",
+   "cx": 73.81,
+   "cy": 30.5,
+   "r": 12.697,
+   "stroke": 0.451,
+   "arc_deg": [
+    -135,
+    135
+   ],
+   "tick_deg": [
+    -135,
+    -90,
+    -45,
+    0,
+    45,
+    90,
+    135
+   ],
+   "ticks_measured": [
+    {
+     "nominal": -135,
+     "deg": -133.94,
+     "w": 0.415,
+     "visible_r_in": 9.684
+    },
+    {
+     "nominal": -90,
+     "deg": -89.74,
+     "w": 0.545,
+     "visible_r_in": 11.534
+    },
+    {
+     "nominal": -45,
+     "deg": -46.23,
+     "w": 0.525,
+     "visible_r_in": 10.16
+    },
+    {
+     "nominal": 0,
+     "deg": -2.21,
+     "w": 0.487,
+     "visible_r_in": 11.375
+    },
+    {
+     "nominal": 135,
+     "deg": 135.01,
+     "w": 0.533,
+     "visible_r_in": 10.635
+    }
+   ]
+  }
+ ],
+ "tick_w": 0.53,
+ "tick_r_in": 9.033,
+ "tick_note": "short ticks at 0, +-45, +-90 and the arc's ends at +-135 run in under the knob; tick_r_in is the innermost visible point (the knob hides the rest)",
+ "knobs": {
+  "skirt_d": 18.05,
+  "top_d": 17.44,
+  "height": 16.4,
+  "pointer_r0": 3.22,
+  "pointer_r1": 7.36,
+  "pointer_w": 0.65,
+  "travel_deg": [
+   -150,
+   150
+  ],
+  "travel_note": "CTS 450 pots turn 300 degrees",
+  "measured": [
+   {
+    "name": "distortion",
+    "top_fit_n": 47,
+    "top_rms_units": 0.87,
+    "pointer_deg": -23.0,
+    "lean_mm": [
+     -3.743,
+     -2.677
+    ],
+    "lean_ratio": 1.1337,
+    "top_h_mm": 18.746,
+    "top_r_units_on_print": 183.36,
+    "skirt_d_bottom": 17.059,
+    "top_d": 17.385,
+    "pointer": {
+     "deg_in_photo": -13.0,
+     "r0_frac": 0.395,
+     "r1_frac": 0.851,
+     "w_units": 14.97
+    }
+   },
+   {
+    "name": "filter",
+    "top_fit_n": 86,
+    "top_rms_units": 1.32,
+    "pointer_deg": -8.0,
+    "lean_mm": [
+     0.839,
+     -2.234
+    ],
+    "lean_ratio": 1.0997,
+    "top_h_mm": 14.412,
+    "top_r_units_on_print": 189.91,
+    "skirt_d_bottom": 18.444,
+    "top_d": 18.006,
+    "pointer": {
+     "deg_in_photo": -7.2,
+     "r0_frac": 0.0,
+     "r1_frac": 0.866,
+     "w_units": 14.18
+    }
+   },
+   {
+    "name": "volume",
+    "top_fit_n": 67,
+    "top_rms_units": 2.04,
+    "pointer_deg": 10.5,
+    "lean_mm": [
+     3.174,
+     -2.589
+    ],
+    "lean_ratio": 1.112,
+    "top_h_mm": 16.013,
+    "top_r_units_on_print": 178.7,
+    "skirt_d_bottom": 18.645,
+    "top_d": 16.943,
+    "pointer": {
+     "deg_in_photo": 7.8,
+     "r0_frac": 0.344,
+     "r1_frac": 0.837,
+     "w_units": 12.26
+    }
+   }
+  ]
+ },
+ "rat_box": {
+  "x0": 14.05,
+  "x1": 80.33,
+  "y0": 51.34,
+  "y1": 68.13,
+  "stroke": 0.584
+ },
+ "white_block": {
+  "x0": 15.61,
+  "x1": 78.85,
+  "y0": 52.88,
+  "y1": 66.47
+ },
+ "places": {
+  "rat": {
+   "x0": 33.21,
+   "x1": 77.87,
+   "y0": 54.15,
+   "y1": 65.25
+  },
+  "proco": {
+   "x0": 16.82,
+   "x1": 30.2,
+   "y0": 53.57,
+   "y1": 65.09
+  }
+ },
+ "footswitch": {
+  "x": 45.7,
+  "y": 83.72,
+  "bezel_d": 16.879,
+  "plunger_d": 10.651,
+  "plunger_top_h": 22.507,
+  "fit_rms_units": [
+   0.87,
+   0.72
+  ]
+ },
+ "front_face": {
+  "source": "front_orig1985_rv87589066.jpg",
+  "px_per_mm": 24.41,
+  "height": 47.28,
+  "place_front": {
+   "x0": 31.5,
+   "x1": 61.61,
+   "z0": 13.19,
+   "z1": 37.53
+  },
+  "note": "the face spans the top plate's width; z from the top plate's front bend down to the base"
+ },
+ "colours": {
+  "plate": "#0e0d0c",
+  "block_white": "#c5c6c0",
+  "print_white": "#c5c6c0",
+  "cheek": "#0f0e0f",
+  "gap": "#010103",
+  "knob_top": "#252525",
+  "plunger": "#756355",
+  "chrome": "#907f75",
+  "note": "medians of photo patches; the light is soft and from above, so these are the surfaces' look, not paint swatches"
+ }
+}

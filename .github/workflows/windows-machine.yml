@@ -1,10 +1,11 @@
 # A Windows build of one machine's plugin before it ships (release.yml builds the shipping ones):
 # its VST3 and standalone app zipped as a release would be (tools/release/windows.ps1), the
 # instruments host's checks (the runner has no ROMs, so the machine's own ROM checks are skipped),
-# and for the TR-909 its bench in voice mode, for a CPU figure on the runner. With both compilers:
-# MSVC, as release.yml builds, and clang-cl, the compiler the macOS builds' solvers were tuned with.
+# and for the TR-909 its bench in voice mode, for a CPU figure on the runner. With clang-cl, as
+# release.yml builds every machine but the TB-303 (the 909's solver runs about 15 % faster than with
+# MSVC); toolset=msvc or both when there is a reason to compare (each build costs Actions minutes).
 # Run by hand:
-#   gh workflow run windows-machine.yml -R lemus-dev/lemus-build -f machine=tr909
+#   gh workflow run windows-machine.yml -R lemus-dev/lemus-build -f machine=tr909 [-f toolset=both]
 name: windows-machine
 
 on:
@@ -14,6 +15,11 @@ on:
         description: the machine's id (machines/<id>)
         required: true
         default: tr909
+      toolset:
+        description: the compiler (both builds the machine twice)
+        type: choice
+        options: [clangcl, msvc, both]
+        default: clangcl
 
 jobs:
   windows:
@@ -21,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        toolset: [msvc, clangcl]
+        toolset: ${{ fromJSON(inputs.toolset == 'both' && '["msvc", "clangcl"]' || format('["{0}"]', inputs.toolset)) }}
     steps:
       - uses: actions/checkout@v4
         with:

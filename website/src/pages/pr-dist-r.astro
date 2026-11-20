@@ -1,0 +1,297 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import MachineTop from '../components/MachineTop.astro';
+import SampleList from '../components/SampleList.astro';
+import { bySlug } from '../data/machines';
+import panelShot from '../assets/pr-dist-r/panel.webp';
+
+const m = bySlug('pr-dist-r');
+const panel = await getImage({ src: panelShot, format: 'webp', quality: 85 });
+
+// The strip under the header: the page's sections, the one being read underlined.
+const sections = [
+  { id: 'download', label: 'Download' },
+  { id: 'hear', label: 'Hear it' },
+  { id: 'accuracy', label: 'In numbers' },
+  { id: 'differences', label: 'Differences' },
+  { id: 'made', label: 'How it was made' },
+  { id: 'artwork', label: 'Artwork' },
+];
+
+const clips = [
+  { file: 'guitar-crunch', title: 'Guitar, crunch', detail: 'DISTORTION 4, FILTER 4, VOLUME 6' },
+  { file: 'guitar-lead', title: 'Guitar, lead', detail: 'DISTORTION 8, FILTER 3, VOLUME 5' },
+  { file: 'tb303-acid', title: 'TB-303 line', detail: 'DISTORTION 6, FILTER 3, VOLUME 6' },
+];
+---
+<Base title="pr-dist-r · Lemus" description="pr-dist-r emulates the original ProCo RAT distortion pedal, the 1984 White Face with its LM308, part by part: the whole circuit solved every sample, checked against a circuit simulator and recordings of real RATs. Free for macOS and Windows." current="pr-dist-r">
+
+<nav slot="sub" class="onpage" aria-label="On this page">
+<div class="frame sheet">
+<div class="col">
+<ol>
+{sections.map((s) => <li><a href={`#${s.id}`} class:list={{ red: s.id === 'differences' }}>{s.label}</a></li>)}
+</ol>
+</div>
+</div>
+</nav>
+
+<MachineTop machine={m}>
+<SampleList heading="Through the pedal" plugin="pr-dist-r" tracks={clips.map((c) => ({ src: `/media/pr-dist-r/${c.file}.m4a`, title: c.title, detail: c.detail }))} />
+<Fragment slot="data">
+<div><dt class="lbl">Unit</dt><dd>The small box, "White Face", LM308</dd></div>
+<div><dt class="lbl">Controls</dt><dd>DISTORTION, FILTER, VOLUME, the footswitch; INPUT in the bar</dd></div>
+<div><dt class="lbl">Channels</dt><dd>Mono or stereo</dd></div>
+</Fragment>
+</MachineTop>
+
+<section class="sheet">
+<div class="col sec">
+<figure class="panel">
+<div class="mount">
+<div class="pin">
+<img src={panel.src} alt="pr-dist-r: the 1984 RAT's top, DISTORTION, FILTER and VOLUME over their scales, the white block with its brand marks' places left blank, the footswitch, and the bar with INPUT" width="630" height="890">
+<span class="leader" style="left: 50.8%; top: -24px; height: calc(46.3% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 50.8%; top: 46.3%" aria-hidden="true"></span>
+<span class="balloon" style="left: 50.8%; top: -56px" aria-hidden="true">A1</span>
+<span class="leader" style="left: 13.5%; top: 97.8%; height: 24px" aria-hidden="true"></span>
+<span class="target" style="left: 13.5%; top: 97.8%" aria-hidden="true"></span>
+<span class="balloon" style="left: 13.5%; top: calc(100% + 24px)" aria-hidden="true">A2</span>
+</div>
+</div>
+<figcaption class="caption">
+<div class="row"><span class="key">A1</span><span><strong>The white block.</strong> Its RAT letters and Pro Co logo, and the logo on the front face, are places for artwork of your own.</span></div>
+<div class="row"><span class="key">A2</span><span><strong>INPUT.</strong> A gain in front of the pedal, −12 to +24 dB: at 0 dB, 0 dBFS is +4 dBu at its input. The footswitch's bypass skips it.</span></div>
+<div class="row"><span class="fig">FIG. 1</span><span>The top of the 1984 small box, measured from photos of 1984 units. The pedal has no LED: the bar says ON or BYPASSED.</span></div>
+</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="accuracy" class="sheet">
+<div class="col sec">
+<div class="numbers-head">
+<h2 class="h2 tap">In numbers</h2>
+<p class="dim">The circuit checked against ngspice, and the sound against recordings of real RATs: a capture of a 1984 White Face, a 1990 RAT 2's published scope shots, Aalto University's recordings of a RAT, and captures of later RAT 2s. Method: <a href="#made">How it was made</a>.</p>
+<p class="dim small">The clips at the top: a guitar DI and a TB-303 line through pr-dist-r at the knob settings given, INPUT at 0 dB.</p>
+</div>
+
+<div class="numbers">
+<div class="measure">
+<div class="figure">
+<div class="big">6.3 dB</div>
+<div class="what">log-spectral distance from a capture of a real 1984 White Face</div>
+<div class="dim small">Level-matched, its band levels are within 0.9 dB of the real one's above 2 kHz on a guitar DI, and within 0.2 dB on a TB-303 line. The capture is one setting, its input level not stated: 0 dBu fits best.</div>
+</div>
+</div>
+<div class="measure">
+<div class="figure">
+<div class="big">−46 dB</div>
+<div class="what">the solver's largest error against ngspice on the same circuit</div>
+<div class="dim small">−46 to −86 dB across the tests; the small-signal response within 0.01 dB. No solve fails to converge at any extreme of the knobs, the input or the sample rate.</div>
+</div>
+</div>
+<div class="measure">
+<div class="figure">
+<div class="big">3.7 %</div>
+<div class="what">of one core for each channel at 48 kHz, a guitar at the default knobs</div>
+<div class="dim small">Apple M5 Max. On silent input the pedal sleeps.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="differences" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap red">What is still different</h2>
+<dl class="diffs">
+<div><dt>The pots</dt><dd>DISTORTION's and VOLUME's laws are the one vintage RAT pot that has been measured, a 1979 big box's: 10.1 % of its track at half turn. FILTER's is fitted to the 1984 capture, 6 %. No 1984 pot has been measured.</dd></div>
+<div><dt>One 1984 reference</dt><dd>The White Face capture is one setting with its input level unknown. A second recording would tell its FILTER pot from its filter capacitor and its knob reading.</dd></div>
+<div><dt>Later RAT 2s</dt><dd>Their newer pots keep FILTER darker at the same knob position: against captures of six later RAT 2s and RATs the distance is 8.6 dB. Against a 1990 RAT 2's scope shots the peak ratio is off by 0.8 % and the harmonics by 4.4 dB, on average. Against Aalto's RAT: 7.1 dB.</dd></div>
+<div><dt>The top end</dt><dd>Against a later RAT 2 it changes with DISTORTION more than the real one's: a few dB dark above 4 kHz at low DISTORTION, a few dB bright at noon.</dd></div>
+<div><dt>The LM308</dt><dd>Its slew rate and output swing are fitted to LM308 captures whose levels are not known, and ended at the edge of the range bench measurements give.</dd></div>
+<div><dt>The panel</dt><dd>Measured from sellers' photos of 1984 units: the print to about 0.05 mm, its overall size to 1.2 %.</dd></div>
+</dl>
+<div class="not">
+<h3 class="h3">Not emulated</h3>
+<p class="dim">The footswitch's click, the supply sagging with the op amp's current, and a guitar pickup's loading (the source is 1 kΩ).</p>
+</div>
+</div>
+</section>
+
+<section id="made" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">How it was made</h2>
+<ol class="steps">
+<li>
+<div class="step-n">01</div>
+<div class="step">
+<h3 class="h3">The circuit</h3>
+<p class="dim">Transcribed part by part from ProCo's 1986 drawing and published traces of real units, with the original RAT's values: no input pull-down, a 1 MΩ bias resistor, a 1 µF output capacitor with no resistor across it. The whole circuit, from the input network through the LM308 with its 30 pF compensation, the 1N914 clippers, FILTER and the 2N5458 buffer to VOLUME, is one nonlinear system, solved every sample at 8x oversampling with the nodal DK method and Newton's method. ngspice runs the same netlist for the comparison.</p>
+</div>
+</li>
+<li>
+<div class="step-n">02</div>
+<div class="step">
+<h3 class="h3">The parts</h3>
+<p class="dim">The LM308's slew rate, gain-bandwidth and output swing, from its 30 pF compensation and bench measurements, are fitted to a 1990 RAT 2's published scope shots and to captures of two LM308-era RATs; the shared trims to captures of RAT 2s. The pots' laws are a measured 1979 RAT pot's, and FILTER's is fitted to the 1984 capture.</p>
+</div>
+</li>
+<li>
+<div class="step-n">03</div>
+<div class="step">
+<h3 class="h3">Against real pedals</h3>
+<p class="dim">Neural-network captures of real RATs made by their owners, Aalto University's recordings of a RAT across its knobs, a 2010 RAT 2 from the EGFxSet dataset, and a 1990 RAT 2's scope shots and spectra. Each comparison renders the same signal through the model at the same settings, then compares spectra, error and the clipping's asymmetry.</p>
+</div>
+</li>
+<li>
+<div class="step-n">04</div>
+<div class="step">
+<h3 class="h3">The panel</h3>
+<p class="dim">Measured from sellers' photos of 1984 units. The camera's pose was fitted to the print, with its focal length from the photo's EXIF data, so the rectangles come out square and the scales round. The scale comes from the pots' spacing against their bodies' 15/16 in, and from the small box's leaflet; heights from how far the knobs lean in the photo.</p>
+</div>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="artwork" class="sheet">
+<div class="col sec brief last">
+<h2 class="h2 tap">Panel artwork</h2>
+<p class="dim">ProCo's logos and the RAT wordmark are trademarks, so their three places on the panel are blank. Each place takes an SVG or PNG file of your own, named <span class="mono">pr-dist-r-model</span> and so on, in the ROM folder: drawn yourself, or generated with an AI tool such as Claude or ChatGPT. <a href="/pr-dist-r/guide#artwork">Panel artwork</a></p>
+<p class="dim">pr-dist-r is a circuit with no firmware: it needs no ROM.</p>
+</div>
+</section>
+
+</Base>
+
+<script>
+// Underline the strip's link for the section being read: the last whose top has passed under the
+// strip, or the last of all at the foot of the page.
+const links = [...document.querySelectorAll<HTMLAnchorElement>('.onpage a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+const strip = document.querySelector<HTMLElement>('.onpage ol')!;
+let current = -2;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 80) i = j; });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) i = targets.length - 1;
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => { if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  // Bring the link into view along the strip only. scrollIntoView would also scroll the page, up
+  // by the scroll padding, since the stuck strip sits inside it.
+  const a = links[i];
+  if (!a) return;
+  const r = a.getBoundingClientRect(), s = strip.getBoundingClientRect();
+  if (r.left < s.left) strip.scrollLeft += r.left - s.left;
+  else if (r.right > s.right) strip.scrollLeft += r.right - s.right;
+}
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+mark();
+</script>
+
+<style>
+:global(html) { scroll-padding-top: 64px; }
+
+.onpage { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.onpage ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 30px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.onpage ol::-webkit-scrollbar { display: none; }
+.onpage a { display: inline-flex; align-items: center; min-height: 46px; box-sizing: border-box; padding-top: 3px; border-bottom: 3px solid transparent; color: var(--ink2); text-decoration: none; font-size: 15px; font-weight: 500; }
+.onpage a:hover { color: var(--ink); }
+.onpage a[aria-current] { color: var(--ink); border-bottom-color: var(--wire); }
+.onpage a.red[aria-current] { border-bottom-color: var(--red); }
+
+
+
+.panel { margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.panel .mount { max-width: 460px; margin-inline: auto; box-sizing: content-box; }
+
+.panel .mount { padding: 58px 24px; }
+.pin { position: relative; }
+.pin img { display: block; width: 100%; height: auto; }
+.panel .balloon { width: 34px; height: 34px; font-size: 12px; }
+.caption strong { color: var(--ink); font-weight: 600; }
+.caption .mono { font-size: 13px; color: var(--ink); }
+
+.text { display: flex; flex-direction: column; gap: 18px; min-width: 0; max-width: 48em; }
+.text p { margin: 0; }
+.small { font-size: 15px; }
+.tiny { font-size: 13px; }
+.mono { font-size: 0.9em; color: var(--ink); }
+
+.numbers-head { display: flex; flex-direction: column; gap: 18px; }
+.numbers-head p { margin: 0; font-size: 16px; }
+.numbers { display: flex; flex-direction: column; margin-top: -8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.measure { display: flex; flex-wrap: wrap; gap: 24px 56px; padding: 28px 0; }
+.measure + .measure { border-top: 1px solid var(--rule); }
+.figure { flex: 1 1 300px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.big { font: 700 56px/1 var(--display); font-variant-numeric: tabular-nums; }
+.what { font-weight: 500; }
+.chart { flex: 2 1 420px; min-width: 0; position: relative; height: 96px; margin-top: 8px; font: 11px/16px var(--mono); color: var(--ink2); }
+.chart > * { position: absolute; }
+.axis { left: 0; right: 0; top: 40px; border-top: 1.5px solid var(--ink); }
+.tick { top: 40px; height: 7px; border-left: 1px solid var(--ink); }
+.tick-label { top: 50px; transform: translateX(-50%); font-size: 10px; white-space: nowrap; }
+.bar { left: 0; top: 37px; height: 6px; background: var(--wire); }
+.dot { top: 35px; width: 11px; height: 11px; box-sizing: border-box; transform: translateX(-50%); border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); }
+.dot.ours { top: 33px; width: 15px; height: 15px; border: 0; background: var(--wire); box-shadow: 0 0 0 2px var(--paper); }
+.label { white-space: nowrap; }
+.label.ours { font-weight: 700; color: var(--wire-text); }
+.label.to-end { transform: translateX(-100%); }
+.label.above { top: 10px; transform: translateX(-50%); }
+.label.below { top: 72px; }
+.label.above.from, .label.below.from { transform: translateX(-12px); }
+.label.below.to { transform: translateX(calc(-100% + 12px)); }
+.range { height: 104px; margin-top: 4px; }
+.range .axis, .range .tick { top: 74px; }
+.range .tick-label { top: 84px; }
+.zero { top: 0; height: 74px; border-left: 1px dashed var(--rule); }
+.span { height: 10px; box-sizing: border-box; border: 1.5px solid var(--ink); background-image: repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 5px); }
+.span.ours { border: 0; background: var(--wire); }
+
+.service-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 28px; }
+.service-head .text { flex: 1 1 480px; max-width: 46em; }
+.stamp { border: 4px double var(--green); color: var(--green); padding: 12px 20px 14px; display: flex; flex-direction: column; gap: 2px; max-width: 100%; box-sizing: border-box; }
+.count { font: 700 44px/1.05 var(--display); white-space: nowrap; }
+.spec { margin-left: 8px; font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: 0.1em; text-transform: uppercase; }
+.checks { font-size: 15px; color: var(--ink); }
+.shot { margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.shot .mount { padding: 24px; }
+.shot img { display: block; width: 100%; height: auto; }
+
+.diffs { margin: 0; display: flex; flex-direction: column; max-width: 62em; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.diffs > div { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 12px; padding: 18px 0; }
+.diffs > div + div { border-top: 1px solid var(--rule); }
+.diffs > div::before { content: '≠'; grid-row: span 2; font: 700 24px/1.05 var(--mono); color: var(--red); }
+.diffs dt { font-family: var(--display); font-weight: 600; font-size: 23px; line-height: 1.15; letter-spacing: 0.03em; text-transform: uppercase; }
+.diffs dd { margin: 0; color: var(--ink2); font-size: 16px; }
+.not { max-width: 62em; display: flex; flex-direction: column; gap: 8px; }
+.not .h3 { font-size: 26px; letter-spacing: 0.02em; }
+.not p { margin: 0; font-size: 16px; }
+
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.steps > li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 20px; padding: 28px 0; }
+.steps > li + li { border-top: 1px solid var(--rule); }
+.step-n { width: 48px; height: 48px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+.step { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.step .h3 { font-size: 28px; letter-spacing: 0.02em; }
+.step p { margin: 0; max-width: 52em; }
+.fitted { min-width: 600px; }
+.fitted .fit { color: var(--red); font-weight: 700; }
+.versus { min-width: 860px; }
+.revisions { min-width: 860px; }
+.revisions td.num { white-space: nowrap; }
+.versus tbody th { font-weight: 400; }
+.versus .ours { background: var(--tint); color: var(--wire-text); font-weight: 700; }
+.versus .ours th { font-weight: 700; font-size: 15px; color: var(--wire-text); }
+.sec > p { margin: 0; max-width: 52em; }
+.brief { gap: 18px; }
+.brief p { margin: 0; max-width: 46em; }
+.last { padding-bottom: 96px; }
+</style>

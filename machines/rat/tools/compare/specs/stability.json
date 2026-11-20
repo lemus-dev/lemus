@@ -1,0 +1,11 @@
+{
+ "description": "Long, hot renders at the knob extremes, each followed by 3 s of silence. stability.py checks finite output, no Newton failures, settling to below -80 dBFS and no runaway.",
+ "cases": [
+  {"name": "max-dist-lowsine-0dB", "signal": "lowsine", "seconds": 20, "level_dbfs": 0, "dist": 1.0, "filter": 0.0, "volume": 1.0, "level_dbu": 12},
+  {"name": "max-dist-square", "signal": "square", "seconds": 10, "level_dbfs": -6, "dist": 1.0, "filter": 0.0, "volume": 1.0, "level_dbu": 12},
+  {"name": "max-dist-bursts-dark", "signal": "bursts", "seconds": 20, "level_dbfs": -3, "dist": 1.0, "filter": 1.0, "volume": 1.0, "level_dbu": 12},
+  {"name": "min-dist-chirp", "signal": "chirp", "seconds": 10, "level_dbfs": 0, "dist": 0.0, "filter": 0.0, "volume": 1.0, "level_dbu": 20},
+  {"name": "mid-dist-chirp", "signal": "chirp", "seconds": 10, "level_dbfs": -12, "dist": 0.5, "filter": 0.5, "volume": 0.5, "level_dbu": 4},
+  {"name": "max-dist-quiet-bursts", "signal": "bursts", "seconds": 20, "level_dbfs": -48, "dist": 1.0, "filter": 0.0, "volume": 1.0, "level_dbu": 4}
+ ]
+}

@@ -381,3 +381,6 @@ if(LEMUS_TOOLS)
     target_compile_definitions(lemustest_${id} PRIVATE LEMUS_MACHINE="${id}" LEMUS_STAGE="${LEMUS_PLUGIN_${id}_STAGE}")
   endforeach()
 endif()
+
+# Lemus Plugin Manager, the app that installs and updates the plugins (manager/README.md).
+include(manager/manager.cmake)
