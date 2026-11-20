@@ -1,9 +1,11 @@
 # A Windows build of one effect machine's plugin, and its checks, on demand: the VST3 built as
 # release.yml builds it (clang-cl), its plugin test (lemustest_<id>), the effects host's checks
 # (lemustest_fx) and, if given, one more test target of the machine's own; each run with its exit
-# code printed, so a crash shows. Much quicker than release.yml, which builds every plugin.
+# code printed, so a crash shows. Much quicker than release.yml, which builds every plugin. With
+# debug=true it builds RelWithDebInfo and runs each test under cdb, which prints the stack where it
+# crashed. Runs free in the public repo (lemus-dev/lemus) once the machine is published there.
 # Run by hand:
-#   gh workflow run windows-fx.yml -R lemus-dev/lemus-build -f machine=rat -f extra=ratplugintest
+#   gh workflow run windows-fx.yml -R lemus-dev/lemus -f machine=rat -f extra=ratplugintest [-f debug=true]
 name: windows-fx
 
 on:
@@ -17,10 +19,16 @@ on:
         description: one more test target of the machine's own (empty for none)
         required: false
         default: ratplugintest
+      debug:
+        description: build with symbols and run the tests under cdb (a stack on a crash)
+        type: boolean
+        default: false
 
 jobs:
   windows:
     runs-on: windows-2022
+    env:
+      CONFIG: ${{ inputs.debug && 'RelWithDebInfo' || 'Release' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,17 +40,26 @@ jobs:
         run: |
           $targets = @("plugin_${{ inputs.machine }}_VST3", "lemustest_${{ inputs.machine }}", "lemustest_fx")
           if ('${{ inputs.extra }}') { $targets += '${{ inputs.extra }}' }
-          cmake --build build/win --config Release --parallel --target @targets
+          cmake --build build/win --config $env:CONFIG --parallel --target @targets
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Test
         shell: pwsh
         run: |
           $tests = @("lemustest_${{ inputs.machine }}", "lemustest_fx")
           if ('${{ inputs.extra }}') { $tests += '${{ inputs.extra }}' }
+          $cdb = "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x64\cdb.exe"
+          $debug = '${{ inputs.debug }}' -eq 'true'
+          if ($debug -and -not (Test-Path $cdb)) { Write-Host "no cdb at $cdb: running without it"; $debug = $false }
           $failed = 0
           foreach ($t in $tests) {
             Write-Host "== $t"
-            & "build/win/${t}_artefacts/Release/$t.exe"
+            $exe = "build/win/${t}_artefacts/$env:CONFIG/$t.exe"
+            if ($debug) {
+              # -g: no initial break, so the commands run at the first exception (or at exit).
+              & $cdb -g -G -lines -c ".lines -e; .ecxr; kn 40; r; q" $exe
+            } else {
+              & $exe
+            }
             Write-Host ("== $t exit code {0} (0x{0:X8})" -f $LASTEXITCODE)
             if ($LASTEXITCODE) { $failed = 1 }
           }

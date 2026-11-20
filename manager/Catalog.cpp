@@ -83,7 +83,7 @@ std::optional<Catalog> Catalog::parse(const juce::String &text)
 		if (!p.value.isObject())
 			continue;
 		auto e = entryOf(p.name.toString(), p.value);
-		if (e.version.isEmpty())
+		if (!isPluginName(e.plugin) || !isVersion(e.version))
 			continue;
 		if (e.plugin == "lemus-plugin-manager")
 			c.manager = e;
@@ -107,6 +107,18 @@ const Entry *Catalog::find(const juce::String &plugin) const
 std::vector<updates::Change> Catalog::changesSince(const Entry &e, const juce::String &since) const
 {
 	return updates::releaseOf(text, e.plugin, since).changes;
+}
+
+bool isPluginName(const juce::String &name)
+{
+	if (name.isEmpty() || name.startsWithChar('-') || name.endsWithChar('-') || name.contains("--"))
+		return false;
+	return name.containsOnly("abcdefghijklmnopqrstuvwxyz0123456789-");
+}
+
+bool isVersion(const juce::String &version)
+{
+	return version.isNotEmpty() && version.containsOnly("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.+-");
 }
 
 void setCatalogSource(const juce::String &fileOrUrl)

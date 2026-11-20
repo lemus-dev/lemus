@@ -10,6 +10,18 @@
 //     itself this way, elevated, so Windows asks once per batch); writes <plan>.result.
 #include "MainComponent.h"
 
+#if JUCE_WINDOWS
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+
+// DLLs load from System32 only, never from the folder the app was started in (a Downloads folder
+// may hold a planted version.dll and the like); the linker's /DEPENDENTLOADFLAG (manager.cmake)
+// does the same for the ones Windows loads before this runs.
+[[maybe_unused]] static const bool g_system32Only = SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32) != 0;
+#endif
+
 namespace lemus::manager {
 
 class Window final : public juce::DocumentWindow {

@@ -64,6 +64,12 @@ if(WIN32)
   set(_lemus_rc_name "${LEMUS_MANAGER_NAME}")
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/host/version.rc.in ${LEMUS_GENERATED_DIR}/rc/manager.rc @ONLY)
   target_compile_definitions(lemus_manager PRIVATE JUCE_USER_DEFINED_RC_FILE="${LEMUS_GENERATED_DIR}/rc/manager.rc")
+  # The DLLs the exe imports load from System32 only, never from the folder it was started in (a
+  # Downloads folder may hold a planted version.dll): LOAD_LIBRARY_SEARCH_SYSTEM32. Main.cpp sets
+  # the same for the DLLs loaded later.
+  if(MSVC)
+    target_link_options(lemus_manager PRIVATE /DEPENDENTLOADFLAG:0x800)
+  endif()
 endif()
 
 # Its checks, headless: build/<dir>/lemustest_manager_artefacts/Release/lemustest_manager

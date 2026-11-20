@@ -58,6 +58,15 @@ void testCatalog()
 	check(since.size() == 2 && since[0].version == "0.2.5" && since[1].version == "0.2.4", "changes since the installed version");
 	check(c->changesSince(*tb, {}).size() == 3, "all changes for a plugin not installed");
 	check(!Catalog::parse("{\"version\": \"0.1.0\"}").has_value() && !Catalog::parse("<html>").has_value(), "not a catalogue");
+
+	check(isPluginName("ro-mono-303") && isPluginName("ac-digital-vc") && !isPluginName("..") && !isPluginName("a/b")
+	          && !isPluginName("Ro-mono") && !isPluginName("-a") && !isPluginName("a--b") && !isPluginName("a\nb") && !isPluginName(""),
+	      "plugin names: lower-case words joined by single hyphens, nothing else");
+	check(isVersion("0.2.5") && isVersion("1.0.0-rc1") && !isVersion("0.2.5\nrm") && !isVersion("0.2 5") && !isVersion(""), "versions");
+	const auto odd = Catalog::parse(R"({"plugins": {
+	  "..": {"version": "0.1.0"}, "a/b": {"version": "0.1.0"}, "x\ny": {"version": "0.1.0"},
+	  "ok-1": {"version": "0.1.0\n# oops"}, "ok-2": {"version": "0.1.0"}}})");
+	check(odd && odd->plugins.size() == 1 && odd->plugins[0].plugin == "ok-2", "entries with an odd name or version are skipped");
 }
 
 void testVersions()
@@ -125,27 +134,39 @@ void testChoices()
 void testPlan(const juce::File &sandbox)
 {
 	setRoot(sandbox);
-	const auto from = sandbox.getChildFile("download/ro-mono-303.vst3");
+	const auto p = places();
+	const auto work = sandbox.getChildFile("work");
+	const auto from = work.getChildFile("ro-mono-303/ro-mono-303.vst3");
 	from.getChildFile("Contents/x86_64-win").createDirectory();
 	from.getChildFile("Contents/x86_64-win/ro-mono-303.vst3").replaceWithText("new");
-	const auto to = sandbox.getChildFile("Program Files/Common Files/VST3/ro-mono-303.vst3");
+	const auto to = bundleOf(p, Format::VST3, "ro-mono-303");
 	to.getChildFile("Contents").createDirectory();
 	to.getChildFile("Contents/old.txt").replaceWithText("old");
-	const auto gone = sandbox.getChildFile("Program Files/Lemus/ro-drums-909");
+	const auto gone = bundleOf(p, Format::VST3, "ro-drums-909");
 	gone.createDirectory();
-	const auto plan = sandbox.getChildFile("plan.json");
+	const auto keep = p.vst3.getChildFile("someone-else.vst3");
+	keep.createDirectory();
+	const auto json = [](const juce::File &f) { return f.getFullPathName().replace("\\", "\\\\"); };
+	const auto plan = work.getChildFile("plan.json");
 	plan.replaceWithText(juce::String(R"({"jobs": [
-	  {"plugin": "ro-mono-303", "ops": [{"op": "replace", "from": ")") + from.getFullPathName().replace("\\", "\\\\") + R"(", "to": ")"
-	                     + to.getFullPathName().replace("\\", "\\\\") + R"("}]},
-	  {"plugin": "ro-drums-909", "ops": [{"op": "delete", "path": ")" + gone.getFullPathName().replace("\\", "\\\\") + R"("}]},
-	  {"plugin": "ro-drums-808", "ops": [{"op": "replace", "from": "/nowhere/x.vst3", "to": "/nowhere/y.vst3"}]}]})");
+	  {"plugin": "ro-mono-303", "ops": [{"op": "replace", "from": ")") + json(from) + R"(", "to": ")" + json(to) + R"("}]},
+	  {"plugin": "ro-drums-909", "ops": [{"op": "delete", "path": ")" + json(gone) + R"("}]},
+	  {"plugin": "ro-drums-808", "ops": [{"op": "delete", "path": ")" + json(keep) + R"("}]},
+	  {"plugin": "ro-mono-101", "ops": [{"op": "replace", "from": ")" + json(sandbox.getChildFile("elsewhere.vst3")) + R"(", "to": ")"
+	                     + json(bundleOf(p, Format::VST3, "ro-mono-101")) + R"("}]},
+	  {"plugin": "ac-digital-vc", "ops": [{"op": "deleteIfEmpty", "path": ")" + json(sandbox) + R"("}]},
+	  {"plugin": "..", "ops": [{"op": "delete", "path": ")" + json(p.vst3) + R"("}]}]})");
 	check(applyPlan(plan), "the plan runs");
 	const auto result = juce::JSON::parse(plan.withFileExtension("result").loadFileAsString());
 	check(result["ro-mono-303"].toString().isEmpty() && to.getChildFile("Contents/x86_64-win/ro-mono-303.vst3").loadFileAsString() == "new"
 	          && !to.getChildFile("Contents/old.txt").exists(),
 	      "replace: the old copy goes, the new one is in place");
 	check(result["ro-drums-909"].toString().isEmpty() && !gone.exists(), "delete");
-	check(result["ro-drums-808"].toString().isNotEmpty(), "a step that can't run says why");
+	check(result["ro-drums-808"].toString().contains("isn't the plugin's") && keep.exists(), "a plan can't delete another plugin's copy");
+	check(result["ro-mono-101"].toString().contains("isn't the plugin's") && !bundleOf(p, Format::VST3, "ro-mono-101").exists(),
+	      "a plan can't copy from outside its own folder");
+	check(result["ac-digital-vc"].toString().contains("isn't the plugin's") && sandbox.exists(), "a plan can't empty other folders");
+	check(!result.hasProperty("..") && p.vst3.exists(), "a job with an odd plugin name is skipped");
 	sandbox.deleteRecursively();
 	sandbox.createDirectory();
 }

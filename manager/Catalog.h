@@ -61,6 +61,13 @@ struct Catalog {
 	std::vector<updates::Change> changesSince(const Entry &, const juce::String &since) const;
 };
 
+// A plugin's name as the catalogue may give it: lower-case letters and digits in words joined by
+// single hyphens ("ro-mono-303"). Names go into file paths and into the script that runs as root,
+// so the catalogue skips any other.
+bool isPluginName(const juce::String &);
+// A version as the catalogue may give it: letters, digits, '.', '+' and '-' ("0.2.5", "1.0.0-rc1").
+bool isVersion(const juce::String &);
+
 // Where the catalogue comes from: LEMUS_SITE/latest.json, or a file or URL given instead
 // (--catalog, for tests and before the website has the manager's fields).
 void setCatalogSource(const juce::String &fileOrUrl);

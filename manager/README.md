@@ -24,6 +24,18 @@ all, or one plugin) asks for the password once: on macOS a shell script runs thr
 with administrator privileges; on Windows the app starts itself again elevated (`--apply <plan>`).
 Without a Developer ID there is no privileged helper, so each batch asks.
 
+What runs with those rights trusts as little as it can:
+
+- The catalogue's plugin names and versions must be plain (`ro-mono-303`, `0.2.5`); an entry
+  with any other is skipped, since names become file paths and words in the root script.
+- macOS: the script goes to `osascript` as an argument, not a file. As root it copies each
+  download into a folder only root can write, checks its SHA-256 again there and installs that
+  copy, so nothing left in the user's temporary folder is trusted after the first check.
+- Windows: the elevated copy checks every step of the plan. It writes only the plugin's own VST3,
+  app folder and Start menu shortcut, and copies only from the plan's folder. The exe loads DLLs
+  from System32 only (`/DEPENDENTLOADFLAG` and `SetDefaultDllDirectories`), never from the folder
+  it was started in.
+
 A copy in the user's own `~/Library/Audio/Plug-Ins` (a development build) isn't the manager's;
 it's shown in the details, since a DAW may load either copy.
 

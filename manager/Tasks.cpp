@@ -16,6 +16,7 @@ namespace {
 
 const juce::String kDone = "lemus-done ";
 const juce::String kFail = "lemus-fail ";
+const juce::String kLog = "lemus-log";
 
 bool sandbox()
 {
@@ -97,12 +98,56 @@ bool removeExisting(const juce::File &f)
 	return !f.exists();
 }
 
+// Where a plan's steps for one plugin may write: its VST3, its app and the files beside it, its
+// Start menu shortcut, and the two shared folders once they're empty; and where they may copy from:
+// the plan's own folder. The elevated copy (--apply) checks every step against these, so a plan
+// can touch nothing else, whoever wrote it.
+struct Allowed {
+	juce::File from, vst3, app, appFolder, link, startMenu, apps;
+
+	Allowed(const juce::String &plugin, const juce::File &planFolder)
+	{
+		const auto p = places();
+		from = planFolder;
+		vst3 = bundleOf(p, Format::VST3, plugin);
+		app = bundleOf(p, Format::App, plugin);
+		apps = p.apps;
+		// Windows: Lemus\<plugin> holds the app and its licence; macOS: the .app is the bundle.
+		if (app.getParentDirectory() != p.apps && app.getParentDirectory().isAChildOf(p.apps))
+			appFolder = app.getParentDirectory();
+		if (p.startMenu != juce::File()) {
+			startMenu = p.startMenu;
+			link = p.startMenu.getChildFile(plugin + ".lnk");
+		}
+	}
+
+	bool replaceable(const juce::File &f) const
+	{
+		if (f == vst3 || f == app)
+			return true;
+		for (const auto *text : {"LICENSE.txt", "NOTICES.txt", "README.txt"})
+			if (appFolder != juce::File() && f == appFolder.getChildFile(text))
+				return true;
+		return false;
+	}
+
+	bool deletable(const juce::File &f) const
+	{
+		return f != juce::File() && (f == vst3 || f == app || f == appFolder || f == link);
+	}
+};
+
 // One operation of a plan; empty if it went, else why not.
-juce::String applyOp(const juce::var &op)
+juce::String applyOp(const juce::var &op, const Allowed &allowed)
 {
 	const auto kind = op["op"].toString();
+	const auto outside = [](const juce::File &f) { return "The plan asked for " + f.getFullPathName() + ", which isn't the plugin's, so nothing was done."; };
 	if (kind == "replace") {
 		const juce::File from(op["from"].toString()), to(op["to"].toString());
+		if (!from.isAChildOf(allowed.from))
+			return outside(from);
+		if (!allowed.replaceable(to))
+			return outside(to);
 		if (!from.exists())
 			return "The download had no " + from.getFileName() + ".";
 		if (!removeExisting(to))
@@ -113,10 +158,16 @@ juce::String applyOp(const juce::var &op)
 	}
 	if (kind == "delete") {
 		const juce::File path(op["path"].toString());
+		if (!allowed.deletable(path))
+			return outside(path);
 		return removeExisting(path) ? juce::String() : "Couldn't remove " + path.getFileName() + ": it may be open in a DAW.";
 	}
 	if (kind == "shortcut") {
 		const juce::File target(op["target"].toString()), link(op["link"].toString());
+		if (link != allowed.link || allowed.link == juce::File())
+			return outside(link);
+		if (target != allowed.app)
+			return outside(target);
 		link.getParentDirectory().createDirectory();
 #if JUCE_WINDOWS
 		if (!sandbox())
@@ -126,6 +177,8 @@ juce::String applyOp(const juce::var &op)
 	}
 	if (kind == "deleteIfEmpty") {
 		const juce::File path(op["path"].toString());
+		if (path == juce::File() || (path != allowed.startMenu && path != allowed.apps))
+			return outside(path);
 		if (path.isDirectory() && path.getNumberOfChildFiles(juce::File::findFilesAndDirectories) == 0)
 			path.deleteFile();
 		return {};
@@ -174,7 +227,8 @@ juce::StringArray choiceIdsIn(const juce::String &showChoiceChangesXml)
 			for (auto *k = dict->getFirstChildElement(); k != nullptr; k = k->getNextElement())
 				if (k->hasTagName("key") && k->getAllSubText() == "choiceIdentifier" && k->getNextElement() != nullptr) {
 					const auto id = k->getNextElement()->getAllSubText().trim();
-					if (id != "default")
+					// Ids go into the script that runs as root: plain ones only.
+					if (id != "default" && id.isNotEmpty() && id.containsOnly("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"))
 						ids.addIfNotAlreadyThere(id);
 				}
 	return ids;
@@ -188,12 +242,16 @@ bool applyPlan(const juce::File &plan)
 		return false;
 	auto result = std::make_unique<juce::DynamicObject>();
 	for (const auto &job : *jobs) {
+		const auto plugin = job["plugin"].toString();
+		if (!isPluginName(plugin))
+			continue;
+		const Allowed allowed(plugin, plan.getParentDirectory());
 		juce::String error;
 		if (const auto *ops = job["ops"].getArray())
 			for (const auto &op : *ops)
 				if (error.isEmpty())
-					error = applyOp(op);
-		result->setProperty(job["plugin"].toString(), error);
+					error = applyOp(op, allowed);
+		result->setProperty(plugin, error);
 	}
 	return plan.withFileExtension("result").replaceWithText(juce::JSON::toString(juce::var(result.release())));
 }
@@ -268,7 +326,12 @@ bool Batch::download(size_t index)
 		});
 		return false;
 	}
-	const auto target = m_work.getChildFile(juce::URL::removeEscapeChars(d.url.fromLastOccurrenceOf("/", false, false)));
+	// Named for the plugin (a checked name), not from the URL.
+#if JUCE_WINDOWS
+	const auto target = m_work.getChildFile(job.entry.plugin + ".zip");
+#else
+	const auto target = m_work.getChildFile(job.entry.plugin + ".pkg");
+#endif
 	set(index, [](Job &j) {
 		j.state = Job::State::Downloading;
 		j.progress = 0;
@@ -417,8 +480,21 @@ void Batch::installReady()
 				outcome[r.name.toString()] = r.value.toString();
 	}
 #else
+	// The script runs as root (osascript asks for the password) and is passed whole, never as a
+	// file. It copies each download into a folder only it can write, checks the copy's SHA-256 again
+	// and installs that copy, so nothing in the user's temporary folder, which any program running
+	// as the user can change, is trusted after the check or written as root. The installer's log
+	// comes back in the output after kLog, and the app saves it.
 	const auto log = m_work.getChildFile("install.log");
-	juce::String script = "#!/bin/sh\n# Lemus Plugin Manager\n";
+	juce::String script = "# Lemus Plugin Manager\n"
+	                      "d=$(/usr/bin/mktemp -d /tmp/lemus-plugin-manager.XXXXXX) || exit 1\n"
+	                      "log=\"$d/install.log\"\n"
+	                      "sha() { if [ -x /sbin/sha256 ]; then /sbin/sha256 -q \"$1\"; else /usr/bin/shasum -a 256 \"$1\" | /usr/bin/awk '{print $1}'; fi; }\n";
+	// Copies the download to "$d/<plugin>.pkg" and checks it there.
+	const auto fetch = [](const Job &j) {
+		const auto pkg = "\"$d/" + j.entry.plugin + ".pkg\"";
+		return "/bin/cp " + quoted(j.file) + " " + pkg + " >>\"$log\" 2>&1 && [ \"$(sha " + pkg + ")\" = " + quoted(j.entry.here().sha256) + " ]";
+	};
 	for (auto i : ready) {
 		const auto j = jobs()[i];
 		const auto &plugin = j.entry.plugin;
@@ -440,14 +516,13 @@ void Batch::installReady()
 		script << "# " << (j.kind == Job::Kind::Install ? "install " : "update ") << plugin << " " << j.entry.version << "\n";
 		if (sandbox()) {
 			// No installer under a test root: expand the .pkg and copy the bundles wanted.
-			const auto expanded = m_work.getChildFile(plugin + ".expanded");
-			script << "rm -rf " << quoted(expanded) << "\nif /usr/sbin/pkgutil --expand-full " << quoted(j.file) << " " << quoted(expanded)
-			       << " >>" << quoted(log) << " 2>&1";
+			const auto expanded = "\"$d/" + plugin + ".expanded\"";
+			script << "if " << fetch(j) << " && /usr/sbin/pkgutil --expand-full \"$d/" << plugin << ".pkg\" " << expanded << " >>\"$log\" 2>&1";
 			for (auto f : j.formats) {
-				const auto from = expanded.getChildFile(componentOf(f) + ".pkg/Payload/" + plugin + extensionOf(f));
+				const auto from = "\"$d/" + plugin + ".expanded/" + componentOf(f) + ".pkg/Payload/" + plugin + extensionOf(f) + "\"";
 				const auto to = bundleOf(p, f, plugin);
-				script << " && { [ ! -d " << quoted(from) << " ] || { /bin/mkdir -p " << quoted(to.getParentDirectory()) << " && /bin/rm -rf "
-				       << quoted(to) << " && /usr/bin/ditto " << quoted(from) << " " << quoted(to) << "; }; }";
+				script << " && { [ ! -d " << from << " ] || { /bin/mkdir -p " << quoted(to.getParentDirectory()) << " && /bin/rm -rf " << quoted(to)
+				       << " && /usr/bin/ditto " << from << " " << quoted(to) << "; }; }";
 			}
 			script << "; then\n  " << done << "\nelse\n  " << fail << "\nfi\n";
 			continue;
@@ -457,20 +532,19 @@ void Batch::installReady()
 		if (show.start(juce::StringArray{"/usr/sbin/installer", "-showChoiceChangesXML", "-pkg", j.file.getFullPathName()}))
 			ids = choiceIdsIn(show.readAllProcessOutput());
 		const auto off = unwantedChoices(ids, j.formats);
-		script << "if /usr/sbin/installer -pkg " << quoted(j.file) << " -target /";
-		if (!off.isEmpty()) {
-			const auto choices = m_work.getChildFile(plugin + ".choices.plist");
-			choices.replaceWithText(choicesOff(off), false, false, "\n");
-			script << " -applyChoiceChangesXML " << quoted(choices);
-		}
-		script << " >>" << quoted(log) << " 2>&1; then\n  " << done << "\nelse\n  " << fail << "\nfi\n";
+		const auto choices = "\"$d/" + plugin + ".choices.plist\"";
+		if (!off.isEmpty())
+			script << "/bin/cat >" << choices << " <<'LEMUS_END'\n" << choicesOff(off) << "LEMUS_END\n";
+		script << "if " << fetch(j) << " && /usr/sbin/installer -pkg \"$d/" << plugin << ".pkg\" -target /";
+		if (!off.isEmpty())
+			script << " -applyChoiceChangesXML " << choices;
+		script << " >>\"$log\" 2>&1; then\n  " << done << "\nelse\n  " << fail << "\nfi\n";
 	}
-	const auto scriptFile = m_work.getChildFile("install.sh");
-	scriptFile.replaceWithText(script, false, false, "\n"); // LF: sh reads a CR as part of the word
+	script << "echo " << quoted(kLog) << "\n/bin/cat \"$log\" 2>/dev/null\n/bin/rm -rf \"$d\"\n";
 
 	juce::StringArray command;
 	if (sandbox()) {
-		command = {"/bin/sh", scriptFile.getFullPathName()};
+		command = {"/bin/sh", "-c", script};
 	} else {
 		juce::StringArray what;
 		if (!installs.isEmpty())
@@ -480,10 +554,9 @@ void Batch::installReady()
 		if (!removes.isEmpty())
 			what.add("remove " + listOf(removes));
 		const auto prompt = "Lemus Plugin Manager wants to " + listOf(what) + ".";
-		const auto esc = [](const juce::String &s) { return s.replace("\\", "\\\\").replace("\"", "\\\""); };
-		command = {"/usr/bin/osascript", "-e",
-		           "do shell script \"/bin/sh \" & quoted form of \"" + esc(scriptFile.getFullPathName()) + "\" with prompt \"" + esc(prompt)
-		               + "\" with administrator privileges"};
+		// The script and the prompt go in as arguments, so neither is ever AppleScript source.
+		command = {"/usr/bin/osascript", "-e", "on run argv", "-e",
+		           "do shell script (item 1 of argv) with prompt (item 2 of argv) with administrator privileges", "-e", "end run", script, prompt};
 	}
 	juce::ChildProcess child;
 	juce::String output;
@@ -491,7 +564,16 @@ void Batch::installReady()
 		output = child.readAllProcessOutput();
 	const auto code = child.getExitCode();
 	refused = !sandbox() && code != 0 && (output.contains("-128") || output.containsIgnoreCase("canceled") || output.containsIgnoreCase("cancelled"));
-	for (const auto &line : juce::StringArray::fromLines(output.replace("\r", "\n"))) {
+	const auto lines = juce::StringArray::fromLines(output.replace("\r\n", "\n").replace("\r", "\n"));
+	const auto logAt = lines.indexOf(kLog.trimEnd());
+	if (logAt >= 0) {
+		juce::StringArray logLines(lines);
+		logLines.removeRange(0, logAt + 1);
+		log.replaceWithText(logLines.joinIntoString("\n"));
+	}
+	for (const auto &line : lines) {
+		if (line == kLog.trimEnd())
+			break;
 		if (line.startsWith(kDone))
 			outcome[line.fromFirstOccurrenceOf(kDone, false, false).trim()] = "";
 		else if (line.startsWith(kFail))
