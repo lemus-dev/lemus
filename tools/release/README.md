@@ -35,11 +35,12 @@ readme (`windows-readme.txt`) that says where the VST3 goes.
    package for testing.
 4. Windows: run the workflow by hand in the private repo
    (`gh workflow run release.yml -R lemus-dev/lemus-build --ref main`), the check before the
-   release: it builds and tests every shipping plugin. Then tag the commit `<plugin>-v<version>`
-   for each released plugin. A tag builds only in the public repo, where Actions minutes are free
-   (step 5 pushes the tags there); download the zips from those runs. A tag's run keeps only that
-   plugin's zip, and fails if the plugin's VERSION isn't the tag's. The workflow lists the plugins
-   it builds and tests. Once SignPath is set up (below), the public runs' zips are signed.
+   release: it builds and tests every shipping plugin, each in a job of its own. Then tag the
+   commit `<plugin>-v<version>` for each released plugin. A tag builds only in the public repo,
+   where Actions minutes are free (step 5 pushes the tags there), and builds and tests that plugin
+   alone; download its zip from the run (artifact `windows-<plugin>`). A tag's run fails if the
+   plugin's VERSION isn't the tag's. The workflow's plan job lists the plugins it builds and how.
+   Once SignPath is set up (below), the public runs' zips are signed.
 5. Publish the release's source to https://github.com/lemus-dev/lemus with the same tags
    (`tools/publish/publish.sh -t ro-mono-303-v0.2.1 -t ro-drums-808-v0.1.0 "..."`): the binaries
    are AGPLv3, so their source must be out when they are.
