@@ -7,6 +7,16 @@ namespace {
 constexpr int kWidth = 900, kHeight = 600;
 constexpr int kHeader = 65, kFooter = 47, kFine = 24, kPane = 360, kRow = 32;
 
+// The plug-in folder as the footer shows it: under a test root (--root), the system path it
+// stands for, so snapshots read as they would on a user's machine.
+juce::String shownFolder()
+{
+	const auto folder = places().pluginFolder();
+	if (root() == juce::File())
+		return folder.getFullPathName();
+	return "/" + folder.getRelativePathFrom(root()).replaceCharacter('\\', '/');
+}
+
 const juce::String kDot = juce::String::fromUTF8(" \xc2\xb7 ");
 const juce::String kUp = juce::String::fromUTF8("[\xe2\x86\x91]");    // [↑]
 const juce::String kDown = juce::String::fromUTF8("[\xe2\x86\x93]");  // [↓]
@@ -22,10 +32,9 @@ juce::String formatsText(const std::vector<Format> &formats)
 	return names.joinIntoString(", ");
 }
 
+// What a user sees; under a test root (--root) nothing asks, but snapshots show the real line.
 juce::String permissionLine()
 {
-	if (root() != juce::File())
-		return "Test root: nothing asks for a password.";
 #if JUCE_WINDOWS
 	return "Windows asks for permission once.";
 #else
@@ -758,8 +767,17 @@ juce::String MainComponent::summary() const
 			return "Downloading " + juce::String(fetched + 1) + " of " + juce::String(int(jobs.size()));
 		return verb + " " + juce::String(int(jobs.size())) + " plugins";
 	}
+	// "5 plugins · none installed", "5 plugins · 2 updates", "2 of 5 installed · up to date"
 	const int n = int(m_catalog->plugins.size()), u = updateCount();
-	return juce::String(n) + (n == 1 ? " plugin" : " plugins") + kDot + (u == 0 ? juce::String("up to date") : juce::String(u) + (u == 1 ? " update" : " updates"));
+	int installed = 0;
+	for (const auto &e : m_catalog->plugins)
+		installed += installOf(e).installed() ? 1 : 0;
+	const auto plugins = juce::String(n) + (n == 1 ? " plugin" : " plugins");
+	if (installed == 0)
+		return plugins + kDot + "none installed";
+	if (u > 0)
+		return plugins + kDot + juce::String(u) + (u == 1 ? " update" : " updates");
+	return juce::String(installed) + " of " + juce::String(n) + " installed" + kDot + "up to date";
 }
 
 void MainComponent::startJobs(std::vector<Job> jobs)
@@ -898,7 +916,7 @@ void MainComponent::resized()
 	juce::ignoreUnused(fine);
 	auto footer = r.removeFromBottom(kFooter).reduced(20, 10);
 	footer.removeFromTop(1);
-	const auto folderText = places().pluginFolder().getFullPathName();
+	const auto folderText = shownFolder();
 	const auto labelWidth = juce::GlyphArrangement::getStringWidthInt(mono(12.0f), "Plug-in folder");
 	const auto pathWidth = juce::jmin(360, juce::GlyphArrangement::getStringWidthInt(mono(12.0f), folderText));
 	footer.removeFromLeft(labelWidth + 8 + pathWidth + 8);
@@ -955,7 +973,7 @@ void MainComponent::paint(juce::Graphics &g)
 	g.drawText("Plug-in folder", footer.removeFromLeft(labelWidth), juce::Justification::centredLeft, false);
 	footer.removeFromLeft(8);
 	g.setColour(col::inkSoft);
-	const auto folderText = places().pluginFolder().getFullPathName();
+	const auto folderText = shownFolder();
 	g.drawText(folderText, footer.removeFromLeft(juce::jmin(360, juce::GlyphArrangement::getStringWidthInt(mono(12.0f), folderText))),
 	           juce::Justification::centredLeft, true);
 	g.setFont(mono(10.5f));

@@ -38,8 +38,9 @@ public:
 
 private:
 	// Both allpass chains side by side, one per vector lane. The shorter chain is padded with
-	// a = 1, which passes its input straight through.
-	typedef double V2 __attribute__((vector_size(16)));
+	// a = 1, which passes its input straight through. 8-byte alignment, as Pedal's pairs
+	// (pedal.h).
+	typedef double V2 __attribute__((vector_size(16), aligned(8)));
 
 	V2 run(V2 x)
 	{

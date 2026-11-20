@@ -198,8 +198,10 @@ private:
 
 	// The per-sample matrices again, column-major and padded to whole vectors, so step() forms
 	// each product for all rows at once. Every row's sum keeps its order, so the result is the
-	// same as row by row.
-	typedef double V2 __attribute__((vector_size(16)));
+	// same as row by row. A pair asks for 8-byte alignment only (unaligned loads and stores, as
+	// fast as aligned ones on current x64 and ARM): on Windows a Pedal can sit at 8 mod 16, where
+	// a 16-byte-aligned store faults (the RAT's first Windows build crashed constructing one).
+	typedef double V2 __attribute__((vector_size(16), aligned(8)));
 	static constexpr int kStateChunks = kMaxStates / 2, kSenseChunks = (kMaxV + 1) / 2;
 	V2 m_colA[kMaxStates][kStateChunks]{}, m_colB[kMaxSources][kStateChunks]{}, m_colC[kMaxI][kStateChunks]{};
 	V2 m_colD[kMaxStates][kSenseChunks]{}, m_colE[kMaxSources][kSenseChunks]{};
