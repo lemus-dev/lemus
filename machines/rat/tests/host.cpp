@@ -155,10 +155,14 @@ void testEditor()
 
 juce::MemoryBlock pngOf(int w, int h)
 {
-	juce::Image image(juce::Image::ARGB, w, h, true);
-	juce::Graphics g(image);
-	g.setColour(juce::Colours::black);
-	g.fillRect(juce::Rectangle<int>(w / 10, h / 10, w * 8 / 10, h * 8 / 10));
+	// A software image, its drawing finished before it is written (on Windows a native image can
+	// be Direct2D, which draws when the Graphics ends).
+	juce::Image image(juce::Image::ARGB, w, h, true, juce::SoftwareImageType());
+	{
+		juce::Graphics g(image);
+		g.setColour(juce::Colours::black);
+		g.fillRect(juce::Rectangle<int>(w / 10, h / 10, w * 8 / 10, h * 8 / 10));
+	}
 	juce::MemoryOutputStream out;
 	juce::PNGImageFormat().writeImageToStream(image, out);
 	return out.getMemoryBlock();
@@ -191,6 +195,8 @@ void testArtwork()
 	folder.add("artwork/rat/model.png", pngOf(400, 100));
 	folder.add("artwork/rat/Maker.PNG", pngOf(120, 100));
 	folder.add("artwork/rat/front.png", pngOf(300, 240));
+	check(Picture::load(pngOf(400, 100)) != nullptr, "a test file is a picture with something drawn");
+	check(romfolder::findAllArtwork(folder.dir, spec).places.size() == 3, "and the three are found in the ROM folder");
 	LemusProcessor p;
 	const bool loaded = p.selectMachine("rat");
 	juce::StringArray found;

@@ -39,6 +39,12 @@ What runs with those rights trusts as little as it can:
 A copy in the user's own `~/Library/Audio/Plug-Ins` (a development build) isn't the manager's;
 it's shown in the details, since a DAW may load either copy.
 
+Nothing is reported anywhere: when something goes wrong the user gets what helps to report it.
+A failed job, or the manager's own update, has Copy details (the version and system, what it was
+doing, why it failed, the installer's log). A crash writes its stack to `Plugin Manager crash.txt`
+in the Lemus settings folder; the next launch says so, offers to copy it and the forum, and
+deletes it (`Report.h`).
+
 Requests to lemusdev.org use the user agent `Lemus Plugin Manager`, not the plugins' `Lemus`, so
 the site's count of plugin installs stays the plugins'.
 
@@ -63,5 +69,11 @@ The app takes, for testing:
 
 `tools/release/manager-mac.sh` builds `dist/lemus-plugin-manager-<version>-mac.pkg` (universal, the
 app into `/Applications`). The Windows zip comes from the release workflow. Then
-`website/src/data/manager.ts` gets the release, and `/latest.json` lists the manager, so older
-copies say a newer one is out.
+`website/src/data/manager.ts` gets the release, and `/latest.json` lists the manager.
+
+Older copies then update themselves, as the other plugin managers do: on launch a card offers the
+new version (Later, or Update now; the footer's pill brings it back). The installer is downloaded
+and checked like a plugin's and installed (macOS: the pkg as root, one password; Windows: the new
+exe takes this one's place, the old one renamed `<exe>.old` and removed on the next start). The
+new version then starts and waits for the old one to quit (`--after <pid>`). Plugins never update
+without a click.

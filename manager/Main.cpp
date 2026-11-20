@@ -8,6 +8,8 @@
 //   Lemus Plugin Manager --apply <plan.json>
 //     Windows: run an install plan with the rights this process was started with (the app starts
 //     itself this way, elevated, so Windows asks once per batch); writes <plan>.result.
+//   Lemus Plugin Manager --after <pid>
+//     the manager just updated (SelfUpdate): waits for the copy it replaced to quit, then opens.
 #include "MainComponent.h"
 
 #if JUCE_WINDOWS
@@ -86,8 +88,13 @@ class App final : public juce::JUCEApplication {
 public:
 	const juce::String getApplicationName() override { return JUCE_APPLICATION_NAME_STRING; }
 	const juce::String getApplicationVersion() override { return JUCE_APPLICATION_VERSION_STRING; }
-	// The elevated copy (--apply) runs beside the window that started it.
-	bool moreThanOneInstanceAllowed() override { return getCommandLineParameterArray().contains("--apply"); }
+	// The elevated copy (--apply) runs beside the window that started it; the updated one (--after)
+	// starts while the old one quits.
+	bool moreThanOneInstanceAllowed() override
+	{
+		const auto args = getCommandLineParameterArray();
+		return args.contains("--apply") || args.contains("--after");
+	}
 
 	void initialise(const juce::String &) override
 	{
@@ -102,6 +109,12 @@ public:
 			quit();
 			return;
 		}
+		// A crash leaves its report for the next launch to offer (Report.h); nothing is sent.
+		installCrashHandler();
+		// Started by the copy it updated: let that one quit, then clear what it left.
+		if (const auto pid = value("--after"); pid.isNotEmpty())
+			waitForQuit(pid.getIntValue());
+		removeOldSelf();
 		if (const auto catalog = value("--catalog"); catalog.isNotEmpty())
 			setCatalogSource(catalog);
 		if (const auto r = value("--root"); r.isNotEmpty())

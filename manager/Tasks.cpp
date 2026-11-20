@@ -8,6 +8,9 @@
 #endif
 #include <windows.h>
 #include <shellapi.h>
+#else
+#include <signal.h>
+#include <unistd.h>
 #endif
 
 namespace lemus::manager {
@@ -186,6 +189,61 @@ juce::String applyOp(const juce::var &op, const Allowed &allowed)
 	return "Unknown step " + kind + ".";
 }
 
+#if !JUCE_WINDOWS
+// The first lines of a script that runs as root: a folder only it can write ("$d"), its log
+// ("$log") and sha() for a file's SHA-256. Everything installed is copied into "$d" and checked
+// there again first, so nothing in the user's temporary folder, which any program running as the
+// user can change, is trusted after the check or written as root.
+juce::String rootScriptHead()
+{
+	return "# Lemus Plugin Manager\n"
+	       "d=$(/usr/bin/mktemp -d /tmp/lemus-plugin-manager.XXXXXX) || exit 1\n"
+	       "log=\"$d/install.log\"\n"
+	       "sha() { if [ -x /sbin/sha256 ]; then /sbin/sha256 -q \"$1\"; else /usr/bin/shasum -a 256 \"$1\" | /usr/bin/awk '{print $1}'; fi; }\n";
+}
+
+// The end of such a script: its log after kLog in the output, and the folder gone.
+juce::String rootScriptTail()
+{
+	return "echo " + quoted(kLog) + "\n/bin/cat \"$log\" 2>/dev/null\n/bin/rm -rf \"$d\"\n";
+}
+
+struct RootRun {
+	juce::StringArray lines; // the output before kLog: the kDone and kFail lines
+	juce::StringArray log;   // the installer's log, after it
+	bool refused = false;    // the password wasn't given
+};
+
+// Runs a script made of rootScriptHead(), steps and rootScriptTail() as root: through osascript
+// with administrator privileges, asking with `prompt`; as the user under a test root. The script
+// and the prompt go in as arguments, so neither is ever AppleScript source, and the script is
+// never a file.
+RootRun runAsRoot(const juce::String &script, const juce::String &prompt)
+{
+	juce::StringArray command;
+	if (sandbox())
+		command = {"/bin/sh", "-c", script};
+	else
+		command = {"/usr/bin/osascript", "-e", "on run argv", "-e",
+		           "do shell script (item 1 of argv) with prompt (item 2 of argv) with administrator privileges", "-e", "end run", script, prompt};
+	juce::ChildProcess child;
+	juce::String output;
+	if (child.start(command, juce::ChildProcess::wantStdOut | juce::ChildProcess::wantStdErr))
+		output = child.readAllProcessOutput();
+	RootRun run;
+	run.refused = !sandbox() && child.getExitCode() != 0
+	              && (output.contains("-128") || output.containsIgnoreCase("canceled") || output.containsIgnoreCase("cancelled"));
+	const auto lines = juce::StringArray::fromLines(output.replace("\r\n", "\n").replace("\r", "\n"));
+	const int at = lines.indexOf(kLog);
+	for (int i = 0; i < lines.size(); ++i)
+		if (at < 0 || i < at)
+			run.lines.add(lines[i]);
+		else if (i > at)
+			run.log.add(lines[i]);
+	return run;
+}
+#endif
+
 } // namespace
 
 juce::String sha256Of(const juce::File &f)
@@ -314,28 +372,12 @@ void Batch::run()
 		m_changed();
 }
 
-bool Batch::download(size_t index)
+juce::String fetchChecked(const Download &d, const juce::File &target, const std::function<void(double)> &progress,
+                          const std::function<void()> &checking, const std::function<bool()> &stop)
 {
-	const auto job = jobs()[index];
-	const auto &d = job.entry.here();
 	const bool local = sandbox() && d.url.startsWith("file://");
-	if (!d.valid() && !local) {
-		set(index, [](Job &j) {
-			j.state = Job::State::Failed;
-			j.error = "The list has no installer for this system.";
-		});
-		return false;
-	}
-	// Named for the plugin (a checked name), not from the URL.
-#if JUCE_WINDOWS
-	const auto target = m_work.getChildFile(job.entry.plugin + ".zip");
-#else
-	const auto target = m_work.getChildFile(job.entry.plugin + ".pkg");
-#endif
-	set(index, [](Job &j) {
-		j.state = Job::State::Downloading;
-		j.progress = 0;
-	});
+	if (!d.valid() && !local)
+		return "The list has no installer for this system.";
 	bool got = false;
 	if (local) {
 		got = juce::URL(d.url).getLocalFile().copyFileTo(target);
@@ -351,7 +393,7 @@ bool Batch::download(size_t index)
 			juce::HeapBlock<char> buffer(1 << 16);
 			juce::int64 written = 0;
 			double shown = 0;
-			while (!stream->isExhausted() && !threadShouldExit()) {
+			while (!stream->isExhausted() && !stop()) {
 				const auto n = stream->read(buffer.get(), 1 << 16);
 				if (n <= 0)
 					break;
@@ -360,31 +402,52 @@ bool Batch::download(size_t index)
 				const double p = total > 0 ? juce::jlimit(0.0, 1.0, double(written) / double(total)) : 0.0;
 				if (p - shown >= 0.01) {
 					shown = p;
-					set(index, [p](Job &j) { j.progress = p; });
+					progress(p);
 				}
 			}
 			out.flush();
-			got = !threadShouldExit() && written > 0;
+			got = !stop() && written > 0;
 		}
 	}
 	if (!got) {
 		target.deleteFile();
-		set(index, [](Job &j) {
-			j.state = Job::State::Failed;
-			j.error = "The download didn't finish.";
-		});
-		return false;
+		return "The download didn't finish.";
 	}
-	set(index, [](Job &j) {
-		j.state = Job::State::Checking;
-		j.progress = 1;
-	});
+	checking();
 	const bool sizeOk = d.size <= 0 || target.getSize() == d.size;
 	if (!sizeOk || sha256Of(target) != d.sha256) {
 		target.deleteFile();
-		set(index, [](Job &j) {
+		return "The download didn't match its SHA-256, so it was thrown away. The installed version stays.";
+	}
+	return {};
+}
+
+bool Batch::download(size_t index)
+{
+	const auto job = jobs()[index];
+	// Named for the plugin (a checked name), not from the URL.
+#if JUCE_WINDOWS
+	const auto target = m_work.getChildFile(job.entry.plugin + ".zip");
+#else
+	const auto target = m_work.getChildFile(job.entry.plugin + ".pkg");
+#endif
+	set(index, [](Job &j) {
+		j.state = Job::State::Downloading;
+		j.progress = 0;
+	});
+	const auto error = fetchChecked(
+	    job.entry.here(), target, [this, index](double p) { set(index, [p](Job &j) { j.progress = p; }); },
+	    [this, index] {
+		    set(index, [](Job &j) {
+			    j.state = Job::State::Checking;
+			    j.progress = 1;
+		    });
+	    },
+	    [this] { return threadShouldExit(); });
+	if (error.isNotEmpty()) {
+		set(index, [error](Job &j) {
 			j.state = Job::State::Failed;
-			j.error = "The download didn't match its SHA-256, so it was thrown away. The installed version stays.";
+			j.error = error;
 		});
 		return false;
 	}
@@ -480,16 +543,10 @@ void Batch::installReady()
 				outcome[r.name.toString()] = r.value.toString();
 	}
 #else
-	// The script runs as root (osascript asks for the password) and is passed whole, never as a
-	// file. It copies each download into a folder only it can write, checks the copy's SHA-256 again
-	// and installs that copy, so nothing in the user's temporary folder, which any program running
-	// as the user can change, is trusted after the check or written as root. The installer's log
-	// comes back in the output after kLog, and the app saves it.
+	// One script as root (runAsRoot) for the batch; the installer's log comes back in the output
+	// and the app saves it.
 	const auto log = m_work.getChildFile("install.log");
-	juce::String script = "# Lemus Plugin Manager\n"
-	                      "d=$(/usr/bin/mktemp -d /tmp/lemus-plugin-manager.XXXXXX) || exit 1\n"
-	                      "log=\"$d/install.log\"\n"
-	                      "sha() { if [ -x /sbin/sha256 ]; then /sbin/sha256 -q \"$1\"; else /usr/bin/shasum -a 256 \"$1\" | /usr/bin/awk '{print $1}'; fi; }\n";
+	juce::String script = rootScriptHead();
 	// Copies the download to "$d/<plugin>.pkg" and checks it there.
 	const auto fetch = [](const Job &j) {
 		const auto pkg = "\"$d/" + j.entry.plugin + ".pkg\"";
@@ -544,40 +601,20 @@ void Batch::installReady()
 			script << " -applyChoiceChangesXML " << choices;
 		script << " >>\"$log\" 2>&1; then\n  " << done << "\nelse\n  " << fail << "\nfi\n";
 	}
-	script << "echo " << quoted(kLog) << "\n/bin/cat \"$log\" 2>/dev/null\n/bin/rm -rf \"$d\"\n";
+	script << rootScriptTail();
 
-	juce::StringArray command;
-	if (sandbox()) {
-		command = {"/bin/sh", "-c", script};
-	} else {
-		juce::StringArray what;
-		if (!installs.isEmpty())
-			what.add("install " + listOf(installs));
-		if (!updates.isEmpty())
-			what.add("update " + listOf(updates));
-		if (!removes.isEmpty())
-			what.add("remove " + listOf(removes));
-		const auto prompt = "Lemus Plugin Manager wants to " + listOf(what) + ".";
-		// The script and the prompt go in as arguments, so neither is ever AppleScript source.
-		command = {"/usr/bin/osascript", "-e", "on run argv", "-e",
-		           "do shell script (item 1 of argv) with prompt (item 2 of argv) with administrator privileges", "-e", "end run", script, prompt};
-	}
-	juce::ChildProcess child;
-	juce::String output;
-	if (child.start(command, juce::ChildProcess::wantStdOut | juce::ChildProcess::wantStdErr))
-		output = child.readAllProcessOutput();
-	const auto code = child.getExitCode();
-	refused = !sandbox() && code != 0 && (output.contains("-128") || output.containsIgnoreCase("canceled") || output.containsIgnoreCase("cancelled"));
-	const auto lines = juce::StringArray::fromLines(output.replace("\r\n", "\n").replace("\r", "\n"));
-	const auto logAt = lines.indexOf(kLog.trimEnd());
-	if (logAt >= 0) {
-		juce::StringArray logLines(lines);
-		logLines.removeRange(0, logAt + 1);
-		log.replaceWithText(logLines.joinIntoString("\n"));
-	}
-	for (const auto &line : lines) {
-		if (line == kLog.trimEnd())
-			break;
+	juce::StringArray what;
+	if (!installs.isEmpty())
+		what.add("install " + listOf(installs));
+	if (!updates.isEmpty())
+		what.add("update " + listOf(updates));
+	if (!removes.isEmpty())
+		what.add("remove " + listOf(removes));
+	const auto run = runAsRoot(script, "Lemus Plugin Manager wants to " + listOf(what) + ".");
+	refused = run.refused;
+	if (!run.log.isEmpty())
+		log.replaceWithText(run.log.joinIntoString("\n"));
+	for (const auto &line : run.lines) {
 		if (line.startsWith(kDone))
 			outcome[line.fromFirstOccurrenceOf(kDone, false, false).trim()] = "";
 		else if (line.startsWith(kFail))
@@ -607,6 +644,176 @@ void Batch::installReady()
 			}
 		});
 	}
+}
+
+namespace {
+
+const juce::String kAppName = "Lemus Plugin Manager";
+
+#if JUCE_WINDOWS
+// The exe an update replaces: this one, or under a test root <root>/Lemus Plugin Manager.exe.
+juce::File selfExe()
+{
+	return sandbox() ? root().getChildFile(kAppName + ".exe") : juce::File::getSpecialLocation(juce::File::currentExecutableFile);
+}
+#endif
+
+} // namespace
+
+SelfUpdate::SelfUpdate(Entry manager, std::function<void()> changed)
+	: Thread("Lemus Plugin Manager update"), m_entry(std::move(manager)), m_changed(std::move(changed))
+{
+	m_work = juce::File::getSpecialLocation(juce::File::tempDirectory)
+	             .getChildFile("lemus-plugin-manager")
+	             .getChildFile("self-" + juce::String(juce::Time::currentTimeMillis()));
+}
+
+SelfUpdate::~SelfUpdate()
+{
+	stopThread(10000);
+}
+
+juce::String SelfUpdate::error() const
+{
+	const juce::ScopedLock l(m_lock);
+	return m_error;
+}
+
+bool SelfUpdate::finished() const
+{
+	const auto s = m_state.load();
+	return s == State::Done || s == State::Failed || s == State::Stopped;
+}
+
+void SelfUpdate::set(State s, const juce::String &error)
+{
+	{
+		const juce::ScopedLock l(m_lock);
+		m_error = error;
+	}
+	m_state = s;
+	if (m_changed)
+		m_changed();
+}
+
+void SelfUpdate::run()
+{
+	m_work.createDirectory();
+#if JUCE_WINDOWS
+	const auto download = m_work.getChildFile("lemus-plugin-manager.zip");
+#else
+	const auto download = m_work.getChildFile("lemus-plugin-manager.pkg");
+#endif
+	set(State::Downloading);
+	const auto fetched = fetchChecked(
+	    m_entry.here(), download,
+	    [this](double p) {
+		    m_progress = p;
+		    if (m_changed)
+			    m_changed();
+	    },
+	    [this] {
+		    m_progress = 1;
+		    set(State::Checking);
+	    },
+	    [this] { return threadShouldExit(); });
+	if (fetched.isNotEmpty()) {
+		set(State::Failed, fetched);
+		return;
+	}
+	set(State::Installing);
+	const auto error = install(download);
+	if (error.isEmpty()) {
+		m_work.deleteRecursively();
+		set(State::Done);
+	} else {
+		set(error.startsWith("The password") ? State::Stopped : State::Failed, error);
+	}
+}
+
+juce::String SelfUpdate::install(const juce::File &download)
+{
+#if JUCE_WINDOWS
+	const auto unpacked = m_work.getChildFile("unpacked");
+	juce::ZipFile zip(download);
+	if (zip.getNumEntries() == 0 || zip.uncompressTo(unpacked).failed())
+		return "The download didn't unpack.";
+	const auto found = unpacked.findChildFiles(juce::File::findFiles, true, kAppName + ".exe");
+	if (found.isEmpty())
+		return "The download had no " + kAppName + ".exe.";
+	// A running exe can be renamed but not overwritten: this one steps aside as <exe>.old (the next
+	// start removes it) and the new one takes its name.
+	const auto exe = selfExe();
+	const auto old = exe.getSiblingFile(exe.getFileName() + ".old");
+	old.deleteFile();
+	if (exe.existsAsFile() && !exe.moveFileTo(old))
+		return "Couldn't replace " + exe.getFullPathName() + ": its folder can't be written. Get the new version from its page.";
+	if (!found[0].copyFileTo(exe)) {
+		old.moveFileTo(exe);
+		return "Couldn't put the new version in " + exe.getParentDirectory().getFullPathName() + ". Get it from its page.";
+	}
+	return {};
+#else
+	// The release's pkg puts the app in /Applications; under a test root it is expanded there.
+	const auto &d = m_entry.here();
+	juce::String script = rootScriptHead();
+	script << "# update Lemus Plugin Manager to " << m_entry.version << "\n"
+	       << "if /bin/cp " << quoted(download) << " \"$d/m.pkg\" >>\"$log\" 2>&1 && [ \"$(sha \"$d/m.pkg\")\" = " << quoted(d.sha256) << " ]";
+	if (sandbox()) {
+		const auto app = places().apps.getChildFile(kAppName + ".app");
+		script << " && /usr/sbin/pkgutil --expand-full \"$d/m.pkg\" \"$d/x\" >>\"$log\" 2>&1 && /bin/mkdir -p " << quoted(app.getParentDirectory())
+		       << " && /bin/rm -rf " << quoted(app) << " && /usr/bin/ditto \"$d/x/app.pkg/Payload/" << kAppName << ".app\" " << quoted(app);
+	} else {
+		script << " && /usr/sbin/installer -pkg \"$d/m.pkg\" -target / >>\"$log\" 2>&1";
+	}
+	script << "; then\n  echo " << quoted(kDone + "self") << "\nelse\n  echo " << quoted(kFail + "self") << "\nfi\n" << rootScriptTail();
+	const auto run = runAsRoot(script, "Lemus Plugin Manager wants to update itself to " + m_entry.version + ".");
+	if (run.refused)
+		return "The password wasn't given, so nothing changed.";
+	if (run.lines.contains(kDone + "self"))
+		return {};
+	const auto log = m_work.getChildFile("install.log");
+	log.replaceWithText(run.log.joinIntoString("\n"));
+	return "The installer stopped with an error. Its log is in " + log.getFullPathName() + ".";
+#endif
+}
+
+bool relaunch()
+{
+	if (sandbox())
+		return false;
+#if JUCE_WINDOWS
+	return juce::File::getSpecialLocation(juce::File::currentExecutableFile).startAsProcess("--after " + juce::String(int(GetCurrentProcessId())));
+#else
+	// -n: a new copy even though this one is still running; it waits for this one to quit.
+	juce::ChildProcess open;
+	return open.start(juce::StringArray{"/usr/bin/open", "-n", "-a", "/Applications/" + kAppName + ".app", "--args", "--after", juce::String(int(getpid()))})
+	       && open.waitForProcessToFinish(10000) && open.getExitCode() == 0;
+#endif
+}
+
+void waitForQuit(int pid)
+{
+	if (pid <= 0)
+		return;
+#if JUCE_WINDOWS
+	if (HANDLE process = OpenProcess(SYNCHRONIZE, FALSE, DWORD(pid))) {
+		WaitForSingleObject(process, 15000);
+		CloseHandle(process);
+	}
+#else
+	const auto until = juce::Time::getMillisecondCounter() + 15000;
+	while (kill(pid_t(pid), 0) == 0 && juce::Time::getMillisecondCounter() < until)
+		juce::Thread::sleep(100);
+#endif
+}
+
+void removeOldSelf()
+{
+#if JUCE_WINDOWS
+	const auto exe = selfExe();
+	exe.getSiblingFile(exe.getFileName() + ".old").deleteFile();
+#endif
 }
 
 } // namespace lemus::manager

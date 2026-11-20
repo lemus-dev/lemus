@@ -14,6 +14,7 @@ set(LEMUS_MANAGER_CORE
   ${CMAKE_CURRENT_LIST_DIR}/Catalog.cpp
   ${CMAKE_CURRENT_LIST_DIR}/Installed.cpp
   ${CMAKE_CURRENT_LIST_DIR}/Tasks.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/Report.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/host/Updates.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/host/Roms.cpp
 )

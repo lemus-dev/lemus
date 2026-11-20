@@ -6,6 +6,7 @@
 
 #include "Catalog.h"
 #include "Installed.h"
+#include "Report.h"
 #include "Tasks.h"
 #include "Widgets.h"
 
@@ -21,12 +22,13 @@ public:
 	MainComponent();
 	~MainComponent() override;
 
-	// A batch is under way: closing waits for it.
+	// A batch, or the manager's own update, is under way: closing waits for it.
 	bool busy() const;
 	void sayBusy();
 
 	// For --snapshot: the list has been read (or failed to be), select a plugin, start the work a
-	// button would ("update-all", or "update", "install", "remove" for the selected plugin).
+	// button would ("update-all", or "update", "install", "remove" for the selected plugin;
+	// "self-update" and "later" for the prompt that offers a newer manager).
 	bool ready() const { return m_loading != Loading::Reading; }
 	void show(const juce::String &plugin) { select(plugin); }
 	void act(const juce::String &action);
@@ -40,8 +42,10 @@ public:
 private:
 	class List;
 	class Detail;
+	class Prompt;
 	friend class List;
 	friend class Detail;
+	friend class Prompt;
 
 	enum class Loading { Reading, Failed, Ready };
 
@@ -51,6 +55,8 @@ private:
 		juce::Colour colour, onSelection;
 	};
 
+	// A batch of plugins is under way (busy() also counts the manager's own update).
+	bool batchBusy() const;
 	void load();
 	void rescan();
 	void refresh(); // the list, the details, the header and footer after any change
@@ -74,6 +80,15 @@ private:
 	void updateAll();
 	void handleAsyncUpdate() override;
 
+	// The manager's own update: the catalogue's entry when it is newer than this app and has an
+	// installer for this system (else the footer's pill opens its page).
+	const Entry *newerManager() const;
+	void showPrompt();
+	void hidePrompt();
+	void startSelfUpdate();
+	// The last run crashed (crashFile()): a card says so first. Closing it deletes the report.
+	void closeCrashNote();
+
 	Loading m_loading = Loading::Reading;
 	juce::String m_error;
 	std::optional<Catalog> m_catalog;
@@ -83,6 +98,12 @@ private:
 
 	std::unique_ptr<Batch> m_batch;
 	std::vector<Job> m_jobs;
+
+	std::unique_ptr<SelfUpdate> m_self;
+	std::unique_ptr<Prompt> m_prompt;
+	bool m_promptOffered = false; // shown once a launch; the pill shows it again
+	bool m_relaunchTried = false, m_relaunched = false;
+	juce::String m_crash; // the last run's crash report, until its card is closed
 
 	SearchField m_search;
 	Pill m_updateAll{"Update all", Pill::Kind::Outline};

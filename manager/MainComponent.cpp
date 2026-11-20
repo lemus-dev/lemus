@@ -149,7 +149,7 @@ class MainComponent::Detail final : public juce::Component {
 public:
 	explicit Detail(MainComponent &owner) : m_owner(owner)
 	{
-		for (auto *b : {&m_primary, &m_remove, &m_cancel, &m_confirm, &m_page})
+		for (auto *b : {&m_primary, &m_remove, &m_cancel, &m_confirm, &m_page, &m_copy})
 			addChildComponent(b);
 		m_notesView.setViewedComponent(&m_notes, false);
 		m_notesView.setScrollBarsShown(true, false);
@@ -174,6 +174,13 @@ public:
 			if (const auto *e = m_owner.selected())
 				juce::URL(e->page).launchInDefaultBrowser();
 		};
+		m_copy.onClick = [this] {
+			if (const auto *e = m_owner.selected())
+				if (const auto *j = m_owner.jobOf(*e)) {
+					juce::SystemClipboard::copyTextToClipboard(detailsOf(*j));
+					m_copy.setButtonText("Copied");
+				}
+		};
 	}
 
 	void confirmRemove()
@@ -196,7 +203,7 @@ public:
 	{
 		m_items.clear();
 		m_checks.clear();
-		for (auto *b : {&m_primary, &m_remove, &m_cancel, &m_confirm, &m_page})
+		for (auto *b : {&m_primary, &m_remove, &m_cancel, &m_confirm, &m_page, &m_copy})
 			b->setVisible(false);
 		m_notesView.setVisible(false);
 		const auto *e = m_owner.selected();
@@ -300,6 +307,15 @@ public:
 				m_cancel.setVisible(true);
 				bottom = float(by) - 20 - h;
 			} else {
+				// A failed job: its details to paste into a report.
+				if (job != nullptr && job->state == Job::State::Failed) {
+					if (!m_copied.isEmpty() && m_copied != e->plugin + job->error)
+						m_copy.setButtonText("Copy details");
+					m_copied = e->plugin + job->error;
+					m_copy.setBounds(row.removeFromLeft(m_copy.idealWidth() + 20));
+					m_copy.setVisible(true);
+					row.removeFromLeft(8);
+				}
 				if (in.installed()) {
 					m_remove.setBounds(row.removeFromRight(m_remove.idealWidth() + 20));
 					m_remove.setVisible(true);
@@ -524,9 +540,232 @@ private:
 	Pill m_cancel{"Cancel"};
 	Pill m_confirm{"Remove", Pill::Kind::Primary};
 	Pill m_page{"Its page"};
+	Pill m_copy{"Copy details"};
+	juce::String m_copied; // the failure the button's "Copied" is for
 	Notes m_notes;
 	juce::Viewport m_notesView;
 	float m_notesTop = 0;
+};
+
+// A newer manager: a card over the window, as the other plugin managers ask on launch. What's new,
+// then Later or Update now; while it runs, the same three steps as a plugin's; then the app
+// restarts as the new version.
+class MainComponent::Prompt final : public juce::Component {
+public:
+	explicit Prompt(MainComponent &owner) : m_owner(owner)
+	{
+		for (auto *b : {&m_later, &m_now, &m_page, &m_close, &m_copy, &m_forum})
+			addChildComponent(b);
+		m_later.onClick = [this] { m_owner.hidePrompt(); };
+		m_close.onClick = [this] {
+			if (m_owner.m_crash.isNotEmpty())
+				m_owner.closeCrashNote();
+			else
+				m_owner.hidePrompt();
+		};
+		m_now.onClick = [this] { m_owner.startSelfUpdate(); };
+		m_page.onClick = [this] {
+			if (const auto *e = m_owner.newerManager())
+				juce::URL(e->page).launchInDefaultBrowser();
+		};
+		m_forum.onClick = [] { juce::URL(LEMUS_FORUM).launchInDefaultBrowser(); };
+		m_copy.onClick = [this] {
+			const auto *self = m_owner.m_self.get();
+			juce::SystemClipboard::copyTextToClipboard(
+			    m_owner.m_crash.isNotEmpty() ? m_owner.m_crash
+			    : self != nullptr            ? details("Update Lemus Plugin Manager to " + self->entry().version, self->error())
+			                                 : juce::String());
+			m_copy.setButtonText("Copied");
+		};
+		setWantsKeyboardFocus(true);
+	}
+
+	void update()
+	{
+		const bool crash = m_owner.m_crash.isNotEmpty();
+		const auto *self = crash ? nullptr : m_owner.m_self.get();
+		const bool idle = !crash && self == nullptr;
+		const bool failed = self != nullptr && (self->state() == SelfUpdate::State::Failed || self->state() == SelfUpdate::State::Stopped);
+		m_later.setVisible(idle);
+		m_now.setVisible(idle || failed);
+		m_now.setButtonText(failed ? "Try again" : "Update now");
+		m_now.setEnabled(!m_owner.batchBusy() || failed);
+		m_page.setVisible(failed && self->error().contains("page"));
+		m_close.setVisible(crash || failed || (self != nullptr && self->state() == SelfUpdate::State::Done));
+		m_forum.setVisible(crash);
+		const bool copy = crash || (failed && self->state() == SelfUpdate::State::Failed);
+		if (copy && !m_copy.isVisible())
+			m_copy.setButtonText("Copy details");
+		m_copy.setVisible(copy);
+		resized();
+		repaint();
+	}
+
+	void resized() override
+	{
+		const auto card = cardBounds();
+		auto row = card.reduced(kPad).removeFromBottom(36);
+		for (auto *b : {&m_now, &m_close, &m_later, &m_copy, &m_page, &m_forum})
+			if (b->isVisible()) {
+				b->setBounds(row.removeFromRight(b->idealWidth() + 12).withSizeKeepingCentre(b->idealWidth() + 12, 34));
+				row.removeFromRight(10);
+			}
+	}
+
+	void paint(juce::Graphics &g) override
+	{
+		g.fillAll(col::ground.withAlpha(0.72f));
+		const auto card = cardBounds().toFloat();
+		g.setColour(col::panel);
+		g.fillRoundedRectangle(card, 10.0f);
+		g.setColour(col::rule);
+		g.drawRoundedRectangle(card.reduced(0.5f), 10.0f, 1.0f);
+		content(&g);
+	}
+
+	void mouseDown(const juce::MouseEvent &) override {} // the window behind waits
+
+	bool keyPressed(const juce::KeyPress &key) override
+	{
+		if (key == juce::KeyPress::escapeKey && m_owner.m_crash.isNotEmpty()) {
+			m_owner.closeCrashNote();
+			return true;
+		}
+		if (key == juce::KeyPress::escapeKey && m_owner.m_self == nullptr) {
+			m_owner.hidePrompt();
+			return true;
+		}
+		return false;
+	}
+
+private:
+	static constexpr int kWidth = 500, kPad = 24;
+
+	juce::Rectangle<int> cardBounds() const
+	{
+		const int h = int(content(nullptr)) + kPad + 36 + kPad;
+		return juce::Rectangle<int>(kWidth, h).withCentre(getLocalBounds().getCentre());
+	}
+
+	// Lays out (and with a Graphics, draws) the card's text from its top; returns the height.
+	float content(juce::Graphics *g) const
+	{
+		const auto *e = m_owner.newerManager();
+		const auto *self = m_owner.m_self.get();
+		const auto version = e != nullptr ? e->version : self != nullptr ? self->entry().version : juce::String();
+		const float w = float(kWidth - 2 * kPad);
+		const auto card = g != nullptr ? cardBounds().toFloat() : juce::Rectangle<float>();
+		const float x = card.getX() + kPad;
+		float y = kPad;
+		const auto at = [&card](float top) { return card.getY() + top; };
+		const auto text = [&](const juce::String &t, const juce::Font &font, juce::Colour colour) {
+			const float h = layoutOf(t, font, colour, w).getHeight();
+			if (g != nullptr)
+				drawWrapped(*g, t, font, colour, x, at(y), w);
+			y += h;
+		};
+
+		if (m_owner.m_crash.isNotEmpty()) {
+			text("Lemus Plugin Manager quit unexpectedly last time", mono(16.0f, true), col::title);
+			y += 12;
+			text("Nothing was sent anywhere. To report it, post on the forum and paste the details: the version, your system and "
+			     "where it stopped.",
+			     mono(13.0f), col::inkSoft);
+			return y + 16;
+		}
+
+		text("Lemus Plugin Manager " + version + " is out", mono(16.0f, true), col::title);
+		y += 4;
+		text("You have " + juce::String(LEMUS_MANAGER_VERSION) + ".", mono(13.0f), col::inkSoft);
+		y += 18;
+
+		if (self == nullptr) {
+			const auto changes = e != nullptr && m_owner.m_catalog ? m_owner.m_catalog->changesSince(*e, LEMUS_MANAGER_VERSION)
+			                                                       : std::vector<updates::Change>{};
+			int shown = 0;
+			if (!changes.empty()) {
+				if (g != nullptr)
+					lemus::style::drawLabel(*g, "WHAT'S NEW", {x, at(y), w, 14});
+				y += 22;
+				for (const auto &c : changes)
+					for (const auto &n : c.notes)
+						if (shown++ < 6) {
+							if (g != nullptr) {
+								g->setColour(col::muted);
+								g->setFont(mono(13.0f));
+								g->drawText(juce::String::fromUTF8("\xc2\xb7"), juce::Rectangle<float>(x, at(y), 12, 19), juce::Justification::centredLeft, false);
+								drawWrapped(*g, n, mono(13.0f), col::inkSoft, x + 16, at(y), w - 16);
+							}
+							y += layoutOf(n, mono(13.0f), col::inkSoft, w - 16).getHeight() + 6;
+						}
+				y += 10;
+			}
+#if JUCE_WINDOWS
+			text("Then it restarts as the new version.", mono(12.5f), col::muted);
+#else
+			text("macOS asks for your password once, then it restarts as the new version.", mono(12.5f), col::muted);
+#endif
+			return y + 8;
+		}
+
+		// The three steps, as a plugin's.
+		const auto s = self->state();
+		const bool failed = s == SelfUpdate::State::Failed, stopped = s == SelfUpdate::State::Stopped;
+		const int now = s == SelfUpdate::State::Downloading ? 0
+		                : s == SelfUpdate::State::Checking  ? 1
+		                : s == SelfUpdate::State::Installing ? 2
+		                : s == SelfUpdate::State::Done       ? 3
+		                : self->error().contains("SHA-256") ? 1
+		                : self->error().contains("download") || self->error().contains("installer for") ? 0
+		                                                                                                : 2;
+		const float top = y;
+		y += 10;
+		const juce::StringArray names{"Download", "Check SHA-256", "Install " + version};
+		for (int i = 0; i < names.size(); ++i) {
+			const int state = (failed && i == now) ? 3 : i < now ? 2 : i == now && !stopped ? 1 : 0;
+			const auto mark = state == 2 ? kTick : state == 3 ? kCross : state == 1 ? kNext : juce::String("[ ]");
+			const auto colour = state == 2 ? col::ok : state == 3 ? kError : state == 1 ? col::ink : col::inkSoft;
+			auto line = mark + " " + names[i];
+			const bool downloading = i == 0 && s == SelfUpdate::State::Downloading;
+			if (downloading)
+				line << "  " << percent(self->progress());
+			if (g != nullptr) {
+				if (i == 0) {
+					const float wellH = 10 + 22 * 3 + (downloading ? 10 : 0) + 4;
+					g->setColour(col::well);
+					g->fillRoundedRectangle({x, at(top), w, wellH}, 8.0f);
+				}
+				g->setColour(colour);
+				g->setFont(mono(13.0f));
+				g->drawText(line, juce::Rectangle<float>(x + 12, at(y), w - 24, 19), juce::Justification::centredLeft, false);
+			}
+			y += 22;
+			if (downloading) {
+				if (g != nullptr) {
+					const juce::Rectangle<float> bar(x + 12, at(y), w - 24, 4);
+					g->setColour(col::well.brighter(0.12f));
+					g->fillRoundedRectangle(bar, 2.0f);
+					g->setColour(col::accent);
+					g->fillRoundedRectangle(bar.withWidth(bar.getWidth() * float(self->progress())), 2.0f);
+				}
+				y += 10;
+			}
+		}
+		y += 4 + 14;
+		if (failed || stopped)
+			text(self->error(), mono(13.0f), failed ? kError : col::warn);
+		else if (s == SelfUpdate::State::Done)
+			text(m_owner.m_relaunched ? "Restarting." : "Updated. Open it again to use " + version + ".", mono(13.0f), col::ok);
+		return y + 8;
+	}
+
+	MainComponent &m_owner;
+	Pill m_later{"Later"};
+	Pill m_now{"Update now", Pill::Kind::Primary, col::accent, 14.0f};
+	Pill m_page{"Its page"};
+	Pill m_close{"Close"};
+	Pill m_copy{"Copy details"};
+	Pill m_forum{"Forum"};
 };
 
 MainComponent::MainComponent()
@@ -549,7 +788,7 @@ MainComponent::MainComponent()
 
 	m_search.editor().onTextChange = [this] { refresh(); };
 	m_updateAll.onClick = [this] {
-		if (busy())
+		if (batchBusy())
 			m_batch->stop();
 		else
 			updateAll();
@@ -565,24 +804,86 @@ MainComponent::MainComponent()
 	m_daily.onClick = [this] { updates::setEnabled(m_daily.getToggleState()); };
 	m_daily.setTooltip("The plugins' own check: once a day, while a plugin window is open.");
 	m_managerUpdate.onClick = [this] {
-		if (m_catalog && m_catalog->manager)
+		if (newerManager() != nullptr)
+			showPrompt();
+		else if (m_catalog && m_catalog->manager)
 			juce::URL(m_catalog->manager->page).launchInDefaultBrowser();
 	};
+	m_prompt = std::make_unique<Prompt>(*this);
+	addChildComponent(*m_prompt);
 
 	setSize(kWidth, kHeight);
 	setWantsKeyboardFocus(true);
+	if (crashFile().existsAsFile()) {
+		m_crash = crashFile().loadFileAsString();
+		m_prompt->setVisible(true);
+		m_prompt->update();
+	}
 	load();
+}
+
+void MainComponent::closeCrashNote()
+{
+	m_crash.clear();
+	crashFile().deleteFile();
+	if (!m_promptOffered && newerManager() != nullptr)
+		showPrompt();
+	else
+		hidePrompt();
 }
 
 MainComponent::~MainComponent()
 {
 	m_listView->setViewedComponent(nullptr, false);
 	m_batch.reset();
+	m_self.reset();
+}
+
+bool MainComponent::batchBusy() const
+{
+	return m_batch != nullptr && !m_batch->done();
 }
 
 bool MainComponent::busy() const
 {
-	return m_batch != nullptr && !m_batch->done();
+	return (m_batch != nullptr && !m_batch->done()) || (m_self != nullptr && !m_self->finished());
+}
+
+const Entry *MainComponent::newerManager() const
+{
+	if (!m_catalog || !m_catalog->manager || !updates::isNewer(m_catalog->manager->version, LEMUS_MANAGER_VERSION))
+		return nullptr;
+	const auto &d = m_catalog->manager->here();
+	const bool local = root() != juce::File() && d.url.startsWith("file://");
+	return d.valid() || local ? &*m_catalog->manager : nullptr;
+}
+
+void MainComponent::showPrompt()
+{
+	m_promptOffered = true;
+	m_prompt->setBounds(getLocalBounds());
+	m_prompt->setVisible(true);
+	m_prompt->toFront(true);
+	m_prompt->update();
+}
+
+void MainComponent::hidePrompt()
+{
+	if (m_self != nullptr && !m_self->finished())
+		return;
+	m_self.reset();
+	m_prompt->setVisible(false);
+	refresh();
+}
+
+void MainComponent::startSelfUpdate()
+{
+	const auto *e = newerManager();
+	if (e == nullptr || (m_batch != nullptr && !m_batch->done()) || (m_self != nullptr && !m_self->finished()))
+		return;
+	m_self = std::make_unique<SelfUpdate>(*e, [this] { triggerAsyncUpdate(); });
+	m_self->start();
+	refresh();
 }
 
 void MainComponent::sayBusy()
@@ -621,6 +922,8 @@ void MainComponent::load()
 				}
 				me->m_detail->selectionChanged();
 				me->refresh();
+				if (!me->m_promptOffered && me->m_crash.isEmpty() && me->newerManager() != nullptr)
+					me->showPrompt();
 			}
 		});
 	});
@@ -742,7 +1045,9 @@ juce::String MainComponent::summary() const
 		return "Reading the list";
 	if (!m_catalog)
 		return {};
-	if (busy()) {
+	if (m_self != nullptr && !m_self->finished())
+		return "Updating the Plugin Manager";
+	if (batchBusy()) {
 		const auto jobs = m_batch->jobs();
 		int finished = 0;
 		std::set<Job::Kind> kinds;
@@ -843,7 +1148,7 @@ bool MainComponent::failed() const
 	for (const auto &j : m_jobs)
 		if (j.state == Job::State::Failed || j.state == Job::State::Stopped)
 			return true;
-	return false;
+	return m_self != nullptr && (m_self->state() == SelfUpdate::State::Failed || m_self->state() == SelfUpdate::State::Stopped);
 }
 
 void MainComponent::act(const juce::String &action)
@@ -859,16 +1164,30 @@ void MainComponent::act(const juce::String &action)
 		remove(*e);
 	else if (action == "confirm-remove")
 		m_detail->confirmRemove();
+	else if (action == "self-update")
+		startSelfUpdate();
+	else if (action == "later")
+		hidePrompt();
 }
 
 void MainComponent::handleAsyncUpdate()
 {
-	if (m_batch == nullptr)
-		return;
-	m_jobs = m_batch->jobs();
-	if (m_batch->done()) {
-		rescan();
-		m_note.clear();
+	if (m_batch != nullptr) {
+		m_jobs = m_batch->jobs();
+		if (m_batch->done()) {
+			rescan();
+			m_note.clear();
+		}
+	}
+	// Updated: the new version starts and waits for this one to quit.
+	if (m_self != nullptr && m_self->state() == SelfUpdate::State::Done && !m_relaunchTried) {
+		m_relaunchTried = true;
+		if (relaunch()) {
+			m_relaunched = true;
+			m_prompt->update();
+			juce::JUCEApplication::getInstance()->quit();
+			return;
+		}
 	}
 	refresh();
 }
@@ -881,10 +1200,10 @@ void MainComponent::refresh()
 	m_retry.setVisible(m_loading == Loading::Failed);
 	m_search.setEnabled(ready);
 
-	const bool b = busy();
+	const bool b = batchBusy();
 	m_updateAll.setButtonText(b ? (m_batch->stopping() ? "Stopping" : "Stop after this one") : "Update all");
 	m_updateAll.setStyle(b ? Pill::Kind::Plain : Pill::Kind::Outline);
-	m_updateAll.setEnabled(b ? !m_batch->stopping() : ready && updateCount() > 0);
+	m_updateAll.setEnabled(b ? !m_batch->stopping() : ready && updateCount() > 0 && !busy());
 
 	const bool newer = m_catalog && m_catalog->manager && updates::isNewer(m_catalog->manager->version, LEMUS_MANAGER_VERSION);
 	m_managerUpdate.setVisible(newer);
@@ -896,6 +1215,8 @@ void MainComponent::refresh()
 	                m_list->heightFor(int(visible().size())));
 	m_list->repaint();
 	m_detail->update();
+	if (m_prompt != nullptr && m_prompt->isVisible())
+		m_prompt->update();
 	repaint();
 }
 
@@ -931,6 +1252,8 @@ void MainComponent::resized()
 	m_detail->setBounds(r.removeFromRight(kPane));
 	m_listView->setBounds(r.withTrimmedTop(8));
 	m_retry.setBounds(juce::Rectangle<int>(20, kHeader + 60, m_retry.idealWidth() + 16, 32));
+	if (m_prompt != nullptr)
+		m_prompt->setBounds(getLocalBounds());
 }
 
 void MainComponent::paint(juce::Graphics &g)

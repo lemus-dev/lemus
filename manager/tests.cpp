@@ -3,6 +3,7 @@
 // release .pkg in dist/ when there is one.
 #include "manager/Catalog.h"
 #include "manager/Installed.h"
+#include "manager/Report.h"
 #include "manager/Tasks.h"
 
 #include <cstdio>
@@ -275,6 +276,96 @@ void testZipBatch(const juce::File &sandbox)
 #endif
 }
 
+void testReports(const juce::File &sandbox)
+{
+	const auto log = sandbox.getChildFile("install.log");
+	juce::String text;
+	for (int i = 1; i <= 100; ++i)
+		text << "line " << i << "\n";
+	log.replaceWithText(text);
+	Job j;
+	j.kind = Job::Kind::Update;
+	j.entry.plugin = "ro-drums-808";
+	j.entry.version = "0.1.4";
+	j.formats = {Format::VST3};
+	j.state = Job::State::Failed;
+	j.error = "The installer stopped with an error. Its log is in " + log.getFullPathName() + ".";
+	const auto d = detailsOf(j);
+	check(d.startsWith(aboutThisCopy()) && d.contains("Update ro-drums-808 0.1.4 (VST3): failed") && d.contains(j.error),
+	      "details: the version, what it was doing and why");
+	check(d.contains("line 100") && d.contains("line 21\n") && !d.contains("line 20\n"), "details: the installer's log, its last 80 lines");
+	const auto crash = sandbox.getChildFile("crash.txt");
+	setCrashFile(crash);
+	writeCrashReport();
+	check(crash.loadFileAsString().startsWith(aboutThisCopy()) && crash.loadFileAsString().contains("Where it stopped"), "a crash report");
+	setCrashFile({});
+	sandbox.deleteRecursively();
+	sandbox.createDirectory();
+}
+
+SelfUpdate::State runSelfUpdate(const Entry &e, juce::String &error)
+{
+	SelfUpdate self(e, {});
+	self.start();
+	for (int i = 0; i < 1200 && !self.finished(); ++i)
+		juce::Thread::sleep(100);
+	error = self.error();
+	return self.state();
+}
+
+// The manager updating itself under a test root: macOS from the release .pkg in dist/ (expanded
+// into <root>/Applications), Windows from a zip laid out as manager-windows.ps1 makes it.
+void testSelfUpdate(const juce::File &sandbox)
+{
+	setRoot(sandbox);
+	Entry e;
+	e.plugin = "lemus-plugin-manager";
+	e.version = "0.2.0";
+#if JUCE_WINDOWS
+	const auto zipFile = sandbox.getChildFile("lemus-plugin-manager-0.2.0-windows.zip");
+	{
+		juce::ZipFile::Builder zip;
+		const juce::String text = "new";
+		zip.addEntry(new juce::MemoryInputStream(text.toRawUTF8(), text.getNumBytesAsUTF8(), true), 9,
+		             "lemus-plugin-manager-0.2.0/Lemus Plugin Manager.exe", juce::Time::getCurrentTime());
+		juce::FileOutputStream out(zipFile);
+		zip.writeToStream(out, nullptr);
+	}
+	e.windows.url = juce::URL(zipFile).toString(false);
+	e.windows.sha256 = sha256Of(zipFile);
+	e.windows.size = zipFile.getSize();
+	const auto exe = sandbox.getChildFile("Lemus Plugin Manager.exe"), old = sandbox.getChildFile("Lemus Plugin Manager.exe.old");
+	exe.replaceWithText("old");
+	auto &d = e.windows;
+#else
+	const auto pkg = juce::File(LEMUS_ROOT_DIR).getChildFile("dist/lemus-plugin-manager-0.1.0-mac.pkg");
+	if (!pkg.existsAsFile()) {
+		std::printf("skip  the manager updating itself (no %s)\n", pkg.getFullPathName().toRawUTF8());
+		return;
+	}
+	e.mac.url = juce::URL(pkg).toString(false);
+	e.mac.sha256 = sha256Of(pkg);
+	e.mac.size = pkg.getSize();
+	auto &d = e.mac;
+	const auto app = places().apps.getChildFile("Lemus Plugin Manager.app");
+#endif
+	const auto sha = d.sha256;
+	d.sha256 = juce::String::repeatedString("0", 64);
+	juce::String error;
+	check(runSelfUpdate(e, error) == SelfUpdate::State::Failed && error.contains("SHA-256"), "self-update: a download that doesn't match isn't installed");
+	d.sha256 = sha;
+	check(runSelfUpdate(e, error) == SelfUpdate::State::Done, "self-update: done (" + error + ")");
+#if JUCE_WINDOWS
+	check(exe.loadFileAsString() == "new" && old.loadFileAsString() == "old", "self-update: the new exe in place, the old one beside it");
+	removeOldSelf();
+	check(!old.exists(), "self-update: the old exe removed on the next start");
+#else
+	check(versionOf(app, Format::App) == "0.1.0", "self-update: the new app in place");
+#endif
+	sandbox.deleteRecursively();
+	sandbox.createDirectory();
+}
+
 } // namespace
 
 int main()
@@ -290,6 +381,8 @@ int main()
 	testPlan(sandbox);
 	testBatch(sandbox);
 	testZipBatch(sandbox);
+	testSelfUpdate(sandbox);
+	testReports(sandbox);
 	setRoot({});
 	sandbox.deleteRecursively();
 	std::printf(g_failures == 0 ? "all passed\n" : "%d failed\n", g_failures);

@@ -52,6 +52,12 @@ juce::StringArray choiceIdsIn(const juce::String &showChoiceChangesXml);
 // (<plan>.result: {"<plugin>": "" or why it failed}). Returns false if the plan didn't read.
 bool applyPlan(const juce::File &plan);
 
+// Downloads `d` into `target` and checks its size and SHA-256: empty when it is there and right,
+// else why not (the file is then gone). A file:// URL only under a test root. `progress` gets 0 to
+// 1 as it comes, `checking` is called when the check starts, and `stop` returning true gives up.
+juce::String fetchChecked(const Download &d, const juce::File &target, const std::function<void(double)> &progress,
+                          const std::function<void()> &checking, const std::function<bool()> &stop);
+
 // Runs jobs in the background: downloads, checks, then the one step with administrator rights.
 class Batch final : private juce::Thread {
 public:
@@ -78,5 +84,49 @@ private:
 	juce::File m_work;
 	std::atomic<bool> m_stopping{false}, m_done{false};
 };
+
+// The manager updating itself to the catalogue's own entry, as the plugin managers do: its
+// installer downloaded and checked like a plugin's, then installed:
+//   macOS    the .pkg through the installer, as root, asking for the password once (the app goes
+//            to /Applications, where the release's pkg puts it);
+//   Windows  the new exe in place of this one (this one renamed <exe>.old, removed on the next
+//            start), with no prompt; a folder it can't write fails, and the page offers the zip.
+// Under a test root the new app goes there instead (<root>/Applications, <root>/<exe>).
+class SelfUpdate final : private juce::Thread {
+public:
+	enum class State { Downloading, Checking, Installing, Done, Failed, Stopped };
+
+	// `changed` is called on this thread whenever the state or the download's progress moves.
+	SelfUpdate(Entry manager, std::function<void()> changed);
+	~SelfUpdate() override;
+
+	void start() { startThread(); }
+	const Entry &entry() const { return m_entry; }
+	State state() const { return m_state; }
+	double progress() const { return m_progress; }
+	juce::String error() const; // Failed, Stopped: why
+	bool finished() const;
+
+private:
+	void run() override;
+	juce::String install(const juce::File &download);
+	void set(State, const juce::String &error = {});
+
+	Entry m_entry;
+	std::function<void()> m_changed;
+	juce::File m_work;
+	std::atomic<State> m_state{State::Downloading};
+	std::atomic<double> m_progress{0};
+	mutable juce::CriticalSection m_lock;
+	juce::String m_error;
+};
+
+// After an update: starts the new manager, which waits for this one to quit (--after <pid>);
+// the caller then quits. False under a test root, or if it didn't start.
+bool relaunch();
+// --after <pid>: waits (up to 15 s) for the manager the update came from to quit.
+void waitForQuit(int pid);
+// Windows: removes the exe an update left beside this one (<exe>.old). Nothing elsewhere.
+void removeOldSelf();
 
 } // namespace lemus::manager
