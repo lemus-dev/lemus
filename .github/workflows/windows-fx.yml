@@ -49,7 +49,7 @@ jobs:
           if ('${{ inputs.extra }}') { $tests += '${{ inputs.extra }}' }
           $cdb = "${env:ProgramFiles(x86)}\Windows Kits\10\Debuggers\x64\cdb.exe"
           $debug = '${{ inputs.debug }}' -eq 'true'
-          if ($debug -and -not (Test-Path $cdb)) { Write-Host "no cdb at $cdb: running without it"; $debug = $false }
+          if ($debug -and -not (Test-Path $cdb)) { Write-Host "no cdb at $cdb, so running without it"; $debug = $false }
           $failed = 0
           foreach ($t in $tests) {
             Write-Host "== $t"

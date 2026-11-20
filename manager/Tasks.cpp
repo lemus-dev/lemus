@@ -500,15 +500,19 @@ void Batch::installReady()
 		const auto &plugin = j.entry.plugin;
 		const auto done = "echo " + quoted(kDone + plugin), fail = "echo " + quoted(kFail + plugin);
 		if (j.kind == Job::Kind::Remove) {
-			// Each copy's installer receipt (pkgutil --file-info names it) is forgotten too, as
-			// though the plugin had never been installed.
+			// Each copy's installer receipt is forgotten too, as though the plugin had never been
+			// installed: the Lemus package installed at the copy's folder whose top-level item is
+			// the copy. (pkgutil --file-info doesn't name a bundle's package.)
 			juce::String files;
 			script << "# remove " << plugin << "\n";
 			for (const auto &c : j.before.copies) {
 				files << " " << quoted(c.file);
 				if (!sandbox())
-					script << "id=$(/usr/sbin/pkgutil --file-info " << quoted(c.file) << " 2>/dev/null | /usr/bin/awk '/^pkgid:/ {print $2}')\n"
-					       << "[ -n \"$id\" ] && /usr/sbin/pkgutil --forget \"$id\" >/dev/null 2>&1\n";
+					script << "for id in $(/usr/sbin/pkgutil --pkgs='org\\.lemusdev\\..*' 2>/dev/null); do\n"
+					       << "  [ \"/$(/usr/sbin/pkgutil --pkg-info \"$id\" | /usr/bin/awk -F': ' '/^location:/ {print $2}')\" = "
+					       << quoted(c.file.getParentDirectory()) << " ] && /usr/sbin/pkgutil --files \"$id\" | /usr/bin/grep -qx "
+					       << quoted(c.file.getFileName()) << " && /usr/sbin/pkgutil --forget \"$id\" >/dev/null 2>&1\n"
+					       << "done\n";
 			}
 			script << "if /bin/rm -rf" << files << "; then\n  " << done << "\nelse\n  " << fail << "\nfi\n";
 			continue;
