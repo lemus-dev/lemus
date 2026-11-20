@@ -152,7 +152,15 @@ private:
 	tr909::Controls currentControls() const;
 	void handleMidi(const juce::MidiMessage &m);
 	void voiceModeNote(int note, int velocity);
-	void runSync(bool hostPlaying, double ppq, double bpm, int n, std::vector<std::pair<int, std::vector<uint8_t>>> &events);
+	// The host's transport for a block: its loop only when the host tells the loop points.
+	struct Transport {
+		bool playing = false;
+		double ppq = 0, bpm = 120;
+		bool looping = false;
+		double loopStart = 0, loopEnd = 0;
+	};
+	void runSync(const Transport &t, int n, std::vector<std::pair<int, std::vector<uint8_t>>> &events);
+	void planStart(double clock);
 	void renderBoard(float *l, float *r, int n, int offset);
 	void midiOutByte(uint8_t b, int at, juce::MidiBuffer &out);
 	void boot(); // switched on: the CPU from reset (the battery RAM as it is), the board's power-on
@@ -198,7 +206,15 @@ private:
 
 	// Host sync: the firmware's sync mode is stepped with SHIFT + TEMPO MODE (a key macro).
 	bool m_hostWasPlaying = false;
-	double m_lastClock = 0; // the last 24 ppqn clock sent
+	double m_lastClock = 0;   // the last 24 ppqn clock sent
+	double m_nextClock = 0;   // the host's clock count expected at the next block's start
+	double m_startClock = -1; // the clock that the start goes before (planStart), -1 once sent
+	std::vector<uint8_t> m_startMsg;
+	int64_t m_syncSamples = 0;               // samples run (runSync's own count)
+	int64_t m_transportAt = -(int64_t(1) << 40); // the sample of the last start or stop sent
+	int64_t m_stopDue = -1;                      // a stop waiting for kStopGap after the last start, at this sample
+	bool m_held = false;                         // stopped for the loop's end coming
+	static constexpr double kStopGap = 0.004;    // s between starts and stops: the firmware's scan, and margin
 	int m_syncMacro = 0;    // samples to the macro's next step
 	int m_syncMacroStep = 0;
 

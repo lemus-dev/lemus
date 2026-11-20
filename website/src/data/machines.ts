@@ -133,6 +133,14 @@ export const machines: Machine[] = [
     release: { version: '0.2.4', tag: 'ro-drums-909-v0.2.4', stage: 'beta', mac: 'ro-drums-909-0.2.4-mac.pkg', windows: 'ro-drums-909-0.2.4-windows.zip' },
     changes: [
       {
+        version: '0.2.5',
+        notes: [
+          "With SYNC on HOST and the DAW's loop on, the 909 now plays every pass of the loop. Before, it stopped at the loop's end and stayed silent.",
+          'Clicking elsewhere on the timeline while playing now picks the pattern up there, in time.',
+          'A start from a pre-roll, or from between two 16ths, now lands in step with the DAW.',
+        ],
+      },
+      {
         version: '0.2.4',
         notes: [
           'Computer keys by place now work in the plugin: 0.2.3 had left them out of the build, so German (QWERTZ) and French (AZERTY) keyboards still played the keys by their labels.',
@@ -262,7 +270,7 @@ export const machines: Machine[] = [
     standalone: false,
     keywords: 'rat proco pro co distortion pedal white face lm308 guitar 303 acid fuzz overdrive effect',
     nav: true,
-    release: null,
+    release: { version: '0.1.0', tag: 'pr-dist-r-v0.1.0', stage: 'beta', mac: 'pr-dist-r-0.1.0-mac.pkg', windows: 'pr-dist-r-0.1.0-windows.zip' },
     changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
   },
 ];

@@ -25,6 +25,11 @@ namespace {
 struct FakePlayHead : juce::AudioPlayHead {
 	bool playing = false;
 	double bpm = 120, ppq = 0;
+	// A loop (cycle) on: run() wraps the playhead at the block after it passes loopEnd, as a host
+	// that does not split its blocks at the loop, or with splitAtLoop ends a block on the loop's end
+	// (as Cubase does); reportLoop says whether the host tells the loop points.
+	bool looping = false, reportLoop = true, splitAtLoop = false;
+	double loopStart = 0, loopEnd = 4;
 	juce::Optional<PositionInfo> getPosition() const override
 	{
 		PositionInfo p;
@@ -32,6 +37,10 @@ struct FakePlayHead : juce::AudioPlayHead {
 		p.setBpm(bpm);
 		p.setPpqPosition(ppq);
 		p.setTimeSignature(TimeSignature{4, 4});
+		if (looping && reportLoop) {
+			p.setIsLooping(true);
+			p.setLoopPoints(LoopPoints{loopStart, loopEnd});
+		}
 		return p;
 	}
 };
@@ -68,8 +77,10 @@ juce::AudioBuffer<float> run(TR909Processor &p, FakePlayHead &ph, double seconds
 	const int channels = jacks ? 2 + tr909::kVoices : 2;
 	juce::AudioBuffer<float> out(channels, total);
 	juce::AudioBuffer<float> buf(channels, block);
-	for (int pos = 0; pos < total; pos += block) {
-		const int n = std::min(block, total - pos);
+	for (int pos = 0, n = 0; pos < total; pos += n) {
+		n = std::min(block, total - pos);
+		if (ph.playing && ph.looping && ph.splitAtLoop && ph.ppq < ph.loopEnd)
+			n = std::max(1, std::min(n, int(std::lround((ph.loopEnd - ph.ppq) * 60.0 / ph.bpm * rate))));
 		buf.setSize(channels, n, false, false, true);
 		buf.clear();
 		juce::MidiBuffer midi;
@@ -82,8 +93,12 @@ juce::AudioBuffer<float> run(TR909Processor &p, FakePlayHead &ph, double seconds
 			midiOut->addEvents(midi, 0, n, pos);
 		for (int ch = 0; ch < channels; ++ch)
 			out.copyFrom(ch, pos, buf, ch, 0, n);
-		if (ph.playing)
+		if (ph.playing) {
+			const double was = ph.ppq;
 			ph.ppq += n / rate * ph.bpm / 60.0;
+			if (ph.looping && was < ph.loopEnd && ph.ppq >= ph.loopEnd - 1e-9)
+				ph.ppq -= ph.loopEnd - ph.loopStart;
+		}
 	}
 	return out;
 }
@@ -225,6 +240,107 @@ void sync(TR909Processor &p, double rate)
 	set(p, "sync", 0.0f);
 	run(p, ph, 2.0, rate);
 	check(p.snapshot().syncMode == 0, "sync: and back to its internal clock");
+}
+
+// How far (seconds) the stretch of x from b lags the one from a, by the envelopes (rms in 0.25 ms
+// frames, left channel) over len samples, searched within maxLag; and their normalised correlation
+// there. Silence on either side correlates 0.
+std::pair<double, double> lag(const juce::AudioBuffer<float> &x, int a, int b, int len, double maxLag, double rate)
+{
+	const int frame = std::max(1, int(rate / 4000));
+	auto env = [&](int from, int frames) {
+		std::vector<double> e(size_t(std::max(0, frames)));
+		for (int f = 0; f < frames; ++f)
+			e[size_t(f)] = rms(x, 0, from + f * frame, frame);
+		return e;
+	};
+	const int frames = len / frame, reach = int(maxLag * rate) / frame;
+	const auto ea = env(a, frames), eb = env(b - reach * frame, frames + 2 * reach);
+	double best = 0;
+	int at = 0;
+	for (int k = 0; k <= 2 * reach; ++k) {
+		double ab = 0, aa = 0, bb = 0;
+		for (int f = 0; f < frames; ++f) {
+			ab += ea[size_t(f)] * eb[size_t(f + k)];
+			aa += ea[size_t(f)] * ea[size_t(f)];
+			bb += eb[size_t(f + k)] * eb[size_t(f + k)];
+		}
+		const double c = aa > 0 && bb > 0 ? ab / std::sqrt(aa * bb) : 0;
+		if (c > best) {
+			best = c;
+			at = k - reach;
+		}
+	}
+	return {at * frame / rate, best};
+}
+
+// SYNC with the host looping (forum t/40: the 909 stopped at the loop's end and stayed silent):
+// each pass of a one-bar loop plays pattern 1 as the first did, in time; so does a bar after a
+// click back on the timeline while playing, and the first bar after a pre-roll. reportLoop: the
+// host tells its loop points (the wrap is placed inside the block) or not (the jump is seen at
+// the next block, up to a block late).
+void hostLoop(const Roms &r, double rate, bool reportLoop, bool split = false, double bpm = 120)
+{
+	TR909Processor p(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+	FakePlayHead ph;
+	ph.bpm = bpm;
+	ph.splitAtLoop = split;
+	p.setPlayHead(&ph);
+	p.prepareToPlay(rate, 512);
+	run(p, ph, 1.0, rate);
+	set(p, "sync", 1.0f);
+	run(p, ph, 1.0, rate);
+	const int bar = int(std::lround(4 * 60.0 / ph.bpm * rate));
+	// within the firmware's panel scan (2.1-2.3 ms, where it places each step's triggers) and the
+	// MIDI bytes; without the loop points told, up to a block late and the stop's gap too
+	const double tol = 0.003 + (reportLoop ? 0.0 : 512 / rate + 0.004);
+	char how[96];
+	std::snprintf(how, sizeof how, "%s%s, %.0f BPM", reportLoop ? "loop points told" : "loop points not told",
+	              split ? ", blocks split at the loop" : "", bpm);
+	auto same = [&](const juce::AudioBuffer<float> &ref, const juce::AudioBuffer<float> &x, int from, const char *what) {
+		// the stretch of x from `from` against the reference's first bar, both in one buffer
+		juce::AudioBuffer<float> both(2, 2 * bar + int(0.1 * rate));
+		both.clear();
+		both.copyFrom(0, 0, ref, 0, 0, bar);
+		both.copyFrom(0, bar + int(0.05 * rate), x, 0, from, std::min(bar, x.getNumSamples() - from));
+		const auto [late, corr] = lag(both, 0, bar + int(0.05 * rate), bar - int(0.05 * rate), 0.03, rate);
+		char line[200];
+		std::snprintf(line, sizeof line, "sync (%s): %s (%+.1f ms, correlation %.3f)", how, what, late * 1000, corr);
+		check(std::abs(late) <= tol && corr > 0.8, line);
+	};
+
+	ph.playing = true;
+	ph.ppq = 0;
+	ph.looping = true;
+	ph.reportLoop = reportLoop;
+	ph.loopStart = 0;
+	ph.loopEnd = 4;
+	const auto loop = run(p, ph, 4.0 * bar / rate, rate);
+	{
+		char line[160];
+		std::snprintf(line, sizeof line, "sync (%s): the host's transport plays pattern 1", how);
+		check(rms(loop, 0, 0, bar) > 1e-3, line);
+	}
+	same(loop, loop, bar, "the second pass of a one-bar loop as the first");
+	same(loop, loop, 3 * bar, "the fourth pass as the first");
+
+	// stopped, then a click back to the top while playing (no loop)
+	ph.playing = false;
+	ph.looping = false;
+	run(p, ph, 0.5, rate);
+	ph.playing = true;
+	ph.ppq = 0;
+	run(p, ph, 1.5, rate);
+	ph.ppq = 0;
+	same(loop, run(p, ph, double(bar) / rate, rate), 0, "a bar after a click back to the top while playing");
+
+	// a start from a pre-roll: the first bar from the top in time
+	ph.playing = false;
+	run(p, ph, 0.5, rate);
+	ph.playing = true;
+	ph.ppq = -1;
+	const int pre = int(std::lround(60.0 / ph.bpm * rate));
+	same(loop, run(p, ph, double(pre + bar) / rate, rate), pre, "the first bar after a beat of pre-roll");
 }
 
 // The factory patterns (from the v1.0 ROM's loader): a new instance holds them, START plays
@@ -910,6 +1026,13 @@ int main(int argc, char **argv)
 		service(r, 48000);
 		return failures ? 1 : 0;
 	}
+	if (argc > 1 && juce::String(argv[1]) == "--hostloop") { // tools: the host loop checks alone
+		Roms r;
+		hostLoop(r, 48000, true);
+		hostLoop(r, 48000, false);
+		hostLoop(r, 48000, true, true, 133);
+		return failures ? 1 : 0;
+	}
 	if (argc > 1 && juce::String(argv[1]) == "--sleep") { // tools: the sleep check alone
 		Roms r;
 		TR909Processor p(&r.fw, &r.hh, &r.cr, &r.rd);
@@ -942,8 +1065,12 @@ int main(int argc, char **argv)
 		TR909Processor p(&r.fw, &r.hh, &r.cr, &r.rd);
 		sync(p, 48000);
 	}
-	if (r.v1.getSize() == 8192)
+	if (r.v1.getSize() == 8192) {
 		factory(r, dir, 48000);
+		hostLoop(r, 48000, true);
+		hostLoop(r, 48000, false);
+		hostLoop(r, 48000, true, true, 133);
+	}
 	state(r, 48000);
 	tempo(r, 48000);
 	midiThru(r, 48000);

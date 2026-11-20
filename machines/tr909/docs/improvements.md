@@ -209,6 +209,23 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-20, fix (forum t/40): with SYNC on and the host looping, the 909 stopped at the loop's
+  end and stayed silent (Cubase, Bitwig and others). The plugin sent the host's 24 ppqn clocks
+  after the last one it had sent, so when the playhead went back it sent none until it passed
+  the old place again: never, in a loop. A click back on the timeline while playing did the
+  same; a click forward sent every clock between at once; a start off a 16th or from a pre-roll
+  (a negative position) put the 909 out of phase with the host by up to a 16th (a pre-roll of a
+  beat started it a beat early). Now a jump of the playhead is a stop and a start at the new
+  place, as a sequencer's MIDI clock out sends it, and a start is on a 16th: FA at the top,
+  otherwise F2 and FB (pattern play ignores F2 and continues), the clock from there. The
+  firmware mixes a start and a stop that come within a panel scan of each other (`firmware.md`,
+  "Sync"), so they are kept 4 ms apart: a loop's end, when the host tells its loop points, is
+  stopped 4 ms before it and the 909 starts again on the wrap, in time; a jump not seen coming
+  (a click, a host that tells no loop points) starts 4 ms late, and without the points a wrap
+  inside a block is seen at the next block. `tr909plugintest` (`--hostloop` alone): pattern 1
+  in a one-bar loop, each pass against the first by envelope, after a click back and after a
+  beat of pre-roll, with the loop points told, not told, and with blocks split at the loop as
+  Cubase does; 105 of 105 at 87-199 BPM, all failing before.
 - 2026-11-16, fix: a circuit step that failed in quarters, sixteenths and 64ths (even with the
   comparators softened) was accepted as it stood, half advanced, and counted in
   `Circuit::Stats::failures`, which nothing outside the tools read. A new check, `tr909corners`

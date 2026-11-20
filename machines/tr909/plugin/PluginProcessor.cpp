@@ -399,7 +399,30 @@ void TR909Processor::handleMidi(const juce::MidiMessage &m)
 	m_machine.midiIn(m.getRawData(), size_t(m.getRawDataSize()));
 }
 
-void TR909Processor::runSync(bool hostPlaying, double ppq, double bpm, int n, std::vector<std::pair<int, std::vector<uint8_t>>> &events)
+// A start at the host's clock count `clock` (24 ppqn): on the first 16th at or after it (one less
+// than a clock past a 16th starts on that one, that much late), never before the top: FA there at
+// the top, otherwise the song position F2 (in 16ths) and continue FB, then the clock from there,
+// as a sequencer's MIDI clock out starts a 909. Pattern play ignores F2 (docs/firmware.md, "In").
+void TR909Processor::planStart(double clock)
+{
+	const int s = int(std::min(16383.0, std::max(0.0, std::ceil((clock - 1.0 + 1e-6) / 6.0))));
+	m_startClock = 6.0 * s;
+	m_lastClock = m_startClock - 1;
+	if (s == 0)
+		m_startMsg = {0xfa};
+	else
+		m_startMsg = {0xf2, uint8_t(s & 127), uint8_t((s >> 7) & 127), 0xfb};
+}
+
+// The host's transport as the 909's MIDI clock in SYNC. A jump of the playhead while playing (a
+// loop's wrap, a click on the timeline) is a stop and a start at the new place, as a sequencer
+// sends it. The firmware takes a start or stop at its next panel scan (2 ms): one sent before
+// the last has been taken mixes with it (a start right after a stop plays one step and stops, and
+// so does every start after a stop right after a start), so each comes kStopGap after the last. A
+// loop's end, when the host tells its loop points, is stopped that long before it and restarts on
+// the wrap, in time; a jump not seen coming (a click, a loop without its points told) restarts
+// that much late.
+void TR909Processor::runSync(const Transport &t, int n, std::vector<std::pair<int, std::vector<uint8_t>>> &events)
 {
 	const bool wantMidiSync = m_sync->load() > 0.5f && m_romOk;
 	const int mode = m_machine.iram(kSyncModeAddr) & 3;
@@ -423,29 +446,84 @@ void TR909Processor::runSync(bool hostPlaying, double ppq, double bpm, int n, st
 			}
 		}
 	}
-	const bool synced = wantMidiSync && hostPlaying && mode == 1;
-	if (synced && !m_hostWasPlaying) {
-		// start: FA at the top, otherwise the song position (in 16ths) and continue
-		if (ppq < 1.0 / 48.0)
-			events.push_back({0, {0xfa}});
-		else {
-			const int pos = int(std::floor(ppq * 4.0 + 1e-6));
-			events.push_back({0, {0xf2, uint8_t(pos & 127), uint8_t((pos >> 7) & 127), 0xfb}});
-		}
-		m_lastClock = std::ceil(ppq * 24.0 - 1e-6) - 1;
-	}
-	if (!synced && m_hostWasPlaying)
-		events.push_back({0, {0xfc}});
-	m_hostWasPlaying = synced;
-	if (!synced)
+	const int64_t blockStart = m_syncSamples;
+	m_syncSamples += n;
+	const int gap = int(std::ceil(kStopGap * m_rate));
+	auto stopNow = [&](int at) {
+		events.push_back({at, {0xfc}});
+		m_transportAt = blockStart + at;
+		m_stopDue = -1;
+	};
+	// a stop at `at`, or kStopGap after the last start or stop (in a later block if need be)
+	auto stop = [&](int at) {
+		const int64_t due = std::max(blockStart + at, m_transportAt + gap);
+		if (due < blockStart + n)
+			stopNow(int(due - blockStart));
+		else
+			m_stopDue = due;
+	};
+	if (m_stopDue >= 0 && m_stopDue < blockStart + n)
+		stopNow(int(std::max<int64_t>(0, m_stopDue - blockStart)));
+	const bool synced = wantMidiSync && t.playing && mode == 1;
+	if (!synced) {
+		if (m_hostWasPlaying)
+			stop(0);
+		m_hostWasPlaying = m_held = false;
+		m_startClock = -1;
 		return;
-	const double perSample = bpm / 60.0 / m_rate * 24.0;
-	const double c0 = ppq * 24.0;
-	for (double c = m_lastClock + 1; c < c0 + perSample * n; c += 1) {
-		const int at = std::clamp(int(std::ceil((c - c0) / perSample)), 0, n - 1);
-		events.push_back({at, {0xf8}});
-		m_lastClock = c;
 	}
+	const double perSample = t.bpm / 60.0 / m_rate * 24.0;
+	double base = t.ppq * 24.0; // the host's clock count at this block's first sample
+	const double loopStart = t.loopStart * 24.0, loopEnd = t.loopEnd * 24.0;
+	const bool looping = t.looping && loopEnd > loopStart + 1.0;
+	if (!m_hostWasPlaying)
+		planStart(base);
+	else if (std::abs(base - m_nextClock) > 1.0) { // the playhead jumped (a wrap, if stopped for it)
+		if (!m_held)
+			stop(0);
+		m_held = false;
+		planStart(base);
+	} else if (m_held && !(looping && base < loopEnd)) { // stopped for a loop's end that didn't come
+		m_held = false;
+		planStart(base);
+	}
+	m_hostWasPlaying = true;
+	auto sample = [&](double c) { return std::clamp(int(std::ceil((c - base) / perSample - 1e-9)), 0, n - 1); };
+	int floor = 0; // the sample of the last event sent
+	for (int wraps = 0;; ++wraps) {
+		const double end = base + perSample * n;
+		// a wrap inside this block (one that ends on the loop's end is seen at the next block)
+		const bool wrap = looping && wraps < 64 && base < loopEnd && end > loopEnd + 1e-6;
+		const double until = wrap ? loopEnd : end;
+		for (double c = m_lastClock + 1; c < until - 1e-9; c += 1) {
+			int at = std::max(floor, sample(c));
+			if (m_startClock >= 0 && std::abs(c - m_startClock) < 0.5) {
+				at = int(std::max<int64_t>(at, std::max(m_transportAt, m_stopDue) + gap - blockStart));
+				if (at >= n)
+					break; // at the next block
+				events.push_back({at, m_startMsg});
+				m_transportAt = blockStart + at;
+				m_startClock = -1;
+			}
+			events.push_back({at, {0xf8}});
+			m_lastClock = c;
+			floor = at;
+		}
+		// the loop's end coming: stopped kStopGap before it, after the clocks before it
+		const double stopClock = loopEnd - kStopGap * m_rate * perSample;
+		if (looping && !m_held && m_startClock < 0 && base < loopEnd && stopClock < std::min(end, until + 1e-9)) {
+			stop(std::max(floor, sample(std::max(base, stopClock))));
+			m_held = true;
+		}
+		if (!wrap)
+			break;
+		if (!m_held)
+			stop(std::max(floor, sample(loopEnd)));
+		m_held = false;
+		base -= loopEnd - loopStart;
+		planStart(loopStart);
+	}
+	m_nextClock = base + perSample * n;
 }
 
 void TR909Processor::renderBoard(float *l, float *r, int n, int offset)
@@ -608,18 +686,22 @@ void TR909Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	}
 
 	// Transport
-	bool hostPlaying = false;
-	double ppq = 0, bpm = 120;
+	Transport transport;
 	if (auto *ph = getPlayHead())
 		if (auto pos = ph->getPosition()) {
-			hostPlaying = pos->getIsPlaying();
+			transport.playing = pos->getIsPlaying();
 			if (auto p = pos->getPpqPosition())
-				ppq = *p;
+				transport.ppq = *p;
 			if (auto b = pos->getBpm())
-				bpm = *b;
+				transport.bpm = *b;
+			if (auto loop = pos->getLoopPoints(); loop && pos->getIsLooping()) {
+				transport.looping = true;
+				transport.loopStart = loop->ppqStart;
+				transport.loopEnd = loop->ppqEnd;
+			}
 		}
 	std::vector<std::pair<int, std::vector<uint8_t>>> events;
-	runSync(hostPlaying, ppq, bpm, n, events);
+	runSync(transport, n, events);
 	for (size_t k = 0; k + 2 < uiMidi.size(); k += 3)
 		events.push_back({0, {uiMidi[k], uiMidi[k + 1], uiMidi[k + 2]}});
 	for (const auto meta : midi) {

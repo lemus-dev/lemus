@@ -315,7 +315,11 @@ a middle 0 in MIDI and a left 0 in DIN (OM p.34).
   (A/D 76 approached from above: 112.6 BPM, display 113).
 - **MIDI.** Each F8 is a 24 ppqn clock: the firmware reads ECNT (us since the last one), loads
   half of it into ETM1 and makes a tick at once; ETM1 makes the tick in between (17F8). FA
-  starts the pattern on the next F8, FB continues, FC stops.
+  starts the pattern on the next F8, FB continues, FC stops. A start or stop is taken at the
+  next panel scan: one that comes before the last has been taken mixes with it. FC then at once
+  FA (and F8) plays one step and stops; FA and F8 then at once FC leaves each later start
+  playing one step and stopping. 2 ms apart they are taken one by one (on the emulated board,
+  the hardware's firmware; the plugin's host sync keeps them 4 ms apart).
 - **DIN** (rear SYNC IN, SN p.12: 1 START/STOP, 3 TEMPO, 5 CONTINUE). START/STOP high runs it
   and sends FA (raised together with a clock edge, the first step comes on the next edge);
   CONTINUE high with it continues and sends FB; START/STOP low stops and sends FC. Each clock edge is handled like an
