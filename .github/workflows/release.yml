@@ -74,7 +74,8 @@ jobs:
         shell: pwsh
         run: |
           $toolset = if ('${{ matrix.toolset }}') { @('-T', '${{ matrix.toolset }}') } else { @() }
-          $extra = '${{ matrix.configure }}' -split ' ' | Where-Object { $_ }
+          # @(): one option must stay an array, or splatting spreads its characters.
+          $extra = @('${{ matrix.configure }}' -split ' ' | Where-Object { $_ })
           cmake -S . -B build/release-win -G "Visual Studio 17 2022" -A x64 @toolset -DLEMUS_MACHINES=${{ matrix.machine }} -DLEMUS_COPY_PLUGINS=OFF @extra
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Build

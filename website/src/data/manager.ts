@@ -6,6 +6,17 @@ import type { Change, Release } from './machines';
 export const manager: { slug: string; page: string; release: Release | null; changes: Change[] } = {
   slug: 'lemus-plugin-manager',
   page: '/plugin-manager',
-  release: null,
-  changes: [],
+  release: {
+    version: '0.1.0',
+    tag: 'lemus-plugin-manager-v0.1.0',
+    stage: 'beta',
+    mac: 'lemus-plugin-manager-0.1.0-mac.pkg',
+    windows: 'lemus-plugin-manager-0.1.0-windows.zip',
+  },
+  changes: [
+    {
+      version: '0.1.0',
+      notes: ['First release: lists the released plugins and installs, updates and removes them; checks every download\'s SHA-256; updates itself.'],
+    },
+  ],
 };
