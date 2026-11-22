@@ -39,6 +39,25 @@ What runs with those rights trusts as little as it can:
 A copy in the user's own `~/Library/Audio/Plug-Ins` (a development build) isn't the manager's;
 it's shown in the details, since a DAW may load either copy.
 
+## ROMs and artwork
+
+Each plugin's details show its ROMs (found or not; for a missing one its size, CRC and SHA1 and
+what the machine lacks without it) and its artwork places, and the list has ROM and ART columns.
+The needs come from `/roms.json` beside `latest.json` (the site serves `website/src/data/roms.json`
+for the released plugins; `tools/release/roms-json.sh` writes it from the machines' own specs via
+`manager/specs.cpp`). The folder is checked with the plugins' own code (`host/Roms.h`), so the
+manager and the plugin agree: a ROM by its SHA1 under any name, loose or in a zip; a place by its
+file's name. ROMs and artwork dropped anywhere on the window are matched the same way (folders and
+zips too) and copied into the plugin's ROM folder under the name it knows them by. Lemus ships no
+ROMs: nothing here downloads one or says where to get one.
+
+## Open Plugin Manager
+
+The manager records where it is in the shared Lemus settings each time it starts. A plugin's
+what's-new pop-up then offers Open Plugin Manager in place of Download: it asks the manager
+(through the same settings) to show that plugin, and starts it or brings it forward
+(`host/Updates.h`). A plugin without the manager is unchanged.
+
 Nothing is reported anywhere: when something goes wrong the user gets what helps to report it.
 A failed job, or the manager's own update, has Copy details (the version and system, what it was
 doing, why it failed, the installer's log). A crash writes its stack to `Plugin Manager crash.txt`

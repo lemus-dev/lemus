@@ -4,10 +4,14 @@
 #include "manager/Catalog.h"
 #include "manager/Installed.h"
 #include "manager/Report.h"
+#include "manager/RomCheck.h"
 #include "manager/Tasks.h"
+
+#include <juce_data_structures/juce_data_structures.h>
 
 #include <cstdio>
 
+using namespace lemus;
 using namespace lemus::manager;
 
 namespace {
@@ -276,6 +280,96 @@ void testZipBatch(const juce::File &sandbox)
 #endif
 }
 
+// The ROM and artwork checks, and files dropped on the window, under a test ROM folder.
+void testRoms(const juce::File &sandbox)
+{
+	const auto roms = sandbox.getChildFile("ROMs");
+	romfolder::setOverride(roms);
+	const juce::String romA = "first rom bytes", romB = "second rom bytes";
+	const auto sha = [](const juce::String &t) { return sha1Hex(t.toRawUTF8(), t.getNumBytesAsUTF8()); };
+	const auto json = juce::String(R"({"plugins": {
+	  "ro-test-1": {"machine": "test1", "roms": [
+	    {"name": "cpu.ic1", "size": 15, "sha1": ")") + sha(romA) + R"(", "crc32": "00000000", "what": "CPU ROM", "optional": true, "without": "voices only"},
+	    {"name": "voice.ic2", "size": 16, "sha1": ")" + sha(romB) + R"(", "crc32": "00000000", "what": "Voice ROM", "optional": false}],
+	    "artwork": "test1.svg", "places": [{"id": "maker", "label": "Maker"}, {"id": "model", "label": "Model"}]},
+	  "pr-test-2": {"machine": "test2", "roms": []},
+	  "../bad": {"machine": "x", "roms": []},
+	  "ro-test-3": {"machine": "../up", "roms": []},
+	  "ro-test-4": {"machine": "test4", "roms": [{"name": "../escape", "size": 1, "sha1": ")" + sha(romA) + R"(", "crc32": "0"}]}
+	}})";
+	const auto needs = parseNeeds(json);
+	check(needs && needs->size() == 3 && needs->count("ro-test-1") && needs->count("pr-test-2") && needs->count("ro-test-4"),
+	      "roms.json: odd plugin names and machine ids are skipped");
+	if (!needs)
+		return;
+	check(needs->at("ro-test-4").roms.empty(), "roms.json: a ROM name with a path in it is skipped");
+	const auto &n = needs->at("ro-test-1");
+	check(n.roms.size() == 2 && n.roms[0].optional && !n.roms[1].optional && n.artwork.places.size() == 2 && n.artwork.plugin == "ro-test-1",
+	      "roms.json: ROMs and places");
+
+	auto c = check(n);
+	check(c.rom() == RomCheck::Rom::Missing && c.art() == RomCheck::Art::None, "an empty folder: a needed ROM missing, no artwork");
+	check(check(needs->at("pr-test-2")).rom() == RomCheck::Rom::NotNeeded, "no ROMs: not needed");
+
+	// Dropped: a loose ROM under another name, a zip with the other, artwork, and a stranger.
+	const auto drop = sandbox.getChildFile("drop");
+	drop.createDirectory();
+	drop.getChildFile("whatever.bin").replaceWithText(romB);
+	drop.getChildFile("ro-test-1-maker.svg").replaceWithText("<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+	drop.getChildFile("notes.txt").replaceWithText("nothing");
+	auto added = addDropped({drop.getChildFile("whatever.bin").getFullPathName(), drop.getChildFile("ro-test-1-maker.svg").getFullPathName(),
+	                         drop.getChildFile("notes.txt").getFullPathName()},
+	                        *needs);
+	check(added.size() == 2 && roms.getChildFile("voice.ic2").loadFileAsString() == romB && roms.getChildFile("ro-test-1-maker.svg").existsAsFile(),
+	      "dropped: the ROM by its SHA1 under its own name, the artwork by its name; the rest left alone");
+	c = check(n);
+	check(c.rom() == RomCheck::Rom::Reduced && c.art() == RomCheck::Art::Partial, "then: runs without the optional ROM, artwork partial");
+	{
+		juce::ZipFile::Builder zip;
+		zip.addEntry(new juce::MemoryInputStream(romA.toRawUTF8(), romA.getNumBytesAsUTF8(), true), 9, "set/cpu.bin", juce::Time::getCurrentTime());
+		juce::FileOutputStream out(drop.getChildFile("set.zip"));
+		zip.writeToStream(out, nullptr);
+	}
+	added = addDropped({drop.getFullPathName()}, *needs);
+	check(roms.getChildFile("cpu.ic1").loadFileAsString() == romA, "dropped: a folder, and a ROM inside a zip in it");
+	check(check(n).rom() == RomCheck::Rom::Ready, "then: every ROM found");
+	check(describe(addDropped({drop.getChildFile("whatever.bin").getFullPathName()}, *needs)).contains("already"), "dropping it again: it has it already");
+	check(describe({}).startsWith("Nothing"), "dropping nothing of ours says so");
+	check(describe({{"ro-test-1", "cpu.ic1", false}}) == "Added cpu.ic1 to ro-test-1", "what one file added says");
+	romfolder::setOverride({});
+	sandbox.deleteRecursively();
+	sandbox.createDirectory();
+}
+
+// The plugins' Open Plugin Manager: where the manager is, and the plugin a plugin asked for.
+void testHandOff(const juce::File &sandbox)
+{
+	romfolder::setSettingsFile(sandbox.getChildFile("Lemus.settings"));
+	check(updates::pluginManager() == juce::File(), "no manager recorded: none");
+	const auto app = sandbox.getChildFile("Lemus Plugin Manager.app");
+	app.createDirectory();
+	updates::rememberPluginManager(app);
+	check(updates::pluginManager() == app, "the manager records where it is");
+	{
+		auto s = settings();
+		s->setValue("pluginManagerShow", "ro-drums-808 " + juce::String(juce::Time::currentTimeMillis()));
+		s->saveIfNeeded();
+	}
+	check(updates::takePluginManagerRequest() == "ro-drums-808" && updates::takePluginManagerRequest().isEmpty(),
+	      "a plugin's ask is read once");
+	{
+		auto s = settings();
+		s->setValue("pluginManagerShow", "ro-drums-808 " + juce::String(juce::Time::currentTimeMillis() - 5 * 60 * 1000));
+		s->saveIfNeeded();
+	}
+	check(updates::takePluginManagerRequest().isEmpty(), "an old ask is ignored");
+	app.deleteRecursively();
+	check(updates::pluginManager() == juce::File(), "a manager that's gone: none");
+	romfolder::setSettingsFile({});
+	sandbox.deleteRecursively();
+	sandbox.createDirectory();
+}
+
 void testReports(const juce::File &sandbox)
 {
 	const auto log = sandbox.getChildFile("install.log");
@@ -383,6 +477,8 @@ int main()
 	testBatch(sandbox);
 	testZipBatch(sandbox);
 	testSelfUpdate(sandbox);
+	testRoms(sandbox);
+	testHandOff(sandbox);
 	testReports(sandbox);
 	setRoot({});
 	sandbox.deleteRecursively();

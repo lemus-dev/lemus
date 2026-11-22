@@ -163,4 +163,56 @@ void Checker::run()
 	sendChangeMessage();
 }
 
+juce::File pluginManager()
+{
+	const auto path = settings()->getValue("pluginManager");
+	if (!juce::File::isAbsolutePath(path))
+		return {};
+	const juce::File app(path);
+	return app.exists() ? app : juce::File();
+}
+
+void rememberPluginManager(const juce::File &app)
+{
+	auto s = settings();
+	if (s->getValue("pluginManager") != app.getFullPathName()) {
+		s->setValue("pluginManager", app.getFullPathName());
+		s->saveIfNeeded();
+	}
+}
+
+bool openPluginManager(const juce::String &plugin)
+{
+	const auto app = pluginManager();
+	if (app == juce::File())
+		return false;
+	{
+		// A running manager reads this when it comes forward; a new one when it starts.
+		auto s = settings();
+		s->setValue("pluginManagerShow", plugin + " " + juce::String(juce::Time::currentTimeMillis()));
+		s->saveIfNeeded();
+	}
+#if JUCE_MAC
+	juce::ChildProcess open;
+	return open.start(juce::StringArray{"/usr/bin/open", "-a", app.getFullPathName()}) && open.waitForProcessToFinish(5000);
+#else
+	return app.startAsProcess();
+#endif
+}
+
+juce::String takePluginManagerRequest()
+{
+	auto s = settings();
+	const auto ask = s->getValue("pluginManagerShow");
+	if (ask.isEmpty())
+		return {};
+	s->removeValue("pluginManagerShow");
+	s->saveIfNeeded();
+	// Only an ask from the last minute: an old one left behind isn't wanted.
+	const auto at = ask.fromLastOccurrenceOf(" ", false, false).getLargeIntValue();
+	if (juce::Time::currentTimeMillis() - at > 60 * 1000)
+		return {};
+	return ask.upToLastOccurrenceOf(" ", false, false);
+}
+
 } // namespace lemus::updates

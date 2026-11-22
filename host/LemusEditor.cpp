@@ -1215,7 +1215,9 @@ private:
 // A newer release of this plugin: what's new in every version since this build's, and the usual
 // three answers. Download opens its page; Remind me later shows it again in a week; Skip this
 // version doesn't show it again until the next. Escape or a click beside it is Remind me later. The
-// bar keeps saying there's a release whatever the answer, and opens this again.
+// bar keeps saying there's a release whatever the answer, and opens this again. With Lemus Plugin
+// Manager installed, Open Plugin Manager takes Download's place: the manager opens on this plugin,
+// ready to update it.
 class WhatsNewBody final : public juce::Component {
 public:
 	WhatsNewBody(const lemus::updates::Release &release, std::function<void()> onClosed) : m_release(release), m_onClosed(std::move(onClosed))
@@ -1224,13 +1226,20 @@ public:
 			juce::URL(m_release.url).launchInDefaultBrowser();
 			m_onClosed();
 		};
+		m_manager.onClick = [this] {
+			if (!lemus::updates::openPluginManager(JucePlugin_Name))
+				juce::URL(m_release.url).launchInDefaultBrowser();
+			m_onClosed();
+		};
+		m_withManager = lemus::updates::pluginManager() != juce::File();
 		m_later.onClick = [this] { m_onClosed(); };
 		m_skip.onClick = [this] {
 			lemus::updates::skip(m_release);
 			m_onClosed();
 		};
-		for (auto *b : {&m_download, &m_later, &m_skip})
+		for (auto *b : {&m_later, &m_skip})
 			addAndMakeVisible(*b);
+		addAndMakeVisible(m_withManager ? m_manager : m_download);
 		setSize(kWidth, layout(nullptr));
 	}
 
@@ -1239,7 +1248,8 @@ public:
 	void resized() override
 	{
 		auto row = juce::Rectangle<int>(kPad, m_buttonsY, kWidth - 2 * kPad, 32);
-		m_download.setBounds(row.removeFromRight(m_download.idealWidth() + 8));
+		auto &main = m_withManager ? m_manager : m_download;
+		main.setBounds(row.removeFromRight(main.idealWidth() + 8));
 		m_skip.setBounds(row.removeFromLeft(m_skip.idealWidth()));
 		row.removeFromLeft(8);
 		m_later.setBounds(row.removeFromLeft(m_later.idealWidth()));
@@ -1318,6 +1328,8 @@ private:
 	lemus::updates::Release m_release;
 	std::function<void()> m_onClosed;
 	Pill m_download{"Download", Pill::Kind::Primary, col::accent, 12.0f};
+	Pill m_manager{"Open Plugin Manager", Pill::Kind::Primary, col::accent, 12.0f};
+	bool m_withManager = false;
 	Pill m_later{"Remind me later", Pill::Kind::Plain, col::accent, 12.0f};
 	Pill m_skip{"Skip this version", Pill::Kind::Plain, col::accent, 12.0f};
 	int m_buttonsY = 0;

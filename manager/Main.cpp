@@ -1,13 +1,16 @@
 // Lemus Plugin Manager.
 //   Lemus Plugin Manager [--catalog <file or URL>] [--root <folder>]
 //     --catalog  read the list of plugins from there instead of LEMUS_SITE/latest.json
-//     --root     install under this folder instead of the system's, asking for nothing (tests)
+//     --root     install under this folder instead of the system's, asking for nothing, with
+//                <root>/ROMs as every plugin's ROM folder (tests)
 //   Lemus Plugin Manager --snapshot <png> [--select <plugin>] [--action <what>] [--wait <ms>] [--until-done]
 //     render the window to a PNG once the list is read (and the action has run for --wait ms, or
 //     with --until-done, has finished); the exit code is 1 if a job failed
 //   Lemus Plugin Manager --apply <plan.json>
 //     Windows: run an install plan with the rights this process was started with (the app starts
 //     itself this way, elevated, so Windows asks once per batch); writes <plan>.result.
+//   Lemus Plugin Manager --select <plugin>
+//     opens on that plugin (a plugin's Open Plugin Manager asks through the shared settings instead)
 //   Lemus Plugin Manager --after <pid>
 //     the manager just updated (SelfUpdate): waits for the copy it replaced to quit, then opens.
 #include "MainComponent.h"
@@ -38,6 +41,19 @@ public:
 	}
 
 	void closeButtonPressed() override { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
+
+	// Brought forward by a plugin's Open Plugin Manager: show the plugin it asked for.
+	void activeWindowStatusChanged() override
+	{
+		if (isActiveWindow())
+			showAsked();
+	}
+
+	void showAsked()
+	{
+		if (const auto plugin = updates::takePluginManagerRequest(); plugin.isNotEmpty() && main() != nullptr)
+			main()->selectWhenLoaded(plugin);
+	}
 
 	MainComponent *main() const { return dynamic_cast<MainComponent *>(getContentComponent()); }
 };
@@ -117,8 +133,11 @@ public:
 		removeOldSelf();
 		if (const auto catalog = value("--catalog"); catalog.isNotEmpty())
 			setCatalogSource(catalog);
-		if (const auto r = value("--root"); r.isNotEmpty())
+		if (const auto r = value("--root"); r.isNotEmpty()) {
 			setRoot(juce::File::getCurrentWorkingDirectory().getChildFile(r));
+			// The ROM folder too: <root>/ROMs, never the user's.
+			romfolder::setOverride(root().getChildFile("ROMs"));
+		}
 		if (const auto png = value("--snapshot"); png.isNotEmpty()) {
 			const auto wait = value("--wait");
 			m_snapshot = std::make_unique<Snapshot>(juce::File::getCurrentWorkingDirectory().getChildFile(png), value("--select"), value("--action"),
@@ -126,6 +145,13 @@ public:
 			return;
 		}
 		m_window = std::make_unique<Window>();
+		// Where the plugins find it (their what's-new pop-up offers Open Plugin Manager), and the
+		// plugin one of them asked for, or --select.
+		if (root() == juce::File())
+			updates::rememberPluginManager(juce::File::getSpecialLocation(juce::File::currentApplicationFile));
+		if (const auto plugin = value("--select"); plugin.isNotEmpty())
+			m_window->main()->selectWhenLoaded(plugin);
+		m_window->showAsked();
 	}
 
 	void shutdown() override
@@ -149,8 +175,10 @@ public:
 
 	void anotherInstanceStarted(const juce::String &) override
 	{
-		if (m_window != nullptr)
+		if (m_window != nullptr) {
 			m_window->toFront(true);
+			m_window->showAsked();
+		}
 	}
 
 private:

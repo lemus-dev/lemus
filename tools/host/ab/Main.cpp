@@ -2,7 +2,8 @@
 // looping, and lets you hear one at a time: Space switches, 1-9 pick, Return plays and stops.
 // Sources are level-matched when the scene loads (one loop rendered offline), switching
 // crossfades over 5 ms, and blind mode hides which is which until you reveal it. The other
-// scenes in the same folder are a click (or Up/Down) away. After changing a source in its editor
+// scenes in the same folder are a click (or Up/Down) away, numbered from 1 in the folder's
+// natural sort order (in the title and the picker: "scene 7, B" names a clip and a source). After changing a source in its editor
 // (its volume, say), Match levels (L) measures them again. The spectrum (Spectrum.h) shows what
 // is playing against the reference (hidden in blind mode until Reveal); Left/Right stop and step it
 // through the loop a frame at a time.
@@ -248,7 +249,9 @@ public:
 		g.fillAll(colours::background);
 		g.setColour(colours::text);
 		g.setFont(juce::FontOptions(20.0f, juce::Font::bold));
-		g.drawText(m_scene.name.isEmpty() ? juce::String("Open or drop a scene") : m_scene.name, 16, 12, getWidth() - 32, 28,
+		const int at = m_siblings.indexOf(m_file);
+		const juce::String number = at >= 0 ? juce::String(at + 1) + "  " : juce::String();
+		g.drawText(m_scene.name.isEmpty() ? juce::String("Open or drop a scene") : number + m_scene.name, 16, 12, getWidth() - 32, 28,
 		           juce::Justification::centredLeft);
 		if (m_players.empty())
 			return;
@@ -318,7 +321,8 @@ private:
 		                       });
 	}
 
-	// The scenes next to the current one, by name, for the picker and Up/Down.
+	// The scenes next to the current one, by name, for the picker and Up/Down; numbered from 1 in
+	// that order.
 	void listSiblings()
 	{
 		m_siblings = m_file.getParentDirectory().findChildFiles(juce::File::findFiles, false, "*.json");
@@ -326,7 +330,7 @@ private:
 		          [](const juce::File &a, const juce::File &b) { return a.getFileName().compareNatural(b.getFileName()) < 0; });
 		m_picker.clear(juce::dontSendNotification);
 		for (int i = 0; i < m_siblings.size(); ++i)
-			m_picker.addItem(m_siblings[i].getFileNameWithoutExtension(), i + 1);
+			m_picker.addItem(juce::String(i + 1) + "  " + m_siblings[i].getFileNameWithoutExtension(), i + 1);
 		m_picker.setSelectedItemIndex(m_siblings.indexOf(m_file), juce::dontSendNotification);
 	}
 

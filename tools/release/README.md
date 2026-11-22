@@ -52,7 +52,10 @@ readme (`windows-readme.txt`) that says where the VST3 goes.
        gh release create ro-mono-303-v<version> -R lemus-dev/lemus --verify-tag --latest \
          --title "ro-mono-303 <version>" --notes "<changes>" dist/ro-mono-303-<version>-*
 
-7. Set each released plugin's `release` (version, tag, file names) in
+7. If a released plugin's ROMs or artwork places changed, or a machine ships for the first time,
+   run `tools/release/roms-json.sh "<shipping machines>"`: it rewrites
+   `website/src/data/roms.json`, what Lemus Plugin Manager checks the ROM folder against.
+   Set each released plugin's `release` (version, tag, file names) in
    `website/src/data/machines.ts` and run
    `npm run deploy` in `website/`. That publishes the download links (to the GitHub release's
    files) and `latest.json`, so it's the last step: every open plugin window shows the new version

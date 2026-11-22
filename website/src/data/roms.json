@@ -1,0 +1,243 @@
+{
+  "plugins": {
+    "ac-digital-vc": {
+      "machine": "virusc",
+      "roms": [
+        {
+          "name": "virus_c_660x368.bin",
+          "size": 524288,
+          "sha1": "4c34546889d90522a8d85300c471f18339f88f72",
+          "crc32": "923ed4bc",
+          "what": "Firmware ROM",
+          "optional": false
+        }
+      ],
+      "artwork": "virusc.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "Access logo"
+        },
+        {
+          "id": "name",
+          "label": "Virus C"
+        },
+        {
+          "id": "tagline",
+          "label": "Advanced Simulated Analog Synthesizer"
+        }
+      ]
+    },
+    "al-fx-quadgt": {
+      "machine": "qvgt",
+      "roms": [
+        {
+          "name": "qvgtv103.bin",
+          "size": 65536,
+          "sha1": "0ac063e74b6c6ecf9edda10824df9a79c621ccd9",
+          "crc32": "51813667",
+          "what": "Firmware ROM",
+          "optional": false
+        },
+        {
+          "name": "hd44780_a00.bin",
+          "size": 4096,
+          "sha1": "65cf075a988cdcbb316b9afdd0529b374a1a65ec",
+          "crc32": "e459877c",
+          "what": "LCD font ROM",
+          "optional": false
+        }
+      ],
+      "artwork": "qvgt.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "Alesis logo"
+        },
+        {
+          "id": "name",
+          "label": "QuadraVerb GT logo"
+        }
+      ]
+    },
+    "pr-dist-r": {
+      "machine": "rat",
+      "roms": [],
+      "artwork": "rat.svg",
+      "places": [
+        {
+          "id": "model",
+          "label": "RAT"
+        },
+        {
+          "id": "maker",
+          "label": "Pro Co logo (top)"
+        },
+        {
+          "id": "front",
+          "label": "Pro Co Sound Inc logo (front)"
+        }
+      ]
+    },
+    "ro-drums-808": {
+      "machine": "tr808",
+      "roms": [
+        {
+          "name": "d650c-085.ic4",
+          "size": 2048,
+          "sha1": "eddac7af6396c3f220914d9cad2c9e398872b034",
+          "crc32": "06f0c405",
+          "what": "CPU ROM",
+          "optional": true,
+          "without": "voices only, played from MIDI, no sequencer"
+        }
+      ],
+      "artwork": "tr808.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "Roland logo"
+        },
+        {
+          "id": "name",
+          "label": "Rhythm Composer"
+        },
+        {
+          "id": "model",
+          "label": "TR-808"
+        },
+        {
+          "id": "tagline",
+          "label": "Computer Controlled"
+        }
+      ]
+    },
+    "ro-drums-909": {
+      "machine": "tr909",
+      "roms": [
+        {
+          "name": "tr909_v4.ic609",
+          "size": 8192,
+          "sha1": "b94374e2cd6b5a6c405da4fa7793c98c0a6015c4",
+          "crc32": "a9b45f30",
+          "what": "Program ROM",
+          "optional": true,
+          "without": "voices only, played from MIDI, no sequencer"
+        },
+        {
+          "name": "hn61256p__c43.ic69",
+          "size": 32768,
+          "sha1": "22a34d603e78673bb096f5e56a8971afe14d8fee",
+          "crc32": "2aaae11b",
+          "what": "Hi-hat ROM",
+          "optional": true,
+          "without": "no hi-hat"
+        },
+        {
+          "name": "hn61256p__c42.ic62",
+          "size": 32768,
+          "sha1": "bc730107b0c391f4879c9777a3e85f3e57f3aad6",
+          "crc32": "dc61cf1a",
+          "what": "Crash ROM",
+          "optional": true,
+          "without": "no crash"
+        },
+        {
+          "name": "hn61256p__c44.ic54",
+          "size": 32768,
+          "sha1": "daa54c58c7e3ae3398f125568537ec82d5bd1dfd",
+          "crc32": "01a9b435",
+          "what": "Ride ROM",
+          "optional": true,
+          "without": "no ride"
+        },
+        {
+          "name": "tr909_v1.ic609",
+          "size": 8192,
+          "sha1": "bcd754900574d1861034af8056574ffa77db3067",
+          "crc32": "bfb9682b",
+          "what": "Factory patterns",
+          "optional": true,
+          "without": "no factory patterns"
+        }
+      ],
+      "artwork": "tr909.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "Roland logo"
+        },
+        {
+          "id": "model",
+          "label": "TR-909"
+        },
+        {
+          "id": "name",
+          "label": "Rhythm Composer"
+        },
+        {
+          "id": "rear_maker",
+          "label": "Roland logo, rear panel"
+        }
+      ]
+    },
+    "ro-mono-101": {
+      "machine": "sh101",
+      "roms": [
+        {
+          "name": "tmp80c49p-6-7301.ic6",
+          "size": 2048,
+          "sha1": "a84bb1758582dbb800001db3663eaf3fb9d0e25d",
+          "crc32": "4d9cb13c",
+          "what": "CPU ROM",
+          "optional": true,
+          "without": "voice only, played from MIDI, no sequencer or arpeggio"
+        }
+      ],
+      "artwork": "sh101.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "Roland logo"
+        },
+        {
+          "id": "model",
+          "label": "SH-101"
+        }
+      ]
+    },
+    "ro-mono-303": {
+      "machine": "tb303",
+      "roms": [
+        {
+          "name": "d650c-133.ic8",
+          "size": 2048,
+          "sha1": "7a4236b2bc9a5cd4c80c63ca1a193e03becfcb4c",
+          "crc32": "268a8d8b",
+          "what": "CPU ROM",
+          "optional": true,
+          "without": "voice only, played from MIDI, no sequencer"
+        }
+      ],
+      "artwork": "tb303.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "Roland logo"
+        },
+        {
+          "id": "name",
+          "label": "Bass Line"
+        },
+        {
+          "id": "model",
+          "label": "TB-303"
+        },
+        {
+          "id": "tagline",
+          "label": "Computer Controlled"
+        }
+      ]
+    }
+  }
+}

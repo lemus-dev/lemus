@@ -53,6 +53,16 @@ bool popUpDue(const Release &, const juce::String &skipped, const juce::String &
 // True if version a is newer than b (dot-separated numbers: 0.10.0 is newer than 0.9.1).
 bool isNewer(const juce::String &a, const juce::String &b);
 
+// Lemus Plugin Manager (manager/ in the repo), the optional app that installs and updates the
+// plugins. It records where it is each time it starts; a plugin's what's-new pop-up then offers to
+// open it on that plugin, instead of only the download page.
+juce::File pluginManager(); // the app (macOS: its bundle), or none if it isn't there
+void rememberPluginManager(const juce::File &app);
+// Asks the manager to show `plugin`, then starts it or brings it forward. False if it isn't there.
+bool openPluginManager(const juce::String &plugin);
+// The manager: the plugin a plugin asked it to show (cleared once read), if the ask is recent.
+juce::String takePluginManagerRequest();
+
 // The check, shared by the open windows: listen to it to hear when a check has finished.
 class Checker final : public juce::Thread, public juce::ChangeBroadcaster {
 public:

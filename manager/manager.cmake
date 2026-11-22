@@ -15,6 +15,7 @@ set(LEMUS_MANAGER_CORE
   ${CMAKE_CURRENT_LIST_DIR}/Installed.cpp
   ${CMAKE_CURRENT_LIST_DIR}/Tasks.cpp
   ${CMAKE_CURRENT_LIST_DIR}/Report.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/RomCheck.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/host/Updates.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/host/Roms.cpp
 )
@@ -72,6 +73,46 @@ if(WIN32)
     target_link_options(lemus_manager PRIVATE /DEPENDENTLOADFLAG:0x800)
   endif()
 endif()
+
+# What each shipping plugin needs from the ROM folder, as JSON for the website (manager/specs.cpp).
+# Instruments and effects are separate hosts that don't link together, so there is one tool per
+# host: lemus_specs_instrument and lemus_specs_fx, each printing its plugins, merged into
+# website/src/data/roms.json. They link every machine of their host, so they are built only when
+# asked for.
+foreach(_lemus_host instrument fx)
+  string(TOUPPER ${_lemus_host} _LEMUS_HOST)
+  set(_lemus_specs_ids)
+  foreach(id ${LEMUS_${_LEMUS_HOST}_MACHINES})
+    if(id IN_LIST LEMUS_PLUGIN_MACHINES)
+      list(APPEND _lemus_specs_ids ${id})
+    endif()
+  endforeach()
+  if(_lemus_specs_ids)
+    set(_lemus_target lemus_specs_${_lemus_host})
+    lemus_machine_list(specs_${_lemus_host} "every shipping ${_lemus_host} plugin" ${_lemus_specs_ids})
+    juce_add_console_app(${_lemus_target} PRODUCT_NAME ${_lemus_target})
+    set_target_properties(${_lemus_target} PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    target_sources(${_lemus_target} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/specs.cpp)
+    lemus_add_host_with(${_lemus_target} specs_${_lemus_host} ${_lemus_specs_ids})
+    if(_lemus_host STREQUAL "instrument")
+      set(_lemus_synth 1)
+    else()
+      set(_lemus_synth 0)
+    endif()
+    target_compile_definitions(${_lemus_target} PRIVATE ${LEMUS_DEFINITIONS}
+      JucePlugin_Name="${_lemus_target}"
+      JucePlugin_VersionString="${PROJECT_VERSION}"
+      JucePlugin_IsSynth=${_lemus_synth}
+      JucePlugin_WantsMidiInput=1
+      JucePlugin_ProducesMidiOutput=0
+      JucePlugin_IsMidiEffect=0
+      LEMUS_SITE="${LEMUS_SITE}"
+      LEMUS_SOURCE="${LEMUS_SOURCE}"
+      LEMUS_FORUM="${LEMUS_FORUM}")
+    target_compile_options(${_lemus_target} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
+    target_link_libraries(${_lemus_target} PRIVATE juce::juce_recommended_config_flags)
+  endif()
+endforeach()
 
 # Its checks, headless: build/<dir>/lemustest_manager_artefacts/Release/lemustest_manager
 juce_add_console_app(lemustest_manager PRODUCT_NAME lemustest_manager)

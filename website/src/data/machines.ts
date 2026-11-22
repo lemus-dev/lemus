@@ -130,7 +130,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.4', tag: 'ro-drums-909-v0.2.4', stage: 'beta', mac: 'ro-drums-909-0.2.4-mac.pkg', windows: 'ro-drums-909-0.2.4-windows.zip' },
+    release: { version: '0.2.5', tag: 'ro-drums-909-v0.2.5', stage: 'beta', mac: 'ro-drums-909-0.2.5-mac.pkg', windows: 'ro-drums-909-0.2.5-windows.zip' },
     changes: [
       {
         version: '0.2.5',

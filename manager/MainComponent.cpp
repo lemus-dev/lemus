@@ -65,8 +65,8 @@ public:
 		const auto cols = columns(getLocalBounds().withTrimmedLeft(20).withTrimmedRight(20).withHeight(kTop).withTrimmedTop(8));
 		g.setFont(mono(12.0f, true).withExtraKerningFactor(0.06f));
 		g.setColour(col::muted);
-		const char *names[] = {"MACHINE", "PLUGIN", "HAVE", "STATUS"};
-		for (int i = 0; i < 4; ++i)
+		const char *names[] = {"MACHINE", "PLUGIN", "HAVE", "STATUS", "ROM", "ART"};
+		for (int i = 0; i < 6; ++i)
 			g.drawText(names[i], cols[size_t(i)], juce::Justification::centredLeft, false);
 
 		const auto rows = m_owner.visible();
@@ -83,10 +83,10 @@ public:
 			}
 			const auto c = columns(r.reduced(12, 0));
 			const auto &in = m_owner.installOf(e);
-			g.setFont(mono(14.0f, on));
+			g.setFont(mono(13.0f, on));
 			g.setColour(on ? col::ink : col::inkSoft);
 			g.drawText(e.shortName(), c[0], juce::Justification::centredLeft, true);
-			g.setFont(mono(14.0f));
+			g.setFont(mono(13.0f));
 			g.setColour(on ? col::inkSoft : col::muted);
 			g.drawText(e.plugin, c[1], juce::Justification::centredLeft, true);
 			const auto have = in.installed() ? in.version() : juce::String::fromUTF8("\xe2\x80\x94");
@@ -94,6 +94,18 @@ public:
 			const auto s = m_owner.statusOf(e);
 			g.setColour(on ? s.onSelection : s.colour);
 			g.drawText(s.text, c[3], juce::Justification::centredLeft, true);
+			// What its ROM folder has: [✓] all, [~] it runs without what's missing, [✗] it doesn't; — none needed.
+			if (const auto *check = m_owner.romCheckOf(e)) {
+				const auto rom = check->rom();
+				const auto art = check->art();
+				const auto dash = juce::String::fromUTF8("\xe2\x80\x94");
+				g.setColour(rom == RomCheck::Rom::Ready ? col::ok : rom == RomCheck::Rom::Reduced ? col::warn : rom == RomCheck::Rom::Missing ? kError : col::muted);
+				g.drawText(rom == RomCheck::Rom::Ready ? kTick : rom == RomCheck::Rom::Reduced ? juce::String("[~]") : rom == RomCheck::Rom::Missing ? kCross : dash,
+				           c[4], juce::Justification::centredLeft, false);
+				g.setColour(art == RomCheck::Art::Ready ? col::ok : art == RomCheck::Art::Partial ? col::warn : art == RomCheck::Art::None ? col::inkSoft : col::muted);
+				g.drawText(art == RomCheck::Art::Ready ? kTick : art == RomCheck::Art::Partial ? juce::String("[~]") : art == RomCheck::Art::None ? juce::String("[ ]") : dash,
+				           c[5], juce::Justification::centredLeft, false);
+			}
 			if (const auto *job = m_owner.jobOf(e); job != nullptr && job->state == Job::State::Downloading) {
 				g.setColour(on ? col::title : col::accent);
 				g.fillRect(juce::Rectangle<float>(float(r.getX()), float(r.getBottom() - 2), float(r.getWidth()) * float(job->progress), 2.0f));
@@ -115,17 +127,22 @@ public:
 	int heightFor(int rows) const { return kTop + rows * (kRow + 2) + 8; }
 
 private:
-	static std::array<juce::Rectangle<int>, 4> columns(juce::Rectangle<int> r)
+	static std::array<juce::Rectangle<int>, 6> columns(juce::Rectangle<int> r)
 	{
-		// minmax(0, 1.3fr) minmax(0, 1.2fr) 48px minmax(0, 1.5fr), 12px between
-		const int gap = 12, fixed = 48, free = r.getWidth() - 3 * gap - fixed;
-		std::array<juce::Rectangle<int>, 4> c;
-		c[0] = r.removeFromLeft(free * 13 / 40);
+		// machine, plugin, 44 px version, status, 30 px ROM, 30 px ART; 8 px between. The status
+		// gets the most: "[ ] not installed" fits.
+		const int gap = 8, have = 44, mark = 30, free = r.getWidth() - 5 * gap - have - 2 * mark;
+		std::array<juce::Rectangle<int>, 6> c;
+		c[0] = r.removeFromLeft(free * 31 / 100);
 		r.removeFromLeft(gap);
-		c[1] = r.removeFromLeft(free * 12 / 40);
+		c[1] = r.removeFromLeft(free * 29 / 100);
 		r.removeFromLeft(gap);
-		c[2] = r.removeFromLeft(fixed);
+		c[2] = r.removeFromLeft(have);
 		r.removeFromLeft(gap);
+		c[5] = r.removeFromRight(mark);
+		r.removeFromRight(gap);
+		c[4] = r.removeFromRight(mark);
+		r.removeFromRight(gap);
 		c[3] = r;
 		return c;
 	}
@@ -144,23 +161,80 @@ private:
 	int m_hover = -1;
 };
 
-// The selected plugin's details: what is installed, what's new, the work under way, the buttons.
+namespace {
+
+// The Manage button: a word and a drawn chevron, opening the plugin's menu.
+class ManageButton final : public juce::Button {
+public:
+	ManageButton() : Button("Manage") { setTitle("Manage"); }
+	int idealWidth() const { return juce::GlyphArrangement::getStringWidthInt(mono(12.0f), "Manage") + 38; }
+
+	void paintButton(juce::Graphics &g, bool over, bool down) override
+	{
+		const auto r = getLocalBounds().toFloat();
+		g.setColour(down || m_open ? col::selection : over ? col::well.brighter(0.12f) : col::well);
+		g.fillRoundedRectangle(r, r.getHeight() / 2);
+		g.setColour(col::ink);
+		g.setFont(mono(12.0f));
+		auto t = getLocalBounds().withTrimmedLeft(12).withTrimmedRight(24);
+		g.drawText("Manage", t, juce::Justification::centredLeft, false);
+		juce::Path chevron;
+		const float cx = r.getRight() - 15, cy = r.getCentreY();
+		chevron.startNewSubPath(cx - 3.5f, cy - 1.75f);
+		chevron.lineTo(cx, cy + 1.75f);
+		chevron.lineTo(cx + 3.5f, cy - 1.75f);
+		g.setColour(col::inkSoft);
+		g.strokePath(chevron, juce::PathStrokeType(1.5f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+	}
+
+	void setOpen(bool open)
+	{
+		m_open = open;
+		repaint();
+	}
+
+private:
+	bool m_open = false;
+};
+
+// The menu's look: the app's colours and font.
+class MenuLook final : public juce::LookAndFeel_V4 {
+public:
+	MenuLook()
+	{
+		setColour(juce::PopupMenu::backgroundColourId, col::well);
+		setColour(juce::PopupMenu::textColourId, col::ink);
+		setColour(juce::PopupMenu::highlightedBackgroundColourId, col::selection);
+		setColour(juce::PopupMenu::highlightedTextColourId, col::ink);
+	}
+	juce::Font getPopupMenuFont() override { return mono(13.0f); }
+	void drawPopupMenuBackground(juce::Graphics &g, int width, int height) override
+	{
+		g.fillAll(col::well);
+		g.setColour(col::rule);
+		g.drawRect(0, 0, width, height);
+	}
+};
+
+} // namespace
+
+// The selected plugin's details: what is installed, its ROM and artwork, what's new, the work under
+// way, the main button; Manage holds the rest. Everything above the buttons scrolls.
 class MainComponent::Detail final : public juce::Component {
 public:
 	explicit Detail(MainComponent &owner) : m_owner(owner)
 	{
-		for (auto *b : {&m_primary, &m_remove, &m_cancel, &m_confirm, &m_page, &m_copy})
+		for (auto *b : {static_cast<juce::Component *>(&m_primary), static_cast<juce::Component *>(&m_cancel),
+		                static_cast<juce::Component *>(&m_confirm), static_cast<juce::Component *>(&m_copy)})
 			addChildComponent(b);
-		m_notesView.setViewedComponent(&m_notes, false);
-		m_notesView.setScrollBarsShown(true, false);
-		m_notesView.setScrollBarThickness(6);
-		m_notesView.getVerticalScrollBar().setColour(juce::ScrollBar::thumbColourId, col::well.brighter(0.2f));
-		addChildComponent(m_notesView);
+		m_view.setViewedComponent(&m_body, false);
+		m_view.setScrollBarsShown(true, false);
+		m_view.setScrollBarThickness(6);
+		m_view.getVerticalScrollBar().setColour(juce::ScrollBar::thumbColourId, col::well.brighter(0.2f));
+		addAndMakeVisible(m_view);
+		m_body.addAndMakeVisible(m_manage);
+		m_manage.onClick = [this] { showMenu(); };
 		m_primary.onClick = [this] { primary(); };
-		m_remove.onClick = [this] {
-			m_confirming = true;
-			m_owner.refresh();
-		};
 		m_cancel.onClick = [this] {
 			m_confirming = false;
 			m_owner.refresh();
@@ -170,10 +244,6 @@ public:
 			if (const auto *e = m_owner.selected())
 				m_owner.remove(*e);
 		};
-		m_page.onClick = [this] {
-			if (const auto *e = m_owner.selected())
-				juce::URL(e->page).launchInDefaultBrowser();
-		};
 		m_copy.onClick = [this] {
 			if (const auto *e = m_owner.selected())
 				if (const auto *j = m_owner.jobOf(*e)) {
@@ -182,6 +252,8 @@ public:
 				}
 		};
 	}
+
+	~Detail() override { m_view.setViewedComponent(nullptr, false); }
 
 	void confirmRemove()
 	{
@@ -196,24 +268,29 @@ public:
 		if (const auto *e = m_owner.selected())
 			for (auto f : formatsHere(e->standalone))
 				m_ticked.insert(f);
+		m_view.setViewPosition(0, 0);
 	}
 
-	// Lays out the details for the current state; paint draws m_items.
+	// Lays out the details for the current state; the body paints m_items.
 	void update()
 	{
-		m_items.clear();
+		m_body.items.clear();
+		m_bottom.clear();
 		m_checks.clear();
-		for (auto *b : {&m_primary, &m_remove, &m_cancel, &m_confirm, &m_page, &m_copy})
+		for (auto *b : {&m_primary, &m_cancel, &m_confirm, &m_copy})
 			b->setVisible(false);
-		m_notesView.setVisible(false);
 		const auto *e = m_owner.selected();
+		m_manage.setVisible(e != nullptr);
 		if (e == nullptr) {
+			m_body.setSize(getWidth(), 0);
 			repaint();
 			return;
 		}
 		const float x = 20, w = float(getWidth()) - 40;
 		float y = 20;
-		y += text(e->emulates, mono(16.0f, true), col::ink, x, y, w) + 4;
+		const int manageWidth = m_manage.idealWidth();
+		m_manage.setBounds(int(x + w) - manageWidth, int(y) - 2, manageWidth, 26);
+		y += text(e->emulates, mono(16.0f, true), col::ink, x, y, w - float(manageWidth) - 10) + 4;
 		// The plugin's name on a line of its own when the line would break inside it.
 		auto sub = e->subtitle();
 		if (juce::GlyphArrangement::getStringWidth(mono(13.0f), sub) > w)
@@ -228,7 +305,8 @@ public:
 		if (in.installed()) {
 			label("INSTALLED", x, y);
 			y += 20;
-			y += text(in.version() + kDot + formatsText(in.formats()), mono(13.0f), col::ink, x, y, w) + 16;
+			const auto upToDate = job == nullptr && !update ? kDot + "up to date" : juce::String();
+			y += text(in.version() + kDot + formatsText(in.formats()) + upToDate, mono(13.0f), col::ink, x, y, w) + 16;
 		}
 		if (!in.userCopies.empty()) {
 			std::vector<Format> f;
@@ -247,19 +325,17 @@ public:
 			const auto changes = m_owner.m_catalog->changesSince(*e, in.version());
 			label(changes.size() > 1 ? "NEW SINCE " + in.version() : "NEW IN " + e->version, x, y);
 			y += 24;
-			m_notes.set(changes, int(w));
-			m_notesTop = y;
-			m_notesView.setVisible(true);
-		} else if (in.installed()) {
-			y += text("Up to date.", mono(13.0f), col::inkSoft, x, y, w) + 16;
+			y = notes(changes, x, y, w) + 4;
 		}
+
+		y = romBlock(*e, x, y, w);
 
 		if (!in.installed() && job == nullptr) {
 			label("INSTALL " + e->version, x, y);
 			y += 24;
 			const auto formats = formatsHere(e->standalone);
 			const float wellHeight = 12 + float(formats.size()) * 30;
-			m_items.push_back({Item::Kind::Well, {}, {}, {}, {x, y, w, wellHeight}});
+			m_body.items.push_back({Item::Kind::Well, {}, {}, {}, {x, y, w, wellHeight}});
 			float cy = y + 6;
 			for (auto f : formats) {
 				auto c = std::make_unique<Check>(nameOf(f), e->plugin + fileExtension(f));
@@ -273,24 +349,26 @@ public:
 					m_owner.refresh();
 				};
 				c->setBounds(int(x + 12), int(cy), int(w - 24), 30);
-				addAndMakeVisible(*c);
+				m_body.addAndMakeVisible(*c);
 				m_checks.push_back(std::move(c));
 				cy += 30;
 			}
 			y += wellHeight + 10;
-			if (e->withoutRom == "none")
-				y += text("Runs only with its ROM. Lemus ships no ROMs; the plugin names the file it needs.", mono(13.0f), col::inkSoft, x, y, w) + 8;
-			else if (e->withoutRom == "voice")
-				y += text("Without its ROM it runs in voice mode. Lemus ships no ROMs.", mono(13.0f), col::inkSoft, x, y, w) + 8;
+			// Without the list of ROMs (roms.json didn't read): what the site says.
+			if (m_owner.needsOf(*e) == nullptr) {
+				if (e->withoutRom == "none")
+					y += text("Runs only with its ROM. Lemus ships no ROMs; the plugin names the file it needs.", mono(13.0f), col::inkSoft, x, y, w) + 8;
+				else if (e->withoutRom == "voice")
+					y += text("Without its ROM it runs in voice mode. Lemus ships no ROMs.", mono(13.0f), col::inkSoft, x, y, w) + 8;
+			}
 		}
 
 		// The buttons, from the bottom up.
 		float bottom = float(getHeight()) - 20;
 		const bool finished = job == nullptr || job->finished();
 		if (!busy && finished) {
-			const auto perm = permissionLine();
 			bottom -= 16;
-			m_items.push_back({Item::Kind::Text, perm, mono(12.0f), col::inkSoft, {x, bottom, w, 16}});
+			m_bottom.push_back({Item::Kind::Text, permissionLine(), mono(12.0f), col::inkSoft, {x, bottom, w, 16}});
 			bottom -= 8;
 			const int by = int(bottom - 40);
 			auto row = juce::Rectangle<int>(int(x), by, int(w), 40);
@@ -298,8 +376,7 @@ public:
 				const auto ask = "Remove " + e->plugin + " " + in.version() + "? Its " + formatsText(in.formats())
 				                 + " go. Your ROMs, artwork and songs stay.";
 				const float h = layoutOf(ask, mono(13.0f), col::ink, w).getHeight();
-				m_items.push_back({Item::Kind::Text, ask, mono(13.0f), col::ink, {x, float(by) - 10 - h, w, h}});
-				m_confirm.setButtonText("Remove");
+				m_bottom.push_back({Item::Kind::Text, ask, mono(13.0f), col::ink, {x, float(by) - 10 - h, w, h}});
 				m_confirm.setBounds(row.removeFromRight(m_confirm.idealWidth() + 16));
 				row.removeFromRight(8);
 				m_cancel.setBounds(row.removeFromRight(m_cancel.idealWidth() + 16));
@@ -307,8 +384,9 @@ public:
 				m_cancel.setVisible(true);
 				bottom = float(by) - 20 - h;
 			} else {
+				const bool failedJob = job != nullptr && job->state == Job::State::Failed;
 				// A failed job: its details to paste into a report.
-				if (job != nullptr && job->state == Job::State::Failed) {
+				if (failedJob) {
 					if (!m_copied.isEmpty() && m_copied != e->plugin + job->error)
 						m_copy.setButtonText("Copy details");
 					m_copied = e->plugin + job->error;
@@ -316,49 +394,26 @@ public:
 					m_copy.setVisible(true);
 					row.removeFromLeft(8);
 				}
-				if (in.installed()) {
-					m_remove.setBounds(row.removeFromRight(m_remove.idealWidth() + 20));
-					m_remove.setVisible(true);
-					row.removeFromRight(8);
-				}
 				if (update || !in.installed()) {
 					m_primary.setButtonText(update ? "Update to " + e->version : "Install " + e->version);
 					m_primary.setEnabled(update || !m_ticked.empty());
 					m_primary.setBounds(row);
 					m_primary.setVisible(true);
-				} else if (job == nullptr || job->state != Job::State::Failed) {
-					m_page.setBounds(row.removeFromLeft(m_page.idealWidth() + 24));
-					m_page.setVisible(true);
 				}
-				bottom = float(by) - 16;
+				if (m_primary.isVisible() || failedJob)
+					bottom = float(by) - 12;
 			}
 		}
-		if (m_notesView.isVisible()) {
-			m_notesView.setBounds(int(x), int(m_notesTop), int(w) + 8, juce::jmax(0, int(bottom - m_notesTop)));
-			m_notes.setSize(int(w), m_notes.height());
-		}
+		m_view.setBounds(0, 0, getWidth(), juce::jmax(0, int(bottom)));
+		m_body.setSize(m_view.getMaximumVisibleWidth() > 0 ? m_view.getMaximumVisibleWidth() : getWidth(), int(y + 12));
+		m_body.repaint();
 		repaint();
 	}
 
 	void paint(juce::Graphics &g) override
 	{
 		g.fillAll(col::panel);
-		for (const auto &i : m_items) {
-			switch (i.kind) {
-			case Item::Kind::Text: layoutOf(i.text, *i.font, i.colour, i.area.getWidth()).draw(g, i.area); break;
-			case Item::Kind::Label: lemus::style::drawLabel(g, i.text, i.area); break;
-			case Item::Kind::Well:
-				g.setColour(col::well);
-				g.fillRoundedRectangle(i.area, 8.0f);
-				break;
-			case Item::Kind::Bar:
-				g.setColour(col::well.brighter(0.12f));
-				g.fillRoundedRectangle(i.area, 2.0f);
-				g.setColour(col::accent);
-				g.fillRoundedRectangle(i.area.withWidth(i.area.getWidth() * float(i.text.getDoubleValue())), 2.0f);
-				break;
-			}
-		}
+		Body::draw(g, m_bottom);
 	}
 
 	void resized() override { update(); }
@@ -373,51 +428,33 @@ private:
 		juce::Rectangle<float> area;
 	};
 
-	// What's new: each version's notes under its number.
-	class Notes final : public juce::Component {
-	public:
-		void set(const std::vector<updates::Change> &changes, int width)
-		{
-			m_changes = changes;
-			m_width = width;
-			setSize(width, height());
-			repaint();
-		}
-		int height() const
-		{
-			float y = 0;
-			for (size_t i = 0; i < m_changes.size(); ++i) {
-				if (m_changes.size() > 1)
-					y += 20;
-				for (const auto &n : m_changes[i].notes)
-					y += layoutOf(n, mono(13.0f), col::inkSoft, float(m_width - 16)).getHeight() + 6;
-				y += 8;
-			}
-			return int(y);
-		}
+	// What scrolls: the items, the format checks, Manage.
+	struct Body final : public juce::Component {
+		std::vector<Item> items;
 		void paint(juce::Graphics &g) override
 		{
-			float y = 0;
-			for (const auto &c : m_changes) {
-				if (m_changes.size() > 1) {
-					g.setColour(col::ink);
-					g.setFont(mono(13.0f, true));
-					g.drawText(c.version, juce::Rectangle<float>(0, y, float(m_width), 18), juce::Justification::centredLeft, false);
-					y += 20;
+			g.fillAll(col::panel);
+			draw(g, items);
+		}
+		static void draw(juce::Graphics &g, const std::vector<Item> &list)
+		{
+			for (const auto &i : list) {
+				switch (i.kind) {
+				case Item::Kind::Text: layoutOf(i.text, *i.font, i.colour, i.area.getWidth()).draw(g, i.area); break;
+				case Item::Kind::Label: lemus::style::drawLabel(g, i.text, i.area); break;
+				case Item::Kind::Well:
+					g.setColour(col::well);
+					g.fillRoundedRectangle(i.area, 8.0f);
+					break;
+				case Item::Kind::Bar:
+					g.setColour(col::well.brighter(0.12f));
+					g.fillRoundedRectangle(i.area, 2.0f);
+					g.setColour(col::accent);
+					g.fillRoundedRectangle(i.area.withWidth(i.area.getWidth() * float(i.text.getDoubleValue())), 2.0f);
+					break;
 				}
-				for (const auto &n : c.notes) {
-					g.setColour(col::muted);
-					g.setFont(mono(13.0f));
-					g.drawText(juce::String::fromUTF8("\xc2\xb7"), juce::Rectangle<float>(0, y, 12, 19), juce::Justification::centredLeft, false);
-					y += drawWrapped(g, n, mono(13.0f), col::inkSoft, 16, y, float(m_width - 16)) + 6;
-				}
-				y += 8;
 			}
 		}
-
-	private:
-		std::vector<updates::Change> m_changes;
-		int m_width = 300;
 	};
 
 	static juce::String fileExtension(Format f)
@@ -432,16 +469,178 @@ private:
 	float text(const juce::String &t, const juce::Font &font, juce::Colour colour, float x, float y, float w)
 	{
 		const float h = layoutOf(t, font, colour, w).getHeight();
-		m_items.push_back({Item::Kind::Text, t, font, colour, {x, y, w, h}});
+		m_body.items.push_back({Item::Kind::Text, t, font, colour, {x, y, w, h}});
 		return h;
 	}
 
-	void label(const juce::String &t, float x, float y) { m_items.push_back({Item::Kind::Label, t, {}, {}, {x, y, 320, 16}}); }
+	void label(const juce::String &t, float x, float y) { m_body.items.push_back({Item::Kind::Label, t, {}, {}, {x, y, 320, 16}}); }
+
+	// Each version's notes under its number.
+	float notes(const std::vector<updates::Change> &changes, float x, float y, float w)
+	{
+		for (const auto &c : changes) {
+			if (changes.size() > 1) {
+				text(c.version, mono(13.0f, true), col::ink, x, y, w);
+				y += 20;
+			}
+			for (const auto &n : c.notes) {
+				text(juce::String::fromUTF8("\xc2\xb7"), mono(13.0f), col::muted, x, y, 12);
+				y += text(n, mono(13.0f), col::inkSoft, x + 16, y, w - 16) + 6;
+			}
+			y += 8;
+		}
+		return y;
+	}
+
+	// The plugin's ROMs and artwork: what it needs, what its ROM folder has, what's missing.
+	float romBlock(const Entry &e, float x, float y, float w)
+	{
+		const auto *needs = m_owner.needsOf(e);
+		if (needs == nullptr || (needs->roms.empty() && needs->artwork.places.empty()))
+			return y;
+		const auto *check = m_owner.romCheckOf(e);
+		if (check == nullptr) {
+			label(needs->roms.empty() ? "ARTWORK" : "ROM", x, y);
+			y += 20;
+			return y + text("Checking the ROM folder" + juce::String::fromUTF8("\xe2\x80\xa6"), mono(13.0f), col::muted, x, y, w) + 16;
+		}
+		bool missing = false;
+		if (!check->images.empty()) {
+			label(check->images.size() > 1 ? "ROMS" : "ROM", x, y);
+			y += 22;
+			const float top = y;
+			y += 8;
+			const bool full = check->images.size() <= 2; // a few: everything about each; more: Manage copies the rest
+			for (const auto &i : check->images) {
+				const auto mark = i.found ? kTick : i.spec.optional ? juce::String("[ ]") : kCross;
+				const auto colour = i.found ? col::ok : col::ink;
+				text(mark + " " + i.spec.name, mono(13.0f), colour, x + 12, y, w - 110);
+				const auto state = i.found ? juce::String("found") : juce::String("not found");
+				const auto stateColour = i.found ? col::ok : i.spec.optional ? col::warn : kError;
+				text(state, mono(12.0f), stateColour, x + w - 92, y + 1, 80);
+				y += 21;
+				if (i.found)
+					continue;
+				missing = true;
+				if (full) {
+					y += text(i.spec.what + kDot + sizeText(i.spec.size) + kDot + "CRC " + i.spec.crc32, mono(11.5f), col::inkSoft, x + 12, y, w - 24);
+					y += text("SHA1 " + i.spec.sha1, mono(10.5f), col::inkSoft, x + 12, y, w - 20) + 2;
+				}
+				y += text(i.spec.optional ? "Without it: " + i.spec.without + "." : juce::String("It doesn't run without it."), mono(12.0f),
+				          i.spec.optional ? col::warn : kError, x + 12, y, w - 24)
+				     + 6;
+			}
+			if (missing && !full)
+				y += text("Manage " + juce::String::fromUTF8("\xe2\x80\xba") + " Copy ROM details lists their sizes, CRCs and SHA1s.",
+				          mono(11.5f), col::muted, x + 12, y, w - 24)
+				     + 4;
+			y += 6;
+			m_body.items.insert(m_body.items.end() - countSince(top), {Item::Kind::Well, {}, {}, {}, {x, top, w, y - top}});
+			y += 14;
+		}
+		if (!check->places.empty()) {
+			const auto art = check->art();
+			label(juce::String("ARTWORK") + kDot + (art == RomCheck::Art::Ready ? "READY" : art == RomCheck::Art::Partial ? "PARTIAL" : "NONE"), x, y);
+			y += 22;
+			const float top = y;
+			y += 6;
+			const float colW = (w - 24) / 2;
+			for (size_t i = 0; i < check->places.size(); ++i) {
+				const auto &p = check->places[i];
+				const bool has = p.where.isNotEmpty();
+				missing = missing || !has;
+				text((has ? kTick : juce::String("[ ]")) + " " + p.place.id, mono(13.0f), has ? col::ok : col::inkSoft,
+				     x + 12 + float(i % 2) * colW, y + float(i / 2) * 20, colW);
+			}
+			y += float((check->places.size() + 1) / 2) * 20 + 6;
+			m_body.items.insert(m_body.items.end() - int(check->places.size()), {Item::Kind::Well, {}, {}, {}, {x, top, w, y - top}});
+			y += 8;
+		}
+		if (missing) {
+			const auto artName = check->places.empty() ? juce::String() : " Artwork files are named " + e.plugin + "-<place>.svg or .png.";
+			const auto what = check->images.empty() ? juce::String("the artwork") : check->places.empty() ? juce::String("the ROM") : juce::String("the ROM or artwork");
+			y += text("Drop " + what + " on this window, or put " + (check->images.size() + check->places.size() > 1 ? "them" : "it") + " in the ROM folder." + artName,
+			          mono(12.0f), col::muted, x, y, w)
+			     + 16;
+		} else {
+			y += 8;
+		}
+		return y;
+	}
+
+	int countSince(float top) const
+	{
+		int n = 0;
+		for (auto it = m_body.items.rbegin(); it != m_body.items.rend() && it->area.getY() >= top; ++it)
+			++n;
+		return n;
+	}
+
+	static juce::String sizeText(size_t size)
+	{
+		return size >= 1024 * 1024 ? juce::String(int(size / (1024 * 1024))) + " MB" : size >= 1024 ? juce::String(int(size / 1024)) + " KB" : juce::String(int(size)) + " bytes";
+	}
+
+	void showMenu()
+	{
+		const auto *e = m_owner.selected();
+		if (e == nullptr)
+			return;
+		const auto &in = m_owner.installOf(*e);
+		const auto *needs = m_owner.needsOf(*e);
+		const bool busy = m_owner.busy();
+		juce::PopupMenu menu;
+		menu.setLookAndFeel(&m_menuLook);
+		menu.addItem("Its page " + juce::String::fromUTF8("\xe2\x86\x97"), [page = e->page] { juce::URL(page).launchInDefaultBrowser(); });
+#if JUCE_WINDOWS
+		const char *show = "Show in Explorer";
+#else
+		const char *show = "Show in Finder";
+#endif
+		if (in.installed()) {
+			const auto file = in.copies[0].file;
+			menu.addItem(show, [file] { file.revealToUser(); });
+		}
+		if (needs != nullptr && (!needs->roms.empty() || !needs->artwork.places.empty())) {
+			menu.addItem("Show ROM folder", [machine = needs->machine] {
+				const auto folder = romfolder::location(machine);
+				folder.createDirectory();
+				folder.startAsProcess();
+			});
+			if (!needs->roms.empty())
+				menu.addItem("Copy ROM details", [this, plugin = e->plugin] {
+					if (const auto *entry = m_owner.m_catalog ? m_owner.m_catalog->find(plugin) : nullptr)
+						juce::SystemClipboard::copyTextToClipboard(romDetails(*entry));
+				});
+		}
+		if (in.installed()) {
+			menu.addSeparator();
+			juce::PopupMenu::Item remove("Remove" + juce::String::fromUTF8("\xe2\x80\xa6"));
+			remove.setColour(kError).setEnabled(!busy).setAction([this] { confirmRemove(); });
+			menu.addItem(std::move(remove));
+		}
+		m_manage.setOpen(true);
+		juce::Component::SafePointer<Detail> self(this);
+		menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&m_manage).withMinimumWidth(200), [self](int) {
+			if (self != nullptr)
+				self->m_manage.setOpen(false);
+		});
+	}
+
+	// For a report or a search of one's own: each ROM's name, size, CRC and SHA1, found or not.
+	juce::String romDetails(const Entry &e) const
+	{
+		juce::String s = e.plugin + " (" + e.emulates + ") ROMs:\n";
+		if (const auto *check = m_owner.romCheckOf(e))
+			for (const auto &i : check->images)
+				s << i.spec.name << "  " << juce::String(juce::int64(i.spec.size)) << " bytes  CRC " << i.spec.crc32 << "  SHA1 " << i.spec.sha1
+				  << (i.found ? "  found" : "  not found") << (i.spec.optional ? "" : "  (needed)") << "\n";
+		return s;
+	}
 
 	// The steps of the work on this plugin, as they go.
 	float jobBlock(const Entry &e, const Job &job, float x, float y, float w)
 	{
-		const auto &in = m_owner.installOf(e);
 		juce::String head;
 		switch (job.kind) {
 		case Job::Kind::Update: head = job.before.version() + " TO " + e.version; break;
@@ -490,16 +689,16 @@ private:
 			auto line = mark + " " + step.name;
 			if (step.name == "Download" && s == Job::State::Downloading)
 				line << "  " << percent(job.progress);
-			m_items.push_back({Item::Kind::Text, line, mono(13.0f), colour, {x + 12, y, w - 24, 19}});
+			m_body.items.push_back({Item::Kind::Text, line, mono(13.0f), colour, {x + 12, y, w - 24, 19}});
 			y += 22;
 			if (step.name == "Download" && s == Job::State::Downloading) {
-				m_items.push_back({Item::Kind::Bar, juce::String(job.progress), {}, {}, {x + 12, y, w - 24, 4}});
+				m_body.items.push_back({Item::Kind::Bar, juce::String(job.progress), {}, {}, {x + 12, y, w - 24, 4}});
 				y += 10;
 			}
 		}
 		y += 4;
-		m_items.insert(m_items.end() - int(steps.size()) - (s == Job::State::Downloading ? 1 : 0),
-		               {Item::Kind::Well, {}, {}, {}, {x, top, w, y - top}});
+		m_body.items.insert(m_body.items.end() - int(steps.size()) - (s == Job::State::Downloading ? 1 : 0),
+		                    {Item::Kind::Well, {}, {}, {}, {x, top, w, y - top}});
 		y += 12;
 		if (failed || stopped)
 			y += text(job.error, mono(13.0f), failed ? kError : col::warn, x, y, w) + 12;
@@ -507,7 +706,6 @@ private:
 			y += text("A DAW that has " + e.plugin + " open keeps playing " + job.before.version() + " until it loads the plugin again.",
 			          mono(13.0f), col::inkSoft, x, y, w)
 			     + 12;
-		juce::ignoreUnused(in);
 		return y;
 	}
 
@@ -529,23 +727,23 @@ private:
 	}
 
 	MainComponent &m_owner;
-	std::vector<Item> m_items;
+	Body m_body;
+	juce::Viewport m_view;
+	std::vector<Item> m_bottom; // drawn below the scrolling part: the confirm question, the permission line
 	std::vector<std::unique_ptr<Check>> m_checks;
 	std::set<Format> m_ticked;
 	bool m_confirming = false;
 	int m_failedAt = 2;
 	juce::String m_failedJob;
+	ManageButton m_manage;
+	MenuLook m_menuLook;
 	Pill m_primary{{}, Pill::Kind::Primary, col::accent, 14.0f};
-	Pill m_remove{"Remove"};
 	Pill m_cancel{"Cancel"};
 	Pill m_confirm{"Remove", Pill::Kind::Primary};
-	Pill m_page{"Its page"};
 	Pill m_copy{"Copy details"};
 	juce::String m_copied; // the failure the button's "Copied" is for
-	Notes m_notes;
-	juce::Viewport m_notesView;
-	float m_notesTop = 0;
 };
+
 
 // A newer manager: a card over the window, as the other plugin managers ask on launch. What's new,
 // then Later or Update now; while it runs, the same three steps as a plugin's; then the app
@@ -849,6 +1047,103 @@ bool MainComponent::busy() const
 	return (m_batch != nullptr && !m_batch->done()) || (m_self != nullptr && !m_self->finished());
 }
 
+const Needs *MainComponent::needsOf(const Entry &e) const
+{
+	if (!m_needs)
+		return nullptr;
+	const auto it = m_needs->find(e.plugin);
+	return it != m_needs->end() ? &it->second : nullptr;
+}
+
+const RomCheck *MainComponent::romCheckOf(const Entry &e) const
+{
+	const auto it = m_romChecks.find(e.plugin);
+	return it != m_romChecks.end() ? &it->second : nullptr;
+}
+
+void MainComponent::checkRoms()
+{
+	if (!m_needs || !m_catalog)
+		return;
+	juce::WeakReference<MainComponent> self(this);
+	juce::Thread::launch([self, needs = *m_needs, catalog = *m_catalog] {
+		std::map<juce::String, RomCheck> checks;
+		for (const auto &e : catalog.plugins)
+			if (const auto it = needs.find(e.plugin); it != needs.end())
+				checks[e.plugin] = check(it->second);
+		juce::MessageManager::callAsync([self, checks = std::move(checks)] {
+			if (auto *me = self.get()) {
+				me->m_romChecks = checks;
+				me->refresh();
+			}
+		});
+	});
+}
+
+void MainComponent::say(const juce::String &note, bool ok)
+{
+	m_note = note;
+	m_noteOk = ok;
+	refresh();
+	juce::WeakReference<MainComponent> self(this);
+	juce::Timer::callAfterDelay(8000, [self, note] {
+		if (auto *me = self.get(); me != nullptr && me->m_note == note) {
+			me->m_note.clear();
+			me->refresh();
+		}
+	});
+}
+
+void MainComponent::selectWhenLoaded(const juce::String &plugin)
+{
+	m_selectWhenLoaded = plugin;
+	if (m_catalog && m_catalog->find(plugin) != nullptr) {
+		select(plugin);
+		refresh();
+	}
+}
+
+bool MainComponent::isInterestedInFileDrag(const juce::StringArray &)
+{
+	return m_loading == Loading::Ready;
+}
+
+void MainComponent::fileDragEnter(const juce::StringArray &, int, int)
+{
+	m_dragging = true;
+	repaint();
+}
+
+void MainComponent::fileDragExit(const juce::StringArray &)
+{
+	m_dragging = false;
+	repaint();
+}
+
+void MainComponent::filesDropped(const juce::StringArray &files, int, int)
+{
+	m_dragging = false;
+	repaint();
+	if (!m_needs) {
+		say("The list of ROMs didn't read, so nothing can be matched.", false);
+		return;
+	}
+	say("Looking through what was dropped" + juce::String::fromUTF8("\xe2\x80\xa6"), true);
+	juce::WeakReference<MainComponent> self(this);
+	juce::Thread::launch([self, files, needs = *m_needs] {
+		const auto added = addDropped(files, needs);
+		bool fresh = false;
+		for (const auto &a : added)
+			fresh = fresh || !a.already;
+		juce::MessageManager::callAsync([self, note = describe(added), fresh] {
+			if (auto *me = self.get()) {
+				me->say(note, fresh);
+				me->checkRoms();
+			}
+		});
+	});
+}
+
 const Entry *MainComponent::newerManager() const
 {
 	if (!m_catalog || !m_catalog->manager || !updates::isNewer(m_catalog->manager->version, LEMUS_MANAGER_VERSION))
@@ -889,6 +1184,7 @@ void MainComponent::startSelfUpdate()
 void MainComponent::sayBusy()
 {
 	m_note = "Closes when the work under way is done.";
+	m_noteOk = false;
 	refresh();
 }
 
@@ -902,19 +1198,25 @@ void MainComponent::load()
 		juce::String error;
 		auto catalog = fetchCatalog(error);
 		std::map<juce::String, Install> installed;
+		std::vector<juce::String> plugins;
 		if (catalog)
-			for (const auto &e : catalog->plugins)
+			for (const auto &e : catalog->plugins) {
 				installed[e.plugin] = scan(e.plugin);
-		juce::MessageManager::callAsync([self, read = std::move(catalog), found = std::move(installed), error] {
+				plugins.push_back(e.plugin);
+			}
+		const bool read = catalog.has_value();
+		juce::MessageManager::callAsync([self, catalog = std::move(catalog), found = std::move(installed), error] {
 			if (auto *me = self.get()) {
-				me->m_catalog = read;
+				me->m_catalog = catalog;
 				me->m_installed = found;
 				me->m_error = error;
-				me->m_loading = read ? Loading::Ready : Loading::Failed;
-				if (read && me->selected() == nullptr && !read->plugins.empty()) {
+				me->m_loading = catalog ? Loading::Ready : Loading::Failed;
+				if (catalog && me->m_selectWhenLoaded.isNotEmpty() && catalog->find(me->m_selectWhenLoaded) != nullptr)
+					me->m_selected = me->m_selectWhenLoaded;
+				if (catalog && me->selected() == nullptr && !catalog->plugins.empty()) {
 					// Start on the first with an update, else the first.
-					me->m_selected = read->plugins[0].plugin;
-					for (const auto &e : read->plugins)
+					me->m_selected = catalog->plugins[0].plugin;
+					for (const auto &e : catalog->plugins)
 						if (me->hasUpdate(e)) {
 							me->m_selected = e.plugin;
 							break;
@@ -924,6 +1226,22 @@ void MainComponent::load()
 				me->refresh();
 				if (!me->m_promptOffered && me->m_crash.isEmpty() && me->newerManager() != nullptr)
 					me->showPrompt();
+			}
+		});
+		if (!read)
+			return;
+		// Then each plugin's ROM folder: what it needs (roms.json) and what the folder has.
+		auto needs = fetchNeeds();
+		std::map<juce::String, RomCheck> checks;
+		if (needs)
+			for (const auto &plugin : plugins)
+				if (const auto it = needs->find(plugin); it != needs->end())
+					checks[plugin] = check(it->second);
+		juce::MessageManager::callAsync([self, needs = std::move(needs), checks = std::move(checks)] {
+			if (auto *me = self.get()) {
+				me->m_needs = needs;
+				me->m_romChecks = checks;
+				me->refresh();
 			}
 		});
 	});
@@ -1168,6 +1486,10 @@ void MainComponent::act(const juce::String &action)
 		startSelfUpdate();
 	else if (action == "later")
 		hidePrompt();
+	else if (action == "drag")
+		fileDragEnter({}, 0, 0);
+	else if (action.startsWith("drop:"))
+		filesDropped(juce::StringArray::fromTokens(action.fromFirstOccurrenceOf("drop:", false, false), "|", ""), 0, 0);
 }
 
 void MainComponent::handleAsyncUpdate()
@@ -1272,7 +1594,7 @@ void MainComponent::paint(juce::Graphics &g)
 	g.drawText(" Plugin Manager", t, juce::Justification::centredLeft, false);
 	const auto s = summary();
 	g.setFont(mono(12.0f));
-	g.setColour(m_note.isNotEmpty() ? col::warn : col::inkSoft);
+	g.setColour(m_note.isEmpty() ? col::inkSoft : m_noteOk ? col::ok : col::warn);
 	const auto sw = juce::GlyphArrangement::getStringWidthInt(mono(12.0f), s);
 	g.drawText(s, juce::Rectangle<int>(m_updateAll.getX() - 16 - sw, t.getY(), sw, t.getHeight()), juce::Justification::centredRight, false);
 
@@ -1303,6 +1625,46 @@ void MainComponent::paint(juce::Graphics &g)
 	g.setColour(col::muted);
 	g.drawText("Machine names identify the original equipment and are trademarks of their owners. Lemus is not affiliated with or endorsed by them.",
 	           bottom.reduced(20, 0).withTrimmedBottom(8), juce::Justification::centredLeft, true);
+}
+
+void MainComponent::paintOverChildren(juce::Graphics &g)
+{
+	if (!m_dragging)
+		return;
+	g.setColour(col::ground.withAlpha(0.92f));
+	g.fillAll();
+	const auto frame = getLocalBounds().toFloat().reduced(14.0f);
+	juce::Path outline;
+	outline.addRoundedRectangle(frame, 12.0f);
+	juce::Path dashed;
+	const float dashes[] = {8.0f, 6.0f};
+	juce::PathStrokeType(2.0f).createDashedStroke(dashed, outline, dashes, 2);
+	g.setColour(col::accent);
+	g.fillPath(dashed);
+	const float w = 480, cx = frame.getCentreX();
+	auto y = frame.getCentreY() - 60;
+	juce::Path arrow;
+	arrow.startNewSubPath(cx, y);
+	arrow.lineTo(cx, y + 22);
+	arrow.startNewSubPath(cx - 8, y + 14);
+	arrow.lineTo(cx, y + 22);
+	arrow.lineTo(cx + 8, y + 14);
+	arrow.startNewSubPath(cx - 13, y + 30);
+	arrow.lineTo(cx + 13, y + 30);
+	g.strokePath(arrow, juce::PathStrokeType(2.5f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+	y += 46;
+	g.setColour(col::title);
+	g.setFont(mono(18.0f, true));
+	g.drawText("Drop ROMs and artwork", juce::Rectangle<float>(cx - w / 2, y, w, 26), juce::Justification::centred, false);
+	y += 34;
+	juce::AttributedString s;
+	s.append("Each file is matched by its SHA1 (ROMs) or its name (artwork) and copied into its plugin's ROM folder. Zips and folders too; anything else is left alone.",
+	         mono(13.0f), col::inkSoft);
+	s.setJustification(juce::Justification::centredTop);
+	s.setWordWrap(juce::AttributedString::byWord);
+	juce::TextLayout layout;
+	layout.createLayout(s, w);
+	layout.draw(g, {cx - w / 2, y, w, layout.getHeight()});
 }
 
 bool MainComponent::keyPressed(const juce::KeyPress &key)
