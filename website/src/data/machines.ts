@@ -226,6 +226,18 @@ export const machines: Machine[] = [
     ],
   },
   {
+    slug: 'al-fx-quadgt',
+    emulates: 'Alesis QuadraVerb GT',
+    year: 1991,
+    type: 'guitar preamp and multi-effects',
+    status: 'working',
+    withoutRom: 'none',
+    keywords: 'quadraverb quadgt gt alesis guitar preamp amp distortion overdrive cabinet reverb delay chorus multi effects',
+    nav: true,
+    release: { version: '0.1.0', tag: 'al-fx-quadgt-v0.1.0', stage: 'beta', mac: 'al-fx-quadgt-0.1.0-mac.pkg', windows: 'al-fx-quadgt-0.1.0-windows.zip' },
+    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+  },
+  {
     slug: 'ro-mono-101',
     emulates: 'Roland SH-101',
     year: 1982,

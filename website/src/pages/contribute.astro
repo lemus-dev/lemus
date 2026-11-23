@@ -93,8 +93,8 @@ const sections = [
 <tr><th scope="row">3 Firmware</th><td>Ports MAME's CPU core, maps the board's I/O by running it, checks every procedure in the owner's manual.</td><td>—</td></tr>
 <tr><th scope="row">4 Circuit</th><td>Transcribes the schematic part by part, checks every netlist against ngspice, passes the service manual's checks.</td><td>—</td></tr>
 <tr><th scope="row">5 First playable <span class="gate">gate</span></th><td>Draws the panel from a photo, adds keys, MIDI, state and power, builds the check set, compares against every real unit, writes <span class="mono">improvements.md</span>. Opens a draft pull request.</td><td>Installs it and plays it. Says what's wrong. Picks the first round.</td></tr>
-<tr><th scope="row">Rounds <span class="gate">gate</span></th><td>One kind per round, accuracy or CPU, with the whole check set before and after, and the numbers logged.</td><td>Picks each round, listens to its A/B scenes, decides any trade between sound and CPU.</td></tr>
-<tr><th scope="row">Ship <span class="gate">gate</span></th><td>Every service check passes, the CPU budget is met, the README has the numbers and the known differences.</td><td>Signs off the commits and marks the pull request ready. The maintainers review it, listen, merge and release it.</td></tr>
+<tr><th scope="row">Rounds <span class="gate">gate</span></th><td>One kind per round, accuracy, CPU or UX, with the whole check set before and after, and the numbers logged. A UX round checks the panel, ROMs, sessions and host behaviour against the shipped machines.</td><td>Picks each round, listens to its A/B scenes, decides any trade between sound and CPU.</td></tr>
+<tr><th scope="row">Ship <span class="gate">gate</span></th><td>Every service check passes, the CPU budget is met, a UX round has passed, the README has the numbers and the known differences.</td><td>Signs off the commits and marks the pull request ready. The maintainers review it, listen, merge and release it.</td></tr>
 </tbody>
 </table>
 </div>

@@ -82,7 +82,8 @@ above its background at those lags (continuous playing, camera audio, near-mono)
   1.31 % peak); `tools/spice/tapcheck.py` (p00-pluck: the shaper 27.7 dB under, the rest 40-77);
   `qvgtplugintest` all; `qvgtdspcheck` all; `lemustest_qvgt`, `lemustest_fx` all; auval passes.
   2026-11-16: all of it again but tapcheck and auval, the same; `qvgtcorners` 0 of 1,106 cases
-  failing at each rate.
+  failing at each rate. 2026-11-23: all of it again, tapcheck and auval included, the same
+  (p30-sweep 3,617 Mins/s), before and after the ux round.
 - **Check set:** `qvgtcorners` (the extremes: unconverged solves, noise from a pure tone, output
   bounds; about a minute), `qvgtbench check` against the newest golden renders, `qvgtplugintest`,
   `qvgtdspcheck`, `tools/service/check.py`, `tools/spice/suite.py` and `tapcheck.py`, the host
@@ -127,6 +128,23 @@ known level).
   Chain can run it (setOver; QVGT_OVER=shaper:2 in the tools).
 
 ## Done
+
+- 2026-11-23, ux round (the first, after UX rounds joined the workflow): walked CONTRIBUTING.md's
+  "UX rounds" list against the panel and the shipped machines. Found and fixed: the knobs showed no
+  tooltip (now INPUT/OUTPUT with the setting, hovering or turning, as on the Xpander, RAT and the
+  Rolands; the status line no longer repeats it), nor did the keys (now the key's name and its
+  computer key, e.g. "PROG (P)"), POWER (on/off and what a click does) or the rear's footswitch
+  jacks; the key list's knobs line left out the mouse wheel; a bar pill's tooltip drew over the
+  key list. Checked and holding: the bar (HISS, REAR, ?; every pill a tooltip), status line,
+  latch, Escape, computer keys (one table for the keys and their tooltips), the controls' drag,
+  Shift, double-click and wheel (the Virus C's and Pro-One's steps), a plugin load
+  (the firmware boots off-line, ready in about 90 ms, no audible start), POWER, sessions (new
+  `qvgtplugintest` check: mid-edit on program 05's REVERB INPUT 1 page, a session reopens on
+  that page with the edit), the ROM list (both ROMs with name, size, SHA1, CRC), MIDI in, out and
+  THRU, Space left to the host, the panel measured from photos at a stated scale. Not applicable:
+  SYNC, SERVICE, a clear key, a run key, voice mode, keys by place (the GT's computer keys are
+  arrows, Return and two letters). `qvgtplugintest --snapshot ... --hover X Y` draws a tooltip.
+  Golden renders `build/qvgt-golden-6` bit-exact; check set all pass; auval passes.
 
 - 2026-11-17, fix: the output went past the output stages' rails. Their swing (10.5 V, 6.048 of
   full scale) was clamped only at the DSP's rate, and the resampler up to the host's rate put

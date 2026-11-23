@@ -1,0 +1,307 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import MachineTop from '../components/MachineTop.astro';
+import SampleList from '../components/SampleList.astro';
+import { bySlug } from '../data/machines';
+import panelShot from '../assets/al-fx-quadgt/panel.webp';
+
+const m = bySlug('al-fx-quadgt');
+const panel = await getImage({ src: panelShot, format: 'webp', quality: 85 });
+
+// The strip under the header: the page's sections, the one being read underlined.
+const sections = [
+  { id: 'download', label: 'Download' },
+  { id: 'hear', label: 'Hear it' },
+  { id: 'accuracy', label: 'In numbers' },
+  { id: 'differences', label: 'Differences' },
+  { id: 'made', label: 'How it was made' },
+  { id: 'rom', label: 'ROMs' },
+  { id: 'artwork', label: 'Artwork' },
+];
+
+const clips = [
+  { file: 'dry', title: 'The guitar, dry', detail: 'a direct-recorded guitar, what goes in' },
+  { file: 'p00', title: 'GUITARBYALESIS', detail: 'program 00' },
+  { file: 'p02', title: 'SOLID SOLO', detail: 'program 02' },
+  { file: 'p05', title: 'WATERFALLS', detail: 'program 05' },
+  { file: 'p12', title: "NOBODY'S FAULT", detail: 'program 12' },
+  { file: 'p30', title: 'METL INJECTION', detail: 'program 30' },
+];
+---
+<Base title="al-fx-quadgt · Lemus" description="al-fx-quadgt emulates the Alesis QuadraVerb GT: its v1.03 firmware on an emulated 80C31, its effects DSP decoded from the firmware, and the analog preamp solved from the service manual's schematic. Free for macOS and Windows." current="al-fx-quadgt">
+
+<nav slot="sub" class="onpage" aria-label="On this page">
+<div class="frame sheet">
+<div class="col">
+<ol>
+{sections.map((s) => <li><a href={`#${s.id}`} class:list={{ red: s.id === 'differences' }}>{s.label}</a></li>)}
+</ol>
+</div>
+</div>
+</nav>
+
+<MachineTop machine={m}>
+<SampleList heading="Factory programs" plugin="al-fx-quadgt" tracks={clips.map((c) => ({ src: `/media/al-fx-quadgt/${c.file}.m4a`, title: c.title, detail: c.detail }))} />
+<Fragment slot="data">
+<div><dt class="lbl">ROM images</dt><dd><span class="mono">qvgtv103.bin</span> and <span class="mono">hd44780_a00.bin</span>, not included</dd></div>
+<div><dt class="lbl">Inputs</dt><dd>INPUT L and R (or mono)</dd></div>
+<div><dt class="lbl">Outputs</dt><dd>OUTPUT L and R</dd></div>
+</Fragment>
+</MachineTop>
+
+<section class="sheet">
+<div class="col sec">
+<figure class="panel">
+<div class="mount">
+<div class="pin">
+<img src={panel.src} alt="al-fx-quadgt: the QuadraVerb GT's 1U front panel with the signal LEDs, INPUT and OUTPUT, the display showing PROGRAM 00 GUITARBYALESIS, PAGE and VALUE, the edit keys and POWER, its brand marks' places left blank, and the bar with HISS and REAR" width="1255" height="154">
+<span class="leader" style="left: 35%; top: -24px; height: calc(19% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 35%; top: 19%" aria-hidden="true"></span>
+<span class="balloon" style="left: 35%; top: -56px" aria-hidden="true">A1</span>
+<span class="leader" style="left: 15.6%; top: 41%; height: calc(59% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 15.6%; top: 41%" aria-hidden="true"></span>
+<span class="balloon" style="left: 15.6%; top: calc(100% + 24px)" aria-hidden="true">A2</span>
+</div>
+</div>
+<figcaption class="caption">
+<div class="row"><span class="key">A1</span><span><strong>Firmware.</strong> Alesis's v1.03 runs unmodified on an emulated 80C31: the display, the keys, the LEDs, the 90 factory programs and every edit page are its own, and it loads each program's effects into a model of the DASP 24 DSP.</span></div>
+<div class="row"><span class="key">A2</span><span><strong>Preamp.</strong> The compressor, overdrive, distortion, tone, cabinet simulator, bass boost and noise gate are the service manual's circuit, solved part by part, set by the firmware through the same latches the unit's are.</span></div>
+<div class="row"><span class="fig">FIG. 1</span><span>The panel with its brand marks' places left blank, and the bar with HISS and REAR.</span></div>
+</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="accuracy" class="sheet">
+<div class="col sec">
+<div class="numbers-head">
+<h2 class="h2 tap">In numbers</h2>
+<p class="dim">The analog stages checked against ngspice, the firmware's own DSP configurations checked through it, and a real GT by ear. Method: <a href="#made">How it was made</a>.</p>
+<p class="dim small">The clips at the top: a direct-recorded guitar (Freepats' Electric Guitar FSBS, CC0) through v1.03 factory programs, INPUT 7, OUTPUT 5, as rendered.</p>
+</div>
+
+<div class="numbers">
+<div class="measure">
+<div class="figure">
+<div class="big">15 / 15</div>
+<div class="what">preamp circuits within 0.31 % RMS of ngspice on the same netlist</div>
+<div class="dim small">Both pot settings, overdrive off and on, the shaper clean, clipping and distorting, presence, bright, both cabinets, bass, the gate and the effects loop. On the plugin's own signals, the circuits stay 24–77 dB under their output below 20 kHz.</div>
+</div>
+</div>
+<div class="measure">
+<div class="figure">
+<div class="big">10 / 10</div>
+<div class="what">factory programs named and drawn as an owner's unit shows them</div>
+<div class="dim small">Programs 00–09 of the v1.00 factory set, from a video stepping through them with the display in view, beside the model on the v1.00 EPROM: the same names, the same layout, and nothing heard off side by side.</div>
+</div>
+</div>
+<div class="measure">
+<div class="figure">
+<div class="big">15 %</div>
+<div class="what">of one core at 48 kHz, a sweep through program 30</div>
+<div class="dim small">Apple M5 Max. After 1.6 s of silence the DSP and the preamp sleep; the whole idle run takes under 4 %.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="differences" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap red">What is still different</h2>
+<dl class="diffs">
+<div><dt>Against real units</dt><dd>The recordings of GTs that exist are guitars through amps, filmed, at settings mostly unknown: they check each program's character, not levels or tone. No recording has the unit's output with a known input and program.</dd></div>
+<div><dt>The DSP's arithmetic</dt><dd>A 24-bit accumulator, 20-bit memory and truncation: the decode of the original QuadraVerb's DSP, which runs every program as it should, but no unit has been measured against it. Whether it saturates or wraps on overflow isn't known; programs 02, 04 and 08 overflow on a hot guitar at INPUT 7.</dd></div>
+<div><dt>The 20 kHz filter</dt><dd>The A/D's filter module has no parts on the schematic: a filter flat to 18.75 kHz stands in for it. The sample-and-hold's window, which sets the D/A's de-emphasis, is taken as the one that undoes the pre-emphasis.</dd></div>
+<div><dt>The preamp's rate</dt><dd>The preamp runs at 167 kHz. On the distorted programs the top octaves (8–24 kHz) come out 0.2–0.6 dB under the same at four times that rate; below 4 kHz, within 0.02 dB. Chosen by ear for a third less CPU.</dd></div>
+<div><dt>Hiss</dt><dd>HISS on the bar (on by default) adds the parts' own noise, from their data sheets: about −79 to −91 dBu at the output by program. No unit's idle output has been measured.</dd></div>
+<div><dt>Ring modulator</dt><dd>It shifts by 0.71 of the displayed SPECTRUM SHIFT (100 Hz gives 71 Hz): the firmware's timer can't keep up on this CPU, so a unit should do the same. No recording settles it.</dd></div>
+<div><dt>Signal LEDs</dt><dd>They light at −24, −14, −6.6 dB and clip, where the panel prints −18, −12, −6 and CLIP: the rev B board's ladder, as drawn. Earlier boards may differ.</dd></div>
+<div><dt>Pots</dt><dd>INPUT is taken as linear and OUTPUT as a standard audio taper.</dd></div>
+</dl>
+<div class="not">
+<h3 class="h3">Not emulated</h3>
+<p class="dim">The keys' force as an amount (a press is light, or hard with Shift), the effects loop's jacks (the return is as with nothing plugged in).</p>
+</div>
+</div>
+</section>
+
+<section id="made" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">How it was made</h2>
+<ol class="steps">
+<li>
+<div class="step-n">01</div>
+<div class="step">
+<h3 class="h3">The firmware</h3>
+<p class="dim">The v1.03 EPROM runs from reset on an emulated 80C31 (MAME's MCS-51 core). The board around it was traced from the service manual and the firmware: the address decoding, the key matrix, the LED and preamp latches, the HD44780 display, MIDI, the battery RAM and the footswitches. The first time it starts, it loads its 90 factory programs the way the unit does it, from the keys.</p>
+</div>
+</li>
+<li>
+<div class="step-n">02</div>
+<div class="step">
+<h3 class="h3">The DSP</h3>
+<p class="dim">The DASP 24 has no documentation. Its programs are in the firmware, 96 instructions a sample at 41,666.67 Hz; the instruction set was decoded from them, the same chip as the original QuadraVerb's. The GT's own configurations were then checked through the firmware: the ring modulator shifts cleanly with the other sideband 31 dB down, the resonators are in tune, the sampler records and loops its 1.573 s, the audio trigger fires at the printed −18 dB.</p>
+</div>
+</li>
+<li>
+<div class="step-n">03</div>
+<div class="step">
+<h3 class="h3">The preamp</h3>
+<p class="dim">Sheet 1 of the service manual, every part with its value, as netlists: TL084 op-amps, the clipping diodes, the CD4051 that picks the distortion type, the JFET that dulls it under compression, the cabinet's filters. A circuit solver runs them, with the SSM2120's VCAs and level detectors between them, and each was checked against ngspice on the same netlist and on the plugin's own signals.</p>
+</div>
+</li>
+<li>
+<div class="step-n">04</div>
+<div class="step">
+<h3 class="h3">The converters and outputs</h3>
+<p class="dim">Sheet 2: the A/D's pre-emphasis and the D/A's sample-and-holds that undo it, the CEM3381 VCA on the dry path, the OUTPUT stages. Levels are volts at the jacks, 0 dBFS = +4 dBu, so INPUT and the signal LEDs read as they do on a unit.</p>
+</div>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="rom" class="sheet">
+<div class="col sec brief">
+<h2 class="h2 tap">ROM images</h2>
+<p class="dim">The firmware, with the effects programs and the factory programs in it, is Alesis's copyrighted work, so it isn't included. al-fx-quadgt needs the v1.03 EPROM, <span class="mono">qvgtv103.bin</span>, and the display controller's character ROM from MAME, <span class="mono">hd44780_a00.bin</span>: without them there is nothing to run. <a href="/al-fx-quadgt/guide#roms">The ROMs</a></p>
+</div>
+</section>
+
+<section id="artwork" class="sheet">
+<div class="col sec brief last">
+<h2 class="h2 tap">Panel artwork</h2>
+<p class="dim">Alesis's logo and the QuadraVerb GT logo are trademarks, so their two places on the panel are blank. Each place takes an SVG or PNG file of your own, named <span class="mono">al-fx-quadgt-maker</span> and <span class="mono">al-fx-quadgt-name</span>, in the ROM folder: drawn yourself, or generated with an AI tool such as Claude or ChatGPT. <a href="/al-fx-quadgt/guide#artwork">Panel artwork</a></p>
+</div>
+</section>
+
+</Base>
+
+<script>
+// Underline the strip's link for the section being read: the last whose top has passed under the
+// strip, or the last of all at the foot of the page.
+const links = [...document.querySelectorAll<HTMLAnchorElement>('.onpage a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+const strip = document.querySelector<HTMLElement>('.onpage ol')!;
+let current = -2;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 80) i = j; });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) i = targets.length - 1;
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => { if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  // Bring the link into view along the strip only. scrollIntoView would also scroll the page, up
+  // by the scroll padding, since the stuck strip sits inside it.
+  const a = links[i];
+  if (!a) return;
+  const r = a.getBoundingClientRect(), s = strip.getBoundingClientRect();
+  if (r.left < s.left) strip.scrollLeft += r.left - s.left;
+  else if (r.right > s.right) strip.scrollLeft += r.right - s.right;
+}
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+mark();
+</script>
+
+<style>
+:global(html) { scroll-padding-top: 64px; }
+
+.onpage { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.onpage ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 30px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.onpage ol::-webkit-scrollbar { display: none; }
+.onpage a { display: inline-flex; align-items: center; min-height: 46px; box-sizing: border-box; padding-top: 3px; border-bottom: 3px solid transparent; color: var(--ink2); text-decoration: none; font-size: 15px; font-weight: 500; }
+.onpage a:hover { color: var(--ink); }
+.onpage a[aria-current] { color: var(--ink); border-bottom-color: var(--wire); }
+.onpage a.red[aria-current] { border-bottom-color: var(--red); }
+
+
+
+.panel { margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.panel .mount { padding: 58px 24px; }
+.pin { position: relative; }
+.pin img { display: block; width: 100%; height: auto; }
+.panel .balloon { width: 34px; height: 34px; font-size: 12px; }
+.caption strong { color: var(--ink); font-weight: 600; }
+.caption .mono { font-size: 13px; color: var(--ink); }
+
+.text { display: flex; flex-direction: column; gap: 18px; min-width: 0; max-width: 48em; }
+.text p { margin: 0; }
+.small { font-size: 15px; }
+.tiny { font-size: 13px; }
+.mono { font-size: 0.9em; color: var(--ink); }
+
+.numbers-head { display: flex; flex-direction: column; gap: 18px; }
+.numbers-head p { margin: 0; font-size: 16px; }
+.numbers { display: flex; flex-direction: column; margin-top: -8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.measure { display: flex; flex-wrap: wrap; gap: 24px 56px; padding: 28px 0; }
+.measure + .measure { border-top: 1px solid var(--rule); }
+.figure { flex: 1 1 300px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.big { font: 700 56px/1 var(--display); font-variant-numeric: tabular-nums; }
+.what { font-weight: 500; }
+.chart { flex: 2 1 420px; min-width: 0; position: relative; height: 96px; margin-top: 8px; font: 11px/16px var(--mono); color: var(--ink2); }
+.chart > * { position: absolute; }
+.axis { left: 0; right: 0; top: 40px; border-top: 1.5px solid var(--ink); }
+.tick { top: 40px; height: 7px; border-left: 1px solid var(--ink); }
+.tick-label { top: 50px; transform: translateX(-50%); font-size: 10px; white-space: nowrap; }
+.bar { left: 0; top: 37px; height: 6px; background: var(--wire); }
+.dot { top: 35px; width: 11px; height: 11px; box-sizing: border-box; transform: translateX(-50%); border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); }
+.dot.ours { top: 33px; width: 15px; height: 15px; border: 0; background: var(--wire); box-shadow: 0 0 0 2px var(--paper); }
+.label { white-space: nowrap; }
+.label.ours { font-weight: 700; color: var(--wire-text); }
+.label.to-end { transform: translateX(-100%); }
+.label.above { top: 10px; transform: translateX(-50%); }
+.label.below { top: 72px; }
+.label.above.from, .label.below.from { transform: translateX(-12px); }
+.label.below.to { transform: translateX(calc(-100% + 12px)); }
+.range { height: 104px; margin-top: 4px; }
+.range .axis, .range .tick { top: 74px; }
+.range .tick-label { top: 84px; }
+.zero { top: 0; height: 74px; border-left: 1px dashed var(--rule); }
+.span { height: 10px; box-sizing: border-box; border: 1.5px solid var(--ink); background-image: repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 5px); }
+.span.ours { border: 0; background: var(--wire); }
+
+.service-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 28px; }
+.service-head .text { flex: 1 1 480px; max-width: 46em; }
+.stamp { border: 4px double var(--green); color: var(--green); padding: 12px 20px 14px; display: flex; flex-direction: column; gap: 2px; max-width: 100%; box-sizing: border-box; }
+.count { font: 700 44px/1.05 var(--display); white-space: nowrap; }
+.spec { margin-left: 8px; font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: 0.1em; text-transform: uppercase; }
+.checks { font-size: 15px; color: var(--ink); }
+.shot { margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.shot .mount { padding: 24px; }
+.shot img { display: block; width: 100%; height: auto; }
+
+.diffs { margin: 0; display: flex; flex-direction: column; max-width: 62em; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.diffs > div { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 12px; padding: 18px 0; }
+.diffs > div + div { border-top: 1px solid var(--rule); }
+.diffs > div::before { content: '≠'; grid-row: span 2; font: 700 24px/1.05 var(--mono); color: var(--red); }
+.diffs dt { font-family: var(--display); font-weight: 600; font-size: 23px; line-height: 1.15; letter-spacing: 0.03em; text-transform: uppercase; }
+.diffs dd { margin: 0; color: var(--ink2); font-size: 16px; }
+.not { max-width: 62em; display: flex; flex-direction: column; gap: 8px; }
+.not .h3 { font-size: 26px; letter-spacing: 0.02em; }
+.not p { margin: 0; font-size: 16px; }
+
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.steps > li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 20px; padding: 28px 0; }
+.steps > li + li { border-top: 1px solid var(--rule); }
+.step-n { width: 48px; height: 48px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+.step { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.step .h3 { font-size: 28px; letter-spacing: 0.02em; }
+.step p { margin: 0; max-width: 52em; }
+.fitted { min-width: 600px; }
+.fitted .fit { color: var(--red); font-weight: 700; }
+.versus { min-width: 860px; }
+.revisions { min-width: 860px; }
+.revisions td.num { white-space: nowrap; }
+.versus tbody th { font-weight: 400; }
+.versus .ours { background: var(--tint); color: var(--wire-text); font-weight: 700; }
+.versus .ours th { font-weight: 700; font-size: 15px; color: var(--wire-text); }
+.sec > p { margin: 0; max-width: 52em; }
+.brief { gap: 18px; }
+.brief p { margin: 0; max-width: 46em; }
+.last { padding-bottom: 96px; }
+</style>

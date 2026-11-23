@@ -92,9 +92,9 @@ juce::String lcd(const QVGTProcessor &p, int line)
 int main(int argc, char **argv)
 {
 	juce::ScopedJuceInitialiser_GUI gui;
-	// --snapshot out.png [rear | --artwork FOLDER]: the panel (or the rear) after boot, drawn
-	// headless, with the brand marks the ROM folder FOLDER has for the places panel.json lists, and
-	// nothing else
+	// --snapshot out.png [rear | --artwork FOLDER] [--hover X Y]: the panel (or the rear) after boot,
+	// drawn headless, with the brand marks the ROM folder FOLDER has for the places panel.json lists,
+	// and nothing else; with the mouse over X, Y (view pixels) for a tooltip
 	const juce::String snapshot = argc > 2 && juce::String(argv[1]) == "--snapshot" ? juce::String(argv[2]) : juce::String();
 	lemus::Artwork artwork;
 	if (argc > 4 && juce::String(argv[3]) == "--artwork") {
@@ -130,6 +130,9 @@ int main(int argc, char **argv)
 		view.setBounds(0, 0, qvgt::HardwareView::kWidth, qvgt::HardwareView::kHeight);
 		view.timerCallbackForTests();
 		view.showRear(argc > 3 && juce::String(argv[3]) == "rear");
+		for (int i = 3; i + 2 < argc; ++i) // --hover X Y: the mouse over that point (view pixels)
+			if (juce::String(argv[i]) == "--hover")
+				view.hoverForTests({juce::String(argv[i + 1]).getFloatValue(), juce::String(argv[i + 2]).getFloatValue()});
 		juce::Image img(juce::Image::ARGB, view.getWidth() * 2, view.getHeight() * 2, true);
 		juce::Graphics g(img);
 		g.addTransform(juce::AffineTransform::scale(2.0f));
@@ -228,6 +231,39 @@ int main(int argc, char **argv)
 		check(thru, "MIDI THRU: the program change comes back out");
 		run(a, silence(int(kRate * 1.0)));
 		check(lcd(a, 1).contains("GUITARBYALESIS"), "and program 00 is back");
+	}
+
+	std::printf("Session, mid-edit\n");
+	{
+		// a session is not a power-on: it reopens on the program, the edit page and the edit
+		const auto press = [&](int key) {
+			a.setKey(key, true, false);
+			run(a, silence(int(kRate * 0.15)));
+			a.setKey(key, false, false);
+			run(a, silence(int(kRate * 0.3)));
+		};
+		juce::MidiBuffer m;
+		m.addEvent(juce::MidiMessage::programChange(1, 5), 0);
+		run(a, silence(int(kRate * 1.0)), 0, &m);
+		for (const int k : {15, 7, 3, 3}) // REVERB, PAGE up, VALUE up twice: REVERB INPUT 1 moved
+			press(k);
+		const auto before = lcd(a, 0) + "|" + lcd(a, 1);
+		juce::MemoryBlock s2;
+		a.getStateInformation(s2);
+		QVGTProcessor r(&rom, &font);
+		r.setRateAndBufferSizeDetails(kRate, kBlock);
+		const auto t0 = juce::Time::getMillisecondCounterHiRes();
+		r.setStateInformation(s2.getData(), int(s2.getSize()));
+		r.waitForBoot();
+		const auto ms = juce::Time::getMillisecondCounterHiRes() - t0;
+		r.prepareToPlay(kRate, kBlock);
+		run(r, silence(int(kRate * 1.0)));
+		const auto after = lcd(r, 0) + "|" + lcd(r, 1);
+		std::printf("    before |%s|, after |%s|, ready in %.0f ms\n", before.toRawUTF8(), after.toRawUTF8(), ms);
+		check(before.startsWith("REVERB INPUT 1") && after == before, "a session reopens on its edit page with the edit");
+		juce::MidiBuffer back;
+		back.addEvent(juce::MidiMessage::programChange(1, 0), 0);
+		run(a, silence(int(kRate * 1.0)), 0, &back);
 	}
 
 	std::printf("Footswitch\n");

@@ -7,13 +7,17 @@ export const manager: { slug: string; page: string; release: Release | null; cha
   slug: 'lemus-plugin-manager',
   page: '/plugin-manager',
   release: {
-    version: '0.2.0',
-    tag: 'lemus-plugin-manager-v0.2.0',
+    version: '0.2.1',
+    tag: 'lemus-plugin-manager-v0.2.1',
     stage: 'beta',
-    mac: 'lemus-plugin-manager-0.2.0-mac.pkg',
-    windows: 'lemus-plugin-manager-0.2.0-windows.zip',
+    mac: 'lemus-plugin-manager-0.2.1-mac.pkg',
+    windows: 'lemus-plugin-manager-0.2.1-windows.zip',
   },
   changes: [
+    {
+      version: '0.2.1',
+      notes: ['The list fits the longest names (the Oberheim Xpander was cut short); the artwork hint names a real file.'],
+    },
     {
       version: '0.2.0',
       notes: [

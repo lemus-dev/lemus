@@ -73,6 +73,21 @@ float textWidthMm(const juce::String &text, float capMm, bool bold, bool italic)
 
 float rearJackY() { return num(panel()["rear"]["jack_y"], 17.6f); }
 
+// The computer keys that press panel keys (the firmware's key numbers), as the key list and the
+// tooltips name them.
+struct ComputerKey {
+	int code, key;
+	const char *shown;
+};
+const std::vector<ComputerKey> &computerKeys()
+{
+	static const std::vector<ComputerKey> keys = {{juce::KeyPress::leftKey, 6, "Left"},     {juce::KeyPress::rightKey, 7, "Right"},
+	                                              {juce::KeyPress::downKey, 2, "Down"},     {juce::KeyPress::upKey, 3, "Up"},
+	                                              {juce::KeyPress::returnKey, 10, "Return"}, {'P', 11, "P"},
+	                                              {'B', 5, "B"}};
+	return keys;
+}
+
 } // namespace
 
 HardwareView::HardwareView(QVGTProcessor &p) : m_proc(p)
@@ -130,11 +145,13 @@ void HardwareView::paint(juce::Graphics &g)
 	else
 		paintFront(g);
 	drawBar(g);
+	if (!m_help)
+		drawTip(g);
 	if (m_help)
 		lemus::panel::drawHelp(g, getLocalBounds().toFloat().withTrimmedBottom(kBarHeight), "QUADRAVERB GT",
 		                       {"Left / Right   PAGE down / up", "Down / Up      VALUE down / up", "Return         STORE", "P              PROG",
 		                        "B              BYPASS", "Shift with a key or a click: a hard press (the keys sense force: harder scrolls faster)",
-		                        "Knobs: drag up and down, shift for fine, double-click for the start position",
+		                        "Knobs: drag up and down, Shift for fine, double-click for the start position, or the mouse wheel",
 		                        "REAR: click BYPASS or ADVANCE for a footswitch press"},
 		                       barMono());
 }
@@ -455,10 +472,6 @@ juce::String HardwareView::status() const
 		return "OFF: the POWER switch";
 	if (!m_proc.booted())
 		return "STARTING: the firmware is booting";
-	if (m_dragKnob >= 0) {
-		const auto &k = m_knobs[size_t(m_dragKnob)];
-		return k.name + "  " + (k.param ? k.param->getCurrentValueAsText() : juce::String());
-	}
 	if (m_footswitch >= 0)
 		return m_footswitch == 0 ? "BYPASS footswitch down" : "ADVANCE footswitch down";
 	if (m_held.anyLatched())
@@ -474,8 +487,41 @@ void HardwareView::drawBar(juce::Graphics &g)
 	lemus::panel::drawPill(g, m_bar[m_barRear], "REAR", m_rear, m_hoverBar == m_barRear, barMono());
 	lemus::panel::drawStatus(g, m_bar.status(), status(), barMono(), m_held.anyLatched() ? lemus::panel::col::accent : lemus::panel::col::status);
 	lemus::panel::drawPill(g, m_bar.help(), "?", m_help, m_hoverBar == lemus::panel::Bar::kHelp, barMono());
-	if (m_hoverBar != -1)
+	if (m_hoverBar != -1 && !m_help)
 		lemus::panel::drawBarTip(g, m_bar, m_hoverBar, getLocalBounds().toFloat(), barMono());
+}
+
+// The control under the mouse (or the knob being turned): its name and setting, or its computer
+// key, under it.
+void HardwareView::drawTip(juce::Graphics &g)
+{
+	juce::String text;
+	juce::Point<float> at;
+	if (m_rear) {
+		if (m_hoverJack < 0)
+			return;
+		const auto &j = m_jacks[size_t(m_hoverJack)];
+		text = juce::String(j.footswitch == 0 ? "BYPASS" : "ADVANCE") + " footswitch: click to press it";
+		at = {j.x * kPx, (rearJackY() + j.d / 2 + 2.0f) * kPx};
+	} else if (const int k = m_dragKnob >= 0 ? m_dragKnob : m_hoverKnob; k >= 0) {
+		const auto &knob = m_knobs[size_t(k)];
+		text = knob.name + "  " + (knob.param != nullptr ? knob.param->getCurrentValueAsText() : juce::String());
+		at = {knob.centre.x * kPx, (knob.centre.y + knob.d / 2 + 1.0f) * kPx};
+	} else if (m_hoverKey >= 0) {
+		const auto &key = m_keys[size_t(m_hoverKey)];
+		text = key.name;
+		for (const auto &c : computerKeys())
+			if (c.key == key.key)
+				text << "   (" << c.shown << ")";
+		at = {key.box.getCentreX() * kPx, (key.box.getBottom() + 0.8f) * kPx};
+	} else if (m_hoverPower) {
+		text = m_proc.powered() ? "POWER: on. Click to switch off (the battery keeps the programs and the edit)"
+		                        : "POWER: off. Click to switch on (the firmware starts again)";
+		at = {m_power.getCentreX() * kPx, (m_power.getBottom() + 1.0f) * kPx};
+	} else {
+		return;
+	}
+	lemus::panel::drawTooltip(g, text, at, getLocalBounds().toFloat(), barMono());
 }
 
 int HardwareView::knobAt(juce::Point<float> mm) const
@@ -502,20 +548,24 @@ int HardwareView::jackAt(juce::Point<float> mm) const
 	return -1;
 }
 
-void HardwareView::mouseMove(const juce::MouseEvent &e)
+void HardwareView::setHover(juce::Point<float> at)
 {
-	const auto mm = toMm(e.position);
-	const bool onPanel = e.position.y < float(kPanelHeight);
+	const auto mm = toMm(at);
+	const bool onPanel = at.y < float(kPanelHeight);
 	m_hoverKnob = onPanel && !m_rear ? knobAt(mm) : -1;
 	m_hoverKey = onPanel && !m_rear && m_hoverKnob < 0 ? keyAt(mm) : -1;
+	m_hoverPower = onPanel && !m_rear && m_hoverKnob < 0 && m_hoverKey < 0 && m_power.expanded(1.0f).contains(mm);
 	m_hoverJack = onPanel && m_rear ? jackAt(mm) : -1;
-	m_hoverBar = onPanel ? -1 : m_bar.hit(e.position);
+	m_hoverBar = onPanel ? -1 : m_bar.hit(at);
 	repaint();
 }
+
+void HardwareView::mouseMove(const juce::MouseEvent &e) { setHover(e.position); }
 
 void HardwareView::mouseExit(const juce::MouseEvent &)
 {
 	m_hoverKnob = m_hoverKey = m_hoverBar = m_hoverJack = -1;
+	m_hoverPower = false;
 	repaint();
 }
 
@@ -634,18 +684,16 @@ bool HardwareView::keyPressed(const juce::KeyPress &k)
 		return true;
 	case lemus::panel::Common::None: break;
 	}
-	static const std::map<int, int> map = {{juce::KeyPress::leftKey, 6},  {juce::KeyPress::rightKey, 7}, {juce::KeyPress::downKey, 2},
-	                                       {juce::KeyPress::upKey, 3},    {juce::KeyPress::returnKey, 10}, {'P', 11},
-	                                       {'B', 5}};
 	int code = k.getKeyCode();
 	if (code >= 'a' && code <= 'z')
 		code -= 32;
 	m_hardPress = k.getModifiers().isShiftDown();
-	const auto it = map.find(code);
-	if (it == map.end() || k.getModifiers().isCommandDown())
+	const auto &keys = computerKeys();
+	const auto it = std::find_if(keys.begin(), keys.end(), [code](const ComputerKey &c) { return c.code == code; });
+	if (it == keys.end() || k.getModifiers().isCommandDown())
 		return false;
 	for (size_t i = 0; i < m_keys.size(); ++i)
-		if (m_keys[i].key == it->second) {
+		if (m_keys[i].key == it->key) {
 			m_held.keyDown(k.getKeyCode(), int(i));
 			return true;
 		}

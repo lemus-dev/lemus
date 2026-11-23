@@ -12,8 +12,8 @@ agent.
 ## A machine, start to finish
 
 1. **Build, once:** phases 0-5, ending at a first playable machine.
-2. **Rounds, as many as it takes:** each is either accuracy or CPU, and each runs the same check
-   set before and after.
+2. **Rounds, as many as it takes:** each is accuracy, CPU or UX, and each runs the same check set
+   before and after.
 3. **Ship gate:** a threshold, not "everything done".
 
 The person behind the work signs off at phase 0, at phase 5, on each round's pick and result, and
@@ -221,14 +221,17 @@ captures with known knob positions and input levels.
 
 ## Rounds
 
-One kind per round, accuracy or CPU. Each moves the other, so both are measured every time.
+One kind per round: accuracy, CPU or UX. Accuracy and CPU move each other, so both are measured
+every time; a UX round runs the same set and leaves the sound alone.
 
 1. **Pick** items from improvements.md's plan. Skip anything under "Declined".
 2. **Baseline:** the whole check set; keep the numbers and the golden renders.
 3. **Change.**
 4. **Recheck the whole set.** An accuracy round states its CPU cost. A CPU round is bit-exact
    against the golden renders, or shows the sound difference (dB, cents, Hz, per workload) and asks.
-5. **Listen:** install it; if the sound moved, say what to listen for and in which A/B scenes.
+   A UX round is bit-exact against them: if the sound moved, it wasn't UX.
+5. **Listen:** install it; if the sound moved, say what to listen for and in which A/B scenes. A
+   UX round shows instead: a snapshot of each panel state it changed, and what to try.
 6. **Log:** a dated Done entry in improvements.md with before and after numbers; what didn't work
    under "Tried and dropped", what the person turned down under "Declined".
 
@@ -252,11 +255,38 @@ improvements.md is the one tracker, and it is public: it names no one ("decided 
   cost more (the 909 went from six to two, 14 % less), because the heaviest job sets the block.
 - Stop when fidelity-neutral trimming is used up; write down what's left and its size.
 
+**UX rounds**
+
+Everything a user meets around the sound, item by item against the README ("ROMs", "Artwork",
+"Machine panels") and against the shipped machines, which are the reference: where this machine
+does it differently, that is a finding.
+- **The panel's frame:** the bar (pills, their order and tooltips), the status line, the keys
+  (click, right-click latch, Escape), the computer keys and the key list, all from
+  `host/PanelFrame.h`. A per-machine copy of any of it is a finding, even when it looks the same.
+- **The controls:** drag, Shift for fine, double-click, the wheel, and the tooltip with the
+  control's name and value, as on the other machines; the key list says the same.
+- **The unit's life:** a plugin load is warm, not a power-on; the POWER switch boots; a session
+  reopens the whole unit as it was (memory, pattern, page, mode); the State pop-up's Reset is the
+  only reset, never a button the unit doesn't have.
+- **ROMs:** the prompt names each ROM the machine needs (name, size, SHA1, CRC; never where to get
+  one); a missing optional ROM gives the voice mode line.
+- **In a host:** parameter names and value text as the panel prints them, automation, MIDI as the
+  manual says, Space left to the host's transport, panel keys by place (QWERTZ and AZERTY play the
+  shape the key list shows, `host/KeyPlace.h`).
+- **The panel's art:** measured from photos with a stated scale, never placed by eye; brand marks
+  only from the artwork pack.
+
+Each finding is fixed in the machine, or is the unit's own behaviour (written down under
+"Behaviour and features" with the manual's words), or needs a change to `host/`, which is its own
+pull request and applies to every machine. Stop when every item holds or is the unit's own
+behaviour.
+
 ## Ship gate
 
 - Every service-manual check passes.
 - `<id>corners` passes: no unconverged solve anywhere in the controls' range.
 - The CPU budget in improvements.md is met.
+- A UX round has run since the panel last changed, and every item holds.
 - No open item marked as a release blocker.
 - The machine's README has its numbers, its known differences and what isn't emulated.
   "Compared with <maker>'s software" is a section apart from "validated against real units".

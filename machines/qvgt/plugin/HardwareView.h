@@ -40,6 +40,7 @@ public:
 	// Tools and tests.
 	void timerCallbackForTests() { timerCallback(); }
 	void showRear(bool on) { m_rear = on; repaint(); }
+	void hoverForTests(juce::Point<float> at) { setHover(at); }
 
 private:
 	struct KeyRef {
@@ -69,6 +70,8 @@ private:
 	void drawKey(juce::Graphics &g, const KeyRef &k, bool down, bool hover);
 	void drawLcd(juce::Graphics &g);
 	void drawBar(juce::Graphics &g);
+	void drawTip(juce::Graphics &g);
+	void setHover(juce::Point<float> at);
 	juce::Rectangle<float> toView(juce::Rectangle<float> mm) const { return mm * kPxPerMm; }
 	juce::Point<float> toMm(juce::Point<float> p) const { return p / kPxPerMm; }
 	int knobAt(juce::Point<float> mm) const;
@@ -89,6 +92,7 @@ private:
 	int m_hoverKnob = -1, m_hoverKey = -1, m_hoverBar = -1, m_hoverJack = -1;
 	int m_dragKnob = -1, m_mouseKey = -1, m_footswitch = -1;
 	float m_dragStart = 0, m_dragValue = 0;
+	bool m_hoverPower = false;
 	bool m_help = false, m_rear = false;
 	bool m_hardPress = false; // shift held with the last key press: a hard press
 	QVGTProcessor::Display m_display;
