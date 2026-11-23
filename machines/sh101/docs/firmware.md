@@ -283,6 +283,13 @@ firmware does note priority, legato, arpeggio and step entry itself:
 - Because T1 is polled once per loop, each half-period must exceed the longest loop (3.7 ms):
   about 135 Hz at 50 % duty, far above musical tempos.
 - SYNC off: the MODULATOR's square is the clock, and CLK RST (P24 low) restarts the MODULATOR.
+- Latency: the arpeggio steps at the loop that sees the clock edge (KCV 1.1-3.4 ms after it, 2.2
+  on average), the sequencer a loop later (the gate drops for that loop, then rises with the new
+  KCV: 3.6-6.3 ms, 4.9 on average), and a MIDI note's gate rises 2.1-4.1 ms after the note (3.0,
+  the key scan). The plugin reports 3.5 ms with the voice's own latency, so the host puts the
+  arpeggio's steps 1.3 ms before its grid and the sequencer's 1.4 ms after, on average, and holds
+  the host's MIDI back by 0.5 ms (3.5 in voice mode), so notes land on the grid
+  (`sh101plugintest`, "Host sync latency").
 
 ## Phase-2 mapping (done)
 

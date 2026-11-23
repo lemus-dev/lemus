@@ -252,7 +252,10 @@ void TR808Processor::prepareToPlay(double sampleRate, int)
 	m_cpuPulse = m_midiPulse = 0;
 	m_pulseLevel = false;
 	m_lastPulses = m_machine.stepPulses();
-	setLatencySamples(0);
+	m_heldFirst = m_heldCount = 0;
+	m_samples = 0;
+	m_latency = juce::roundToInt(kLatencySeconds * sampleRate);
+	setLatencySamples(m_latency);
 }
 
 tr808::Controls TR808Processor::currentControls() const
@@ -654,9 +657,22 @@ void TR808Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	const int monoSamples = std::max(1, int(0.0012 * m_rate));
 	for (int i = 0; i < n; ++i) {
 		while (midiIt != midi.cend() && (*midiIt).samplePosition <= i) {
-			if (power)
-				handleMidi((*midiIt).getMessage(), i);
+			const auto m = (*midiIt).getMessage();
+			if (m.isNoteOn() && m_heldCount < int(m_held.size())) {
+				// held back by the latency, as the CPU's steps are late (kLatencySeconds)
+				m_held[size_t((m_heldFirst + m_heldCount++) % int(m_held.size()))] = {
+				    m_samples + i + m_latency, juce::uint8(m.getNoteNumber()), m.getVelocity()};
+			} else if (power) {
+				handleMidi(m, i);
+			}
 			++midiIt;
+		}
+		while (m_heldCount > 0 && m_held[size_t(m_heldFirst)].due <= m_samples + i) {
+			const auto h = m_held[size_t(m_heldFirst)];
+			m_heldFirst = (m_heldFirst + 1) % int(m_held.size());
+			--m_heldCount;
+			if (power)
+				handleMidi(juce::MidiMessage::noteOn(10, h.note, h.velocity), i);
 		}
 		// The 24 ppqn clock: the internal one runs while stopped too; with SYNC, the host's.
 		bool clock = power && m_clock.advance(1.0 / m_rate, knobBpm, m_internalRun);
@@ -724,6 +740,7 @@ void TR808Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	}
 	if (n > done)
 		renderBoard(out + done, n - done, done);
+	m_samples += n;
 	// POWER: the output fades over 5 ms as the switch goes off (and back as it goes on)
 	if (!power || m_outGain < 1.0f) {
 		const float target = power ? 1.0f : 0.0f, stepGain = float(1.0 / (0.005 * m_rate));

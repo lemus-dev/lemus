@@ -43,6 +43,12 @@ export const machines: Machine[] = [
     release: { version: '0.2.5', tag: 'ro-mono-303-v0.2.5', stage: 'beta', mac: 'ro-mono-303-0.2.5-mac.pkg', windows: 'ro-mono-303-0.2.5-windows.zip' },
     changes: [
       {
+        version: '0.2.6',
+        notes: [
+          "With Sync to Host on, the pattern now lands on the DAW's grid in playback and bounces: the plugin reports the firmware's 1.6 ms lag behind the clock as its latency, so the DAW takes it off. MIDI notes are held back to match.",
+        ],
+      },
+      {
         version: '0.2.5',
         notes: [
           'A reopened song keeps its selected pattern. Sessions now save and load the whole unit, CPU included, instead of starting it as at power-on; only the POWER switch does that. Songs saved with earlier versions reopen on their pattern too.',
@@ -133,6 +139,12 @@ export const machines: Machine[] = [
     release: { version: '0.2.5', tag: 'ro-drums-909-v0.2.5', stage: 'beta', mac: 'ro-drums-909-0.2.5-mac.pkg', windows: 'ro-drums-909-0.2.5-windows.zip' },
     changes: [
       {
+        version: '0.2.6',
+        notes: [
+          "With SYNC on HOST, the patterns now land on the DAW's grid in playback and bounces: the plugin reports the firmware's 3.2 ms lag behind the MIDI clock as its latency, so the DAW takes it off. MIDI notes are held back 1.4 ms to match (the firmware takes the rest).",
+        ],
+      },
+      {
         version: '0.2.5',
         notes: [
           "With SYNC on HOST and the DAW's loop on, the 909 now plays every pass of the loop. Before, it stopped at the loop's end and stayed silent.",
@@ -181,6 +193,12 @@ export const machines: Machine[] = [
     nav: true,
     release: { version: '0.1.4', tag: 'ro-drums-808-v0.1.4', stage: 'beta', mac: 'ro-drums-808-0.1.4-mac.pkg', windows: 'ro-drums-808-0.1.4-windows.zip' },
     changes: [
+      {
+        version: '0.1.5',
+        notes: [
+          "With SYNC on HOST, the rhythm now lands on the DAW's grid in playback and bounces: the plugin reports the 4 ms its steps came after the grid as its latency, so the DAW takes it off. MIDI notes are held back to match.",
+        ],
+      },
       {
         version: '0.1.4',
         notes: [
@@ -248,6 +266,12 @@ export const machines: Machine[] = [
     nav: true,
     release: { version: '0.1.3', tag: 'ro-mono-101-v0.1.3', stage: 'beta', mac: 'ro-mono-101-0.1.3-mac.pkg', windows: 'ro-mono-101-0.1.3-windows.zip' },
     changes: [
+      {
+        version: '0.1.4',
+        notes: [
+          "With Sync to Host on, the arpeggio and sequence now land within about 1.4 ms of the DAW's grid in playback and bounces (the arpeggio just before, the sequence just after: the firmware steps them a CPU loop apart): the plugin reports 3.5 ms of firmware lag with its latency. MIDI notes are held back to match.",
+        ],
+      },
       {
         version: '0.1.3',
         notes: [

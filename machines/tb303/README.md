@@ -75,7 +75,10 @@ Like the original, there are no factory patterns: a new instance has every patte
 CLEAR leaves it (16 steps, all rest). Pattern memory is saved with the session.
 
 - **Sync** (off by default): with SYNC on and the host playing, the host transport is the DIN
-  sync input (run level and a 24 ppqn clock), so the pattern starts with the transport. Leave it
+  sync input (run level and a 24 ppqn clock), so the pattern starts with the transport. The
+  firmware's steps come about 1.6 ms after the host's grid, as on a real 303 on DIN sync; the
+  plugin reports that as its latency, so the host lines them up with the grid, and holds MIDI
+  back by as much. Leave it
   off when you play the voice from MIDI, or the 303's own pattern runs alongside your notes.
   With SYNC off, RUN/STOP and TEMPO (40-300 BPM) run the internal clock.
 - **The unit:** the trims and the part values the schematic leaves open are fitted to a real

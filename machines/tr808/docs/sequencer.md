@@ -86,8 +86,10 @@ from COMPOSE (they share a code) [FW].
 - **SYNC** (plugin, off by default): with SYNC on and the host playing, the host's transport is
   the DIN sync input: RUN follows play, and a 24 ppqn clock follows the host's beat position
   (its rising edges 2 ms after the grid). The firmware steps on the first rising edge after RUN,
-  so steps land 4.5-5 ms after the host's grid (`tr808plugintest`: 16 of 16 onsets within 12 ms
-  of the grid, the first at 5.0 ms). The pattern starts where the host starts; there is no song
+  so steps land about 4 ms after the host's grid (4-6 ms by the rim shot's onset). The plugin
+  reports 4.0 ms as its latency, so the host takes it off and the steps sit on its grid, and
+  holds MIDI note-ons back by as much, so they stay on theirs (`tr808plugintest`: the steps start
+  0.1-1.9 ms after the grid, 1.0 on average, as MIDI's notes do). The pattern starts where the host starts; there is no song
   position (the 808 has none). When the host stops, the 808 stops; START/STOP runs it on its own
   again afterwards.
 - RESET & START (DIN pin 4) is wired in `Machine` but the plugin doesn't drive it.

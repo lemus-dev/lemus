@@ -53,6 +53,11 @@ public:
 	// sound: a change to the model that changes the sound bumps kModelVersion and keeps the old
 	// behaviour for sessions saved with an older version. Sessions saved before there was one are 1.
 	static constexpr int kModelVersion = 1;
+	// With SYNC, the sequencer's gate rises about 1.6 ms after the host's grid on average: the
+	// firmware's 1.8 ms interrupt polls the clock (each step lands 0.9-2.6 ms after its edge). The
+	// plugin reports that as its latency, so the host lines the steps up with its grid, and holds
+	// MIDI back by as much (it skips the CPU), so notes stay on theirs.
+	static constexpr double kLatencySeconds = 0.0016;
 	int modelVersion() const { return m_modelVersion; }
 	const lemus::Artwork &artwork() const { return m_artwork; }
 	void setArtwork(lemus::Artwork artwork) override { m_artwork = std::move(artwork); } // the view reads it when it's built
@@ -143,6 +148,16 @@ private:
 	bool m_hostWasPlaying = false;
 	bool m_midiActive = false;
 	bool m_linesStale = false; // a session loaded the board: its lines go to the voice
+	// The host's MIDI, held back by the latency (kLatencySeconds) until it is due.
+	struct HeldMidi {
+		int64_t due; // in samples since prepareToPlay
+		uint8_t data[3];
+		uint8_t size;
+	};
+	std::array<HeldMidi, 512> m_held{};
+	int m_heldFirst = 0, m_heldCount = 0;
+	int64_t m_samples = 0; // since prepareToPlay, at the block's start
+	int m_latency = 0;
 
 	// UI -> machine queue
 	struct KeyEvent {

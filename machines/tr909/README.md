@@ -140,7 +140,10 @@ SCALE, LAST STEP, TRACK WRITE, BANK, COPY/INS/DEL. The memory is saved with the 
   the plugin (the host has its own transport).
 - **Sync** (off by default): SYNC puts the firmware in its MIDI sync mode (SHIFT + TEMPO MODE,
   pressed for it while the sequencer is stopped) and sends it the host transport as MIDI clock,
-  start or song position and continue, and stop. With SYNC off, START, STOP/CONT and TEMPO (36-290
+  start or song position and continue, and stop. The firmware's steps come about 3.2 ms after the
+  host's grid (it takes each clock at its panel scan), as on a real 909 on MIDI sync; the plugin
+  reports that as its latency, so the host lines them up with the grid, and holds the host's MIDI
+  back by the difference to a note's own 1.8 ms, so notes stay on theirs. With SYNC off, START, STOP/CONT and TEMPO (36-290
   BPM, the firmware's own law) run the internal clock.
 - **Outputs**: the main stereo pair is the master L and R outputs, with the jack board's fixed
   panning (LT and ride left, HT and the hi-hats right, the crash a little right) and its phase

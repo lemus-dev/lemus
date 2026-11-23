@@ -105,7 +105,9 @@ new instance, its factory rhythms included.
 
 - **Sync** (off by default): with SYNC on and the host playing, the host transport is the DIN sync
   input (RUN and a 24 ppqn clock), so the rhythm starts with the transport and follows its tempo.
-  With SYNC off, START/STOP, TEMPO and FINE run the internal clock (about 30-300 BPM).
+  The firmware's steps come about 4 ms after the host's grid, as on a real 808 on DIN sync; the
+  plugin reports that as its latency, so the host lines them up with the grid, and holds MIDI
+  notes back by as much. With SYNC off, START/STOP, TEMPO and FINE run the internal clock (about 30-300 BPM).
 - **MIDI** plays the voices directly, as Roland's TR-08 does, alongside the sequencer: General MIDI
   drum notes (36 BD, 38 SD, 37 RS, 75 claves, 39 CP, 70 maracas, 41/43 LT, 45/47 MT, 48/50 HT,
   64/63/62 congas, 42 CH, 46 OH, 49 CY, 56 CB). Velocity 100 or more accents. The conga, claves and
@@ -207,8 +209,8 @@ Checked four ways; the numbers are in `docs/model.md`, "Validation".
 
 - **The firmware:** the original ROM runs the sequencer; its I/O map and RAM format were worked
   out against the owner's manual procedure by procedure (`docs/firmware.md`), and the plugin's
-  tests check it in time with a host transport (16 of 16 steps within 12 ms of the grid, 5 ms
-  late as DIN sync makes it) and on its own clock.
+  tests check it in time with a host transport (with the reported latency taken off, the steps
+  start where MIDI's notes do on average, each within 1.5 ms of that) and on its own clock.
 - **The schematic, in SPICE:** every netlist against ngspice on the same circuit: BD, SD, the
   toms and congas, cowbell, clap, rim shot, accent, noise and mixer within 0.3 % RMS, maracas
   within 0.6 %, the cymbal within 1.4 % and the hats within 4 % (they run at twice the board's

@@ -131,8 +131,9 @@ Reset.
   stretch presses.
 - DIN sync: the firmware steps on the first rising clock edge after RUN goes high. The plugin
   feeds the host's transport as RUN and a 24 ppqn clock (SYNC on); its clock edges lag the host
-  grid by 2 ms, so steps land 4.5-5 ms after the grid (the first onset at 5.0 ms). Checked in
-  `tr808plugintest` ("sync on grid").
+  grid by 2 ms, so steps land about 4 ms after the grid. The plugin reports 4.0 ms as its
+  latency and holds MIDI note-ons back by as much (docs/sequencer.md, SYNC). Checked in
+  `tr808plugintest`.
 
 ## Verification runs
 

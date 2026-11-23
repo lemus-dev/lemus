@@ -132,7 +132,10 @@ The tempo clock is therefore only **polled every 1.8 ms**:
   run, 1 ms pulses lost steps, while 4 ms pulses and 50 % duty were clean from 40 to 300 BPM.
 - Step onsets jitter by one ISR period, plus main-loop latency. At 120 BPM the strobe came
   0.9–2.6 ms after the clock edge and steps measured 124.05–126.09 ms (nominal 125). This is
-  authentic behaviour of the unit.
+  authentic behaviour of the unit. The plugin, its clock edges on the host's grid in SYNC, reports
+  the average, 1.6 ms, as its latency and holds MIDI back by as much, so the host lines both up
+  with its grid (`tb303plugintest`: less the latency, the gates rise -0.7 to +0.6 ms from the
+  16ths; the first after a start 2.8 ms, its edge coming with RUN).
 - Gate length in the model, over 743 sixteenth and 66 triplet steps:
   - Sixteenths: 3 clocks (62.8–65.2 ms at 120 BPM). It goes off on the third clock rising
     edge after the edge that started the step.

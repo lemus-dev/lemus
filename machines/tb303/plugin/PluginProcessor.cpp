@@ -2,6 +2,7 @@
 #include "PluginEditor.h"
 
 
+#include <algorithm>
 #include <cmath>
 #include <utility>
 
@@ -255,7 +256,10 @@ void TB303Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	m_voice.setControls(currentControls());
 	m_voice.prepare(sampleRate);
 	wake();
-	setLatencySamples(0);
+	m_heldFirst = m_heldCount = 0;
+	m_samples = 0;
+	m_latency = juce::roundToInt(kLatencySeconds * sampleRate);
+	setLatencySamples(m_latency);
 }
 
 bool TB303Processor::calibrationChanged()
@@ -390,7 +394,15 @@ void TB303Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 		}
 	}
 	if (!power) {
+		// switched off: the notes held back are dropped, their controls still turn
+		for (; m_heldCount > 0; --m_heldCount, m_heldFirst = (m_heldFirst + 1) % int(m_held.size())) {
+			const auto &h = m_held[size_t(m_heldFirst)];
+			const juce::MidiMessage m(h.data, int(h.size), 0.0);
+			if (m.isController())
+				handleMidi(m);
+		}
 		processPoweredOff(buffer, midi);
+		m_samples += n;
 		return;
 	}
 
@@ -433,11 +445,26 @@ void TB303Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	int done = 0;
 	bool linesDirty = std::exchange(m_linesStale, false); // a loaded board's lines to the voice
 	for (int i = 0; i < n; ++i) {
-		// MIDI at this sample
+		// MIDI at this sample, held back by the latency (the CPU's steps are as late, kLatencySeconds)
 		while (midiIt != midi.cend() && (*midiIt).samplePosition <= i) {
-			handleMidi((*midiIt).getMessage());
-			linesDirty = true;
+			const auto m = (*midiIt).getMessage();
+			if (m.getRawDataSize() <= 3 && m_heldCount < int(m_held.size())) {
+				auto &h = m_held[size_t((m_heldFirst + m_heldCount++) % int(m_held.size()))];
+				h.due = m_samples + i + m_latency;
+				h.size = uint8_t(m.getRawDataSize());
+				std::copy_n(m.getRawData(), h.size, h.data);
+			} else {
+				handleMidi(m);
+				linesDirty = true;
+			}
 			++midiIt;
+		}
+		while (m_heldCount > 0 && m_held[size_t(m_heldFirst)].due <= m_samples + i) {
+			const auto &h = m_held[size_t(m_heldFirst)];
+			handleMidi(juce::MidiMessage(h.data, int(h.size), 0.0));
+			m_heldFirst = (m_heldFirst + 1) % int(m_held.size());
+			--m_heldCount;
+			linesDirty = true;
 		}
 		// 24 ppqn clock, high for the first half of each period: the host's as DIN sync, or the
 		// internal one, which runs while stopped too (the DIN jack only switches between them).
@@ -483,6 +510,7 @@ void TB303Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	}
 	for (int ch = 1; ch < channels; ++ch)
 		buffer.copyFrom(ch, 0, buffer, 0, 0, n);
+	m_samples += n;
 
 	Snapshot s;
 	for (size_t l = 0; l < s.leds.size(); ++l)

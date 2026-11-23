@@ -30,6 +30,14 @@ public:
 	// artwork: the panel's brand marks (host/Artwork.h), none by default.
 	explicit SH101Processor(const juce::MemoryBlock *rom, lemus::Artwork artwork = {});
 	~SH101Processor() override = default;
+	// With SYNC, the firmware's steps come one CPU loop or two after the host's grid: the
+	// arpeggio's about 2.2 ms (the KCV moves at the loop that sees the clock edge), the sequencer's
+	// about 4.9 ms (the gate drops for that loop, then rises with the new note). The plugin reports
+	// the middle, 3.5 ms, with the voice's own latency, so the host puts both within about 1.4 ms of
+	// its grid, and holds the host's MIDI back by the difference to a note's own lag (about 3.0 ms
+	// through the key scan; all of it in voice mode), so notes stay on theirs.
+	static constexpr double kLatencySeconds = 0.0035;
+	static constexpr double kFirmwareNoteSeconds = 0.0030;
 
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override;
 	void releaseResources() override {}
@@ -171,6 +179,15 @@ private:
 	sh101::Performance m_lastPerf;
 
 	bool m_hostWasPlaying = false; // synced to a playing host in the last block
+	// The host's MIDI, held back until it is due (kLatencySeconds, kFirmwareNoteSeconds).
+	struct HeldMidi {
+		int64_t due; // in samples since prepareToPlay
+		uint8_t data[3];
+		uint8_t size;
+	};
+	std::array<HeldMidi, 512> m_held{};
+	int m_heldFirst = 0, m_heldCount = 0;
+	int64_t m_samples = 0; // since prepareToPlay, at the block's start
 	double m_syncStartPpq = 0;     // where the host clock's first edge is
 	double m_midiBend = 0, m_midiMod = 0;
 	std::atomic<double> m_uiBend{0}, m_uiMod{0};

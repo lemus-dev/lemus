@@ -319,7 +319,13 @@ a middle 0 in MIDI and a left 0 in DIN (OM p.34).
   next panel scan: one that comes before the last has been taken mixes with it. FC then at once
   FA (and F8) plays one step and stops; FA and F8 then at once FC leaves each later start
   playing one step and stopping. 2 ms apart they are taken one by one (on the emulated board,
-  the hardware's firmware; the plugin's host sync keeps them 4 ms apart).
+  the hardware's firmware; the plugin's host sync keeps them 4 ms apart). The plugin sends its
+  F8s on the host's grid, so the steps reach the voices 3.2 ms after it on average (the timing
+  table's "MIDI clock to step"), a note's 1.8 ms after it ("MIDI note-on to trigger" and the
+  message's bytes): it reports 3.2 ms as its latency and holds the host's MIDI back by the
+  difference, all of the latency in voice mode (`tr909plugintest`, "sync latency": less the
+  latency, the factory pattern's BD starts 1.8-2.9 ms after the grid, 2.3 on average, as a
+  voice-mode note's does after its note: 2.4, the BD's own rise).
 - **DIN** (rear SYNC IN, SN p.12: 1 START/STOP, 3 TEMPO, 5 CONTINUE). START/STOP high runs it
   and sends FA (raised together with a clock edge, the first step comes on the next edge);
   CONTINUE high with it continues and sends FB; START/STOP low stops and sends FC. Each clock edge is handled like an

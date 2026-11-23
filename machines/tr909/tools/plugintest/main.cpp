@@ -343,6 +343,104 @@ void hostLoop(const Roms &r, double rate, bool reportLoop, bool split = false, d
 	same(loop, run(p, ph, double(pre + bar) / rate, rate), pre, "the first bar after a beat of pre-roll");
 }
 
+// Each hit's start on channel `ch` against the grid line it belongs to (every `period` s from
+// `from` s), less `latency` samples (what the host takes off): in the window from 3 ms before the
+// line to 12 ms after, where the level (abs, 0.25 ms average) first rises a tenth of the way from
+// the tail before it (the highest level in the 15 ms before the window: a BD rings at 50 Hz or
+// so) to the window's peak. Lines without a new hit (12 dB over that tail) are skipped.
+std::vector<double> hitLags(const juce::AudioBuffer<float> &b, int ch, double rate, double from, double period, int latency)
+{
+	const int w = std::max(1, int(0.00025 * rate));
+	auto level = [&](int i) {
+		double s = 0;
+		for (int j = std::max(0, i - w + 1); j <= i; ++j)
+			s += std::abs(b.getSample(ch, j));
+		return s / w;
+	};
+	std::vector<double> lags;
+	for (int k = 0;; ++k) {
+		const double line = from + k * period;
+		const int a = int(std::lround((line - 0.003) * rate)) + latency, e = a + int(0.015 * rate);
+		if (e >= b.getNumSamples())
+			break;
+		const int tailFrom = a - int(0.015 * rate);
+		if (tailFrom < w)
+			continue;
+		double before = 0;
+		for (int i = tailFrom; i < a; ++i)
+			before = std::max(before, level(i));
+		double peak = before;
+		for (int i = a; i < e; ++i)
+			peak = std::max(peak, level(i));
+		if (peak < 1e-3 || peak < 4 * before)
+			continue;
+		for (int i = a; i < e; ++i)
+			if (level(i) > before + 0.1 * (peak - before)) {
+				lags.push_back((i - latency) / rate - line);
+				break;
+			}
+	}
+	return lags;
+}
+
+// The reported latency is the firmware's lag behind the host's grid in SYNC: the factory pattern's
+// BD (at its MULTI OUT) starts that long after the grid on average, each step within the panel
+// scan of that, where voice mode's (no firmware: the note's BD at once) starts after its note; a
+// MIDI note's BD through the firmware starts there too on average (the firmware takes notes at
+// its scan; the plugin holds them back by the rest), so with the latency taken off all three sit
+// on the grid.
+void syncLatency(const Roms &r, double rate)
+{
+	TR909Processor p(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+	allJacks(p);
+	FakePlayHead ph;
+	p.setPlayHead(&ph);
+	p.prepareToPlay(rate, 512);
+	run(p, ph, 3.0, rate); // past the power-on mute
+	set(p, "sync", 1.0f);
+	run(p, ph, 1.0, rate);
+	const int latency = p.getLatencySamples(), bd = 2 + int(tr909::Voice::BD);
+	const double sixteenth = 60.0 / ph.bpm / 4;
+	ph.playing = true;
+	ph.ppq = 0;
+	const auto played = run(p, ph, 8 * 4 * 60.0 / ph.bpm, rate, nullptr, true);
+	ph.playing = false;
+	run(p, ph, 1.0, rate);
+	auto steps = hitLags(played, bd, rate, 0, sixteenth, latency);
+	juce::MidiBuffer notes;
+	for (int k = 0; k < 16; ++k)
+		notes.addEvent(juce::MidiMessage::noteOn(10, TR909Processor::noteFor(tr909::Voice::BD), juce::uint8(100)),
+		               int(std::lround((0.1 + k * 0.25) * rate)));
+	const auto byMidi = run(p, ph, 4.5, rate, &notes, true);
+	const auto midiLags = hitLags(byMidi, bd, rate, 0.1, 0.25, latency);
+	// the voice alone: voice mode (no firmware) plays a note's BD at once, after the latency
+	TR909Processor bare(nullptr, &r.hh, &r.cr, &r.rd);
+	allJacks(bare);
+	FakePlayHead stopped;
+	bare.setPlayHead(&stopped);
+	bare.prepareToPlay(rate, 512);
+	run(bare, stopped, 3.0, rate);
+	const auto voiceLags = hitLags(run(bare, stopped, 4.5, rate, &notes, true), bd, rate, 0.1, 0.25, bare.getLatencySamples());
+	auto stats = [](const std::vector<double> &v) {
+		double lo = 1, hi = -1, s = 0;
+		for (double x : v) {
+			lo = std::min(lo, x);
+			hi = std::max(hi, x);
+			s += x;
+		}
+		return std::array<double, 3>{v.empty() ? 0 : s / double(v.size()), lo, hi};
+	};
+	const auto st = stats(steps), mi = stats(midiLags), vo = stats(voiceLags);
+	std::printf("      latency %d samples (%.2f ms); less that, the pattern's BD starts %.2f ms after the grid on average (%.2f to %.2f, %zu "
+	            "hits), MIDI's %.2f (%.2f to %.2f), voice mode's %.2f\n",
+	            latency, latency * 1000 / rate, st[0] * 1000, st[1] * 1000, st[2] * 1000, steps.size(), mi[0] * 1000, mi[1] * 1000,
+	            mi[2] * 1000, vo[0] * 1000);
+	check(steps.size() >= 16 && voiceLags.size() == 16 && std::abs(st[0] - vo[0]) < 0.0005,
+	      "sync latency: with it taken off, the sequencer's BD starts where voice mode's does (on its note), on average");
+	check(st[1] - vo[0] > -0.0015 && st[2] - vo[0] < 0.0015, "sync latency: each step within 1.5 ms of that");
+	check(midiLags.size() == 16 && std::abs(mi[0] - vo[0]) < 0.0005, "sync latency: and MIDI's BD, through the firmware, there too on average");
+}
+
 // The factory patterns (from the v1.0 ROM's loader): a new instance holds them, START plays
 // pattern 1, the sequencer's run state follows, and STOP/CONT stops it.
 void factory(const Roms &r, const juce::File &dir, double rate)
@@ -1067,6 +1165,7 @@ int main(int argc, char **argv)
 	}
 	if (r.v1.getSize() == 8192) {
 		factory(r, dir, 48000);
+		syncLatency(r, 48000);
 		hostLoop(r, 48000, true);
 		hostLoop(r, 48000, false);
 		hostLoop(r, 48000, true, true, 133);

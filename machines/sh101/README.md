@@ -123,7 +123,10 @@ projects as they were.
 - **Sync** (off by default) works like a cable in EXT CLK IN:
   - With SYNC on, the host transport clocks the arpeggio and sequencer, a step per 1/16 (clicking
     SYNC steps through 1/16, 1/8, 1/4, 1/32, 1/16T, 1/8T and back to OFF; shift-click goes back),
-    starting on the grid. While the host is stopped there is no clock.
+    starting on the grid. While the host is stopped there is no clock. The firmware's steps come a
+    CPU loop or two after the grid (the arpeggio's about 2.2 ms, the sequencer's about 4.9), as on a
+    real SH-101; the plugin reports the middle, 3.5 ms, as part of its latency, so the host puts
+    both within about 1.4 ms of the grid, and holds MIDI back by as much as keeps notes on theirs.
   - With SYNC off, the MODULATOR's square clocks them, as with nothing plugged in.
 
   Either way the arpeggio and sequencer run only when PLAY or an arpeggio button is on, never from

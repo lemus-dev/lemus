@@ -67,6 +67,33 @@ juce::AudioBuffer<float> run(TB303Processor &p, FakePlayHead &ph, double seconds
 	return out;
 }
 
+// The times the gate the voice follows (the sequencer's or MIDI's) rises, run in blocks of 8
+// samples (the snapshot is the block's end).
+std::vector<double> gateRises(TB303Processor &p, FakePlayHead &ph, double seconds, double rate, juce::MidiBuffer *midiAll = nullptr)
+{
+	const int block = 8;
+	const int total = int(seconds * rate);
+	juce::AudioBuffer<float> buf(2, block);
+	std::vector<double> rises;
+	bool last = p.snapshot().lines.gate;
+	for (int pos = 0; pos < total; pos += block) {
+		juce::MidiBuffer midi;
+		if (midiAll)
+			for (const auto m : *midiAll)
+				if (m.samplePosition >= pos && m.samplePosition < pos + block)
+					midi.addEvent(m.getMessage(), m.samplePosition - pos);
+		buf.clear();
+		p.processBlock(buf, midi);
+		const bool gate = p.snapshot().lines.gate;
+		if (gate && !last)
+			rises.push_back((pos + block * 0.5) / rate);
+		last = gate;
+		if (ph.playing)
+			ph.ppq += block / rate * ph.bpm / 60.0;
+	}
+	return rises;
+}
+
 void save(const juce::File &dir, const char *name, const juce::AudioBuffer<float> &b, double rate)
 {
 	if (dir == juce::File())
@@ -162,6 +189,49 @@ int main(int argc, char **argv)
 	check(loud >= 12, "sequencer plays with host transport");
 	ph.playing = false;
 	run(p, ph, 0.5, rate);
+
+	// 2c. The reported latency is the firmware's lag behind the host's grid in SYNC: the gate rises
+	// that long after each 16th on average, each within the ISR's polling (1.8 ms) of that; a MIDI
+	// note's gate rises that long after the note (held back by as much), so with the latency taken
+	// off both sit on the grid. The first step after a start comes about 3 ms later: its clock edge
+	// comes with RUN, and the firmware takes it at its next ISR, as a 303 does (docs/sequencer.md).
+	{
+		const double step = 60.0 / ph.bpm / 4, L = p.getLatencySamples() / rate;
+		ph.playing = true;
+		ph.ppq = 0;
+		std::vector<double> lags;
+		for (double t : gateRises(p, ph, 4.0, rate))
+			lags.push_back(t - std::floor((t + 0.005) / step) * step - L);
+		ph.playing = false;
+		run(p, ph, 0.5, rate);
+		juce::MidiBuffer notes;
+		for (int k = 0; k < 8; ++k) {
+			notes.addEvent(juce::MidiMessage::noteOn(1, 48, uint8_t(80)), int(std::lround((0.1 + k * 2 * step) * rate)));
+			notes.addEvent(juce::MidiMessage::noteOff(1, 48), int(std::lround((0.1 + (k * 2 + 1) * step) * rate)));
+		}
+		std::vector<double> midiLags;
+		for (double t : gateRises(p, ph, 0.1 + 18 * step, rate, &notes))
+			midiLags.push_back(t - 0.1 - std::floor((t - 0.1 + 0.005) / (2 * step)) * 2 * step - L);
+		double lo = 1, hi = -1, sum = 0, midiSum = 0;
+		const double first = lags.empty() ? 1.0 : lags.front();
+		if (!lags.empty())
+			lags.erase(lags.begin());
+		for (double l : lags) {
+			lo = std::min(lo, l);
+			hi = std::max(hi, l);
+			sum += l;
+		}
+		for (double l : midiLags)
+			midiSum += l;
+		const double avg = sum / std::max<size_t>(1, lags.size()), midiAvg = midiSum / std::max<size_t>(1, midiLags.size());
+		std::printf("      latency %d samples (%.2f ms); less that, the gates rise %.2f ms after the 16ths on average (%.2f to %.2f; "
+		            "the first after the start %.2f), MIDI's %.2f after their notes\n",
+		            p.getLatencySamples(), L * 1000, avg * 1000, lo * 1000, hi * 1000, first * 1000, midiAvg * 1000);
+		check(lags.size() >= 25 && std::abs(avg) < 0.0005, "with the latency taken off, the sequencer's gates rise on the grid on average");
+		check(lo > -0.0015 && hi < 0.0015, "each within 1.5 ms of it");
+		check(first > 0 && first < 0.0035, "the first after the start within 3.5 ms");
+		check(midiLags.size() == 8 && std::abs(midiAvg) < 0.0003, "and MIDI's gates on their notes");
+	}
 
 	// 3. MIDI note with the host stopped plays the voice; velocity 127 accents.
 	p.params().getParameter("accent")->setValueNotifyingHost(1.0f);

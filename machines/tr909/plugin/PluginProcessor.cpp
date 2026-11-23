@@ -268,7 +268,11 @@ void TR909Processor::prepareToPlay(double sampleRate, int)
 	m_asleep = false;
 	m_voiceTrig.fill(0);
 	m_trigSamples = std::max(1, int(std::lround(0.002 * sampleRate)));
-	setLatencySamples(0);
+	m_heldMidi.clear();
+	m_heldMidi.reserve(256);
+	m_samples = 0;
+	m_latency = juce::roundToInt(kLatencySeconds * sampleRate);
+	setLatencySamples(m_latency);
 }
 
 void TR909Processor::setPower(bool on)
@@ -629,11 +633,14 @@ void TR909Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	if (isSuspended()) {
 		buffer.clear();
 		midi.clear();
+		m_samples += buffer.getNumSamples();
 		return;
 	}
 	if (!m_powered) { // switched off: nothing runs, nothing comes out
 		buffer.clear();
 		midi.clear();
+		m_heldMidi.clear();
+		m_samples += buffer.getNumSamples();
 		{
 			const juce::SpinLock::ScopedLockType lock(m_queueLock);
 			m_queue.clear();
@@ -704,9 +711,20 @@ void TR909Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	runSync(transport, n, events);
 	for (size_t k = 0; k + 2 < uiMidi.size(); k += 3)
 		events.push_back({0, {uiMidi[k], uiMidi[k + 1], uiMidi[k + 2]}});
-	for (const auto meta : midi) {
-		const auto m = meta.getMessage();
-		events.push_back({meta.samplePosition, std::vector<uint8_t>(m.getRawData(), m.getRawData() + m.getRawDataSize())});
+	{
+		// the host's MIDI, held back until due: the latency less the firmware's own lag on a note
+		// (all of the latency in voice mode), so notes land where the steps do
+		const int hold = m_romOk ? m_latency - juce::roundToInt(kFirmwareNoteSeconds * m_rate) : m_latency;
+		for (const auto meta : midi) {
+			const auto m = meta.getMessage();
+			m_heldMidi.push_back({m_samples + meta.samplePosition + hold, std::vector<uint8_t>(m.getRawData(), m.getRawData() + m.getRawDataSize())});
+		}
+		size_t due = 0;
+		while (due < m_heldMidi.size() && m_heldMidi[due].due < m_samples + n) {
+			events.push_back({int(std::max<int64_t>(0, m_heldMidi[due].due - m_samples)), std::move(m_heldMidi[due].bytes)});
+			++due;
+		}
+		m_heldMidi.erase(m_heldMidi.begin(), m_heldMidi.begin() + std::ptrdiff_t(due));
 	}
 	std::stable_sort(events.begin(), events.end(), [](const auto &a, const auto &b) { return a.first < b.first; });
 	juce::MidiBuffer midiOut;
@@ -804,6 +822,7 @@ void TR909Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 		pos = next;
 	}
 	renderTo(n);
+	m_samples += n;
 	midi.swapWith(midiOut); // out: the MIDI OUT jack's messages, not the input
 	if (!m_asleep && !m_probing && m_board.asleep())
 		m_asleep = true;

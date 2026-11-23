@@ -140,6 +140,13 @@ public:
 	static uint16_t noteVoice(int note);
 	static constexpr int kAccentVelocity = 100;
 
+	// With SYNC, a step reaches the trig about 4 ms after the host's grid on average: the clock's
+	// edges come 2 ms after the grid (the firmware needs RUN up before the first), and the firmware
+	// polls the clock every 1.9 ms (so each step lands within about 1 ms of that). The plugin reports
+	// that as its latency, so the host lines the steps up with its grid, and holds MIDI notes (which
+	// skip the CPU) back by as much, so they stay on theirs.
+	static constexpr double kLatencySeconds = 0.0040;
+
 	static constexpr const char *kModeId = "mode";
 	static constexpr const char *kInstrumentId = "instrument";
 
@@ -205,6 +212,15 @@ private:
 	int m_midiPulse = 0;  // samples left of a MIDI trigger
 	uint16_t m_midiBits = 0;
 	bool m_pulseLevel = false;
+	// The host's note-ons, held back by the latency (kLatencySeconds) until they are due.
+	struct HeldNote {
+		int64_t due; // in samples since prepareToPlay
+		uint8_t note, velocity;
+	};
+	std::array<HeldNote, 512> m_held{};
+	int m_heldFirst = 0, m_heldCount = 0;
+	int64_t m_samples = 0; // since prepareToPlay, at the block's start
+	int m_latency = 0;
 	// Idle: once the board has settled it sleeps, skipping the circuits and putting out exact
 	// zeros, until a trigger or a knob wakes it. The CPU keeps running.
 	bool m_asleep = false;

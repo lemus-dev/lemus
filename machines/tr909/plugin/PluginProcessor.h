@@ -63,6 +63,13 @@ public:
 	// sound: a change to the model that changes the sound bumps kModelVersion and keeps the old
 	// behaviour for sessions saved with an older version.
 	static constexpr int kModelVersion = 1;
+	// With SYNC, the firmware's steps reach the voices about 3.2 ms after the host's grid on
+	// average (it takes each MIDI clock at its panel scan, then places the step's triggers at the
+	// next), and a MIDI note's about 1.8 ms after the note. The plugin reports the first as its
+	// latency, so the host lines the steps up with its grid, and holds the host's MIDI back by the
+	// difference (by all of it in voice mode, where notes skip the firmware), so notes stay on theirs.
+	static constexpr double kLatencySeconds = 0.0032;
+	static constexpr double kFirmwareNoteSeconds = 0.0018;
 	int modelVersion() const { return m_modelVersion; }
 	const lemus::Artwork &artwork() const { return m_artwork; }
 	void setArtwork(lemus::Artwork artwork) override { m_artwork = std::move(artwork); } // the view reads it when it's built
@@ -202,6 +209,14 @@ private:
 	// Voice mode: a MIDI note's trigger, high for one panel scan, as the firmware's.
 	std::array<int, tr909::kVoices> m_voiceTrig{}; // samples left of each voice-mode trigger
 	int m_trigSamples = 0;
+	// The host's MIDI, held back until it is due (kLatencySeconds, kFirmwareNoteSeconds).
+	struct HeldMidi {
+		int64_t due; // in samples since prepareToPlay
+		std::vector<uint8_t> bytes;
+	};
+	std::vector<HeldMidi> m_heldMidi; // in order of due
+	int64_t m_samples = 0;        // since prepareToPlay, at the block's start
+	int m_latency = 0;
 	double m_stateAcc = 0; // the CPU's states owed to the samples run (a fraction)
 
 	// Host sync: the firmware's sync mode is stepped with SHIFT + TEMPO MODE (a key macro).

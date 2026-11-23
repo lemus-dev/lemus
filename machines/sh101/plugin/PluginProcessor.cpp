@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace {
@@ -177,7 +178,9 @@ void SH101Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	m_voiceKeys.prepare(sampleRate);
 	m_mod.assign(size_t(std::max(samplesPerBlock, 1)), {});
 	wake();
-	setLatencySamples(juce::roundToInt(m_voice.latencySamples()));
+	m_heldFirst = m_heldCount = 0;
+	m_samples = 0;
+	setLatencySamples(juce::roundToInt(m_voice.latencySamples() + kLatencySeconds * sampleRate));
 }
 
 void SH101Processor::setKey(int key, bool down)
@@ -260,7 +263,9 @@ void SH101Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 			switchOff();
 	}
 	if (!m_on) {
+		m_heldFirst = m_heldCount = 0; // the notes held back are dropped
 		processSwitchedOff(buffer, midi);
+		m_samples += n;
 		return;
 	}
 	if (m_calDirty) {
@@ -350,11 +355,28 @@ void SH101Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	auto *out = buffer.getWritePointer(0);
 	auto midiIt = midi.cbegin();
 	int done = 0;
+	// the host's MIDI, held back until due: the latency less the firmware's own lag on a note (all
+	// of it in voice mode), so notes land where the steps do
+	const int hold = juce::roundToInt((m_romOk ? kLatencySeconds - kFirmwareNoteSeconds : kLatencySeconds) * m_rate);
 	for (int i = 0; i < n; ++i) {
 		while (midiIt != midi.cend() && (*midiIt).samplePosition <= i) {
-			const auto msg = (*midiIt).getMessage();
-			handleMidi(msg);
+			const auto m = (*midiIt).getMessage();
 			++midiIt;
+			if (m.getRawDataSize() <= 3 && m_heldCount < int(m_held.size())) {
+				auto &h = m_held[size_t((m_heldFirst + m_heldCount++) % int(m_held.size()))];
+				h.due = m_samples + i + hold;
+				h.size = uint8_t(m.getRawDataSize());
+				std::copy_n(m.getRawData(), h.size, h.data);
+			} else {
+				handleMidi(m);
+			}
+		}
+		while (m_heldCount > 0 && m_held[size_t(m_heldFirst)].due <= m_samples + i) {
+			const auto &h = m_held[size_t(m_heldFirst)];
+			const juce::MidiMessage msg(h.data, int(h.size), 0.0);
+			m_heldFirst = (m_heldFirst + 1) % int(m_held.size());
+			--m_heldCount;
+			handleMidi(msg);
 			if (msg.isPitchWheel() || msg.isControllerOfType(1)) {
 				if (i > done) {
 					renderVoice(out + done, i - done, m_mod.data() + done);
@@ -399,6 +421,7 @@ void SH101Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 	}
 	if (n > done)
 		renderVoice(out + done, n - done, m_mod.data() + done);
+	m_samples += n;
 	for (int ch = 1; ch < channels; ++ch)
 		buffer.copyFrom(ch, 0, buffer, 0, 0, n);
 

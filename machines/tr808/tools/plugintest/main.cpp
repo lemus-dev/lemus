@@ -96,6 +96,38 @@ std::vector<double> onsets(const juce::AudioBuffer<float> &b, double rate)
 	return t;
 }
 
+// Each hit's start against the grid line it belongs to (every `period` s from 0, from line
+// `first`): the first sample over a tenth of the hit's peak, from 3 ms before the line to 30 ms
+// after, less `latency` samples (what the host takes off). Lines without a hit are skipped.
+std::vector<double> hitLags(const juce::AudioBuffer<float> &b, double rate, double period, int first, int latency)
+{
+	std::vector<double> lags;
+	for (int k = first;; ++k) {
+		const int a = int(std::lround((k * period - 0.003) * rate)) + latency, e = a + int(0.033 * rate);
+		if (e >= b.getNumSamples())
+			break;
+		float peak = 0;
+		for (int i = std::max(0, a); i < e; ++i)
+			peak = std::max(peak, std::abs(b.getSample(0, i)));
+		if (peak < 1e-3f)
+			continue;
+		for (int i = std::max(0, a); i < e; ++i)
+			if (std::abs(b.getSample(0, i)) > 0.1f * peak) {
+				lags.push_back((i - latency) / rate - k * period);
+				break;
+			}
+	}
+	return lags;
+}
+
+double mean(const std::vector<double> &v)
+{
+	double s = 0;
+	for (double x : v)
+		s += x;
+	return v.empty() ? 0 : s / double(v.size());
+}
+
 int failures = 0;
 void check(bool ok, const char *what)
 {
@@ -752,6 +784,32 @@ int main(int argc, char **argv)
 	check(on.size() >= 15 && nearBeat >= int(on.size()) - 1, "the sequencer plays in time with the host's transport");
 	ph.playing = false;
 	run(p, ph, 1.0, rate);
+	{
+		// The reported latency (the firmware's lag behind the grid in SYNC) puts the steps on the
+		// grid once the host takes it off, and the MIDI notes, held back by as much, with them: the
+		// same rim shot played by MIDI on the same 8ths starts as the sequencer's do on average,
+		// each step within the firmware's polling (1.9 ms) of that.
+		const double eighth = 60.0 / ph.bpm / 2;
+		const int latency = p.getLatencySamples();
+		const auto steps = hitLags(sync, rate, eighth, 1, latency);
+		juce::MidiBuffer notes;
+		for (int k = 0; k < 16; ++k)
+			notes.addEvent(juce::MidiMessage::noteOn(10, 37, juce::uint8(80)), int(std::lround(k * eighth * rate)));
+		const auto played = run(p, ph, 4.0 + 0.1, rate, &notes);
+		save(dir, "midi-rs.wav", played, rate);
+		const auto midiLags = hitLags(played, rate, eighth, 0, latency);
+		double lo = 1, hi = -1;
+		for (double l : steps) {
+			lo = std::min(lo, l);
+			hi = std::max(hi, l);
+		}
+		std::printf("      latency %d samples (%.2f ms): steps %.2f ms after the grid on average (%.2f to %.2f), MIDI notes %.2f\n",
+		            latency, latency * 1000 / rate, mean(steps) * 1000, lo * 1000, hi * 1000, mean(midiLags) * 1000);
+		check(steps.size() >= 14 && midiLags.size() == 16 && std::abs(mean(steps) - mean(midiLags)) < 0.0005,
+		      "with the latency taken off, the steps start where MIDI's notes do, on average");
+		check(lo - mean(midiLags) > -0.0015 && hi - mean(midiLags) < 0.0015, "each step within 1.5 ms of that");
+		run(p, ph, 1.0, rate);
+	}
 
 	// 4. Internal clock: START/STOP with SYNC off, at the TEMPO knob's 120 BPM.
 	set(p, "sync", 0.0f);

@@ -6,6 +6,8 @@
 #include "PanelData.h"
 #include "PluginProcessor.h"
 
+#include <algorithm>
+
 namespace {
 // The CPU's mask ROM, from the private folder (SH101_ROM_PATH, set by machine.cmake).
 const juce::MemoryBlock &sh101Rom()
@@ -436,6 +438,140 @@ void testArpeggioFromMidi()
 		const bool ok = got.size() >= want.size() && std::equal(want.begin(), want.end(), got.begin());
 		check(ok, mode == Button::ArpUp ? "UP starts on the lowest note" : mode == Button::ArpDown ? "DOWN starts on the highest" : "U&D up and down, ends once", g);
 	}
+}
+
+// The reported latency is the voice's own (its decimator) and the firmware's lag behind the
+// host's grid in SYNC, the middle of the arpeggio's (its steps one CPU loop after the clock edge)
+// and the sequencer's (the gate down for that loop, then up with the new note): with it taken
+// off the two sit either side of the grid, each step within 3 ms of it. A MIDI note's
+// gate rises that long after the note (the firmware takes it at its key scan; the plugin holds
+// it back by the rest), and in voice mode too (all held back), so notes sit on the grid.
+void testSyncLatency()
+{
+	std::printf("Host sync latency: steps and notes on the grid, less the latency\n");
+	const double L = SH101Processor::kLatencySeconds;
+	auto gateRises = [](Runner &r, double seconds, const std::vector<std::pair<double, juce::MidiMessage>> &events) {
+		std::vector<double> rises;
+		bool last = r.p.snapshot().lines.gate;
+		size_t next = 0;
+		const double t0 = r.time;
+		r.run(seconds, [&](juce::MidiBuffer &m, double t, int n) {
+			while (next < events.size() && events[next].first + t0 < t + n / r.rate) {
+				m.addEvent(events[next].second, std::clamp(int((events[next].first + t0 - t) * r.rate), 0, n - 1));
+				++next;
+			}
+		}, [&](const SH101Processor::Snapshot &s, double t) {
+			if (s.lines.gate && !last)
+				rises.push_back(t - 0.5 * r.block / r.rate - t0); // the block's middle
+			last = s.lines.gate;
+		});
+		return rises;
+	};
+	auto stats = [](const std::vector<double> &v) {
+		double lo = 1, hi = -1, s = 0;
+		for (double x : v) {
+			lo = std::min(lo, x);
+			hi = std::max(hi, x);
+			s += x;
+		}
+		return std::array<double, 3>{v.empty() ? 0 : s / double(v.size()), lo, hi};
+	};
+	// the sequence C4 E4 G4 C5, as testSyncSequencer enters it, played by the host's transport
+	SH101Processor p(&sh101Rom());
+	plainPatch(p);
+	setParam(p, Id::sync, 1);
+	setParam(p, Id::clockDiv, 3);
+	Runner r(p, 48000, 8);
+	r.head.bpm = 120;
+	const int seq[] = {60, 64, 67, 72};
+	r.run(1.2, [&](juce::MidiBuffer &m, double t, int n) {
+		auto at = [&](double when) { return t <= when && when < t + n / r.rate; };
+		if (at(0.0))
+			p.setButton(Button::Load, true);
+		if (at(0.05))
+			p.setButton(Button::Load, false);
+		for (int i = 0; i < 4; ++i) {
+			if (at(0.1 + 0.2 * i))
+				m.addEvent(juce::MidiMessage::noteOn(1, seq[i], juce::uint8(100)), 0);
+			if (at(0.2 + 0.2 * i))
+				m.addEvent(juce::MidiMessage::noteOff(1, seq[i]), 0);
+		}
+		if (at(1.0))
+			p.setButton(Button::Load, true);
+		if (at(1.05))
+			p.setButton(Button::Load, false);
+	});
+	const double tPlay = r.time;
+	r.run(0.5, [&](juce::MidiBuffer &, double t, int) { p.setButton(Button::Play, t - tPlay < 0.02); });
+	r.head.playing = true;
+	r.head.ppq = 0;
+	std::vector<double> steps;
+	for (double t : gateRises(r, 2.0, {}))
+		steps.push_back(t - std::floor((t + 0.004) / 0.125) * 0.125 - L);
+	// ARP UP on three held notes: its steps (the KCV moving) on the host's 16ths
+	std::vector<double> arp;
+	{
+		SH101Processor a(&sh101Rom());
+		plainPatch(a);
+		setParam(a, Id::sync, 1);
+		setParam(a, Id::clockDiv, 3);
+		Runner ra(a, 48000, 8);
+		ra.head.bpm = 120;
+		ra.run(0.3, [&](juce::MidiBuffer &m, double t, int) {
+			if (t == 0) {
+				a.setButton(Button::ArpUp, true);
+				for (int n : {53, 57, 60})
+					m.addEvent(juce::MidiMessage::noteOn(1, n, juce::uint8(100)), 0);
+			}
+			if (t > 0.1)
+				a.setButton(Button::ArpUp, false);
+		});
+		ra.head.playing = true;
+		ra.head.ppq = 0;
+		int lastKcv = a.snapshot().lines.kcv;
+		const double t0 = ra.time;
+		ra.run(2.0, {}, [&](const SH101Processor::Snapshot &s, double t) {
+			const double at = t - 0.5 * ra.block / ra.rate - t0;
+			if (s.lines.kcv != lastKcv) {
+				arp.push_back(at - std::floor((at + 0.004) / 0.125) * 0.125 - L);
+				lastKcv = s.lines.kcv;
+			}
+		});
+	}
+	// MIDI notes, one an 8th, on a new instance (no sequence, SYNC off)
+	std::vector<std::pair<double, juce::MidiMessage>> notes;
+	for (int k = 0; k < 16; ++k) {
+		notes.push_back({0.1 + k * 0.25, juce::MidiMessage::noteOn(1, 60 + (k % 4) * 2, juce::uint8(100))});
+		notes.push_back({0.2 + k * 0.25, juce::MidiMessage::noteOff(1, 60 + (k % 4) * 2)});
+	}
+	auto noteLags = [&](const std::vector<double> &rises) {
+		std::vector<double> lags;
+		for (double t : rises)
+			lags.push_back(t - 0.1 - std::floor((t - 0.1 + 0.004) / 0.25) * 0.25 - L);
+		return lags;
+	};
+	SH101Processor fresh(&sh101Rom());
+	plainPatch(fresh);
+	Runner rf(fresh, 48000, 8);
+	rf.run(0.5);
+	const auto midiLags = noteLags(gateRises(rf, 4.2, notes));
+	SH101Processor bare(nullptr);
+	plainPatch(bare);
+	Runner rb(bare, 48000, 8);
+	rb.run(0.5);
+	const auto voiceLags = noteLags(gateRises(rb, 4.2, notes));
+	const auto st = stats(steps), mi = stats(midiLags), vo = stats(voiceLags), ar = stats(arp);
+	std::printf("    latency %d samples (the voice's and %.2f ms); less that, the sequencer's gates rise %.2f ms after the 16ths on "
+	            "average (%.2f to %.2f, %zu steps, the first %.2f), the arpeggio's steps %.2f (%.2f to %.2f), MIDI's gates %.2f after "
+	            "their notes (%.2f to %.2f, %zu), voice mode's %.2f (%zu)\n",
+	            p.getLatencySamples(), L * 1000, st[0] * 1000, st[1] * 1000, st[2] * 1000, steps.size(),
+	            steps.empty() ? 0.0 : steps.front() * 1000, ar[0] * 1000, ar[1] * 1000, ar[2] * 1000, mi[0] * 1000, mi[1] * 1000,
+	            mi[2] * 1000, midiLags.size(), vo[0] * 1000, voiceLags.size());
+	check(steps.size() >= 15 && arp.size() >= 15 && std::abs(st[0] + ar[0]) < 0.001,
+	      "the sequencer's steps and the arpeggio's either side of the grid on average");
+	check(std::min(st[1], ar[1]) > -0.003 && std::max(st[2], ar[2]) < 0.003, "each within 3 ms of it, the first after the start too");
+	check(midiLags.size() == 16 && std::abs(mi[0]) < 0.0005, "MIDI's gates on their notes on average");
+	check(voiceLags.size() == 16 && std::abs(vo[0]) < 0.0005, "and voice mode's");
 }
 
 void testSyncSequencer()
@@ -1043,6 +1179,7 @@ int main(int argc, char **argv)
 	testArpeggioFromMidi();
 	testSyncArpeggio();
 	testSyncSequencer();
+	testSyncLatency();
 	testSequence();
 	testPower();
 	testVoiceMode();
