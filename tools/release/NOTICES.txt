@@ -89,6 +89,13 @@ is above):
 Copyright (c) Dan Boris, Mirko Buffoni, Aaron Giles, Couriersud
 
 
+The Oberheim Xpander's two 6809s are a port of MAME's Motorola 6809 core
+(src/devices/cpu/m6809), licensed under the BSD 3-Clause licence (its text
+is above):
+
+Copyright (c) Nathan Woods, Olivier Galibert
+
+
 The Access Virus C's DSP56362 is the dsp56300 emulator
 (https://github.com/dsp56300/dsp56300), and which DSP timer drives each of
 its LFO RATE LEDs follows Gearmulator (https://github.com/dsp56300/gearmulator),
@@ -126,7 +133,8 @@ Copyright 2011 The Michroma Project Authors (https://github.com/googlefonts/Mich
 
 
 Panel legends that stand in for Helvetica use URW++'s base 35 fonts (the
-ProCo RAT's: Nimbus Sans Bold), from
+ProCo RAT's: Nimbus Sans Bold; the Oberheim Xpander's: Nimbus Sans Narrow
+Regular and Bold), from
 https://github.com/ArtifexSoftware/urw-base35-fonts (tag 20200910),
 unmodified. They are licensed under the AGPLv3, Lemus's own licence (its text
 is in LICENSE.txt), with this exception from their LICENSE file: "As a special

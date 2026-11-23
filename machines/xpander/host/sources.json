@@ -1,0 +1,9 @@
+{
+  "xpander.lemus": {
+    "label": "lemus",
+    "plugin": "ob-poly-xp",
+    "names": {
+      "volume": "Volume"
+    }
+  }
+}
