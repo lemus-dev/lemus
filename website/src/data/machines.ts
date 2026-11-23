@@ -273,6 +273,18 @@ export const machines: Machine[] = [
     release: { version: '0.1.0', tag: 'pr-dist-r-v0.1.0', stage: 'beta', mac: 'pr-dist-r-0.1.0-mac.pkg', windows: 'pr-dist-r-0.1.0-windows.zip' },
     changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
   },
+  {
+    slug: 'ob-poly-xp',
+    emulates: 'Oberheim Xpander',
+    year: 1984,
+    type: 'poly synth module',
+    status: 'working',
+    withoutRom: 'none',
+    keywords: 'xpander oberheim matrix-12 matrix 12 poly polyphonic analog six voice module cem3372 cem3374 filter modes fm modulation',
+    nav: true,
+    release: { version: '0.1.0', tag: 'ob-poly-xp-v0.1.0', stage: 'beta', mac: 'ob-poly-xp-0.1.0-mac.pkg', windows: 'ob-poly-xp-0.1.0-windows.zip' },
+    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+  },
 ];
 
 // True if version a is newer than b, number by number (0.10.0 is newer than 0.9.1).

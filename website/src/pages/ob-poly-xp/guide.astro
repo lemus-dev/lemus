@@ -1,0 +1,322 @@
+---
+import Base from '../../layouts/Base.astro';
+
+// The sections and their headings, for the contents at the top and the sidebar. Keep in step
+// with the ids and headings below.
+type Entry = { id: string; title: string; sub?: Entry[] };
+const toc: Entry[] = [
+  { id: 'start', title: 'Getting started', sub: [
+    { id: 'first-start', title: 'The first start' },
+    { id: 'roms', title: 'The ROMs' },
+    { id: 'factory', title: 'The factory patches' },
+    { id: 'artwork', title: 'Panel artwork' },
+  ] },
+  { id: 'panel', title: 'The panel', sub: [
+    { id: 'sections', title: 'Its sections' },
+    { id: 'rear', title: 'The rear' },
+  ] },
+  { id: 'bars', title: 'The bars', sub: [
+    { id: 'top-bar', title: 'The top bar' },
+    { id: 'state', title: 'State' },
+    { id: 'bottom-bar', title: 'The bottom bar' },
+  ] },
+  { id: 'daw', title: 'MIDI and your DAW', sub: [
+    { id: 'midi', title: 'MIDI' },
+    { id: 'pedals', title: 'Pedals over MIDI' },
+    { id: 'outputs', title: 'Outputs' },
+    { id: 'automation', title: 'Automation and sessions' },
+  ] },
+  { id: 'keyboard', title: 'Keyboard and mouse' },
+];
+---
+<Base title="ob-poly-xp user guide · Lemus" description="How to use ob-poly-xp: the ROMs and the factory patches, the first start's tune, panel artwork, the panel and the rear, MIDI, pedals over MIDI, the VOICE outputs, sessions and the computer keys." current="ob-poly-xp">
+
+<div class="sheet">
+<div class="col guide">
+
+<!-- Beside the guide on a wide window; on a narrow one, a drawer behind the Contents button. -->
+<nav class="side" id="contents" aria-label="Contents">
+<div class="label">Contents</div>
+<ol>
+{toc.map((s, i) => (
+<li>
+<a href={`#${s.id}`} class="top"><span class="n">{i + 1}</span>{s.title}</a>
+{s.sub && <ol>
+{s.sub.map((h) => (
+<li>
+<a href={`#${h.id}`}>{h.title}</a>
+{h.sub && <ol>{h.sub.map((g) => <li><a href={`#${g.id}`} class="deep">{g.title}</a></li>)}</ol>}
+</li>
+))}
+</ol>}
+</li>
+))}
+</ol>
+</nav>
+<button type="button" class="toc-button" aria-controls="contents" aria-expanded="false" hidden>
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 4h12M2 8h12M2 12h8"></path></svg>
+<span>Contents</span>
+</button>
+
+<div class="main">
+<header class="intro">
+<nav aria-label="Breadcrumb" class="crumbs"><a href="/ob-poly-xp">ob-poly-xp</a> / User guide</nav>
+<h1><span class="nowrap">ob-poly-xp</span> user guide</h1>
+<p class="lede">ob-poly-xp is the Oberheim Xpander running its own firmware, main software 1.2 and voice software 1.4: its pages, patches, modulation and MIDI are the unit's, and the Xpander owner's manual applies. This guide covers what the plugin adds. Installing is on the <a href="/download#installing">download page</a>; the ROM folder, artwork files, the update check and contact are on <a href="/support">Support</a>.</p>
+<ol class="toc">
+{toc.map(({ id, title }) => <li><a href={`#${id}`}>{title}</a></li>)}
+</ol>
+</header>
+
+<!-- ===================================================================== -->
+<section id="start">
+<div class="eyebrow">1</div>
+<h2>Getting started</h2>
+
+<h3 id="first-start">The first start</h3>
+<p>The first time ob-poly-xp runs on a computer, it does what a new Xpander did: it clears its memory (RESET MEMORY) and tunes its six voices (TUNE ALL). That takes about 20 s of CPU in the background, and the bottom bar says TUNING. With the factory patches in the ROM folder it then loads them through its MIDI input and starts on single patch 00. The result is kept in Lemus's application folder, so later instances start at once.</p>
+
+<h3 id="roms">The ROMs</h3>
+<p>The firmware is in six 8 KB EPROMs, none of them included: MAME's <span class="mono">xpander</span> set, with MAME's names. Put them in the ROM folder (<a href="/support#roms">how the ROM folder works</a>). Without all six, ob-poly-xp makes no sound, the bottom bar says ROMs missing, and <span class="k">ROMs</span> in the top bar shows which.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Size</th><th scope="col">SHA1</th><th scope="col">What</th></tr></thead>
+<tbody>
+<tr><td class="mono">exp1.2-0.u8</td><td>8 KB</td><td class="mono">4064edc2fa0bea62684c28e8e004feb8229604fe</td><td>main ROM 0 (software 1.2)</td></tr>
+<tr><td class="mono">exp1.2-1.u7</td><td>8 KB</td><td class="mono">233efc3da3a96777b10a4d6fe7e80864e9231f04</td><td>main ROM 1</td></tr>
+<tr><td class="mono">exp1.2-2.u6</td><td>8 KB</td><td class="mono">798c1b28fb59819baadbf0142ecd1348e759fa70</td><td>main ROM 2</td></tr>
+<tr><td class="mono">exp1.2-3.u5</td><td>8 KB</td><td class="mono">5897ad0cd66cf37b8e9b277654aab4eb83d1c8ab</td><td>main ROM 3</td></tr>
+<tr><td class="mono">ca1.4-0.u912</td><td>8 KB</td><td class="mono">5ab13ccc3b75df313a447520ca54a492102b7e3b</td><td>voice ROM 0 (software 1.4)</td></tr>
+<tr><td class="mono">ca1.4-1.u914</td><td>8 KB</td><td class="mono">951bbc197a0140a93bb7621a7aedbe0f4037990c</td><td>voice ROM 1</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3 id="factory">The factory patches</h3>
+<p>Optional: Oberheim's 100 factory single patches as a SysEx dump, <span class="mono">FACTORY1.SYX</span> (39,900 bytes, SHA1 <span class="mono">b8abde65cff74424438fd371eb2261c2e70ccaa8</span>), in the ROM folder. A new instance then starts with them, as a new unit did. Without it the single patches start blank, as RESET MEMORY leaves them. Patches sent to ob-poly-xp over MIDI later are stored as on the unit; SYSTEMX must be on (MASTER PAGE, MIDI, ENABLES).</p>
+
+<h3 id="artwork">Panel artwork</h3>
+<p>The two blank places at the lower left of the PROGRAMMER section take an SVG or PNG of your own each, named as below, anywhere in the ROM folder (<a href="/support#artwork">how artwork files work</a>). The rear repeats them from the same files. <span class="k">ROMs</span> in the top bar lists them with what each has, opens the folder with Show its folder, and reads it again with Rescan.</p>
+<div class="scroll">
+<table>
+<thead><tr><th scope="col">File</th><th scope="col">Place</th><th scope="col">Size</th></tr></thead>
+<tbody>
+<tr><td class="mono">ob-poly-xp-maker.svg or .png</td><td>The Oberheim logo</td><td>59.2 × 10.5 mm</td></tr>
+<tr><td class="mono">ob-poly-xp-name.svg or .png</td><td>The Xpander logo under it</td><td>78.8 × 20.3 mm</td></tr>
+</tbody>
+</table>
+</div>
+<p>The plain names (<span class="mono">maker.svg</span>…) in <span class="path">artwork/xpander/</span> work too, and win over these.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="panel">
+<div class="eyebrow">2</div>
+<h2>The panel</h2>
+<p>The Xpander's front panel, measured from photos. Everything on it works as on the unit; the owner's manual explains the pages.</p>
+<img src="/media/ob-poly-xp/panel.png" alt="The panel, factory patch 23 on the VCO1 page" width="1514" height="603" style="width: 100%; height: auto;">
+
+<h3 id="sections">Its sections</h3>
+<ul>
+<li><span class="k">MASTER:</span> VOLUME, TUNE PAGE (TUNE ALL and the single tunes) and MASTER PAGE (MIDI, chains, CV/MIDI, zones, the service pages).</li>
+<li><span class="k">PROGRAMMER:</span> the patch display, SINGLE PATCH and MULTI PATCH, PATCH EDIT 1–6, the keypad and STORE.</li>
+<li><span class="k">MODULATION SOURCE/X SELECT:</span> the sources to add to a parameter (the levers, pedals, VIB, KEYBOARD, LAG, velocity, pressure, ENV X, LFO X, TRACK X, RAMP X), and the numbers that pick which ENV, LFO, TRACK or RAMP.</li>
+<li><span class="k">PAGE MODIFIER:</span> the two displays, the soft keys above and below them, PAGE 2 and the six encoders.</li>
+<li><span class="k">PAGE SELECT:</span> the pages of a voice: VCO1, VCO2, FM/LAG, TRACK X, VCF/VCA, ENV X, LFO X, RAMP X and MISC.</li>
+</ul>
+
+<h3 id="rear">The rear</h3>
+<p><span class="k">REAR</span> in the bottom bar turns the unit round. <span class="k">POWER</span> switches it: off, it is silent and keeps its battery RAM; on, it boots from it. <span class="k">MEMORY PROTECT</span> slides ON or OFF: on, the patches can't be written, as on the unit. The jacks are drawn as the unit has them; see <a href="#outputs">Outputs</a> and <a href="#pedals">Pedals over MIDI</a>.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="bars">
+<div class="eyebrow">3</div>
+<h2>The bars</h2>
+
+<h3 id="top-bar">The top bar</h3>
+<ul>
+<li><span class="k">BETA</span> after the name: this version is a beta. About shows the version.</li>
+<li><span class="k">ROMs:</span> the ROM folder, the six ROMs, the factory patches and the <a href="#artwork">artwork</a>, with their full paths, and Show, Change… and Rescan for the folder.</li>
+<li><span class="k">State:</span> see <a href="#state">State</a>.</li>
+<li><span class="k">About:</span> the version, the ROM folder and artwork in use, the <a href="/support#updates">update check</a>, and links to this guide, the site and the forum. A newer version shows as a button in the bar.</li>
+</ul>
+
+<h3 id="state">State</h3>
+<ul>
+<li><span class="k">Save to file…</span> saves the instance: the whole battery RAM (patches, tune, settings), VOLUME, POWER and MEMORY PROTECT.</li>
+<li><span class="k">Load from file…</span> loads one.</li>
+<li><span class="k">Reset…</span> makes it a new instance: the factory state, with the factory patches if they are in the ROM folder.</li>
+</ul>
+
+<h3 id="bottom-bar">The bottom bar</h3>
+<dl class="legend">
+<div><dt>REAR</dt><dd>Shows the rear panel, with POWER and MEMORY PROTECT to click (<a href="#rear">The rear</a>).</dd></div>
+<div><dt>Status</dt><dd>TUNING during the first start, ROMs missing, or POWER OFF and MEMORY PROTECT ON when they are.</dd></div>
+<div><dt>?</dt><dd>Shows the list of computer keys over the panel. Any click, ? or Escape closes it.</dd></div>
+</dl>
+</section>
+
+<!-- ===================================================================== -->
+<section id="daw">
+<div class="eyebrow">4</div>
+<h2>MIDI and your DAW</h2>
+
+<h3 id="midi">MIDI</h3>
+<p>The plugin's MIDI input is the unit's MIDI IN, and its MIDI output the unit's MIDI OUT: notes, velocity, pressure, the levers, patch changes and SysEx, as the MASTER PAGE's MIDI pages set them. A new unit listens in OMNI on channel 1, LEVER 1 is the pitch bender and LEVER 2 controller 1, the mod wheel. Patch changes and controllers each have an enable on MIDI ENABLES.</p>
+
+<h3 id="pedals">Pedals over MIDI</h3>
+<p>The two pedal jacks read as unplugged, which on an Xpander means fully down: a patch with a pedal routed to it plays as if the pedal were pressed all the way. The unit's own answer works in the plugin: MASTER PAGE, MIDI, CTRLS sets where PEDAL 1 and PEDAL 2 come from, the rear jack or a MIDI controller number (4 is the usual foot controller), and MIDI, ENABLES, CONTROL must be on. Then that controller from your DAW is the pedal; at 0, the pedal is up.</p>
+
+<h3 id="outputs">Outputs</h3>
+<p>The main output is the unit's LEFT and RIGHT, through VOLUME; a mono track gets both mixed. The six VOICE outputs are extra mono outputs, off until you turn them on in your DAW. As on the unit, a voice goes to its own output only when its PAN (MULTI PATCH, PAN) is set to its individual out, and it then leaves the main output.</p>
+
+<h3 id="automation">Automation and sessions</h3>
+<p>One parameter can be automated: Volume, VOLUME on the panel. Everything else is the unit's, set from the panel or over MIDI.</p>
+<p>A session saves the instance as <a href="#state">State</a> does, with the version of the model it was made with. Reopened, the unit starts from that battery RAM, as a unit switched on again does: on the patch it was left on, with its settings and its tune.</p>
+<p>When a voice's VCA is shut and its output has died away it sleeps; with all six asleep the outputs are exact zeros. ob-poly-xp reports a 30 s tail.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section id="keyboard">
+<div class="eyebrow">5</div>
+<h2>Keyboard and mouse</h2>
+<ul>
+<li><span class="k">Keys:</span> click. <span class="k">Encoders 1–6:</span> drag up or down, or scroll: they turn in detents, shift slower. <span class="k">VOLUME:</span> drag or scroll.</li>
+<li><span class="k">0–9, +, −:</span> the keypad (= is + too; the number pad works). <span class="k">Return:</span> STORE. <span class="k">Backspace, Delete:</span> CLEAR.</li>
+<li><span class="k">S, M:</span> SINGLE PATCH, MULTI PATCH. <span class="k">T, Y:</span> TUNE PAGE, MASTER PAGE. <span class="k">P:</span> PAGE 2.</li>
+<li><span class="k">V, B, F, K:</span> the pages VCO1, VCO2, FM/LAG, TRACK X. <span class="k">C, E, L, R, I:</span> VCF/VCA, ENV X, LFO X, RAMP X, MISC.</li>
+<li><span class="k">?</span> shows the key list; <span class="k">Escape</span> closes it. Click the panel first. Space goes to your DAW.</li>
+<li><span class="k">Window:</span> drag the bottom-right corner.</li>
+</ul>
+</section>
+
+</div>
+
+</div>
+</div>
+
+</Base>
+
+<script>
+// The sidebar marks the heading being read and opens its section; the button opens it as a
+// drawer on a narrow window. Without this script the sidebar shows every heading.
+const nav = document.querySelector<HTMLElement>('.side')!;
+const button = document.querySelector<HTMLButtonElement>('.toc-button')!;
+const links = [...nav.querySelectorAll<HTMLAnchorElement>('a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+nav.classList.add('spy');
+button.hidden = false;
+
+let current = -1;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 120) i = j; });
+  // At the end of the page the last headings can't reach the top: take the one jumped to, if
+  // it's in view, or else the last.
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) {
+    const jumped = targets.findIndex((t) => '#' + t.id === location.hash);
+    i = jumped >= 0 && targets[jumped].getBoundingClientRect().top < innerHeight ? jumped : targets.length - 1;
+  }
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => {
+    a.classList.toggle('on', j === i);
+    if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+  });
+  const section = i >= 0 ? links[i].closest('.side > ol > li') : null;
+  for (const li of nav.querySelectorAll(':scope > ol > li')) li.classList.toggle('open', li === section);
+  reveal();
+}
+
+// Keep the marked heading in view when the sidebar is taller than the window.
+function reveal() {
+  const a = links[current];
+  if (!a || nav.scrollHeight <= nav.clientHeight) return;
+  if (a.offsetTop < nav.scrollTop || a.offsetTop + a.offsetHeight > nav.scrollTop + nav.clientHeight)
+    nav.scrollTop = a.offsetTop - nav.clientHeight / 3;
+}
+
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+addEventListener('hashchange', later);
+mark();
+
+function open(on: boolean) {
+  nav.classList.toggle('open', on);
+  button.setAttribute('aria-expanded', String(on));
+  button.querySelector('span')!.textContent = on ? 'Close' : 'Contents';
+  if (on) reveal();
+}
+button.addEventListener('click', () => open(!nav.classList.contains('open')));
+nav.addEventListener('click', (e) => { if ((e.target as Element).closest('a')) open(false); });
+document.addEventListener('click', (e) => {
+  if (nav.classList.contains('open') && !nav.contains(e.target as Node) && !button.contains(e.target as Node)) open(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && nav.classList.contains('open')) { open(false); button.focus(); }
+});
+</script>
+
+<style>
+.guide { padding-bottom: 96px; }
+.narrow { max-width: 560px; }
+.main { min-width: 0; max-width: 1000px; }
+
+.side { font-size: 14px; line-height: 1.45; }
+.side .label { padding: 0 0 10px 12px; }
+.side ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; max-width: none; }
+.side li { font-size: inherit; color: inherit; }
+.side > ol > li + li { margin-top: 6px; }
+.side a { display: flex; gap: 8px; padding: 3px 10px 3px 30px; border-left: 2px solid var(--rule); color: var(--ink2); text-decoration: none; }
+.side a.top { padding-left: 10px; color: var(--ink); font-weight: 600; }
+.side a.deep { padding-left: 44px; }
+.side .n { flex: 0 0 auto; min-width: 12px; font: 12px/1.7 var(--mono); color: var(--ink3); }
+.side a:hover { color: var(--ink); border-left-color: var(--ink2); }
+.side a.on { color: var(--wire-text); border-left-color: var(--wire); }
+.side a.on .n { color: var(--wire-text); }
+.toc-button { display: none; }
+
+@media (min-width: 1080px) {
+  .guide { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 56px; }
+  .side { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; box-sizing: border-box; padding: 56px 0 32px; scrollbar-width: thin; }
+  .side.spy > ol > li:not(.open) > ol { display: none; }
+  .intro .toc { display: none; }
+}
+@media (max-width: 1079.98px) {
+  .side { display: none; }
+  .side.open { display: block; position: fixed; top: 0; bottom: 0; left: 0; z-index: 20; width: min(320px, 85vw); box-sizing: border-box; overflow-y: auto; padding: 24px 16px 96px; background: var(--paper); border-right: 2px solid var(--ink); box-shadow: 0 0 0 100vmax rgba(22, 26, 38, 0.45); }
+  .toc-button:not([hidden]) { display: inline-flex; align-items: center; gap: 8px; position: fixed; left: 16px; bottom: 16px; z-index: 21; min-height: 44px; padding: 0 18px; box-sizing: border-box; border: 2px solid var(--ink); border-radius: 0; background: var(--ink); color: var(--paper); font-family: var(--display); font-size: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 20px rgba(22, 26, 38, 0.25); }
+  .toc-button:hover { background: var(--wire-text); border-color: var(--wire-text); }
+}
+.intro { padding: 56px 0 24px; display: flex; flex-direction: column; gap: 18px; }
+.crumbs { font-size: 14px; color: var(--ink2); }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(40px, 5.4vw, 68px); line-height: 0.95; }
+.lede { margin: 0; color: var(--ink2); font-size: 18px; max-width: 44em; }
+.nowrap { white-space: nowrap; }
+.toc { margin: 8px 0 0; padding: 16px 20px 16px 44px; border: 2px solid var(--ink); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 4px 24px; color: var(--ink3); }
+section { padding: 48px 0 8px; border-top: 1.5px solid var(--ink); margin-top: 32px; display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+.eyebrow { width: 44px; height: 44px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(32px, 3.8vw, 44px); line-height: 1; text-transform: uppercase; }
+h3 { margin: 20px 0 0; font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.15; letter-spacing: 0.02em; text-transform: uppercase; scroll-margin-top: 16px; }
+p, li, dd { color: var(--ink2); font-size: 16px; }
+p { margin: 0; max-width: 46em; }
+ul, ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.k { color: var(--ink); font-weight: 600; }
+.mono { font-family: var(--mono); font-size: 0.88em; color: var(--ink); overflow-wrap: anywhere; }
+td.mono { white-space: nowrap; overflow-wrap: normal; }
+.path { font-family: var(--mono); font-size: 0.88em; color: var(--ink); overflow-wrap: anywhere; }
+.card { border: 2px solid var(--ink); padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.label { font-family: var(--display); font-size: 13px; letter-spacing: 0.1em; font-weight: 600; color: var(--ink2); text-transform: uppercase; }
+.scroll { overflow-x: auto; border: 2px solid var(--ink); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 520px; }
+th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink2); }
+thead th { background: var(--paper2); border-bottom: 2px solid var(--ink); font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+tbody th { color: var(--ink); font-weight: 600; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
+.legend { margin: 0; display: flex; flex-direction: column; gap: 12px; max-width: 52em; }
+.legend dt { color: var(--ink); font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.legend dd { margin: 2px 0 0; }
+</style>

@@ -60,6 +60,79 @@
         }
       ]
     },
+    "ob-poly-xp": {
+      "machine": "xpander",
+      "roms": [
+        {
+          "name": "exp1.2-0.u8",
+          "size": 8192,
+          "sha1": "4064edc2fa0bea62684c28e8e004feb8229604fe",
+          "crc32": "dc3801b1",
+          "what": "Main ROM 0",
+          "optional": false
+        },
+        {
+          "name": "exp1.2-1.u7",
+          "size": 8192,
+          "sha1": "233efc3da3a96777b10a4d6fe7e80864e9231f04",
+          "crc32": "b57f8482",
+          "what": "Main ROM 1",
+          "optional": false
+        },
+        {
+          "name": "exp1.2-2.u6",
+          "size": 8192,
+          "sha1": "798c1b28fb59819baadbf0142ecd1348e759fa70",
+          "crc32": "30f28710",
+          "what": "Main ROM 2",
+          "optional": false
+        },
+        {
+          "name": "exp1.2-3.u5",
+          "size": 8192,
+          "sha1": "5897ad0cd66cf37b8e9b277654aab4eb83d1c8ab",
+          "crc32": "0bc8335e",
+          "what": "Main ROM 3",
+          "optional": false
+        },
+        {
+          "name": "ca1.4-0.u912",
+          "size": 8192,
+          "sha1": "5ab13ccc3b75df313a447520ca54a492102b7e3b",
+          "crc32": "79f4490a",
+          "what": "Voice ROM 0",
+          "optional": false
+        },
+        {
+          "name": "ca1.4-1.u914",
+          "size": 8192,
+          "sha1": "951bbc197a0140a93bb7621a7aedbe0f4037990c",
+          "crc32": "9b7a7914",
+          "what": "Voice ROM 1",
+          "optional": false
+        },
+        {
+          "name": "FACTORY1.SYX",
+          "size": 39900,
+          "sha1": "b8abde65cff74424438fd371eb2261c2e70ccaa8",
+          "crc32": "f556e0e6",
+          "what": "Factory patches",
+          "optional": true,
+          "without": "the 100 single patches blank"
+        }
+      ],
+      "artwork": "xpander.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "Oberheim logo"
+        },
+        {
+          "id": "name",
+          "label": "Xpander logo"
+        }
+      ]
+    },
     "pr-dist-r": {
       "machine": "rat",
       "roms": [],
