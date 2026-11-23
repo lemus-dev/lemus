@@ -27,6 +27,14 @@ std::unique_ptr<juce::PropertiesFile> settings();
 bool romPromptAnswered(const juce::String &machineId);
 void setRomPromptAnswered(const juce::String &machineId, bool answered);
 
+// Another image a machine runs in a RomSpec's place: an earlier firmware, say.
+struct RomAlternative {
+	juce::String name; // MAME's name for it, e.g. "qvgtv100.bin"
+	size_t size = 0;
+	juce::String sha1, crc32;
+	juce::String label; // which it is, for the user: "v1.00"
+};
+
 struct RomSpec {
 	juce::String name;  // MAME's name for the image, e.g. "d650c-133.ic8"
 	size_t size = 0;
@@ -44,7 +52,15 @@ struct RomSpec {
 	// image holds, and what the machine does and doesn't do in its mode without it.
 	juce::String about;
 	juce::StringArray modeHas, modeLacks;
+	// Other images the machine also runs in this one's place, in order of preference after it (the
+	// spec's own image comes first). Whichever is found goes under the spec's name (RomSet::find);
+	// the machine tells them apart by their bytes.
+	std::vector<RomAlternative> alternatives;
 };
+
+// A spec's alternatives as the user is told them, each " · or <name> (<label>)", with its CRC and
+// SHA1 if `hashes`; empty if it has none.
+juce::String alternativesText(const RomSpec &spec, bool hashes);
 
 // A place on a machine's panel that takes a picture of the user's own (host/Artwork.h): a brand
 // mark Lemus doesn't include. Its file has a plain name (no brand in it, and the same across
@@ -179,5 +195,12 @@ bool removeBlankArtwork(const juce::File &folder, const ArtworkSpec &spec);
 
 juce::String sha1Hex(const void *data, size_t size);
 juce::String crc32Hex(const void *data, size_t size);
+
+// Other dumps of the image whose SHA1 is `sha1` that go about under its name (the datasheet
+// hd44780_a00.bin, say): their SHA1s. romfolder::load() takes each for that image, corrected.
+juce::StringArray otherDumps(const juce::String &sha1);
+// `data` corrected to the image whose SHA1 is `sha1`, if it is one of that image's other dumps;
+// else empty. `dataSha1`: the data's SHA1 if known already.
+juce::MemoryBlock fromOtherDump(const juce::MemoryBlock &data, const juce::String &sha1, juce::String dataSha1 = {});
 
 } // namespace lemus

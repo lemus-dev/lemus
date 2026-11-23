@@ -17,8 +17,8 @@
 
 class QVGTProcessor : public juce::AudioProcessor, public lemus::ArtworkUser {
 public:
-	// rom: the firmware EPROM; lcdFont: the HD44780's character ROM (MAME's hd44780_a00.bin), which
-	// the LCD is drawn from. Both are needed.
+	// rom: the firmware EPROM, v1.03 or v1.00; lcdFont: the HD44780's character ROM (MAME's
+	// hd44780_a00.bin), which the LCD is drawn from. Both are needed.
 	QVGTProcessor(const juce::MemoryBlock *rom, const juce::MemoryBlock *lcdFont, lemus::Artwork artwork = {});
 	~QVGTProcessor() override;
 
@@ -55,6 +55,11 @@ public:
 	juce::AudioProcessorValueTreeState &params() { return m_params; }
 
 	bool romLoaded() const { return !m_rom.empty() && m_lcdFont.size() == 4096; }
+	// The firmware the EPROM holds, by its bytes: "v1.03", "v1.00" (empty: not one of those).
+	const juce::String &firmware() const { return m_firmware; }
+	// The firmware v1.03's and v1.00's EPROM images, as read (their SHA1s).
+	static constexpr const char *kV103Sha1 = "0ac063e74b6c6ecf9edda10824df9a79c621ccd9";
+	static constexpr const char *kV100Sha1 = "f09ee9d50425a407fa33b6ac8eb79eca660e491f";
 	// The HD44780's character ROM: 16 bytes a character code, rows 0-7 of a 5 x 8 character in
 	// bits 4-0 (empty: none loaded).
 	const std::vector<uint8_t> &lcdFont() const { return m_lcdFont; }
@@ -126,6 +131,11 @@ private:
 	std::vector<uint8_t> m_ramCopy;
 	bool m_powered = true;
 	std::vector<uint8_t> m_offRam, m_bootRam;
+	// The firmware running, and the RAM of a session saved with another, kept with the session
+	// for when that firmware is back: each firmware keeps its programs and settings in its own way.
+	juce::String m_firmware;
+	juce::String m_asideFirmware;
+	std::vector<uint8_t> m_asideRam;
 
 	mutable juce::SpinLock m_displayLock;
 	Display m_display;

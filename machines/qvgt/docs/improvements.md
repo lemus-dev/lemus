@@ -98,8 +98,8 @@ above its background at those lags (continuous playing, camera audio, near-mono)
    DSP. Looser solver tolerances barely help (measured 2026-11-12, every circuit: linear mode's
    1e-4 to 1e-3 V, 1-3 %; with Newton's 1e-5 to 1e-4 V too, 1-6 %), not worth a sound change;
    what's left is the solver's own speed (bit-exact, a big job).
-2. The v1.00 firmware (the earlier factory set, as in the demo video): it runs, but only v1.03 is
-   offered for now (decided 2026-11-11); later if wanted.
+2. ~~The v1.00 firmware~~: offered since 2026-11-23 (0.1.1), taken when v1.03 isn't there; the
+   session's RAM is marked with its firmware (checks in tests/host.cpp).
 
 Waits on data: the ring modulator's real shift (a unit at a known SPECTRUM SHIFT); the hiss's level (a unit's output with nothing in); per-event sound comparisons (a DI and the unit's output with a known program, or
 isolated notes through a delay or reverb program with the LCD in view); the de-emphasis window and

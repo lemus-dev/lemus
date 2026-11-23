@@ -44,7 +44,7 @@ const clips = [
 <MachineTop machine={m}>
 <SampleList heading="Factory programs" plugin="al-fx-quadgt" tracks={clips.map((c) => ({ src: `/media/al-fx-quadgt/${c.file}.m4a`, title: c.title, detail: c.detail }))} />
 <Fragment slot="data">
-<div><dt class="lbl">ROM images</dt><dd><span class="mono">qvgtv103.bin</span> and <span class="mono">hd44780_a00.bin</span>, not included</dd></div>
+<div><dt class="lbl">ROM images</dt><dd><span class="mono">qvgtv103.bin</span> (or <span class="mono">qvgtv100.bin</span>) and <span class="mono">hd44780_a00.bin</span>, not included</dd></div>
 <div><dt class="lbl">Inputs</dt><dd>INPUT L and R (or mono)</dd></div>
 <div><dt class="lbl">Outputs</dt><dd>OUTPUT L and R</dd></div>
 </Fragment>
@@ -166,7 +166,7 @@ const clips = [
 <section id="rom" class="sheet">
 <div class="col sec brief">
 <h2 class="h2 tap">ROM images</h2>
-<p class="dim">The firmware, with the effects programs and the factory programs in it, is Alesis's copyrighted work, so it isn't included. al-fx-quadgt needs the v1.03 EPROM, <span class="mono">qvgtv103.bin</span>, and the display controller's character ROM from MAME, <span class="mono">hd44780_a00.bin</span>: without them there is nothing to run. <a href="/al-fx-quadgt/guide#roms">The ROMs</a></p>
+<p class="dim">The firmware, with the effects programs and the factory programs in it, is Alesis's copyrighted work, so it isn't included. al-fx-quadgt needs the EPROM, v1.03 (<span class="mono">qvgtv103.bin</span>) or v1.00 (<span class="mono">qvgtv100.bin</span>), and the display controller's character ROM from MAME, <span class="mono">hd44780_a00.bin</span>: without them there is nothing to run. <a href="/al-fx-quadgt/guide#roms">The ROMs</a></p>
 </div>
 </section>
 

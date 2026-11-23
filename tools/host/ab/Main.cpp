@@ -371,7 +371,8 @@ private:
 	static int heard(int outputs) { return std::clamp(outputs, 1, 2); }
 
 	// One loop of each source rendered offline; each gets the gain that brings the RMS of what is
-	// heard to the sources' mean (on top of the scene's own gainDb). The renders are kept, in
+	// heard to the sources' mean (on top of the scene's own gainDb), unless the scene says
+	// "matchLevels": false. The renders are kept, in
 	// mono, for stepping the spectrum.
 	void matchLevels()
 	{
@@ -405,6 +406,10 @@ private:
 		mean /= std::max(1, live);
 		m_levelText.clear();
 		for (size_t i = 0; i < db.size(); ++i) {
+			if (!m_scene.matchLevels) { // as rendered: show each source's level instead of a gain
+				m_levelText.push_back(db[i] > -150 ? juce::String(db[i], 1) + " dB RMS" : juce::String("silent"));
+				continue;
+			}
 			m_autoGain[i] = db[i] > -150 ? juce::Decibels::decibelsToGain(float(mean - db[i])) : 1.0f;
 			m_levelText.push_back(juce::String(mean - db[i] >= 0 ? "+" : "") + juce::String(mean - db[i], 1) + " dB");
 		}

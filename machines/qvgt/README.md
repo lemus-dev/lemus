@@ -1,6 +1,6 @@
 # Alesis QuadraVerb GT
 
-Emulation of the Alesis QuadraVerb GT guitar preamp and multi-effects (1991), firmware v1.03: plugin
+Emulation of the Alesis QuadraVerb GT guitar preamp and multi-effects (1991), firmware v1.03 (or v1.00): plugin
 `al-fx-quadgt`, an effect (Lemus FX). Not affiliated with Alesis.
 
 The real firmware runs from reset on an 80C31 (MAME's mcs51 core), loading its effects programs into
@@ -18,7 +18,8 @@ Both are needed, and neither is included:
 | File | Size | SHA1 | What |
 |---|---|---|---|
 | `qvgtv103.bin` | 64 KB | `0ac063e74b6c6ecf9edda10824df9a79c621ccd9` | the 27C512 EPROM (U30) as read from the chip: firmware v1.03, Alesis's copyrighted work. The effects, the programs and the panel are the firmware. |
-| `hd44780_a00.bin` | 4 KB | `65cf075a988cdcbb316b9afdd0529b374a1a65ec` | the LCD controller's character ROM, as MAME has it (the DX7 uses the same file): the LCD is drawn from it. |
+| or `qvgtv100.bin` | 64 KB | `f09ee9d50425a407fa33b6ac8eb79eca660e491f` | firmware v1.00, taken in v1.03's place when v1.03 isn't there (host `RomSpec::alternatives`): the first factory set. The session's RAM is marked with its firmware; opened with the other, the unit starts new and the session keeps the RAM aside. |
+| `hd44780_a00.bin` | 4 KB | `65cf075a988cdcbb316b9afdd0529b374a1a65ec` | the LCD controller's character ROM, as MAME has it (the DX7 uses the same file): the LCD is drawn from it. The datasheet copy (`bc0cdf0c...`, CRC 01d108e2) is taken too, corrected (host/Roms.cpp). |
 
 ## Artwork
 

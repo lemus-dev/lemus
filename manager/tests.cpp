@@ -336,6 +336,28 @@ void testRoms(const juce::File &sandbox)
 	check(describe(addDropped({drop.getChildFile("whatever.bin").getFullPathName()}, *needs)).contains("already"), "dropping it again: it has it already");
 	check(describe({}).startsWith("Nothing"), "dropping nothing of ours says so");
 	check(describe({{"ro-test-1", "cpu.ic1", false}}) == "Added cpu.ic1 to ro-test-1", "what one file added says");
+
+	// A ROM with an alternative (an earlier firmware): the alternative alone is enough, filed under
+	// its own name, and the ROM's own image comes first when both are there.
+	const juce::String fwNew = "firmware v2 image", fwOld = "firmware v1 image";
+	const auto altNeeds = parseNeeds(juce::String(R"({"plugins": {"ro-test-5": {"machine": "test5", "roms": [
+	    {"name": "fw-v2.bin", "size": 17, "sha1": ")") + sha(fwNew) + R"(", "crc32": "0", "what": "Firmware ROM", "optional": false,
+	     "alternatives": [{"name": "fw-v1.bin", "size": 17, "sha1": ")" + sha(fwOld) + R"(", "crc32": "0", "label": "v1"},
+	                      {"name": "../no", "size": 17, "sha1": ")" + sha(fwOld) + R"(", "crc32": "0", "label": "bad"}]}]}}})");
+	check(altNeeds && altNeeds->count("ro-test-5") && altNeeds->at("ro-test-5").roms.size() == 1 &&
+	          altNeeds->at("ro-test-5").roms[0].alternatives.size() == 1 && altNeeds->at("ro-test-5").roms[0].alternatives[0].label == "v1",
+	      "roms.json: a ROM's alternatives; one with a path in its name is skipped");
+	if (altNeeds) {
+		const auto &n5 = altNeeds->at("ro-test-5");
+		check(check(n5).rom() == RomCheck::Rom::Missing, "neither firmware: missing");
+		drop.getChildFile("old.bin").replaceWithText(fwOld);
+		addDropped({drop.getChildFile("old.bin").getFullPathName()}, *altNeeds);
+		check(roms.getChildFile("fw-v1.bin").loadFileAsString() == fwOld, "dropped: the alternative under its own name");
+		check(check(n5).rom() == RomCheck::Rom::Ready, "then: ready on the alternative");
+		roms.getChildFile("fw-v2.bin").replaceWithText(fwNew);
+		const auto set = romfolder::load(roms, n5.roms);
+		check(set.find("fw-v2.bin") != nullptr && set.find("fw-v2.bin")->toString() == fwNew, "with both, the ROM's own image");
+	}
 	romfolder::setOverride({});
 	sandbox.deleteRecursively();
 	sandbox.createDirectory();

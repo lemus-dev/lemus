@@ -25,7 +25,7 @@ set(QVGT_PLUGIN_INCLUDES ${QVGT_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHINES_D
 set_source_files_properties(${QVGT_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${QVGT_PLUGIN_INCLUDES}")
 
 lemus_machine(qvgt fx)
-lemus_plugin(qvgt NAME "al-fx-quadgt" CODE Aqvg VERSION 0.1.0 STAGE beta STANDALONE MIDI_OUT
+lemus_plugin(qvgt NAME "al-fx-quadgt" CODE Aqvg VERSION 0.1.1 STAGE beta STANDALONE MIDI_OUT
   DESCRIPTION "Emulation of the Alesis QuadraVerb GT. Not affiliated with Alesis.")
 function(lemus_add_qvgt target)
   target_sources(${target} PRIVATE ${QVGT_DIR}/qvgt.cpp ${QVGT_PLUGIN_SOURCES})

@@ -37,7 +37,16 @@
           "sha1": "0ac063e74b6c6ecf9edda10824df9a79c621ccd9",
           "crc32": "51813667",
           "what": "Firmware ROM",
-          "optional": false
+          "optional": false,
+          "alternatives": [
+            {
+              "name": "qvgtv100.bin",
+              "size": 65536,
+              "sha1": "f09ee9d50425a407fa33b6ac8eb79eca660e491f",
+              "crc32": "6084d63b",
+              "label": "v1.00"
+            }
+          ]
         },
         {
           "name": "hd44780_a00.bin",

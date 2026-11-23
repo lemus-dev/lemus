@@ -7,13 +7,20 @@ export const manager: { slug: string; page: string; release: Release | null; cha
   slug: 'lemus-plugin-manager',
   page: '/plugin-manager',
   release: {
-    version: '0.2.1',
-    tag: 'lemus-plugin-manager-v0.2.1',
+    version: '0.2.2',
+    tag: 'lemus-plugin-manager-v0.2.2',
     stage: 'beta',
-    mac: 'lemus-plugin-manager-0.2.1-mac.pkg',
-    windows: 'lemus-plugin-manager-0.2.1-windows.zip',
+    mac: 'lemus-plugin-manager-0.2.2-mac.pkg',
+    windows: 'lemus-plugin-manager-0.2.2-windows.zip',
   },
   changes: [
+    {
+      version: '0.2.2',
+      notes: [
+        'A plugin\'s ROM can have alternatives: al-fx-quadgt takes firmware v1.00 (qvgtv100.bin) as well as v1.03. A dropped one goes into the ROM folder under its own name.',
+        'The older hd44780_a00.bin drawn from the datasheet (CRC 01d108e2), dropped on the window, goes in corrected, so al-fx-quadgt finds it.',
+      ],
+    },
     {
       version: '0.2.1',
       notes: ['The list fits the longest names (the Oberheim Xpander was cut short); the artwork hint names a real file.'],

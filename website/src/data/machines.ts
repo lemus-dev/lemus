@@ -40,7 +40,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.2.5', tag: 'ro-mono-303-v0.2.5', stage: 'beta', mac: 'ro-mono-303-0.2.5-mac.pkg', windows: 'ro-mono-303-0.2.5-windows.zip' },
+    release: { version: '0.2.6', tag: 'ro-mono-303-v0.2.6', stage: 'beta', mac: 'ro-mono-303-0.2.6-mac.pkg', windows: 'ro-mono-303-0.2.6-windows.zip' },
     changes: [
       {
         version: '0.2.6',
@@ -136,7 +136,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.5', tag: 'ro-drums-909-v0.2.5', stage: 'beta', mac: 'ro-drums-909-0.2.5-mac.pkg', windows: 'ro-drums-909-0.2.5-windows.zip' },
+    release: { version: '0.2.6', tag: 'ro-drums-909-v0.2.6', stage: 'beta', mac: 'ro-drums-909-0.2.6-mac.pkg', windows: 'ro-drums-909-0.2.6-windows.zip' },
     changes: [
       {
         version: '0.2.6',
@@ -191,7 +191,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '808 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.1.4', tag: 'ro-drums-808-v0.1.4', stage: 'beta', mac: 'ro-drums-808-0.1.4-mac.pkg', windows: 'ro-drums-808-0.1.4-windows.zip' },
+    release: { version: '0.1.5', tag: 'ro-drums-808-v0.1.5', stage: 'beta', mac: 'ro-drums-808-0.1.5-mac.pkg', windows: 'ro-drums-808-0.1.5-windows.zip' },
     changes: [
       {
         version: '0.1.5',
@@ -252,8 +252,17 @@ export const machines: Machine[] = [
     withoutRom: 'none',
     keywords: 'quadraverb quadgt gt alesis guitar preamp amp distortion overdrive cabinet reverb delay chorus multi effects',
     nav: true,
-    release: { version: '0.1.0', tag: 'al-fx-quadgt-v0.1.0', stage: 'beta', mac: 'al-fx-quadgt-0.1.0-mac.pkg', windows: 'al-fx-quadgt-0.1.0-windows.zip' },
-    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+    release: { version: '0.1.1', tag: 'al-fx-quadgt-v0.1.1', stage: 'beta', mac: 'al-fx-quadgt-0.1.1-mac.pkg', windows: 'al-fx-quadgt-0.1.1-windows.zip' },
+    changes: [
+      {
+        version: '0.1.1',
+        notes: [
+          'Firmware v1.00 (qvgtv100.bin) works too, when v1.03 isn\'t in the ROM folder: the first factory set. A session keeps the memory of the firmware it was saved with; opened with the other, the unit starts with that firmware\'s factory programs and the session keeps the saved memory for later.',
+          'The older hd44780_a00.bin many ROM sets have, drawn from the datasheet (CRC 01d108e2), is taken too, with its six wrong characters corrected. It was reported as not found.',
+        ],
+      },
+      { version: '0.1.0', notes: ['The first release, a beta.'] },
+    ],
   },
   {
     slug: 'ro-mono-101',
@@ -264,7 +273,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '101 sh101 sh-101 mono synth bass lead arpeggio sequencer roland',
     nav: true,
-    release: { version: '0.1.3', tag: 'ro-mono-101-v0.1.3', stage: 'beta', mac: 'ro-mono-101-0.1.3-mac.pkg', windows: 'ro-mono-101-0.1.3-windows.zip' },
+    release: { version: '0.1.4', tag: 'ro-mono-101-v0.1.4', stage: 'beta', mac: 'ro-mono-101-0.1.4-mac.pkg', windows: 'ro-mono-101-0.1.4-windows.zip' },
     changes: [
       {
         version: '0.1.4',

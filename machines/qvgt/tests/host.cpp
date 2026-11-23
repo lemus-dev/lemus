@@ -2,6 +2,8 @@
 // folder, and audio bit-identical to the machine on its own. The ROMs come from the private folder;
 // without them these checks are skipped.
 #include "common.h"
+
+#include <cstring>
 #include "machines/drivers.h"
 #include "qvgt/plugin/PluginProcessor.h"
 
@@ -23,6 +25,22 @@ void testRom(const juce::MemoryBlock &rom, const juce::MemoryBlock &font)
 	check(LemusProcessor::missingRoms(drivers::qvgt()).size() == 1, "the firmware found under another name; the font still missing");
 	folder.add("hd44780_a00.bin", font);
 	check(LemusProcessor::missingRoms(drivers::qvgt()).empty(), "both found");
+
+	// The other hd44780_a00.bin in many ROM sets, drawn from the datasheet: six characters differ.
+	juce::MemoryBlock datasheet(font);
+	for (const auto &[at, value] : std::initializer_list<std::pair<int, uint8_t>>{
+	         {0x371, 0x11}, {0x372, 0x01}, {0x373, 0x02}, {0x374, 0x04}, {0x375, 0x04}, {0x376, 0x04},
+	         {0x773, 0x15}, {0xaa2, 0x1f}, {0xaa3, 0x04}, {0xf55, 0x11}, {0xf56, 0x13}, {0xf57, 0x0d},
+	         {0xfd1, 0x04}, {0xfd2, 0x00}, {0xfd3, 0x1f}, {0xfd4, 0x00}, {0xfd5, 0x04}, {0xfd6, 0x00}})
+		datasheet[at] = char(value);
+	check(crc32Hex(datasheet.getData(), datasheet.getSize()) == "01d108e2", "the datasheet font made from it");
+	folder.clear();
+	folder.add("qvgtv103.bin", rom);
+	folder.add("hd44780_a00.bin", datasheet);
+	check(LemusProcessor::missingRoms(drivers::qvgt()).empty(), "the datasheet font is taken too");
+	const auto set = romfolder::load(folder.dir, drivers::qvgt().roms);
+	const auto *got = set.find("hd44780_a00.bin");
+	check(got != nullptr && *got == font, "and corrected to the one named");
 }
 
 // Through the host, whose ROM set is gone once the machine is built: a session load restarts the
@@ -60,6 +78,88 @@ void testThroughHost(const juce::MemoryBlock &rom, const juce::MemoryBlock &font
 	check(differences(hosted, direct) == 0, "the same bit for bit as the machine alone");
 }
 
+// Firmware v1.00 in v1.03's place: found when v1.03 isn't there, never ahead of it; it boots and
+// sounds through the host; and a session's RAM stays with the firmware it was saved with.
+void testV100(const juce::MemoryBlock &v103, const juce::MemoryBlock &v100, const juce::MemoryBlock &font)
+{
+	std::printf("\nQuadraVerb GT firmware v1.00\n");
+	const RomFolder folder;
+	folder.add("hd44780_a00.bin", font);
+	folder.add("qvgtv100.bin", v100);
+	check(LemusProcessor::missingRoms(drivers::qvgt()).empty(), "v1.00 alone is enough");
+	auto got = romfolder::load(folder.dir, drivers::qvgt().roms);
+	check(got.find("qvgtv103.bin") != nullptr && *got.find("qvgtv103.bin") == v100, "and it fills the firmware's place");
+	{
+		juce::ZipFile::Builder zip;
+		zip.addEntry(new juce::MemoryInputStream(v103, true), 9, "qvgt/qvgtv103.bin", juce::Time::getCurrentTime());
+		juce::FileOutputStream out(folder.dir.getChildFile("zzz.zip"));
+		zip.writeToStream(out, nullptr);
+	}
+	got = romfolder::load(folder.dir, drivers::qvgt().roms);
+	check(got.find("qvgtv103.bin") != nullptr && *got.find("qvgtv103.bin") == v103, "v1.03 wins when both are there, even in a zip found later");
+	folder.clear();
+	folder.add("hd44780_a00.bin", font);
+	folder.add("qvgtv100.bin", v100);
+
+	LemusProcessor p;
+	check(p.selectMachine("qvgt"), "the host loads it with v1.00");
+	auto *q = dynamic_cast<QVGTProcessor *>(p.machineProcessor());
+	check(q != nullptr && q->romLoaded() && q->firmware() == "v1.00", "running v1.00");
+	if (q == nullptr)
+		return;
+	q->waitForBoot();
+	check(q->booted(), "it boots, with its factory programs");
+	check(peak(render(p, testSignal(int(kRate)))) > 0.01f, "the effects sound");
+	const auto lcd = q->display();
+	check(std::memcmp(lcd.text[1], "\"GUITARBYALESIS\"", 16) == 0, "on program 00 of the v1.00 factory set, \"GUITARBYALESIS\"");
+
+	// A session saved off (so the RAM is the battery's, not a running unit's) with v1.03.
+	auto stateOf = [](juce::AudioProcessor &a) {
+		juce::MemoryBlock m;
+		a.getStateInformation(m);
+		return m;
+	};
+	auto tree = [](const juce::MemoryBlock &m) {
+		const auto xml = juce::AudioProcessor::getXmlFromBinary(m.getData(), int(m.getSize()));
+		return xml != nullptr ? juce::ValueTree::fromXml(*xml) : juce::ValueTree();
+	};
+	auto ramOf = [](const juce::ValueTree &t, const char *name) {
+		const auto *b = t.getProperty(name).getBinaryData();
+		return b != nullptr ? *b : juce::MemoryBlock();
+	};
+	QVGTProcessor a103(&v103, &font);
+	a103.waitForBoot();
+	a103.setPowered(false);
+	const auto s1 = stateOf(a103);
+	const auto r1 = ramOf(tree(s1), "ram");
+	check(r1.getSize() == qvgt::kRamSize && tree(s1)["firmware"].toString() == "v1.03", "a v1.03 session holds its RAM, marked v1.03");
+
+	QVGTProcessor b100(&v100, &font);
+	b100.waitForBoot();
+	b100.setStateInformation(s1.getData(), int(s1.getSize()));
+	const auto s2 = tree(stateOf(b100));
+	check(s2["firmware"].toString() == "v1.00" && ramOf(s2, "ram").isEmpty(), "opened with v1.00: a new unit, factory programs");
+	check(s2["asideFirmware"].toString() == "v1.03" && ramOf(s2, "asideRam") == r1, "and the v1.03 RAM kept in the session as it was");
+
+	QVGTProcessor c103(&v103, &font);
+	c103.waitForBoot();
+	const auto s2b = stateOf(b100);
+	c103.setStateInformation(s2b.getData(), int(s2b.getSize()));
+	const auto s3 = tree(stateOf(c103));
+	check(s3["firmware"].toString() == "v1.03" && ramOf(s3, "ram") == r1, "back with v1.03: its RAM again");
+
+	// A session from 0.1.0: no firmware named, so v1.03's.
+	auto old = tree(s1);
+	old.removeProperty("firmware", nullptr);
+	juce::MemoryBlock oldState;
+	if (const auto xml = old.createXml())
+		juce::AudioProcessor::copyXmlToBinary(*xml, oldState);
+	QVGTProcessor d103(&v103, &font);
+	d103.waitForBoot();
+	d103.setStateInformation(oldState.getData(), int(oldState.getSize()));
+	check(ramOf(tree(stateOf(d103)), "ram") == r1, "a 0.1.0 session opens as v1.03's");
+}
+
 } // namespace
 
 LEMUS_HOST_TEST(qvgt)
@@ -71,4 +171,8 @@ LEMUS_HOST_TEST(qvgt)
 	}
 	testRom(rom, font);
 	testThroughHost(rom, font);
+	if (const auto v100 = privateRom("qvgt", "qvgtv100.bin"); !v100.isEmpty())
+		testV100(rom, v100, font);
+	else
+		std::printf("\nNo QuadraVerb GT v1.00 EPROM in the private folder: its checks skipped.\n");
 }

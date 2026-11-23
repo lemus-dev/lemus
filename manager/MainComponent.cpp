@@ -546,6 +546,10 @@ private:
 				if (full) {
 					y += text(i.spec.what + kDot + sizeText(i.spec.size) + kDot + "CRC " + i.spec.crc32, mono(11.5f), col::inkSoft, x + 12, y, w - 24);
 					y += text("SHA1 " + i.spec.sha1, mono(10.5f), col::inkSoft, x + 12, y, w - 20) + 2;
+					for (const auto &a : i.spec.alternatives) {
+						y += text("or " + a.name + " (" + a.label + ")" + kDot + sizeText(a.size) + kDot + "CRC " + a.crc32, mono(11.5f), col::inkSoft, x + 12, y, w - 24);
+						y += text("SHA1 " + a.sha1, mono(10.5f), col::inkSoft, x + 12, y, w - 20) + 2;
+					}
 				}
 				y += text(i.spec.optional ? "Without it: " + i.spec.without + "." : juce::String("It doesn't run without it."), mono(12.0f),
 				          i.spec.optional ? col::warn : kError, x + 12, y, w - 24)
@@ -660,9 +664,12 @@ private:
 	{
 		juce::String s = e.plugin + " (" + e.emulates + ") ROMs:\n";
 		if (const auto *check = m_owner.romCheckOf(e))
-			for (const auto &i : check->images)
+			for (const auto &i : check->images) {
 				s << i.spec.name << "  " << juce::String(juce::int64(i.spec.size)) << " bytes  CRC " << i.spec.crc32 << "  SHA1 " << i.spec.sha1
 				  << (i.found ? "  found" : "  not found") << (i.spec.optional ? "" : "  (needed)") << "\n";
+				for (const auto &a : i.spec.alternatives)
+					s << "  or " << a.name << " (" << a.label << ")  " << juce::String(juce::int64(a.size)) << " bytes  CRC " << a.crc32 << "  SHA1 " << a.sha1 << "\n";
+			}
 		return s;
 	}
 

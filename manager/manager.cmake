@@ -6,7 +6,7 @@
 #   build/manager/lemus_manager_artefacts/Release/Lemus Plugin Manager.app
 #   build/manager/lemustest_manager_artefacts/Release/lemustest_manager
 
-set(LEMUS_MANAGER_VERSION 0.2.1)
+set(LEMUS_MANAGER_VERSION 0.2.2)
 set(LEMUS_MANAGER_NAME "Lemus Plugin Manager")
 
 # What the app and its checks share: the catalogue (latest.json), what is installed, the tasks.

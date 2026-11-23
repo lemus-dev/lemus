@@ -42,7 +42,8 @@ reshuffles for each). Match levels (L) measures the sources again after you chan
 editor (a volume, say); blind mode keeps its order.
 
 - When a scene loads, one loop of each source is rendered offline and each is given the gain that
-  brings it to the sources' average level, shown on its button, so A/B is level-matched.
+  brings it to the sources' average level, shown on its button, so A/B is level-matched
+  (unless the scene says `"matchLevels": false`).
 - Switching crossfades over 5 ms; all sources keep playing, so a switch is instant and in time.
 - Blind mode shuffles the sources behind the letters and hides their names until Reveal.
 - Edit opens a source's own plugin window, to change it while it plays.
@@ -80,6 +81,7 @@ text the plugin parses ("Square", "440 Hz").
 | `notes` | `at`, `len` in beats; `note` as "C-3"/"C#3" (Onyx's names, C-3 = MIDI 48) or a number; `vel`, or `accent: true` for 127 (default 100) |
 | `midi` | a MIDI file's notes, its timing turned into beats at the scene's tempo |
 | `repeat`, `every` | play the notes N times, `every` beats apart (default: their length in whole bars) |
+| `matchLevels` | `false`: Lemus AB plays the sources as rendered instead of level-matching them (for scenes where the level difference is the point); each button shows its level |
 | `onsFirst` | at the same time, note-ons before note-offs, as Onyx sends them, so touching notes are legato; by default note-offs go first and a slide needs the notes to overlap |
 | `playing` | the transport the plugins see: `false` reports it stopped (a plugin's own sequencer, such as Roland's TR-808's, then stays quiet and only the notes play); default `true` |
 | `params`, `automation` | generic names (see below); automation is linear between `[beat, value]` points |

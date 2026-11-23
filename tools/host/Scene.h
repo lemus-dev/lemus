@@ -54,6 +54,8 @@ struct Scene {
 	                       // them, so touching notes are legato); else note-offs first
 	bool playing = true;   // the transport the plugins see (false: stopped, so a plugin's own
 	                       // sequencer stays quiet and only the notes play)
+	bool matchLevels = true; // Lemus AB brings the sources to one level (false: as rendered, for
+	                         // scenes where the level difference is what is being heard)
 	std::vector<Note> notes;
 	std::map<juce::String, juce::var> params; // generic names
 	std::vector<Automation> automation;

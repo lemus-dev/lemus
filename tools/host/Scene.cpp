@@ -115,6 +115,7 @@ Scene Scene::load(const juce::File &file, const Templates &templates, juce::Stri
 	s.automationStep = int(num("automationStep", s.automationStep));
 	s.onsFirst = bool(json.getProperty("onsFirst", false));
 	s.playing = bool(json.getProperty("playing", true));
+	s.matchLevels = bool(json.getProperty("matchLevels", true));
 	if (auto *arr = json["notes"].getArray())
 		for (const auto &n : *arr) {
 			Note note;

@@ -1,6 +1,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include "host/Roms.h"
+
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -31,6 +33,8 @@ QVGTProcessor::QVGTProcessor(const juce::MemoryBlock *rom, const juce::MemoryBlo
 	m_output = m_params.getRawParameterValue("output");
 	m_hiss = m_params.getRawParameterValue("hiss");
 	if (rom != nullptr) {
+		const auto sha1 = lemus::sha1Hex(rom->getData(), rom->getSize());
+		m_firmware = sha1 == kV103Sha1 ? "v1.03" : sha1 == kV100Sha1 ? "v1.00" : "";
 		const auto *p = static_cast<const uint8_t *>(rom->getData());
 		std::vector<uint8_t> image(p, p + rom->getSize());
 		if (qvgt::Board::prepareRom(image))
@@ -293,8 +297,13 @@ void QVGTProcessor::getStateInformation(juce::MemoryBlock &destData)
 	if (!m_powered)
 		ram = m_offRam;
 	state.setProperty("powered", m_powered, nullptr);
+	state.setProperty("firmware", m_firmware, nullptr);
 	if (!ram.empty())
 		state.setProperty("ram", juce::var(juce::MemoryBlock(ram.data(), ram.size())), nullptr);
+	if (!m_asideRam.empty()) {
+		state.setProperty("asideFirmware", m_asideFirmware, nullptr);
+		state.setProperty("asideRam", juce::var(juce::MemoryBlock(m_asideRam.data(), m_asideRam.size())), nullptr);
+	}
 	if (auto xml = state.createXml())
 		copyXmlToBinary(*xml, destData);
 }
@@ -306,14 +315,37 @@ void QVGTProcessor::setStateInformation(const void *data, int sizeInBytes)
 		return;
 	auto state = juce::ValueTree::fromXml(*xml);
 	m_modelVersion = state.getProperty("model", kModelVersion);
-	std::vector<uint8_t> ram;
-	if (auto *block = state.getProperty("ram").getBinaryData(); block != nullptr) {
-		const auto *p = static_cast<const uint8_t *>(block->getData());
-		ram.assign(p, p + block->getSize());
+	auto bytes = [&](const char *name) {
+		std::vector<uint8_t> v;
+		if (auto *block = state.getProperty(name).getBinaryData(); block != nullptr) {
+			const auto *p = static_cast<const uint8_t *>(block->getData());
+			v.assign(p, p + block->getSize());
+		}
+		return v;
+	};
+	// The RAM is the firmware's it was saved with (0.1.0 took v1.03 only). Opened with another, the
+	// unit starts as a new one, with its factory programs, and the session keeps the saved RAM for
+	// when that firmware is back.
+	auto ram = bytes("ram");
+	const juce::String savedFirmware = state.getProperty("firmware", "v1.03");
+	auto aside = bytes("asideRam");
+	const juce::String asideFirmware = state.getProperty("asideFirmware");
+	if (savedFirmware != m_firmware) {
+		std::vector<uint8_t> mine;
+		if (asideFirmware == m_firmware)
+			mine = std::move(aside);
+		m_asideFirmware = savedFirmware;
+		m_asideRam = std::move(ram);
+		ram = std::move(mine);
+	} else {
+		m_asideFirmware = asideFirmware;
+		m_asideRam = std::move(aside);
 	}
+	if (m_asideRam.empty())
+		m_asideFirmware.clear();
 	const bool powered = state.getProperty("powered", true);
-	state.removeProperty("ram", nullptr);
-	state.removeProperty("powered", nullptr);
+	for (const auto *name : {"ram", "powered", "firmware", "asideFirmware", "asideRam"})
+		state.removeProperty(name, nullptr);
 	m_params.replaceState(state);
 	if (powered) {
 		m_powered = true;

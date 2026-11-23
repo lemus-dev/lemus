@@ -6,6 +6,7 @@
 #include <array>
 #include <memory>
 #include <set>
+#include <utility>
 
 namespace lemus {
 
@@ -27,6 +28,29 @@ juce::String hex(const uint8_t *bytes, size_t n)
 		s += digits[bytes[i] & 15];
 	}
 	return s;
+}
+
+// Another dump of an image that goes about under the same name, and the bytes that make it the one
+// the machines name. The image a machine gets is then always the one its spec names.
+struct OtherDump {
+	const char *sha1;   // this dump's
+	const char *wanted; // the spec's
+	std::vector<std::pair<uint16_t, uint8_t>> bytes;
+};
+
+const std::vector<OtherDump> &knownDumps()
+{
+	static const std::vector<OtherDump> dumps{
+	    // MAME's hd44780_a00.bin (the QuadraVerb GT's and DX7's LCD font) as drawn from the HD44780
+	    // datasheet (CRC 01d108e2), still in many ROM sets: six characters differ from the corrected
+	    // one (CRC e459877c), among them 7 and w.
+	    {"bc0cdf0c9ba895f22e183c7bd35a3f655f2ca96f",
+	     "65cf075a988cdcbb316b9afdd0529b374a1a65ec",
+	     {{0x371, 0x01}, {0x372, 0x02}, {0x373, 0x04}, {0x374, 0x08}, {0x375, 0x08}, {0x376, 0x08},
+	      {0x773, 0x11}, {0xaa2, 0x00}, {0xaa3, 0x1f}, {0xf55, 0x13}, {0xf56, 0x0d}, {0xf57, 0x00},
+	      {0xfd1, 0x00}, {0xfd2, 0x04}, {0xfd3, 0x00}, {0xfd4, 0x1f}, {0xfd5, 0x00}, {0xfd6, 0x04}}},
+	};
+	return dumps;
 }
 
 } // namespace
@@ -96,6 +120,44 @@ juce::String crc32Hex(const void *data, size_t size)
 	crc = ~crc;
 	const uint8_t bytes[] = {uint8_t(crc >> 24), uint8_t(crc >> 16), uint8_t(crc >> 8), uint8_t(crc)};
 	return hex(bytes, 4);
+}
+
+juce::String alternativesText(const RomSpec &spec, bool hashes)
+{
+	juce::String s;
+	for (const auto &alt : spec.alternatives) {
+		s << juce::String::fromUTF8(" \xc2\xb7 or ") << alt.name << " (" << alt.label << ")";
+		if (hashes)
+			s << juce::String::fromUTF8(" \xc2\xb7 CRC ") << alt.crc32 << juce::String::fromUTF8(" \xc2\xb7 SHA1 ") << alt.sha1;
+	}
+	return s;
+}
+
+juce::StringArray otherDumps(const juce::String &sha1)
+{
+	juce::StringArray all;
+	for (const auto &d : knownDumps())
+		if (sha1 == d.wanted)
+			all.add(d.sha1);
+	return all;
+}
+
+juce::MemoryBlock fromOtherDump(const juce::MemoryBlock &data, const juce::String &sha1, juce::String dataSha1)
+{
+	for (const auto &d : knownDumps()) {
+		if (sha1 != d.wanted)
+			continue;
+		if (dataSha1.isEmpty())
+			dataSha1 = sha1Hex(data.getData(), data.getSize());
+		if (dataSha1 != d.sha1)
+			continue;
+		juce::MemoryBlock fixed(data);
+		for (const auto &[at, value] : d.bytes)
+			if (at < fixed.getSize())
+				static_cast<uint8_t *>(fixed.getData())[at] = value;
+		return sha1Hex(fixed.getData(), fixed.getSize()) == sha1 ? fixed : juce::MemoryBlock();
+	}
+	return {};
 }
 
 namespace {
@@ -189,30 +251,65 @@ void setOverride(const juce::File &folder)
 RomSet load(const juce::File &folder, const std::vector<RomSpec> &roms, std::vector<RomSpec> *missing)
 {
 	RomSet found;
-	size_t remaining = roms.size();
+	// What each image found so far is: 0 the spec's own, 1 its first alternative... A spec's own
+	// image is what the search waits for; an alternative is kept until it turns up, or for good.
+	std::map<juce::String, size_t> rank;
+	auto settled = [&](const RomSpec &spec) {
+		const auto it = rank.find(spec.name);
+		return it != rank.end() && it->second == 0;
+	};
+	auto take = [&](const RomSpec &spec, const juce::MemoryBlock &data, const juce::File &where, size_t r) {
+		if (const auto it = rank.find(spec.name); it != rank.end() && it->second <= r)
+			return;
+		found.add(spec.name, data, where);
+		rank[spec.name] = r;
+	};
+	auto remaining = [&] {
+		return size_t(std::count_if(roms.begin(), roms.end(), [&](const RomSpec &spec) { return !settled(spec); }));
+	};
 	// Only data of a wanted size is read and hashed, so a large folder (a whole MAME set) is cheap
 	// to look through.
 	auto offer = [&](const juce::MemoryBlock &data, const juce::File &where) {
 		juce::String sha1;
-		for (const auto &spec : roms) {
-			if (spec.size != data.getSize() || found.has(spec.name))
-				continue;
+		auto hash = [&]() -> const juce::String & {
 			if (sha1.isEmpty())
 				sha1 = sha1Hex(data.getData(), data.getSize());
-			if (sha1 == spec.sha1) {
-				found.add(spec.name, data, where);
-				--remaining;
+			return sha1;
+		};
+		for (const auto &spec : roms) {
+			if (settled(spec))
+				continue;
+			if (spec.size == data.getSize()) {
+				if (hash() == spec.sha1) {
+					take(spec, data, where, 0);
+					continue;
+				}
+				if (const auto fixed = fromOtherDump(data, spec.sha1, hash()); !fixed.isEmpty()) {
+					take(spec, fixed, where, 0);
+					continue;
+				}
 			}
+			for (size_t i = 0; i < spec.alternatives.size(); ++i)
+				if (spec.alternatives[i].size == data.getSize() && hash() == spec.alternatives[i].sha1) {
+					take(spec, data, where, i + 1);
+					break;
+				}
 		}
 	};
 	auto wanted = [&](juce::int64 size) {
-		for (const auto &spec : roms)
-			if (juce::int64(spec.size) == size && !found.has(spec.name))
+		for (const auto &spec : roms) {
+			if (settled(spec))
+				continue;
+			if (juce::int64(spec.size) == size)
 				return true;
+			for (const auto &alt : spec.alternatives)
+				if (juce::int64(alt.size) == size)
+					return true;
+		}
 		return false;
 	};
 
-	if (remaining > 0 && folder.isDirectory()) {
+	if (remaining() > 0 && folder.isDirectory()) {
 		std::vector<juce::File> zips;
 		for (const auto &entry : juce::RangedDirectoryIterator(folder, true, "*", juce::File::findFiles)) {
 			const auto file = entry.getFile();
@@ -223,12 +320,12 @@ RomSet load(const juce::File &folder, const std::vector<RomSpec> &roms, std::vec
 			} else if (file.hasFileExtension("zip") && entry.getFileSize() < 256 * 1024 * 1024) {
 				zips.push_back(file);
 			}
-			if (remaining == 0)
+			if (remaining() == 0)
 				break;
 		}
-		for (size_t z = 0; z < zips.size() && remaining > 0; ++z) {
+		for (size_t z = 0; z < zips.size() && remaining() > 0; ++z) {
 			juce::ZipFile zip(zips[z]);
-			for (int i = 0; i < zip.getNumEntries() && remaining > 0; ++i)
+			for (int i = 0; i < zip.getNumEntries() && remaining() > 0; ++i)
 				if (const auto *e = zip.getEntry(i); e != nullptr && wanted(e->uncompressedSize))
 					if (std::unique_ptr<juce::InputStream> in(zip.createStreamForEntry(i)); in != nullptr) {
 						juce::MemoryBlock data;

@@ -111,16 +111,18 @@ const toc: Entry[] = [
 <p>Then the firmware boots, as the unit does when it's switched on. The first time, it loads its 90 factory programs the way the unit does it, which takes a few seconds; after that it starts from the memory the session keeps.</p>
 
 <h3 id="roms">The ROMs</h3>
-<p>Two files, found by checksum anywhere in the <a href="/support#rom">ROM folder</a>, whatever they're called.</p>
+<p>Two files, found by checksum anywhere in the <a href="/support#rom">ROM folder</a>, whatever they're called: the firmware, v1.03 or v1.00 (v1.03 if both are there), and the character ROM.</p>
 <div class="scroll">
 <table>
 <thead><tr><th scope="col">File</th><th scope="col">Size</th><th scope="col">SHA1</th><th scope="col">Holds</th></tr></thead>
 <tbody>
 <tr><td class="mono">qvgtv103.bin</td><td class="num">65,536 bytes</td><td class="mono">0ac063e74b6c6ecf9edda10824df9a79c621ccd9</td><td>The 27C512 EPROM (U30) as read from the chip: firmware v1.03, the effects and the factory programs</td></tr>
-<tr><td class="mono">hd44780_a00.bin</td><td class="num">4,096 bytes</td><td class="mono">65cf075a988cdcbb316b9afdd0529b374a1a65ec</td><td>The display controller's character ROM, as in MAME's sets (the DX7's, among others): the display is drawn from it</td></tr>
+<tr><td class="mono">qvgtv100.bin</td><td class="num">65,536 bytes</td><td class="mono">f09ee9d50425a407fa33b6ac8eb79eca660e491f</td><td>Firmware v1.00 (1991), in v1.03's place: the first factory set, no global cabinet simulator controls, and the two faults v1.01 fixed</td></tr>
+<tr><td class="mono">hd44780_a00.bin</td><td class="num">4,096 bytes</td><td class="mono">65cf075a988cdcbb316b9afdd0529b374a1a65ec</td><td>The display controller's character ROM, as in MAME's sets (the DX7's, among others): the display is drawn from it. The older copy drawn from the datasheet (SHA1 bc0cdf0c9ba895f22e183c7bd35a3f655f2ca96f) works too: its six wrong characters are corrected</td></tr>
 </tbody>
 </table>
 </div>
+<p>The memory a session keeps is the firmware's it was saved with. Opened with the other firmware, the unit starts with that one's factory programs, and the session keeps the saved memory for when its firmware is back.</p>
 
 <h3 id="artwork">Panel artwork</h3>
 <p>The two blank places take an SVG or PNG of your own each, named as below, anywhere in the ROM folder (<a href="/support#artwork">how artwork files work</a>). <span class="k">ROMs</span> in the top bar lists them with what each has, opens the folder with Show its folder, and reads it again with Rescan.</p>

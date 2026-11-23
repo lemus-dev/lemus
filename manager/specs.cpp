@@ -1,6 +1,7 @@
 // Prints what each shipping plugin needs from the user's ROM folder, as JSON for the website
 // (website/src/data/roms.json, served as /roms.json for Lemus Plugin Manager): its ROM images
-// (name, size, SHA1, CRC, whether optional and what the machine lacks without it) and its artwork
+// (name, size, SHA1, CRC, whether optional and what the machine lacks without it, other images it
+// also takes in one's place) and its artwork
 // places. Taken from the machines' own specs (host/Machine.h), so the manager checks a folder the
 // way the plugins read it (host/Roms.h). Built as lemus_specs_instrument and lemus_specs_fx, one
 // per host (they don't link together); tools/release/roms-json.sh runs both and merges them. Run it
@@ -28,6 +29,19 @@ int main()
 			o->setProperty("optional", r.optional);
 			if (r.optional)
 				o->setProperty("without", r.without);
+			if (!r.alternatives.empty()) {
+				juce::Array<juce::var> alts;
+				for (const auto &a : r.alternatives) {
+					auto ao = std::make_unique<juce::DynamicObject>();
+					ao->setProperty("name", a.name);
+					ao->setProperty("size", juce::int64(a.size));
+					ao->setProperty("sha1", a.sha1);
+					ao->setProperty("crc32", a.crc32);
+					ao->setProperty("label", a.label);
+					alts.add(juce::var(ao.release()));
+				}
+				o->setProperty("alternatives", alts);
+			}
 			roms.add(juce::var(o.release()));
 		}
 		juce::Array<juce::var> places;

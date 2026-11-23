@@ -29,6 +29,7 @@ juce::String extension(const juce::String &name)
 struct Wanted {
 	juce::String plugin, name;
 	juce::File folder;
+	juce::String sha1; // the image's: a dropped other dump of it is corrected to it
 };
 
 // The plugins' ROMs by SHA1, and their places' file names (<plugin>-<place>, lower case).
@@ -42,8 +43,14 @@ Index indexOf(const NeedsMap &needs)
 	Index index;
 	for (const auto &[plugin, n] : needs) {
 		const auto folder = romfolder::location(n.machine);
-		for (const auto &r : n.roms)
-			index.roms[r.sha1].push_back({plugin, r.name, folder});
+		for (const auto &r : n.roms) {
+			index.roms[r.sha1].push_back({plugin, r.name, folder, r.sha1});
+			for (const auto &other : otherDumps(r.sha1))
+				index.roms[other].push_back({plugin, r.name, folder, r.sha1});
+			// An alternative goes in under its own name: the plugin knows it by its bytes.
+			for (const auto &a : r.alternatives)
+				index.roms[a.sha1].push_back({plugin, a.name, folder, a.sha1});
+		}
 		for (const auto &p : n.artwork.places)
 			index.art[romfolder::placeFileName(n.artwork, p.id).toLowerCase()] = {plugin, romfolder::placeFileName(n.artwork, p.id), folder};
 	}
@@ -72,9 +79,14 @@ bool put(const juce::File &folder, const juce::String &name, const void *data, s
 // One file's bytes, whatever they came out of: a ROM by its SHA1, artwork by its name.
 void offer(const juce::String &fileName, const juce::MemoryBlock &data, const Index &index, std::vector<Added> &added)
 {
-	if (const auto it = index.roms.find(sha1Hex(data.getData(), data.getSize())); it != index.roms.end()) {
-		for (const auto &w : it->second)
-			put(w.folder, w.name, data.getData(), data.getSize(), added, w.plugin);
+	const auto sha1 = sha1Hex(data.getData(), data.getSize());
+	if (const auto it = index.roms.find(sha1); it != index.roms.end()) {
+		for (const auto &w : it->second) {
+			if (w.sha1 == sha1)
+				put(w.folder, w.name, data.getData(), data.getSize(), added, w.plugin);
+			else if (const auto fixed = fromOtherDump(data, w.sha1, sha1); !fixed.isEmpty())
+				put(w.folder, w.name, fixed.getData(), fixed.getSize(), added, w.plugin);
+		}
 		return;
 	}
 	const auto ext = extension(fileName);
@@ -143,6 +155,17 @@ std::optional<NeedsMap> parseNeeds(const juce::String &text)
 				s.what = r["what"].toString();
 				s.optional = bool(r["optional"]);
 				s.without = r["without"].toString();
+				if (const auto *alts = r["alternatives"].getArray())
+					for (const auto &a : *alts) {
+						RomAlternative alt;
+						alt.name = a["name"].toString();
+						alt.size = size_t(juce::int64(a["size"]));
+						alt.sha1 = a["sha1"].toString().toLowerCase();
+						alt.crc32 = a["crc32"].toString().toLowerCase();
+						alt.label = a["label"].toString();
+						if (alt.name.isNotEmpty() && !alt.name.containsAnyOf("/\\:") && alt.name != ".." && alt.sha1.length() == 40)
+							s.alternatives.push_back(alt);
+					}
 				// The name becomes a file in the ROM folder: no paths.
 				if (s.name.isNotEmpty() && !s.name.containsAnyOf("/\\:") && s.name != ".." && s.sha1.length() == 40)
 					n.roms.push_back(s);

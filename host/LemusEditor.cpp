@@ -771,7 +771,7 @@ private:
 				l.status = utf8("\xe2\x9c\x93 ") + shortPath(roms.where(r.name));
 			} else {
 				m_romMissing = true;
-				l.status = utf8("not found \xc2\xb7 CRC ") + r.crc32 + utf8(" \xc2\xb7 SHA1 ") + r.sha1;
+				l.status = utf8("not found \xc2\xb7 CRC ") + r.crc32 + utf8(" \xc2\xb7 SHA1 ") + r.sha1 + lemus::alternativesText(r, false);
 				l.colour = col::warn;
 			}
 			m_roms.push_back(l);
@@ -965,7 +965,9 @@ private:
 		std::vector<File> files;
 		for (const auto &r : m_roms)
 			files.push_back({r.name, "not found",
-			                 r.what + utf8(" \xc2\xb7 ") + sizeText(r.size) + utf8(" \xc2\xb7 CRC ") + r.crc32 + utf8(" \xc2\xb7 SHA1 ") + r.sha1, {}});
+			                 r.what + utf8(" \xc2\xb7 ") + sizeText(r.size) + utf8(" \xc2\xb7 CRC ") + r.crc32 + utf8(" \xc2\xb7 SHA1 ") + r.sha1 +
+			                     lemus::alternativesText(r, true),
+			                 {}});
 		if (m_noArtwork) {
 			const auto maker = m_info.name.upToFirstOccurrenceOf(" ", false, false);
 			const auto &art = m_info.artwork;
@@ -1590,6 +1592,8 @@ private:
 			juce::String meta = rom.what + utf8(" \xc2\xb7 ") + sizeText(rom.size) + utf8(" \xc2\xb7 CRC ") + rom.crc32;
 			if (rom.optional)
 				meta << utf8(" \xc2\xb7 optional");
+			if (!found)
+				meta << lemus::alternativesText(rom, false);
 			juce::String note;
 			if (!found)
 				note = rom.optional ? "Without it: " + rom.without + "." : "Needed to load the " + e->info->name + ".";
