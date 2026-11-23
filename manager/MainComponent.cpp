@@ -63,7 +63,7 @@ public:
 	void paint(juce::Graphics &g) override
 	{
 		const auto cols = columns(getLocalBounds().withTrimmedLeft(20).withTrimmedRight(20).withHeight(kTop).withTrimmedTop(8));
-		g.setFont(mono(12.0f, true).withExtraKerningFactor(0.06f));
+		g.setFont(headerFont());
 		g.setColour(col::muted);
 		const char *names[] = {"MACHINE", "PLUGIN", "HAVE", "STATUS", "ROM", "ART"};
 		for (int i = 0; i < 6; ++i)
@@ -127,15 +127,36 @@ public:
 	int heightFor(int rows) const { return kTop + rows * (kRow + 2) + 8; }
 
 private:
-	static std::array<juce::Rectangle<int>, 6> columns(juce::Rectangle<int> r)
+	static juce::Font headerFont() { return mono(12.0f, true).withExtraKerningFactor(0.06f); }
+	static int widthOf(const juce::Font &f, const juce::String &s) { return juce::GlyphArrangement::getStringWidthInt(f, s) + 2; }
+
+	// The machine and plugin as wide as their longest names (of every plugin, so searching doesn't
+	// move them), the status the rest, at least "[ ] not installed"; 44 px version, 26 px ROM and
+	// ART, 6 px between (and what's spare). Short of room, the machine and plugin give it up in
+	// proportion, and their names end in "...".
+	std::array<juce::Rectangle<int>, 6> columns(juce::Rectangle<int> r) const
 	{
-		// machine, plugin, 44 px version, status, 30 px ROM, 30 px ART; 8 px between. The status
-		// gets the most: "[ ] not installed" fits.
-		const int gap = 8, have = 44, mark = 30, free = r.getWidth() - 5 * gap - have - 2 * mark;
+		const int gap = 6, have = 44, mark = 26, free = r.getWidth() - 5 * gap - have - 2 * mark;
+		int machine = widthOf(headerFont(), "MACHINE"), plugin = widthOf(headerFont(), "PLUGIN");
+		if (m_owner.m_catalog)
+			for (const auto &e : m_owner.m_catalog->plugins) {
+				machine = std::max(machine, widthOf(mono(13.0f, true), e.shortName()));
+				plugin = std::max(plugin, widthOf(mono(13.0f), e.plugin));
+			}
+		const int status = widthOf(mono(13.0f), "[ ] not installed");
+		if (const int over = machine + plugin + status - free; over > 0) {
+			const int fromMachine = over * machine / (machine + plugin);
+			machine -= fromMachine;
+			plugin -= over - fromMachine;
+		} else {
+			// Room to spare: a third each after the machine and the plugin, a third to the status.
+			machine -= over / 3;
+			plugin -= over / 3;
+		}
 		std::array<juce::Rectangle<int>, 6> c;
-		c[0] = r.removeFromLeft(free * 31 / 100);
+		c[0] = r.removeFromLeft(machine);
 		r.removeFromLeft(gap);
-		c[1] = r.removeFromLeft(free * 29 / 100);
+		c[1] = r.removeFromLeft(plugin);
 		r.removeFromLeft(gap);
 		c[2] = r.removeFromLeft(have);
 		r.removeFromLeft(gap);
@@ -557,7 +578,14 @@ private:
 			y += 8;
 		}
 		if (missing) {
-			const auto artName = check->places.empty() ? juce::String() : " Artwork files are named " + e.plugin + "-<place>.svg or .png.";
+			// A real name as the example ("<place>" reads as an arrow in JetBrains Mono: -< is a ligature).
+			juce::String example = check->places.empty() ? juce::String() : check->places[0].place.id;
+			for (const auto &p : check->places)
+				if (p.where.isEmpty()) {
+					example = p.place.id; // the first one missing
+					break;
+				}
+			const auto artName = check->places.empty() ? juce::String() : " Artwork files are named for their place, like " + e.plugin + "-" + example + ".svg or .png.";
 			const auto what = check->images.empty() ? juce::String("the artwork") : check->places.empty() ? juce::String("the ROM") : juce::String("the ROM or artwork");
 			y += text("Drop " + what + " on this window, or put " + (check->images.size() + check->places.size() > 1 ? "them" : "it") + " in the ROM folder." + artName,
 			          mono(12.0f), col::muted, x, y, w)

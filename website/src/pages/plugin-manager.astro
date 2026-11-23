@@ -42,6 +42,9 @@ const source = r ? `https://github.com/lemus-dev/lemus/tree/${r.tag}/manager` : 
 <p>It reads the list of released plugins from lemusdev.org, the file the plugins' own update check reads, and shows each one with the version you have. Install puts the formats you tick where every DAW looks: /Library/Audio/Plug-Ins and /Applications on macOS; C:\Program Files\Common Files\VST3 and C:\Program Files\Lemus on Windows, with a Start menu shortcut. Update installs the new version over yours and keeps the formats you have; Update all does every plugin with an update. Remove deletes a plugin's copies; your ROMs, artwork and songs stay.</p>
 <p>It installs from the same files the plugin pages offer, downloaded from each plugin's GitHub release and checked against their SHA-256 first: a download that doesn't match is thrown away and the installed version stays. Each install, update, Update all or removal asks once for permission: your password on macOS, the permission prompt on Windows.</p>
 
+<h2 id="roms" class="h3">ROMs and artwork</h2>
+<p>For each plugin it shows whether the plugin's ROM folder has what it needs: the ROM and ART columns in the list, and in its details each ROM, found or not, with the size, CRC and SHA1 of one that is missing and what the plugin does without it, and the artwork places found. Drop ROMs or artwork anywhere on its window, as files, folders or zips: ROMs are matched by SHA1 and artwork by name (&lt;plugin&gt;-&lt;place&gt;.svg or .png), and each is copied into its plugin's ROM folder. It never downloads ROMs.</p>
+
 <h2 id="updates" class="h3">Its own updates</h2>
 <p>When a newer Plugin Manager is out, it offers it when it opens: Later, or Update now, which installs it and starts the new version. Plugins update only when you click.</p>
 
