@@ -86,7 +86,15 @@ bool LemusProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 				return false;
 		return true;
 	}
-	return layouts.getMainInputChannelSet() == out;
+	const auto in = layouts.getMainInputChannelSet();
+#ifdef LEMUS_MACHINE
+	// a machine's own plugin: mono in, stereo out too where the machine takes it
+	// (MachineInfo::monoToStereo)
+	if (const auto *info = lemus::findMachine(LEMUS_MACHINE); info != nullptr && info->monoToStereo)
+		if (in == juce::AudioChannelSet::mono() && out == juce::AudioChannelSet::stereo())
+			return true;
+#endif
+	return in == out;
 }
 
 void LemusProcessor::configure(juce::AudioProcessor &machine)
@@ -130,10 +138,15 @@ void LemusProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 		m->processBlock(buffer, midi);
 		return;
 	}
-	// Empty instance: an effect passes its input through, an instrument is silent.
+	// Empty instance: an effect passes its input through (a mono input to both sides), an
+	// instrument is silent.
 	const int from = kInstrument ? 0 : getTotalNumInputChannels();
-	for (int ch = from; ch < buffer.getNumChannels(); ++ch)
-		buffer.clear(ch, 0, buffer.getNumSamples());
+	for (int ch = from; ch < buffer.getNumChannels(); ++ch) {
+		if (from == 1)
+			buffer.copyFrom(ch, 0, buffer, 0, 0, buffer.getNumSamples());
+		else
+			buffer.clear(ch, 0, buffer.getNumSamples());
+	}
 }
 
 std::vector<lemus::RomSpec> LemusProcessor::missingRoms(const lemus::MachineInfo &info)

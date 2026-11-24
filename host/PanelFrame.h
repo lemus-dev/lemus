@@ -300,14 +300,60 @@ inline std::vector<juce::String> commonHelp()
 	        "Space: standalone only (in a DAW it is the DAW's transport). Any click, ? or Escape closes this."};
 }
 
+// The key list in two columns, for a panel too short for one (a 1U rack unit): the lines without
+// the blank ones, down the left column then the right, over all of `over` with a narrow frame.
+inline void drawHelpColumns(juce::Graphics &g, juce::Rectangle<float> over, const juce::String &model, const std::vector<juce::String> &all, const Mono &mono)
+{
+	std::vector<juce::String> lines;
+	for (const auto &l : all)
+		if (l.isNotEmpty())
+			lines.push_back(l);
+	const size_t rows = (lines.size() + 1) / 2;
+	constexpr float kTop = 36, kBottom = 10, kSide = 24, kGap = 32;
+	const auto r = over.reduced(2);
+	const float line = juce::jmin(21.0f, (r.getHeight() - kTop - kBottom) / float(rows));
+	// the size that fits each column's widest line side by side, up to the one-column list's
+	auto width = [&](float size, size_t from, size_t to) {
+		float w = 0;
+		for (size_t i = from; i < to; ++i)
+			w = juce::jmax(w, juce::GlyphArrangement::getStringWidth(mono(size, 0), lines[i]));
+		return w;
+	};
+	float size = juce::jmin(12.5f, line - 6.0f);
+	const float room = r.getWidth() - 2 * kSide - kGap;
+	if (const float need = width(size, 0, rows) + width(size, rows, lines.size()); need > room)
+		size *= room / need;
+	const float left = width(size, 0, rows);
+	g.setColour(col::overlay);
+	g.fillRoundedRectangle(r, 12);
+	g.setColour(col::border);
+	g.drawRoundedRectangle(r, 12, 1);
+	g.setColour(col::ink);
+	g.setFont(mono(15.0f, 2));
+	g.drawText(model + " KEYS", r.reduced(kSide, 12).removeFromTop(18), juce::Justification::topLeft);
+	g.setFont(mono(size, 0));
+	g.setColour(col::overlayText);
+	for (size_t i = 0; i < lines.size(); ++i) {
+		const bool second = i >= rows;
+		const float x = r.getX() + kSide + (second ? left + kGap : 0.0f);
+		const float y = r.getY() + kTop + line * float(second ? i - rows : i);
+		g.drawText(lines[i], juce::Rectangle<float>(x, y, r.getRight() - kSide - x, line), juce::Justification::centredLeft);
+	}
+}
+
 // The key list (?), over the panel `over`: "<MODEL> KEYS", the machine's lines, then commonHelp().
 inline void drawHelp(juce::Graphics &g, juce::Rectangle<float> over, const juce::String &model, std::vector<juce::String> lines, const Mono &mono)
 {
 	for (auto &l : commonHelp())
 		lines.push_back(std::move(l));
-	// 21 px a line, closer (and the text smaller) when that won't fit over the panel
+	// 21 px a line, closer (and the text smaller) when that won't fit over the panel; two columns
+	// when even 15 px won't
 	constexpr float kWidth = 980, kFrame = 64 + 20;
 	const float line = juce::jmin(21.0f, (over.getHeight() - 20 - kFrame) / float(lines.size()));
+	if (line < 15.0f) {
+		drawHelpColumns(g, over, model, lines, mono);
+		return;
+	}
 	const auto r = juce::Rectangle<float>(juce::jmin(kWidth, over.getWidth() - 40), kFrame + line * float(lines.size())).withCentre(over.getCentre());
 	g.setColour(col::overlay);
 	g.fillRoundedRectangle(r, 12);

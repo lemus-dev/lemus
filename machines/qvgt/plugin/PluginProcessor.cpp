@@ -112,17 +112,20 @@ void QVGTProcessor::setPowered(bool on)
 	startBoot(m_offRam);
 }
 
+// Mono or stereo, both ways, as the jacks take it: the inputs are cross-normalled (one plug feeds
+// both), and so are the outputs (one plug joins both lines: their average).
 bool QVGTProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
 {
-	const auto in = layouts.getMainInputChannelSet();
-	return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo() &&
-	       (in == juce::AudioChannelSet::mono() || in == juce::AudioChannelSet::stereo());
+	const auto mono = juce::AudioChannelSet::mono(), stereo = juce::AudioChannelSet::stereo();
+	const auto in = layouts.getMainInputChannelSet(), out = layouts.getMainOutputChannelSet();
+	return (in == mono || in == stereo) && (out == mono || out == stereo);
 }
 
 void QVGTProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	m_rate = sampleRate;
 	m_silence.assign(size_t(juce::jmax(1, samplesPerBlock)), 0.0f);
+	m_right.assign(m_silence.size(), 0.0f);
 	const juce::SpinLock::ScopedLockType lock(m_audioLock);
 	if (m_unit != nullptr && m_ready.load(std::memory_order_acquire))
 		m_unit->prepare(sampleRate);
@@ -184,12 +187,21 @@ void QVGTProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuf
 	}
 	applyGains();
 
-	if (int(m_silence.size()) < n)
+	if (int(m_silence.size()) < n) {
 		m_silence.assign(size_t(n), 0.0f);
+		m_right.assign(size_t(n), 0.0f);
+	}
+	// A mono input is one plug in the cross-normalled inputs: both sides. A mono output is one plug
+	// in the outputs, whose switches then join both lines through R151, R152 (470 each): the average.
 	const int inChannels = getTotalNumInputChannels();
+	const bool oneOut = getTotalNumOutputChannels() < 2 || buffer.getNumChannels() < 2;
 	const float *inL = inChannels > 0 ? buffer.getReadPointer(0) : m_silence.data();
 	const float *inR = inChannels > 1 ? buffer.getReadPointer(1) : inL;
-	u.process(inL, inR, buffer.getWritePointer(0), buffer.getWritePointer(buffer.getNumChannels() > 1 ? 1 : 0), n);
+	float *outL = buffer.getWritePointer(0), *outR = oneOut ? m_right.data() : buffer.getWritePointer(1);
+	u.process(inL, inR, outL, outR, n);
+	if (oneOut)
+		for (int i = 0; i < n; ++i)
+			outL[i] = 0.5f * (outL[i] + outR[i]);
 	for (int ch = 2; ch < buffer.getNumChannels(); ++ch)
 		buffer.clear(ch, 0, n);
 	m_asleep.store(u.asleep(), std::memory_order_relaxed);

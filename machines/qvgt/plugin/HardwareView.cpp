@@ -148,7 +148,8 @@ void HardwareView::paint(juce::Graphics &g)
 	if (!m_help)
 		drawTip(g);
 	if (m_help)
-		lemus::panel::drawHelp(g, getLocalBounds().toFloat().withTrimmedBottom(kBarHeight), "QUADRAVERB GT",
+		// over the bar too: the 1U panel alone is too short for the list
+		lemus::panel::drawHelp(g, getLocalBounds().toFloat(), "QUADRAVERB GT",
 		                       {"Left / Right   PAGE down / up", "Down / Up      VALUE down / up", "Return         STORE", "P              PROG",
 		                        "B              BYPASS", "Shift with a key or a click: a hard press (the keys sense force: harder scrolls faster)",
 		                        "Knobs: drag up and down, Shift for fine, double-click for the start position, or the mouse wheel",

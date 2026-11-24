@@ -19,7 +19,10 @@ const MachineInfo &qvgt()
 		// a window twice the size, a Retina screen).
 		{"qvgt.svg", nullptr, {{"maker", "alesis", "Alesis logo", 27.7f, 4.9f}, {"name", "quadraverb_gt", "QuadraVerb GT logo", 66.6f, 8.4f}}, 10.4f,
 		 "al-fx-quadgt"},
-		[](const RomSet &roms) { return std::make_unique<QVGTProcessor>(roms.find("qvgtv103.bin"), roms.find("hd44780_a00.bin"), Artwork::load(roms, qvgt().artwork)); }};
+		[](const RomSet &roms) { return std::make_unique<QVGTProcessor>(roms.find("qvgtv103.bin"), roms.find("hd44780_a00.bin"), Artwork::load(roms, qvgt().artwork)); },
+		// no other outputs, no side-chain; mono in, stereo out: the owner's manual's "Mono In,
+		// Stereo Out", one guitar into the cross-normalled inputs
+		{}, false, {}, true};
 	return info;
 }
 

@@ -92,9 +92,10 @@ juce::String lcd(const QVGTProcessor &p, int line)
 int main(int argc, char **argv)
 {
 	juce::ScopedJuceInitialiser_GUI gui;
-	// --snapshot out.png [rear | --artwork FOLDER] [--hover X Y]: the panel (or the rear) after boot,
-	// drawn headless, with the brand marks the ROM folder FOLDER has for the places panel.json lists,
-	// and nothing else; with the mouse over X, Y (view pixels) for a tooltip
+	// --snapshot out.png [rear | --artwork FOLDER] [--hover X Y] [--help]: the panel (or the rear)
+	// after boot, drawn headless, with the brand marks the ROM folder FOLDER has for the places
+	// panel.json lists, and nothing else; with the mouse over X, Y (view pixels) for a tooltip, or
+	// the key list (?) open
 	const juce::String snapshot = argc > 2 && juce::String(argv[1]) == "--snapshot" ? juce::String(argv[2]) : juce::String();
 	lemus::Artwork artwork;
 	if (argc > 4 && juce::String(argv[3]) == "--artwork") {
@@ -133,6 +134,9 @@ int main(int argc, char **argv)
 		for (int i = 3; i + 2 < argc; ++i) // --hover X Y: the mouse over that point (view pixels)
 			if (juce::String(argv[i]) == "--hover")
 				view.hoverForTests({juce::String(argv[i + 1]).getFloatValue(), juce::String(argv[i + 2]).getFloatValue()});
+		for (int i = 3; i < argc; ++i)
+			if (juce::String(argv[i]) == "--help")
+				view.showHelpForTests();
 		juce::Image img(juce::Image::ARGB, view.getWidth() * 2, view.getHeight() * 2, true);
 		juce::Graphics g(img);
 		g.addTransform(juce::AffineTransform::scale(2.0f));
@@ -204,6 +208,56 @@ int main(int argc, char **argv)
 	for (int ch = 0; ch < 2; ++ch)
 		same = same && std::memcmp(ra.getReadPointer(ch), rb.getReadPointer(ch), sizeof(float) * size_t(ra.getNumSamples())) == 0;
 	check(same, "the same session and input give the same output, bit for bit");
+
+	std::printf("Layouts\n");
+	{
+		// the jacks: one plug in the inputs feeds both sides, one plug in the outputs gets the average
+		const auto mono = juce::AudioChannelSet::mono(), stereo = juce::AudioChannelSet::stereo();
+		auto layout = [](juce::AudioChannelSet in, juce::AudioChannelSet out) {
+			juce::AudioProcessor::BusesLayout l;
+			l.inputBuses.add(in);
+			l.outputBuses.add(out);
+			return l;
+		};
+		bool all = true;
+		for (const auto &i : {mono, stereo})
+			for (const auto &o : {mono, stereo})
+				all = all && a.checkBusesLayoutSupported(layout(i, o));
+		check(all, "mono or stereo in, mono or stereo out");
+		// the guitar in channel 0 of a block `channels` wide (the rest silent), as a host hands it
+		auto runAs = [&](QVGTProcessor &x, int channels, bool both) {
+			const int n = in.getNumSamples();
+			juce::AudioBuffer<float> out(channels, n);
+			juce::MidiBuffer midi;
+			for (int at = 0; at < n; at += kBlock) {
+				const int len = std::min(kBlock, n - at);
+				juce::AudioBuffer<float> block(channels, len);
+				block.clear();
+				for (int ch = 0; ch < (both ? channels : 1); ++ch)
+					block.copyFrom(ch, 0, in, 0, at, len);
+				x.processBlock(block, midi);
+				for (int ch = 0; ch < channels; ++ch)
+					out.copyFrom(ch, at, block, ch, 0, len);
+			}
+			return out;
+		};
+		QVGTProcessor st(&rom, &font), mm(&rom, &font), ms(&rom, &font);
+		const bool set = mm.setBusesLayout(layout(mono, mono)) && ms.setBusesLayout(layout(mono, stereo));
+		for (auto *x : {&st, &mm, &ms}) {
+			x->setRateAndBufferSizeDetails(kRate, kBlock);
+			x->setStateInformation(state.getData(), int(state.getSize()));
+			x->waitForBoot();
+			x->prepareToPlay(kRate, kBlock);
+		}
+		const auto rs = runAs(st, 2, true), rm = runAs(mm, 1, false), rms = runAs(ms, 2, false);
+		bool average = set, spread = set;
+		for (int i = 0; i < rs.getNumSamples(); ++i) {
+			average = average && rm.getSample(0, i) == 0.5f * (rs.getSample(0, i) + rs.getSample(1, i));
+			spread = spread && rms.getSample(0, i) == rs.getSample(0, i) && rms.getSample(1, i) == rs.getSample(1, i);
+		}
+		check(spread, "mono in, stereo out: the guitar into both inputs, both outputs");
+		check(average, "mono out: the average of the two outputs");
+	}
 
 	std::printf("MIDI\n");
 	{

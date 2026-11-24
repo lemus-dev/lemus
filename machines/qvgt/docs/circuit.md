@@ -136,6 +136,9 @@ given.
 - The op-amps' 1/f noise and offsets; resistors' thermal noise (under the op-amps' everywhere it
   was looked at: the input's 1K is 4 nV/sqrt(Hz), the distortion's 220K at a gain of 1).
 - The VCAs' distortion and control feedthrough.
-- The input jacks' switches (J9/J10's normalling). J8's is modelled as empty: its tip at R118's
-  0 V, and its switch grounding U3's select, which holds the loop out whatever U11 says (the owner's
-  manual: the loop is bypassed with no jacks inserted).
+- The jacks' switches as switches: the plugin's layouts stand for them. The inputs (J10, J11) are
+  cross-normalled, so one plug feeds both: a mono input goes to both sides. So are the outputs
+  (J9, J10 on sheet 2): one plug joins both lines through R151, R152 (470 each), so a mono output
+  is the average of the two. J8's is modelled as empty: its tip at R118's 0 V, and its switch
+  grounding U3's select, which holds the loop out whatever U11 says (the owner's manual: the loop
+  is bypassed with no jacks inserted).

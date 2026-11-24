@@ -125,6 +125,7 @@ private:
 	std::vector<Key> m_keys;
 	juce::SpinLock m_keysLock;
 	std::vector<float> m_silence;
+	std::vector<float> m_right; // the right output, with one output jack
 
 	// the RAM, handed from the audio thread to whoever saves the session
 	std::atomic<int> m_ramAsk{0};

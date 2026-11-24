@@ -41,6 +41,7 @@ public:
 	void timerCallbackForTests() { timerCallback(); }
 	void showRear(bool on) { m_rear = on; repaint(); }
 	void hoverForTests(juce::Point<float> at) { setHover(at); }
+	void showHelpForTests() { m_help = true; }
 
 private:
 	struct KeyRef {

@@ -39,6 +39,10 @@ struct MachineInfo {
 	// nothing routed, some hosts hand an instrument its own last output there. Hosts with several
 	// machines have none.
 	juce::String sideChain = {};
+	// An effect that also takes one input to both outputs (a stereo effects unit fed one guitar).
+	// The machine's own plugin offers mono in, stereo out besides the matching layouts, and the
+	// machine takes the same layout. Hosts with several machines have the matching ones only.
+	bool monoToStereo = false;
 };
 
 // A driver as a host's list holds it: with the name its own plugin ships under (from machine.cmake,

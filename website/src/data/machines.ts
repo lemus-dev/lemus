@@ -252,8 +252,15 @@ export const machines: Machine[] = [
     withoutRom: 'none',
     keywords: 'quadraverb quadgt gt alesis guitar preamp amp distortion overdrive cabinet reverb delay chorus multi effects',
     nav: true,
-    release: { version: '0.1.1', tag: 'al-fx-quadgt-v0.1.1', stage: 'beta', mac: 'al-fx-quadgt-0.1.1-mac.pkg', windows: 'al-fx-quadgt-0.1.1-windows.zip' },
+    release: { version: '0.1.2', tag: 'al-fx-quadgt-v0.1.2', stage: 'beta', mac: 'al-fx-quadgt-0.1.2-mac.pkg', windows: 'al-fx-quadgt-0.1.2-windows.zip' },
     changes: [
+      {
+        version: '0.1.2',
+        notes: [
+          'The key list (?) was unreadable: the panel is too short for it in one column. It now shows in two.',
+          'On a mono track it now takes mono in, stereo out, the manual\'s "Mono In, Stereo Out". Mono in, mono out gives both outputs mixed, as the unit does with one output jack plugged in; it gave the right output alone.',
+        ],
+      },
       {
         version: '0.1.1',
         notes: [
