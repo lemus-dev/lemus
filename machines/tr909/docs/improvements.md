@@ -209,6 +209,14 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-24, UX: CIRCUIT is three ages, EARLY (SN 360100-371499), MIDDLE (371500-381499) and LATE
+  (426700 up, the measured unit), each with every part as it then was, after an A/B of the serial
+  ranges (private/tr909/reference/scenes/circuits; Chris heard the BD tell all three apart). The six
+  serial rows go; the serials between stay in the model and a session saved with one plays on as
+  it was until an age is picked. plugintest --state writes a unit's state for A/B scenes; a check
+  clicks the rows. Each row says what you hear against the others, voice by voice (the kick's
+  attack and TUNE range, hats and cymbals, the rim shot's high ring, the toms' attack, measured
+  on the A/B set: private/tr909/reference/scenes/ages); the parts are in the hover text.
 - 2026-11-24, UX: the PARTS row marks both values: a tick at the printed part, a caret at the measured
   unit's; the card's caption is their legend. The same on the 808 and the 303.
 - 2026-11-24, UX: BD PITCH leaves the bar for SERVICE, as PARTS under TM: the row "C14 R27  BD pitch"

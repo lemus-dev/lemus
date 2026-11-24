@@ -1391,12 +1391,10 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 			m_dragPan = m_pan;
 		}
 		break;
-	case HitKind::Serial: {
-		const auto serials = boardSerials();
-		if (m_drag.index >= 0 && m_drag.index < int(serials.size()))
-			m_proc.setSerial(serials[size_t(m_drag.index)]);
+	case HitKind::Serial: // CIRCUIT: EARLY, MIDDLE or LATE, each with every part as it then was
+		if (m_drag.index >= 0 && m_drag.index < 3 && ageOf(m_proc.serial()) != m_drag.index)
+			m_proc.setSerial(kAgeSerial[m_drag.index]);
 		break;
-	}
 	case HitKind::Trim:
 	case HitKind::Part: {
 		const char *id = m_drag.kind == HitKind::Trim ? "tm" : "bdpitch";

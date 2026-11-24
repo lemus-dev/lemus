@@ -846,6 +846,23 @@ void service(const Roms &r, double rate)
 	b.setStateInformation(s.getData(), int(s.getSize()));
 	check(b.serial() == 392600 && std::abs(b.params().getRawParameterValue("tm")->load() - 0.4f) < 1e-6,
 	      "service: the serial number and TM round-trip with the session");
+	{ // CIRCUIT by the mouse: EARLY, MIDDLE, LATE; b's unit (392600, between the ages) kept until one is picked
+		tr909::HardwareView view(b);
+		view.setBounds(0, 0, tr909::HardwareView::kWidth, tr909::HardwareView::kHeight);
+		view.showService(true);
+		const bool kept = b.serial() == 392600 && tr909::ageOf(b.serial()) < 0;
+		int got[3] = {};
+		for (int i : {0, 1, 2}) {
+			const auto c = tr909::HardwareView::serviceAgeRow(i).getCentre();
+			const auto now = juce::Time::getCurrentTime();
+			const juce::MouseEvent e(juce::Desktop::getInstance().getMainMouseSource(), c, {}, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, &view, &view, now, c, now, 1, false);
+			view.mouseDown(e);
+			view.mouseUp(e);
+			got[i] = b.serial();
+		}
+		check(kept && got[0] == tr909::kFirstSerial && got[1] == 371500 && got[2] == tr909::kLateSerial,
+		      "service: CIRCUIT's EARLY, MIDDLE and LATE by the mouse; a session's unit between them (SN 392600) loads as it was");
+	}
 }
 
 // BD pitch (SERVICE's PARTS, C14 R27): the kick settles where the slider says, from the measured unit's 49.35 Hz
@@ -1180,6 +1197,24 @@ int render(const char *list, const char *path)
 int main(int argc, char **argv)
 {
 	juce::ScopedJuceInitialiser_GUI gui;
+	if (argc > 3 && juce::String(argv[1]) == "--state") { // --state OUT SERIAL: ro-drums-909's state for that unit (for A/B scenes)
+		Roms r;
+		TR909Processor p(&r.fw, &r.hh, &r.cr, &r.rd);
+		p.prepareToPlay(48000, 512);
+		p.setSerial(std::atoi(argv[3]));
+		juce::MemoryBlock machineState, state;
+		p.getStateInformation(machineState);
+		// as the plugin saves it: the host's LEMUS tree (host/LemusProcessor.cpp) around the 909's own
+		juce::ValueTree lemus("LEMUS");
+		lemus.setProperty("version", 1, nullptr);
+		lemus.setProperty("machine", "tr909", nullptr);
+		lemus.setProperty("state", machineState, nullptr);
+		{
+			juce::MemoryOutputStream out(state, false);
+			lemus.writeToStream(out);
+		}
+		return juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]).replaceWithData(state.getData(), state.getSize()) ? 0 : 1;
+	}
 	if (argc > 1 && juce::String(argv[1]) == "--panel") {
 		const char *artwork = nullptr;
 		bool running = false, rear = false, off = false, service = false, tm = false, part = false;

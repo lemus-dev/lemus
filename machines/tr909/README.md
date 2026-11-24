@@ -186,10 +186,13 @@ SCALE, LAST STEP, TRACK WRITE, BANK, COPY/INS/DEL. The memory is saved with the 
     mouse, C14 and R27 are ringed on the board and the scope's caption says what they do. Saved
     with the session, not automatable: it is a part of the unit, as TM is. A dot on SERVICE shows a
     unit off its own: TM or a part moved.
-  - **Circuit**: which unit this is, by serial number, from the first (360100) to the late board
-    (426700 up, the default): the production changes of SN p.7's change table (`core/revisions.h`:
-    the BD's C9 and R495, the cymbals' clocks, the rim shot, the hi-hat's C134, the jacks'
-    capacitors, the tom noise), saved with the session.
+  - **Circuit**: the unit's age, each with every part as it then was (SN p.7's change table,
+    `core/revisions.h`): **EARLY**, the first units (SN 360100-371499: R495 on the BD, C9 0.22u,
+    the cymbal clocks' R442/R440 33k, the rim shot's R417 12k, the hi-hat's C134 10u, no 0.01u at
+    the jacks, the early tom noise); **MIDDLE** (SN 371500-381499: R495 gone, the rest still
+    early); **LATE** (SN 426700 up, the default: the measured unit). Listening side by side, the BD
+    tells all three apart. The serials between stay in the model: a session saved with one before
+    0.2.9 plays on as it was until an age is picked. Saved with the session.
 - **LEVEL knobs** start at 3/4, the others at 12 o'clock, TEMPO at 120.6 BPM (121 on the display).
 - Computer keyboard: 1-8 and Q-I are the step keys 1-16; A S D F TRACK PLAY 1-4, G H J PATTERN
   PLAY 1-3, K EXT INST; Z X C V TEMPO (STEP), BACK (TAP), FWD (BANK I), AVAILABLE MEAS (BANK II);

@@ -69,6 +69,7 @@ public:
 	void serviceSetUpTm() { setUpTm(); }  // tools: the TM procedure's scope set-up (play the clap yourself)
 	void serviceSweep() { updateScope(); } // tools: the scope takes its latest sweep now
 	void servicePart() { m_hover = {HitKind::Part, 0}; repaint(); } // tools: the PARTS row as under the mouse
+	static juce::Rectangle<float> serviceAgeRow(int i); // tools: CIRCUIT's EARLY (0), MIDDLE (1) or LATE (2)
 
 private:
 	enum class HitKind { None, Knob, Key, BarSync, BarHelp, BarRear, Jack, Power, BarService,

@@ -460,7 +460,7 @@ const toc: Entry[] = [
 <h3 id="state">State</h3>
 <Shot src={state} base={base} alt="The State pop-up under the top bar: Save to file…, Load from file… and Reset…" crop={{ x: 455, y: 0, w: 760, h: 240 }} marks={[{ x: 1072, y: 3, w: 66, h: 26, n: 1 }]} caption="State in the top bar." />
 <ul>
-<li><span class="k">Save to file…</span> saves the instance: the knobs, the pattern and track memory, the MULTI OUT cables, TM and the serial number in SERVICE.</li>
+<li><span class="k">Save to file…</span> saves the instance: the knobs, the pattern and track memory, the MULTI OUT cables, TM, the parts and the circuit in SERVICE.</li>
 <li><span class="k">Load from file…</span> loads one. The standalone app's Options menu saves and loads the same files.</li>
 <li><span class="k">Reset…</span> makes it a new instance: the factory patterns, with the version 1.0 ROM, and every control at its default.</li>
 </ul>
@@ -476,13 +476,13 @@ const toc: Entry[] = [
 </dl>
 
 <h3 id="service">SERVICE: the boards, TM, the parts and the scope</h3>
-<Shot src={service} base={base} alt="SERVICE: the voicing board above the switch board, the trimmer TM on the board outlined, and on the right the scope, the readouts, the TM row with TEST, the PARTS row and the circuit by serial number" marks={[{ x: 614, y: 296, w: 25, h: 25, n: 1 }, { x: 920, y: 38, w: 288, h: 194, n: 2 }, { x: 920, y: 239, w: 288, h: 59, n: 3 }, { x: 920, y: 303, w: 288, h: 86, n: 4 }, { x: 920, y: 389, w: 288, h: 77, n: 5 }, { x: 920, y: 473, w: 288, h: 250, n: 6 }]} caption="SERVICE, the late board selected." />
+<Shot src={service} base={base} alt="SERVICE: the voicing board above the switch board, the trimmer TM on the board outlined, and on the right the scope, the readouts, the TM row with TEST, the PARTS row and the circuit, EARLY, MIDDLE or LATE" marks={[{ x: 614, y: 296, w: 25, h: 25, n: 1 }, { x: 920, y: 38, w: 288, h: 194, n: 2 }, { x: 920, y: 239, w: 288, h: 59, n: 3 }, { x: 920, y: 303, w: 288, h: 86, n: 4 }, { x: 920, y: 389, w: 288, h: 77, n: 5 }, { x: 920, y: 473, w: 288, h: 234, n: 6 }]} caption="SERVICE, the late board selected." />
 <p>The voicing board where it hangs under the panel and the switch board folded out in front of it, every part where the service notes' board drawings put it, the copper drawn faintly through. The knobs stay on their pots and the keys on their switches, and work as on the panel; the LEDs and the display run. The wheel or a pinch zooms, and the parts' designators show close up; a drag moves; a double-click shows it all.</p>
 <ul>
 <li><span class="k">The scope</span> <Num n="2" />: click its caption to clip the probe on a MULTI OUT or master jack, a trigger line, an accent DAC, or any pin of any part the netlists draw, by voice, kind, part and pin. It triggers on a voice's TRIG line, or runs free; time and volts per division are set from their captions. The readouts <Num n="3" /> show its peak to peak, and HAND CLAP LEVEL. While a probe is on, the board doesn't sleep.</li>
 <li><span class="k">TM</span>, the hand clap's trimmer (SN p.11), on the board <Num n="1" /> and as a row <Num n="4" />: drag either, shift finer. A double-click puts it back to the measured unit's trim, 30 %. TEST sets the scope on the clap's MULTI OUT at the scale of SN p.9 and plays the clap every 0.6 s.</li>
 <li><span class="k">Parts</span> <Num n="5" />: where units differ, a part set anywhere between the measured unit's value, marked with a caret, and the printed one, marked with a tick. The TR-909's is C14 and R27, BD pitch: where the kick settles, which differs from 909 to 909 more than anything else in it, from the measured unit's 49.35 Hz (the default) to 54.19 Hz with the printed parts; two other units settle at 52.3–52.7. The whole sweep moves with it. Drag the row across, shift finer, or use the wheel; a double-click goes back to the measured unit. Under the mouse, C14 and R27 are ringed on the board and the scope's caption says what they do. Saved with the session.</li>
-<li><span class="k">Circuit</span> <Num n="6" />: which unit this is, by serial number, from the first units (360100) to the late board (426700 up, the default). Each range has the production changes of SN p.7 up to it: <a href="/ro-drums-909#revisions">Board revisions</a>. Saved with the session.</li>
+<li><span class="k">Circuit</span> <Num n="6" />: the unit's age, each with every part as it then was (SN p.7, <a href="/ro-drums-909#revisions">Board revisions</a>). EARLY, SN 360100–371499: the kick's attack softer and its TUNE range shorter, the hats and cymbals louder and brighter, the rim shot's high ring and the toms' attack softer. MIDDLE, 371500–381499: as EARLY, with the kick's full attack. LATE, 426700 up, the default: the measured unit. Each row says what it sounds like; under the mouse, the status line lists its parts. A session saved before 0.2.9 with a serial between the ages plays on as it was until one is picked. Saved with the session.</li>
 </ul>
 <p>The service notes set TM for 2 Vp-p at the clap's MULTI OUT. At its 30 % the model reads about 4 Vp-p there: its clap's spikes are narrower than the measured unit's, and at 2 Vp-p (25.5 %) the clap would be 6 dB under the other voices.</p>
 </section>
@@ -564,7 +564,7 @@ const toc: Entry[] = [
 
 <h3 id="automation">Automation and sessions</h3>
 <p>These parameters can be automated, in this order: BD Tune, BD Level, BD Attack, BD Decay, SD Tune, SD Level, SD Tone, SD Snappy, LT Tune, LT Level, LT Decay, MT Tune, MT Level, MT Decay, HT Tune, HT Level, HT Decay, RS Level, HC Level, HH Level, CH Decay, OH Decay, Crash Level, Crash Tune, Ride Level, Ride Tune, Total Accent, Master Volume, Tempo, Sync to Host and Clap Trim (TM).</p>
-<p>A session saves every parameter, the pattern and track memory, the MULTI OUT cables, the serial number in SERVICE and the window size. It loads switched on, as a 909 that has been on a while.</p>
+<p>A session saves every parameter, the pattern and track memory, the MULTI OUT cables, the parts and the circuit in SERVICE and the window size. It loads switched on, as a 909 that has been on a while.</p>
 <p>Idle, the voices put out exact zeros and use little CPU, but the CPU keeps running: the sequencer, LEDs and display carry on. ro-drums-909 reports a 2 s tail. Don't let the DAW suspend it on silent tracks, or the 909 can't play its own patterns.</p>
 </section>
 

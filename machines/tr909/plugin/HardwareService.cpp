@@ -81,8 +81,8 @@ constexpr float kIx = kCanvasW + 8, kIw = kDrawerW - 16;
 const juce::Rectangle<float> kScopeCase(kIx, 8, kIw, 192), kScopeScreen(kIx + 12, 32, kIw - 24, 118);
 const juce::Rectangle<float> kVppCase(kIx, 208, 140, 56), kLevelCase(kIx + kIw - 140, 208, 140, 56);
 const juce::Rectangle<float> kTrimCase(kIx, 272, kIw, 162); // TM, then PARTS
-const juce::Rectangle<float> kRevCase(kIx, 442, kIw, 249);
-constexpr float kRevRowH = 36;
+const juce::Rectangle<float> kRevCase(kIx, 442, kIw, 232); // EARLY, MIDDLE, LATE
+constexpr float kRevRowH = 62;
 juce::Rectangle<float> trimRow() { return {kTrimCase.getX() + 6, kTrimCase.getY() + 30, kTrimCase.getWidth() - 12, 50}; }
 juce::Rectangle<float> trimTrack() { return {trimRow().getX() + 30, trimRow().getY() + 32, trimRow().getWidth() - 60, 4}; }
 juce::Rectangle<float> partRow() { return {kTrimCase.getX() + 6, kTrimCase.getY() + 108, kTrimCase.getWidth() - 12, 50}; }
@@ -883,17 +883,6 @@ juce::String probeText(const juce::String &where)
 	return where;
 }
 
-// What each serial range is: the change it starts with (SN p.7), plainly.
-juce::String revisionWords(int index, const std::vector<int> &serials)
-{
-	if (index == 0)
-		return "the first units: R495 on the BD, C9 0.22u, the old clocks";
-	juce::StringArray what;
-	for (const auto &c : changes())
-		if (c.serial == serials[size_t(index)] && !c.before.empty())
-			what.add(juce::String(c.parts).upToFirstOccurrenceOf(" (", false, false) + " " + juce::String(c.change).upToFirstOccurrenceOf(";", false, false));
-	return what.joinIntoString(", ");
-}
 } // namespace
 
 // ====================================================================== geometry
@@ -1125,6 +1114,11 @@ void HardwareView::drawPartCallout(juce::Graphics &g)
 	g.drawText(name, tag, juce::Justification::centred);
 }
 
+juce::Rectangle<float> HardwareView::serviceAgeRow(int i)
+{
+	return revRow(i);
+}
+
 float HardwareView::partTrackWidth() const
 {
 	return partTrack().getWidth();
@@ -1328,20 +1322,25 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 		g.drawEllipse(juce::Rectangle<float>(13, 13).withCentre(knob), 2);
 	}
 
-	// the circuit: which unit this is, by its serial number (SN p.7)
+	// the circuit: the unit's age, each with every part as it then was (SN p.7)
 	card(kRevCase);
 	g.setFont(fonts::mono(10.5f, fonts::Weight::SemiBold));
 	g.setColour(juce::Colour(0xffc9cfd8));
 	g.drawText("CIRCUIT", juce::Rectangle<float>(kRevCase.getX() + 14, kRevCase.getY() + 6, 120, 18), juce::Justification::centredLeft);
 	g.setFont(fonts::mono(10.0f));
 	g.setColour(juce::Colour(0xff8a929e));
-	g.drawText("serial number  (SN p.7)", juce::Rectangle<float>(kRevCase.getX() + 14, kRevCase.getY() + 6, kRevCase.getWidth() - 28, 18),
+	g.drawText("the unit's age  (SN p.7)", juce::Rectangle<float>(kRevCase.getX() + 14, kRevCase.getY() + 6, kRevCase.getWidth() - 28, 18),
 	           juce::Justification::centredRight);
-	const auto serials = boardSerials();
-	for (int i = 0; i < int(serials.size()); ++i) {
+	static const char *const kAgeName[3] = {"EARLY", "MIDDLE", "LATE"};
+	static const char *const kAgeWords[3] = {
+		"Kick: softer attack, shorter TUNE range. Hats and cymbals louder and brighter; the rim shot's high ring and the toms' attack softer.",
+		"As EARLY, but the kick's attack is full.",
+		"The measured unit. Kick: the full TUNE range. Hats and cymbals quieter and darker; the rim shot's high ring and the toms' attack stronger."};
+	const int age = ageOf(m_proc.serial());
+	for (int i = 0; i < 3; ++i) {
 		const auto row = revRow(i);
-		const int from = serials[size_t(i)], to = i + 1 < int(serials.size()) ? serials[size_t(i + 1)] - 1 : 0;
-		const bool on = m_proc.serial() >= from && (to == 0 || m_proc.serial() <= to);
+		const int from = kAgeSerial[i], to = kAgeEnd[i];
+		const bool on = age == i;
 		const bool hov = m_hover.kind == HitKind::Serial && m_hover.index == i;
 		g.setColour(on ? juce::Colour(0xff2b2620) : hov ? juce::Colour(0xff262a31) : juce::Colour(0xff21252b));
 		g.fillRoundedRectangle(row, 5);
@@ -1355,12 +1354,22 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 		g.fillEllipse(row.getX() + 11, row.getY() + 6, 7, 7);
 		g.setFont(fonts::mono(11.5f, fonts::Weight::SemiBold));
 		g.setColour(juce::Colour(0xffeef1f5));
+		g.drawText(kAgeName[i], juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, 70, 16), juce::Justification::centredLeft);
+		g.setFont(fonts::mono(10.0f));
+		g.setColour(juce::Colour(0xff8a929e));
 		g.drawText(to == 0 ? "SN " + juce::String(from) + " up" : "SN " + juce::String(from) + " - " + juce::String(to),
-		           juce::Rectangle<float>(row.getX() + 24, row.getY() + 1, row.getWidth() - 30, 16), juce::Justification::centredLeft);
+		           juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, row.getWidth() - 32, 16), juce::Justification::centredRight);
 		g.setFont(sans(10.5f));
 		g.setColour(on ? juce::Colour(0xffd6dbe2) : juce::Colour(0xff8f98a5));
-		g.drawText(revisionWords(i, serials), juce::Rectangle<float>(row.getX() + 24, row.getY() + 17, row.getWidth() - 30, 15),
-		           juce::Justification::centredLeft, true);
+		g.drawFittedText(kAgeWords[i], juce::Rectangle<float>(row.getX() + 24, row.getY() + 18, row.getWidth() - 30, kRevRowH - 22).toNearestInt(),
+		                 juce::Justification::topLeft, 3, 1.0f);
+	}
+	if (age < 0) { // a session saved before 0.2.9 with a unit between the ages: it plays on as it was until one is picked
+		g.setFont(sans(10.0f));
+		g.setColour(juce::Colour(0xffffb866));
+		g.drawFittedText("this session: SN " + juce::String(m_proc.serial()) + " (an earlier choice)",
+		                 juce::Rectangle<float>(kRevCase.getX() + 14, revRow(2).getBottom() + 4, kRevCase.getWidth() - 28, 14).toNearestInt(),
+		                 juce::Justification::centredLeft, 1, 0.85f);
 	}
 }
 
@@ -1553,8 +1562,7 @@ HardwareView::Hit HardwareView::hitService(juce::Point<float> px) const
 			return {HitKind::Trim, 0};
 		if (partRow().contains(px))
 			return {HitKind::Part, 0};
-		const int ranges = int(boardSerials().size());
-		for (int i = 0; i < ranges; ++i)
+		for (int i = 0; i < 3; ++i)
 			if (revRow(i).contains(px))
 				return {HitKind::Serial, i};
 		return {HitKind::Drawer, -1};
@@ -1584,10 +1592,14 @@ juce::String HardwareView::serviceStatus() const
 	if (partHot())
 		return "C14 R27, BD pitch: drag across (shift: finer), double-click: back to the measured unit's";
 	if (m_hover.kind == HitKind::Serial)
-		return "the circuit as Roland built it from that serial number on (SN p.7)";
+		return m_hover.index == 0 ? "EARLY, as first built: BD R495 and C9 0.22u, HH C134 10u, RS R417 12k, cymbals R442/R440 33k, tom noise C54 0.0022u, no jack caps"
+		       : m_hover.index == 1 ? "MIDDLE: from SN 371500, the BD's R495 gone; every other part as EARLY"
+		                            : "LATE: every change of SN p.7 (BD C9 0.33u, HH C134 0.01u, RS R417 3.3k, jack caps C500-C512, tom noise C54 0.0047u): the measured unit";
 	if (m_hover.kind == HitKind::Knob || m_hover.kind == HitKind::Key)
 		return "the panel's controls, on the boards: they work as on the panel";
-	return "SN " + juce::String(m_proc.serial()) + (m_proc.serial() >= kLateSerial ? " up" : "") + "   wheel: zoom, drag: move";
+	static const char *const kAge[3] = {"EARLY", "MIDDLE", "LATE"};
+	const int age = ageOf(m_proc.serial());
+	return (age >= 0 ? juce::String(kAge[age]) : "SN " + juce::String(m_proc.serial())) + "   wheel: zoom, drag: move";
 }
 
 } // namespace tr909

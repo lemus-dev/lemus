@@ -139,6 +139,13 @@ export const machines: Machine[] = [
     release: { version: '0.2.8', tag: 'ro-drums-909-v0.2.8', stage: 'beta', mac: 'ro-drums-909-0.2.8-mac.pkg', windows: 'ro-drums-909-0.2.8-windows.zip' },
     changes: [
       {
+        version: '0.2.9',
+        notes: [
+          "SERVICE's CIRCUIT is now three ages, each with every part as it then was. EARLY (SN 360100-371499): the kick's softer attack and shorter TUNE range, louder and brighter hats and cymbals, a softer rim shot ring and tom attack. MIDDLE (371500-381499): as EARLY with the kick's full attack. LATE (426700 up): the measured unit, the default.",
+          'A session saved with a serial between the ages plays on as it was until an age is picked.',
+        ],
+      },
+      {
         version: '0.2.8',
         notes: ["SERVICE's PARTS row marks both values: a tick at the printed part, a caret at the measured unit's."],
       },

@@ -50,6 +50,18 @@ inline const std::vector<Change> &changes()
 
 constexpr int kFirstSerial = 360100; // the earliest units (ROM group A, SN p.7)
 constexpr int kLateSerial = 426700;  // the late board: every change, the netlists' defaults
+// SERVICE's CIRCUIT offers three ages, each unit with every part as it then was: EARLY (the first
+// units, R495 on the BD and C9 0.22u), MIDDLE (R495 gone, C9 still 0.22u) and LATE (the measured
+// unit). Listening, the BD tells all three apart; the serials between stay in the model.
+constexpr int kAgeSerial[3] = {kFirstSerial, 371500, kLateSerial};
+constexpr int kAgeEnd[3] = {371499, 381499, 0}; // the age's last serial; 0: on up
+inline int ageOf(int serial)
+{
+	for (int i = 0; i < 3; ++i)
+		if (serial >= kAgeSerial[i] && (kAgeEnd[i] == 0 || serial <= kAgeEnd[i]))
+			return i;
+	return -1;
+}
 
 // The serials where the board changes, the first unit included: the ranges a unit can be in.
 inline std::vector<int> boardSerials()
