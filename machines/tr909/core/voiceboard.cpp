@@ -663,6 +663,15 @@ double Calibration::knob(const char *name, double rotation) const
 	return pts.back().second;
 }
 
+void setBdPitch(Calibration &c, double hz)
+{
+	const auto unit = unitCalibration().parts;
+	const double t = std::clamp(std::log(hz / kBdPitchUnitHz) / std::log(kBdPitchPrintedHz / kBdPitchUnitHz), 0.0, 1.0);
+	const double c14 = unit.at("bd.c14"), r27 = unit.at("bd.r27");
+	c.parts["bd.c14"] = c14 * std::pow(0.033e-6 / c14, t);
+	c.parts["bd.r27"] = r27 * std::pow(1.5e6 / r27, t);
+}
+
 Calibration unitCalibration()
 {
 	// The AudioRealism unit (a late board; its per-knob recordings, docs/reference.md), fitted
@@ -835,8 +844,125 @@ void VoiceBoard::setSampleRoms(const SampleRoms &roms)
 
 void VoiceBoard::setCalibration(const Calibration &c)
 {
+	// On a prepared board, a change to the parts of voices that run from their netlists alone (not
+	// the hi-hat's, crash's or ride's: their ROM halves are timed with them) builds just those
+	// voices again, at their operating points, while the others play on: BD PITCH on the bar
+	// moves C14 and R27 as a kick may be ringing out on the snare. Anything else prepares the board.
+	bool whole = !m_impl->mix.loaded() || c.noiseHz != m_cal.noiseHz || c.hhClockHz != m_cal.hhClockHz;
+	std::array<bool, kVoices> changed{};
+	auto differ = [&](const std::map<std::string, double> &a, const std::map<std::string, double> &b) {
+		for (const auto &[k, v] : a) {
+			const auto it = b.find(k);
+			if (it != b.end() && it->second == v)
+				continue;
+			int voice = -1;
+			for (int u = 0; u < kVoices && voice < 0; ++u)
+				if (k.rfind(std::string(kVoiceNames[u]) + ".", 0) == 0)
+					voice = u;
+			if (voice < 0 || Impl::grouped(voice))
+				whole = true;
+			else
+				changed[size_t(voice)] = true;
+		}
+	};
+	differ(c.parts, m_cal.parts);
+	differ(m_cal.parts, c.parts);
 	m_cal = c;
-	prepare(m_hostRate);
+	if (whole || std::none_of(changed.begin(), changed.end(), [](bool b) { return b; })) {
+		prepare(m_hostRate);
+		return;
+	}
+	auto &im = *m_impl;
+	// Each new circuit takes on the old one's capacitors and nodes where the two have the same
+	// shape (new values, the same parts: as if the parts were swapped with the power on), else
+	// starts from its operating point, as prepare() leaves it (a second of the BD's VCO: 9 ms).
+	std::array<bool, kVoices> carried{};
+	for (int v = 0; v < kVoices; ++v) {
+		if (!changed[size_t(v)])
+			continue;
+		auto &u = im.units[size_t(v)];
+		std::vector<circuit::Circuit::State> was;
+		for (const auto &b : u.blocks)
+			was.push_back(b.c.state());
+		buildVoice(v);
+		ownNoise(v);
+		bool same = u.blocks.size() == was.size();
+		for (size_t k = 0; k < u.blocks.size() && same; ++k) {
+			const auto now = u.blocks[k].c.state();
+			same = now.vc.size() == was[k].vc.size() && now.ic.size() == was[k].ic.size() && now.v.size() == was[k].v.size() &&
+			       now.u.size() == was[k].u.size();
+		}
+		if (same)
+			for (size_t k = 0; k < u.blocks.size(); ++k)
+				u.blocks[k].c.setState(was[k]);
+		carried[size_t(v)] = same;
+	}
+	setControls(m_controls); // the knobs' laws, and the new circuits' pots
+	for (int c = 0; c < kProbes; ++c)
+		setProbe(c, std::string(im.probeNames[size_t(c)]));
+	for (int v = 0; v < kVoices; ++v)
+		if (changed[size_t(v)]) {
+			auto &u = im.units[size_t(v)];
+			if (carried[size_t(v)])
+				u.wake();
+			else
+				u.settle(im.sig.data(), long(1.0 * m_rate));
+		}
+}
+
+std::map<std::string, double> VoiceBoard::ownerParams(const std::string &owner) const
+{
+	std::map<std::string, double> p{{"rdac", kDacOhms}};
+	for (const auto &[k, v] : m_cal.parts)
+		if (k.rfind(owner + ".", 0) == 0)
+			p[k.substr(owner.size() + 1)] = v;
+	return p;
+}
+
+void VoiceBoard::buildVoice(int v)
+{
+	auto &im = *m_impl;
+	auto &u = im.units[size_t(v)];
+	if (u.load(kVoiceNames[v], kVoiceNames[v], im.sig, ownerParams(kVoiceNames[v])))
+		u.finish(im.sig, {std::string("jack.") + kVoiceNames[v]});
+	for (auto &b : u.blocks) {
+		b.c.setRate((Impl::grouped(v) ? m_rate * im.over : m_rate) * b.over);
+		// checked on the hat: no ringing near Nyquist (the other voices keep backward Euler)
+		b.c.setPoleTrap(Impl::grouped(v) && !kGroupBackwardEuler);
+	}
+	switch (Voice(v)) {
+	// The BD's and toms' VCOs run at rest (their VCAs shut) and each trigger resets them (the BD's:
+	// Q7, Q11): the voices sleep once their jacks have settled, whatever their VCOs' capacitors do.
+	case Voice::BD:
+	case Voice::LT:
+	case Voice::MT:
+	case Voice::HT: u.capacitorMove(1e9); break;
+	// The snare's two VCOs run at rest too, and their tones leak through Q50/Q51 as the envelope
+	// capacitors creep down (0.46 mV at the jack 0.7 s after a hit, 0.13 mV at 1.8 s): it counts as
+	// quiet within 1 mV (-80 dBV), as the 808's snare does.
+	case Voice::SD:
+		u.capacitorMove(1e9);
+		u.quietFloor(1e-3);
+		break;
+	// The clap's reverb VCA, Q37, closes ever more slowly after a hit (C61 drains only through its
+	// base): about 1.3 mV p-p of noise at the jack at 1 s, 0.3 mV at 2 s; it counts as quiet within
+	// 2 mV. Its reverb path's C55 and C57 (0.47 uF) carry the noise itself.
+	case Voice::HC:
+		u.quietFloor(2e-3);
+		u.capacitorMove(2.0);
+		break;
+	default: break;
+	}
+}
+
+// A voice's netlist takes its own copy of the noise, so the voices' jobs can run at once.
+void VoiceBoard::ownNoise(int v)
+{
+	auto &im = *m_impl;
+	for (auto &b : im.units[size_t(v)].blocks)
+		for (auto &in : b.ins)
+			if (in.second == im.sNoise)
+				in.second = im.sNoiseOf[size_t(v)];
 }
 
 void VoiceBoard::prepare(double hostRate)
@@ -858,13 +984,7 @@ void VoiceBoard::prepare(double hostRate)
 
 	auto &im = *m_impl;
 	auto &sig = im.sig;
-	auto params = [this](const std::string &owner) {
-		std::map<std::string, double> p{{"rdac", kDacOhms}};
-		for (const auto &[k, v] : m_cal.parts)
-			if (k.rfind(owner + ".", 0) == 0)
-				p[k.substr(owner.size() + 1)] = v;
-		return p;
-	};
+	auto params = [this](const std::string &owner) { return ownerParams(owner); };
 	// The sample voices at the board's rate, their op-amps' poles by the trapezoidal rule (below):
 	// against ngspice as close as at twice the rate with backward-Euler poles, closer below 15 kHz,
 	// -0.3 dB at 18-20 kHz, for 7 % less CPU on the busy kit (2026-11-01, docs/model.md "Rates").
@@ -873,16 +993,8 @@ void VoiceBoard::prepare(double hostRate)
 		im.over = std::clamp(std::atoi(g), 1, 2);
 	for (auto &d : im.groupDec)
 		d.setStages(im.over == 2 ? 1 : 0, 8);
-	for (int v = 0; v < kVoices; ++v) {
-		auto &u = im.units[size_t(v)];
-		if (u.load(kVoiceNames[v], kVoiceNames[v], sig, params(kVoiceNames[v])))
-			u.finish(sig, {std::string("jack.") + kVoiceNames[v]});
-		for (auto &b : u.blocks) {
-			b.c.setRate((Impl::grouped(v) ? m_rate * im.over : m_rate) * b.over);
-			// checked on the hat: no ringing near Nyquist (the other voices keep backward Euler)
-			b.c.setPoleTrap(Impl::grouped(v) && !kGroupBackwardEuler);
-		}
-	}
+	for (int v = 0; v < kVoices; ++v)
+		buildVoice(v);
 	{
 		auto &hh = im.hihat;
 		const auto &rom = im.roms[0];
@@ -925,23 +1037,6 @@ void VoiceBoard::prepare(double hostRate)
 		for (auto &b : im.tomnoise.blocks)
 			b.c.setRate(m_rate * b.over);
 	}
-	// The BD's and toms' VCOs run at rest (their VCAs shut) and each trigger resets them: the
-	// voices sleep once their jacks have settled, whatever their VCOs' capacitors do.
-	for (Voice v : {Voice::LT, Voice::MT, Voice::HT})
-		im.units[size_t(v)].capacitorMove(1e9);
-	// The snare's two VCOs run at rest too, and their tones leak through Q50/Q51 as the envelope
-	// capacitors creep down (0.46 mV at the jack 0.7 s after a hit, 0.13 mV at 1.8 s): it counts as
-	// quiet within 1 mV (-80 dBV), as the 808's snare does.
-	im.units[size_t(Voice::SD)].capacitorMove(1e9);
-	im.units[size_t(Voice::SD)].quietFloor(1e-3);
-	// The BD's VCO runs at rest (about 50 Hz, its VCAs shut) and each trigger resets it (Q7, Q11):
-	// the voice sleeps once its jack has settled, whatever its VCO's capacitors do.
-	im.units[size_t(Voice::BD)].capacitorMove(1e9);
-	// The clap's reverb VCA, Q37, closes ever more slowly after a hit (C61 drains only through its
-	// base): about 1.3 mV p-p of noise at the jack at 1 s, 0.3 mV at 2 s; it counts as quiet within
-	// 2 mV. Its reverb path's C55 and C57 (0.47 uF) carry the noise itself.
-	im.units[size_t(Voice::HC)].quietFloor(2e-3);
-	im.units[size_t(Voice::HC)].capacitorMove(2.0);
 	if (im.mix.load("mix", "mix", sig, params("mix"))) {
 		im.mix.finish(sig, {"out.l", "out.r"});
 		for (auto &b : im.mix.blocks)
@@ -955,15 +1050,12 @@ void VoiceBoard::prepare(double hostRate)
 		const bool tom = v == int(Voice::LT) || v == int(Voice::MT) || v == int(Voice::HT);
 		im.sNoiseOf[size_t(v)] = sig.index(tom ? std::string("noise.toms") : std::string("noise.") + kVoiceNames[v]);
 	}
-	auto ownNoise = [&](Unit &u, int signal) {
-		for (auto &b : u.blocks)
-			for (auto &in : b.ins)
-				if (in.second == im.sNoise)
-					in.second = signal;
-	};
 	for (int v = 0; v < kVoices; ++v)
-		ownNoise(im.units[size_t(v)], im.sNoiseOf[size_t(v)]);
-	ownNoise(im.tomnoise, im.sNoiseOf[size_t(Voice::LT)]);
+		ownNoise(v);
+	for (auto &b : im.tomnoise.blocks) // the toms' job runs it: theirs
+		for (auto &in : b.ins)
+			if (in.second == im.sNoise)
+				in.second = im.sNoiseOf[size_t(Voice::LT)];
 	im.sOhsel = sig.index("ohsel");
 	for (int d = 1; d <= 8; ++d)
 		im.sAcc[size_t(d)] = sig.index("acc." + std::to_string(d));

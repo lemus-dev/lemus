@@ -114,7 +114,7 @@ buttons as the firmware drives them, brand marks from your own artwork. Drag a k
 to press it, as long as the button is held. A right-click (ctrl-click) holds a key down until it's
 clicked again, for what takes two keys at once (SHIFT or CLEAR with a step key, INSTRUMENT SELECT
 with one); Escape lets go of them all. The bar has SYNC (host sync: the 909 in MIDI sync, run from
-the DAW's transport), REAR, SERVICE (both below) and `?` (the key list). There is no memory clear,
+the DAW's transport), BD PITCH, REAR, SERVICE (all three below) and `?` (the key list). There is no memory clear,
 as there is none on the unit; the host's State: Reset makes the 909 a new instance, its factory
 patterns included.
 
@@ -160,6 +160,11 @@ SCALE, LAST STEP, TRACK WRITE, BANK, COPY/INS/DEL. The memory is saved with the 
   the real power-on: the firmware boots for 0.6 s, and the master outputs are muted for about 2 s
   while C143 charges, then open; the MULTI OUTs are not muted, and the hi-hat's, crash's and ride's
   thump as their stages charge (`docs/circuit/power.md`). A session always loads switched on.
+- **BD PITCH** in the bar: the pitch the kick settles on, which differs from 909 to 909 more than
+  anything else in it, from the calibrated unit's 49.4 Hz to 54.2 Hz, the service notes' printed
+  C14 and R27 (Regebro's and KB6's units and Roland's plugin settle at 52.3-52.7). The whole sweep
+  moves with it. Drag it (shift for fine steps, the wheel works too); double-click goes back to the
+  calibrated unit. Saved with the session, not automatable: it is a part of the unit, as TM is.
 - **SERVICE** in the bar takes the top panel off, as on the 303 (`docs/boards.md`): the voicing
   board where it hangs under the panel, the switch board folded out in front of it, every part where
   the service notes' board drawings put it (p.9, p.10), drawn as the part it is, the copper showing
@@ -270,7 +275,7 @@ Known differences and approximations (all of them, with the plan, in `docs/impro
   so.
 - The snare's pitch bend is 3-10 % high in its first milliseconds; the toms' far tail is up to 0.14
   octave short at -40 dB.
-- The calibration is one unit's. Others differ: Rob Roy's toms sit 14-92 cents higher, and a
+- The calibration is one unit's. Others differ: the BD's end pitch most (BD PITCH, above), Rob Roy's toms sit 14-92 cents higher, and a
   video's unit takes its crash a semitone below the lowest TUNE here. Earlier boards come from the
   serial number in SERVICE (the service notes' production changes), with the calibrated unit's
   other parts. Two fitted values lie outside their parts' tolerances: the BD's R44 (36k, standing

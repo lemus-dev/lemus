@@ -4,6 +4,8 @@ namespace lemus::manager {
 
 namespace {
 
+// Wide enough for the list's longest names (Alesis QuadraVerb GT); a longer one widens the window
+// when the list is read (MainComponent::fitNames).
 constexpr int kWidth = 900, kHeight = 600;
 constexpr int kHeader = 65, kFooter = 47, kFine = 24, kPane = 360, kRow = 32;
 
@@ -18,11 +20,19 @@ juce::String shownFolder()
 }
 
 const juce::String kDot = juce::String::fromUTF8(" \xc2\xb7 ");
-const juce::String kUp = juce::String::fromUTF8("[\xe2\x86\x91]");    // [↑]
-const juce::String kDown = juce::String::fromUTF8("[\xe2\x86\x93]");  // [↓]
+
+// This app's version, after the title.
+juce::String versionText()
+{
+	return " " LEMUS_MANAGER_VERSION;
+}
 const juce::String kTick = juce::String::fromUTF8("[\xe2\x9c\x93]");  // [✓]
 const juce::String kCross = juce::String::fromUTF8("[\xe2\x9c\x97]"); // [✗]
 const juce::String kNext = juce::String::fromUTF8("[\xc2\xb7]");      // [·]
+// The list's marks, in brackets like the rest: after the version, and for ROM and ART.
+const juce::String kUpMark = juce::String::fromUTF8("[\xe2\x86\x91]"); // [↑]
+const juce::String kPartly = "[~]";
+const juce::String kNone = "[ ]";
 
 juce::String formatsText(const std::vector<Format> &formats)
 {
@@ -47,9 +57,33 @@ juce::String percent(double p)
 	return juce::String(juce::roundToInt(p * 100)) + " %";
 }
 
+// The menus' look: the app's colours and font.
+class MenuLook final : public juce::LookAndFeel_V4 {
+public:
+	MenuLook()
+	{
+		setColour(juce::PopupMenu::backgroundColourId, col::well);
+		setColour(juce::PopupMenu::textColourId, col::ink);
+		setColour(juce::PopupMenu::highlightedBackgroundColourId, col::selection);
+		setColour(juce::PopupMenu::highlightedTextColourId, col::ink);
+	}
+	juce::Font getPopupMenuFont() override { return mono(13.0f); }
+	void drawPopupMenuBackground(juce::Graphics &g, int width, int height) override
+	{
+		g.fillAll(col::well);
+		g.setColour(col::rule);
+		g.drawRect(0, 0, width, height);
+	}
+};
+
+juce::String quoted(const juce::String &s)
+{
+	return juce::String::fromUTF8("\xe2\x80\x9c") + s + juce::String::fromUTF8("\xe2\x80\x9d");
+}
+
 } // namespace
 
-// The list: column labels, then a row per plugin.
+// The list: column labels, then a row per plugin. A right click offers to copy its names.
 class MainComponent::List final : public juce::Component {
 public:
 	explicit List(MainComponent &owner) : m_owner(owner)
@@ -65,9 +99,9 @@ public:
 		const auto cols = columns(getLocalBounds().withTrimmedLeft(20).withTrimmedRight(20).withHeight(kTop).withTrimmedTop(8));
 		g.setFont(headerFont());
 		g.setColour(col::muted);
-		const char *names[] = {"MACHINE", "PLUGIN", "HAVE", "STATUS", "ROM", "ART"};
-		for (int i = 0; i < 6; ++i)
-			g.drawText(names[i], cols[size_t(i)], juce::Justification::centredLeft, false);
+		const char *names[] = {"MACHINE", "PLUGIN", "VERSION", "ROM", "ART"};
+		for (int i = 0; i < 5; ++i)
+			g.drawText(names[i], cols[size_t(i)], i < 3 ? juce::Justification::centredLeft : juce::Justification::centred, false);
 
 		const auto rows = m_owner.visible();
 		for (size_t i = 0; i < rows.size(); ++i) {
@@ -89,27 +123,49 @@ public:
 			g.setFont(mono(13.0f));
 			g.setColour(on ? col::inkSoft : col::muted);
 			g.drawText(e.plugin, c[1], juce::Justification::centredLeft, true);
-			const auto have = in.installed() ? in.version() : juce::String::fromUTF8("\xe2\x80\x94");
-			g.drawText(have.isEmpty() ? "?" : have, c[2], juce::Justification::centredLeft, true);
-			const auto s = m_owner.statusOf(e);
-			g.setColour(on ? s.onSelection : s.colour);
-			g.drawText(s.text, c[3], juce::Justification::centredLeft, true);
-			// What its ROM folder has: [✓] all, [~] it runs without what's missing, [✗] it doesn't; — none needed.
+			// The version installed, then what's happening to it (MainComponent::markOf).
+			const auto version = !in.installed() ? juce::String("not installed") : in.version().isEmpty() ? juce::String("?") : in.version();
+			g.setColour(!in.installed() ? (on ? col::inkSoft : col::muted) : on ? col::ink : col::inkSoft);
+			g.drawText(version, c[2], juce::Justification::centredLeft, false);
+			const auto m = m_owner.markOf(e);
+			const auto markAt = c[2].withTrimmedLeft(widthOf(mono(13.0f), version) + 4);
+			if (m.progress >= 0) {
+				drawFilling(g, markAt.withWidth(14).withSizeKeepingCentre(14, 14).toFloat(), float(m.progress), on ? m.onSelection : m.colour);
+			} else if (m.text.isNotEmpty()) {
+				g.setFont(markFont());
+				g.setColour(on ? m.onSelection : m.colour);
+				g.drawText(m.text, markAt, juce::Justification::centredLeft, false);
+			}
+			// What its ROM folder has. ROM: [✓] found, [~] it runs without what's missing, [✗] it
+			// doesn't run; ART: [✓] every place, [~] some, [ ] none. Blank when it needs none.
 			if (const auto *check = m_owner.romCheckOf(e)) {
 				const auto rom = check->rom();
 				const auto art = check->art();
-				const auto dash = juce::String::fromUTF8("\xe2\x80\x94");
-				g.setColour(rom == RomCheck::Rom::Ready ? col::ok : rom == RomCheck::Rom::Reduced ? col::warn : rom == RomCheck::Rom::Missing ? kError : col::muted);
-				g.drawText(rom == RomCheck::Rom::Ready ? kTick : rom == RomCheck::Rom::Reduced ? juce::String("[~]") : rom == RomCheck::Rom::Missing ? kCross : dash,
-				           c[4], juce::Justification::centredLeft, false);
-				g.setColour(art == RomCheck::Art::Ready ? col::ok : art == RomCheck::Art::Partial ? col::warn : art == RomCheck::Art::None ? col::inkSoft : col::muted);
-				g.drawText(art == RomCheck::Art::Ready ? kTick : art == RomCheck::Art::Partial ? juce::String("[~]") : art == RomCheck::Art::None ? juce::String("[ ]") : dash,
-				           c[5], juce::Justification::centredLeft, false);
+				g.setFont(markFont());
+				if (rom != RomCheck::Rom::NotNeeded) {
+					g.setColour(rom == RomCheck::Rom::Ready ? col::ok : rom == RomCheck::Rom::Reduced ? col::warn : kError);
+					g.drawText(rom == RomCheck::Rom::Ready ? kTick : rom == RomCheck::Rom::Reduced ? kPartly : kCross, c[3], juce::Justification::centred, false);
+				}
+				if (art != RomCheck::Art::NotNeeded) {
+					g.setColour(art == RomCheck::Art::Ready ? col::ok : art == RomCheck::Art::Partial ? col::warn : on ? col::inkSoft : col::muted);
+					g.drawText(art == RomCheck::Art::Ready ? kTick : art == RomCheck::Art::Partial ? kPartly : kNone, c[4], juce::Justification::centred, false);
+				}
 			}
-			if (const auto *job = m_owner.jobOf(e); job != nullptr && job->state == Job::State::Downloading) {
-				g.setColour(on ? col::title : col::accent);
-				g.fillRect(juce::Rectangle<float>(float(r.getX()), float(r.getBottom() - 2), float(r.getWidth()) * float(job->progress), 2.0f));
-			}
+		}
+	}
+
+	// A download's progress where the [↑] was: a ring that fills as a pie.
+	static void drawFilling(juce::Graphics &g, juce::Rectangle<float> box, float progress, juce::Colour colour)
+	{
+		g.setColour(colour);
+		g.drawEllipse(box.reduced(0.7f), 1.4f);
+		const auto inner = box.reduced(2.7f);
+		if (progress >= 0.999f) {
+			g.fillEllipse(inner);
+		} else if (progress > 0.0f) {
+			juce::Path wedge;
+			wedge.addPieSegment(inner, 0.0f, juce::MathConstants<float>::twoPi * progress, 0.0f);
+			g.fillPath(wedge);
 		}
 	}
 
@@ -122,49 +178,90 @@ public:
 		if (i >= 0 && i < int(rows.size()))
 			m_owner.select(rows[size_t(i)]->plugin);
 		grabKeyboardFocus();
+		if (e.mods.isPopupMenu() && i >= 0 && i < int(rows.size())) {
+			// Its names, to search for elsewhere.
+			const auto &entry = *rows[size_t(i)];
+			juce::PopupMenu menu;
+			menu.setLookAndFeel(&m_menuLook);
+			menu.addItem("Copy " + quoted(entry.emulates), [name = entry.emulates] { juce::SystemClipboard::copyTextToClipboard(name); });
+			menu.addItem("Copy " + quoted(entry.plugin), [name = entry.plugin] { juce::SystemClipboard::copyTextToClipboard(name); });
+			menu.showMenuAsync(juce::PopupMenu::Options().withMousePosition());
+		}
+	}
+
+	// Cmd-C (Ctrl-C) copies the selected plugin's name.
+	bool keyPressed(const juce::KeyPress &key) override
+	{
+		if (key == juce::KeyPress('c', juce::ModifierKeys::commandModifier, 0)) {
+			if (const auto *e = m_owner.selected())
+				juce::SystemClipboard::copyTextToClipboard(e->plugin);
+			return true;
+		}
+		return false;
 	}
 
 	int heightFor(int rows) const { return kTop + rows * (kRow + 2) + 8; }
 
+	// The width the list needs to show every name whole: the columns, the rows' margins (20 px a
+	// side) and room for the scroll bar.
+	int neededWidth() const
+	{
+		const auto w = widths();
+		return w.machine + w.plugin + w.version + kFixed + 40 + 6;
+	}
+
 private:
 	static juce::Font headerFont() { return mono(12.0f, true).withExtraKerningFactor(0.06f); }
+	static juce::Font markFont() { return mono(13.0f, true); }
 	static int widthOf(const juce::Font &f, const juce::String &s) { return juce::GlyphArrangement::getStringWidthInt(f, s) + 2; }
 
+	static constexpr int kGap = 6, kMark = 32, kFixed = 4 * kGap + 2 * kMark;
+
+	struct Widths {
+		int machine, plugin, version;
+	};
+
 	// The machine and plugin as wide as their longest names (of every plugin, so searching doesn't
-	// move them), the status the rest, at least "[ ] not installed"; 44 px version, 26 px ROM and
-	// ART, 6 px between (and what's spare). Short of room, the machine and plugin give it up in
-	// proportion, and their names end in "...".
-	std::array<juce::Rectangle<int>, 6> columns(juce::Rectangle<int> r) const
+	// move them), the version as its longest number and a mark after it.
+	Widths widths() const
 	{
-		const int gap = 6, have = 44, mark = 26, free = r.getWidth() - 5 * gap - have - 2 * mark;
+		const int mark = 4 + widthOf(markFont(), kUpMark);
 		int machine = widthOf(headerFont(), "MACHINE"), plugin = widthOf(headerFont(), "PLUGIN");
+		int version = std::max(widthOf(headerFont(), "VERSION"), widthOf(mono(13.0f), "not installed") + mark);
 		if (m_owner.m_catalog)
 			for (const auto &e : m_owner.m_catalog->plugins) {
 				machine = std::max(machine, widthOf(mono(13.0f, true), e.shortName()));
 				plugin = std::max(plugin, widthOf(mono(13.0f), e.plugin));
+				version = std::max(version, widthOf(mono(13.0f), e.version) + mark);
 			}
-		const int status = widthOf(mono(13.0f), "[ ] not installed");
-		if (const int over = machine + plugin + status - free; over > 0) {
+		return {machine, plugin, version};
+	}
+
+	// The names, the version and 32 px each for ROM and ART, 6 px between; what's spare goes half
+	// after the machine and half after the plugin. Short of room (a window narrower than
+	// neededWidth()), the machine and plugin give it up in proportion, and their names end in "...".
+	std::array<juce::Rectangle<int>, 5> columns(juce::Rectangle<int> r) const
+	{
+		const int free = r.getWidth() - kFixed;
+		auto [machine, plugin, version] = widths();
+		if (const int over = machine + plugin + version - free; over > 0) {
 			const int fromMachine = over * machine / (machine + plugin);
 			machine -= fromMachine;
 			plugin -= over - fromMachine;
 		} else {
-			// Room to spare: a third each after the machine and the plugin, a third to the status.
-			machine -= over / 3;
-			plugin -= over / 3;
+			machine -= over / 2;
+			plugin -= over - over / 2;
 		}
-		std::array<juce::Rectangle<int>, 6> c;
+		std::array<juce::Rectangle<int>, 5> c;
 		c[0] = r.removeFromLeft(machine);
-		r.removeFromLeft(gap);
+		r.removeFromLeft(kGap);
 		c[1] = r.removeFromLeft(plugin);
-		r.removeFromLeft(gap);
-		c[2] = r.removeFromLeft(have);
-		r.removeFromLeft(gap);
-		c[5] = r.removeFromRight(mark);
-		r.removeFromRight(gap);
-		c[4] = r.removeFromRight(mark);
-		r.removeFromRight(gap);
-		c[3] = r;
+		r.removeFromLeft(kGap);
+		c[4] = r.removeFromRight(kMark);
+		r.removeFromRight(kGap);
+		c[3] = r.removeFromRight(kMark);
+		r.removeFromRight(kGap);
+		c[2] = r;
 		return c;
 	}
 
@@ -180,6 +277,7 @@ private:
 
 	MainComponent &m_owner;
 	int m_hover = -1;
+	MenuLook m_menuLook;
 };
 
 namespace {
@@ -216,25 +314,6 @@ public:
 
 private:
 	bool m_open = false;
-};
-
-// The menu's look: the app's colours and font.
-class MenuLook final : public juce::LookAndFeel_V4 {
-public:
-	MenuLook()
-	{
-		setColour(juce::PopupMenu::backgroundColourId, col::well);
-		setColour(juce::PopupMenu::textColourId, col::ink);
-		setColour(juce::PopupMenu::highlightedBackgroundColourId, col::selection);
-		setColour(juce::PopupMenu::highlightedTextColourId, col::ink);
-	}
-	juce::Font getPopupMenuFont() override { return mono(13.0f); }
-	void drawPopupMenuBackground(juce::Graphics &g, int width, int height) override
-	{
-		g.fillAll(col::well);
-		g.setColour(col::rule);
-		g.drawRect(0, 0, width, height);
-	}
 };
 
 } // namespace
@@ -290,7 +369,13 @@ public:
 			for (auto f : formatsHere(e->standalone))
 				m_ticked.insert(f);
 		m_view.setViewPosition(0, 0);
+		m_body.clearSelection();
 	}
+
+	// For --snapshot (MainComponent::act): how text in the details is selected.
+	enum class Gesture { Select, DoubleClick, Drag };
+	void selectWhenShown(const juce::String &what, Gesture gesture) { m_body.selectWhenShown(what, gesture); }
+	juce::String selection() const { return m_body.selection(); }
 
 	// Lays out the details for the current state; the body paints m_items.
 	void update()
@@ -427,6 +512,7 @@ public:
 		}
 		m_view.setBounds(0, 0, getWidth(), juce::jmax(0, int(bottom)));
 		m_body.setSize(m_view.getMaximumVisibleWidth() > 0 ? m_view.getMaximumVisibleWidth() : getWidth(), int(y + 12));
+		m_body.laidOut();
 		m_body.repaint();
 		repaint();
 	}
@@ -449,33 +535,224 @@ private:
 		juce::Rectangle<float> area;
 	};
 
-	// What scrolls: the items, the format checks, Manage.
+	// What scrolls: the items, the format checks, Manage. Its text selects as in any details pane,
+	// so names, ROM files and checksums can be copied: a drag, a double click takes a name
+	// (ro-mono-303, hd44780_a00.bin), a triple click the line; Cmd-C (Ctrl-C) or the right click's
+	// Copy copies it. A selection stays within one item.
 	struct Body final : public juce::Component {
 		std::vector<Item> items;
+
+		Body() { setWantsKeyboardFocus(true); }
+
 		void paint(juce::Graphics &g) override
 		{
 			g.fillAll(col::panel);
-			draw(g, items);
-		}
-		static void draw(juce::Graphics &g, const std::vector<Item> &list)
-		{
-			for (const auto &i : list) {
-				switch (i.kind) {
-				case Item::Kind::Text: layoutOf(i.text, *i.font, i.colour, i.area.getWidth()).draw(g, i.area); break;
-				case Item::Kind::Label: lemus::style::drawLabel(g, i.text, i.area); break;
-				case Item::Kind::Well:
-					g.setColour(col::well);
-					g.fillRoundedRectangle(i.area, 8.0f);
-					break;
-				case Item::Kind::Bar:
-					g.setColour(col::well.brighter(0.12f));
-					g.fillRoundedRectangle(i.area, 2.0f);
-					g.setColour(col::accent);
-					g.fillRoundedRectangle(i.area.withWidth(i.area.getWidth() * float(i.text.getDoubleValue())), 2.0f);
-					break;
+			const int on = selectedItem();
+			for (size_t n = 0; n < items.size(); ++n) {
+				if (int(n) == on && m_from < m_to) {
+					const auto &i = items[n];
+					g.setColour(col::selection);
+					for (const auto &box : TextSpots(i.text, *i.font, i.area.getWidth()).boxes(m_from, m_to))
+						g.fillRect(box + i.area.getPosition());
 				}
+				draw(g, items[n]);
 			}
 		}
+
+		static void draw(juce::Graphics &g, const std::vector<Item> &list)
+		{
+			for (const auto &i : list)
+				draw(g, i);
+		}
+
+		static void draw(juce::Graphics &g, const Item &i)
+		{
+			switch (i.kind) {
+			case Item::Kind::Text: layoutOf(i.text, *i.font, i.colour, i.area.getWidth()).draw(g, i.area); break;
+			case Item::Kind::Label: lemus::style::drawLabel(g, i.text, i.area); break;
+			case Item::Kind::Well:
+				g.setColour(col::well);
+				g.fillRoundedRectangle(i.area, 8.0f);
+				break;
+			case Item::Kind::Bar:
+				g.setColour(col::well.brighter(0.12f));
+				g.fillRoundedRectangle(i.area, 2.0f);
+				g.setColour(col::accent);
+				g.fillRoundedRectangle(i.area.withWidth(i.area.getWidth() * float(i.text.getDoubleValue())), 2.0f);
+				break;
+			}
+		}
+
+		void clearSelection()
+		{
+			m_text.clear();
+			m_from = m_to = 0;
+			m_pending.clear();
+			repaint();
+		}
+
+		// For --snapshot: selects `what` in the first text that has it, once it is laid out; or, as a
+		// user would, double-clicks in its middle or drags across it, then presses Cmd-C.
+		void selectWhenShown(const juce::String &what, Gesture gesture)
+		{
+			m_pending = what;
+			m_gesture = gesture;
+			laidOut();
+		}
+
+		// The details were laid out again.
+		void laidOut()
+		{
+			if (m_pending.isEmpty())
+				return;
+			for (size_t n = 0; n < items.size(); ++n)
+				if (const int at = items[n].text.indexOf(m_pending); items[n].kind == Item::Kind::Text && at >= 0) {
+					const auto what = m_pending;
+					m_pending.clear();
+					if (m_gesture == Gesture::Select) {
+						take(int(n), {at, at + what.length()});
+						return;
+					}
+					const auto &i = items[n];
+					const auto boxes = TextSpots(i.text, *i.font, i.area.getWidth()).boxes(at, at + what.length());
+					if (boxes.empty())
+						return;
+					const auto now = juce::Time::getCurrentTime();
+					const auto event = [&](juce::Point<float> p, juce::Point<float> down, int clicks, bool dragged) {
+						return juce::MouseEvent(juce::Desktop::getInstance().getMainMouseSource(), p + i.area.getPosition(), {}, juce::MouseInputSource::defaultPressure,
+						                        0, 0, 0, 0, this, this, now, down + i.area.getPosition(), now, clicks, dragged);
+					};
+					if (m_gesture == Gesture::DoubleClick) {
+						const auto p = boxes[0].getCentre();
+						mouseDown(event(p, p, 2, false));
+					} else {
+						const juce::Point<float> from{boxes.front().getX() + 1, boxes.front().getCentreY()}, to{boxes.back().getRight() - 1, boxes.back().getCentreY()};
+						mouseDown(event(from, from, 1, false));
+						mouseDrag(event(to, from, 1, true));
+					}
+					keyPressed(juce::KeyPress('c', juce::ModifierKeys::commandModifier, 0));
+					return;
+				}
+		}
+
+		juce::String selection() const { return selectedItem() >= 0 ? m_text.substring(m_from, m_to) : juce::String(); }
+
+		void mouseMove(const juce::MouseEvent &e) override
+		{
+			setMouseCursor(itemAt(e.position) >= 0 ? juce::MouseCursor::IBeamCursor : juce::MouseCursor::NormalCursor);
+		}
+
+		void mouseDown(const juce::MouseEvent &e) override
+		{
+			grabKeyboardFocus();
+			m_dragging = false;
+			const int n = itemAt(e.position);
+			if (e.mods.isPopupMenu()) {
+				// As on macOS: a right click outside the selection takes the name under it first.
+				if (n >= 0) {
+					const int at = indexAt(n, e.position);
+					if (n != selectedItem() || m_from == m_to || at < m_from || at > m_to)
+						take(n, nameAround(items[size_t(n)].text, at));
+				}
+				if (selection().isNotEmpty())
+					showMenu();
+				return;
+			}
+			if (n < 0) {
+				clearSelection();
+				return;
+			}
+			const int at = indexAt(n, e.position);
+			if (e.getNumberOfClicks() == 2) {
+				take(n, nameAround(items[size_t(n)].text, at));
+			} else if (e.getNumberOfClicks() >= 3) {
+				take(n, {0, items[size_t(n)].text.trimEnd().length()});
+			} else {
+				take(n, {at, at});
+				m_anchor = at;
+				m_dragging = true;
+			}
+		}
+
+		void mouseDrag(const juce::MouseEvent &e) override
+		{
+			const int n = selectedItem();
+			if (!m_dragging || n < 0)
+				return;
+			const int at = indexAt(n, e.position);
+			take(n, {juce::jmin(m_anchor, at), juce::jmax(m_anchor, at)});
+		}
+
+		bool keyPressed(const juce::KeyPress &key) override
+		{
+			if (key == juce::KeyPress('c', juce::ModifierKeys::commandModifier, 0)) {
+				copy();
+				return true;
+			}
+			return false;
+		}
+
+	private:
+		int itemAt(juce::Point<float> p) const
+		{
+			for (int n = int(items.size()); --n >= 0;)
+				if (items[size_t(n)].kind == Item::Kind::Text && items[size_t(n)].area.expanded(2, 1).contains(p))
+					return n;
+			return -1;
+		}
+
+		int indexAt(int n, juce::Point<float> p) const
+		{
+			const auto &i = items[size_t(n)];
+			return TextSpots(i.text, *i.font, i.area.getWidth()).indexAt(p - i.area.getPosition());
+		}
+
+		// The item the selection is in. The details are laid out again on every change (a download's
+		// progress), so it is found by its text, the one nearest where it was.
+		int selectedItem() const
+		{
+			if (m_text.isEmpty())
+				return -1;
+			int best = -1;
+			float distance = 0;
+			for (size_t n = 0; n < items.size(); ++n)
+				if (items[n].kind == Item::Kind::Text && items[n].text == m_text)
+					if (const float d = std::abs(items[n].area.getY() - m_y); best < 0 || d < distance) {
+						best = int(n);
+						distance = d;
+					}
+			return best;
+		}
+
+		void take(int n, juce::Range<int> r)
+		{
+			m_text = items[size_t(n)].text;
+			m_y = items[size_t(n)].area.getY();
+			m_from = r.getStart();
+			m_to = r.getEnd();
+			repaint();
+		}
+
+		void copy() const
+		{
+			if (const auto s = selection(); s.isNotEmpty())
+				juce::SystemClipboard::copyTextToClipboard(s);
+		}
+
+		void showMenu()
+		{
+			juce::PopupMenu menu;
+			menu.setLookAndFeel(&m_menuLook);
+			menu.addItem("Copy", [text = selection()] { juce::SystemClipboard::copyTextToClipboard(text); });
+			menu.showMenuAsync(juce::PopupMenu::Options().withMousePosition());
+		}
+
+		juce::String m_text, m_pending;
+		Gesture m_gesture = Gesture::Select;
+		float m_y = 0;
+		int m_from = 0, m_to = 0, m_anchor = 0;
+		bool m_dragging = false;
+		MenuLook m_menuLook;
 	};
 
 	static juce::String fileExtension(Format f)
@@ -533,7 +810,7 @@ private:
 			y += 8;
 			const bool full = check->images.size() <= 2; // a few: everything about each; more: Manage copies the rest
 			for (const auto &i : check->images) {
-				const auto mark = i.found ? kTick : i.spec.optional ? juce::String("[ ]") : kCross;
+				const auto mark = i.found ? kTick : i.spec.optional ? kPartly : kCross; // as the list: [~] it runs without it
 				const auto colour = i.found ? col::ok : col::ink;
 				text(mark + " " + i.spec.name, mono(13.0f), colour, x + 12, y, w - 110);
 				const auto state = i.found ? juce::String("found") : juce::String("not found");
@@ -1243,6 +1520,7 @@ void MainComponent::load()
 		juce::MessageManager::callAsync([self, catalog = std::move(catalog), found = std::move(installed), error] {
 			if (auto *me = self.get()) {
 				me->m_catalog = catalog;
+				me->fitNames();
 				me->m_installed = found;
 				me->m_error = error;
 				me->m_loading = catalog ? Loading::Ready : Loading::Failed;
@@ -1280,6 +1558,16 @@ void MainComponent::load()
 			}
 		});
 	});
+}
+
+void MainComponent::fitNames()
+{
+	const int need = m_list->neededWidth() + kPane;
+	int most = need;
+	if (const auto *display = juce::Desktop::getInstance().getDisplays().getPrimaryDisplay())
+		most = display->userArea.getWidth() - 40;
+	if (need > getWidth())
+		setSize(juce::jmin(need, juce::jmax(getWidth(), most)), getHeight());
 }
 
 void MainComponent::rescan()
@@ -1364,30 +1652,24 @@ int MainComponent::updateCount() const
 	return n;
 }
 
-MainComponent::Status MainComponent::statusOf(const Entry &e) const
+MainComponent::Status MainComponent::markOf(const Entry &e) const
 {
 	if (const auto *j = jobOf(e)) {
 		const bool remove = j->kind == Job::Kind::Remove;
 		switch (j->state) {
-		case Job::State::Waiting: return {kNext + (remove ? " to remove" : " next: " + e.version), col::inkSoft, col::inkSoft};
-		case Job::State::Downloading: return {kDown + " " + e.version + kDot + percent(j->progress), col::accent, col::title};
-		case Job::State::Checking: return {kDown + " checking", col::accent, col::title};
-		case Job::State::Ready: return {kNext + (remove ? " to remove" : " downloaded"), col::inkSoft, col::inkSoft};
-		case Job::State::Installing: return {kDown + (remove ? " removing" : " installing"), col::accent, col::title};
-		case Job::State::Done:
-			return {kTick + (remove ? " removed" : j->kind == Job::Kind::Update ? " updated" : " installed"), col::ok, col::ok};
-		case Job::State::Failed: return {kCross + " failed", kError, kError};
-		case Job::State::Stopped: return {"[ ] stopped", col::warn, col::warn};
+		case Job::State::Waiting:
+		case Job::State::Ready: return {kNext, col::inkSoft, col::inkSoft};
+		case Job::State::Downloading: return {{}, col::accent, col::title, j->progress};
+		case Job::State::Checking:
+		case Job::State::Installing: return remove ? Status{kNext, col::accent, col::title} : Status{{}, col::accent, col::title, 1.0};
+		case Job::State::Done: return remove ? Status{} : Status{kTick, col::ok, col::ok};
+		case Job::State::Failed: return {kCross, kError, kError};
+		case Job::State::Stopped: break; // as if it hadn't started
 		}
 	}
-	const auto &in = installOf(e);
-	if (!in.installed())
-		return {"[ ] not installed", col::muted, col::inkSoft};
 	if (hasUpdate(e))
-		return {kUp + " " + e.version, col::accent, col::title};
-	if (in.version().isEmpty())
-		return {kTick + " installed", col::ok, col::ok};
-	return {kTick + " latest", col::ok, col::ok};
+		return {kUpMark, col::accent, col::title};
+	return {};
 }
 
 juce::String MainComponent::summary() const
@@ -1523,6 +1805,12 @@ void MainComponent::act(const juce::String &action)
 		hidePrompt();
 	else if (action == "drag")
 		fileDragEnter({}, 0, 0);
+	else if (action.startsWith("select-text:"))
+		m_detail->selectWhenShown(action.fromFirstOccurrenceOf(":", false, false), Detail::Gesture::Select);
+	else if (action.startsWith("double-click:"))
+		m_detail->selectWhenShown(action.fromFirstOccurrenceOf(":", false, false), Detail::Gesture::DoubleClick);
+	else if (action.startsWith("drag:"))
+		m_detail->selectWhenShown(action.fromFirstOccurrenceOf(":", false, false), Detail::Gesture::Drag);
 	else if (action.startsWith("drop:"))
 		filesDropped(juce::StringArray::fromTokens(action.fromFirstOccurrenceOf("drop:", false, false), "|", ""), 0, 0);
 }
@@ -1582,7 +1870,8 @@ void MainComponent::resized()
 	auto r = getLocalBounds();
 	auto header = r.removeFromTop(kHeader).reduced(20, 16).withTrimmedBottom(1);
 	const auto titleWidth = juce::GlyphArrangement::getStringWidthInt(mono(16.0f, true), "Lemus")
-	                        + juce::GlyphArrangement::getStringWidthInt(mono(16.0f), " Plugin Manager");
+	                        + juce::GlyphArrangement::getStringWidthInt(mono(16.0f), " Plugin Manager")
+	                        + juce::GlyphArrangement::getStringWidthInt(mono(12.0f), versionText());
 	header.removeFromLeft(titleWidth + 16);
 	m_updateAll.setBounds(header.removeFromRight(m_updateAll.idealWidth() + 4));
 	header.removeFromRight(16);
@@ -1626,7 +1915,13 @@ void MainComponent::paint(juce::Graphics &g)
 	g.drawText("Lemus", t.removeFromLeft(lemus), juce::Justification::centredLeft, false);
 	g.setFont(mono(16.0f));
 	g.setColour(col::ink);
-	g.drawText(" Plugin Manager", t, juce::Justification::centredLeft, false);
+	const int name = juce::GlyphArrangement::getStringWidthInt(mono(16.0f), " Plugin Manager");
+	g.drawText(" Plugin Manager", t.removeFromLeft(name), juce::Justification::centredLeft, false);
+	// Its own version, on the title's baseline.
+	g.setFont(mono(12.0f));
+	g.setColour(col::muted);
+	const float baseline = float(t.getCentreY()) + (mono(16.0f).getAscent() - mono(16.0f).getDescent()) / 2;
+	g.drawSingleLineText(versionText(), t.getX(), juce::roundToInt(baseline));
 	const auto s = summary();
 	g.setFont(mono(12.0f));
 	g.setColour(m_note.isEmpty() ? col::inkSoft : m_noteOk ? col::ok : col::warn);

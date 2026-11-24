@@ -271,6 +271,7 @@ HardwareView::HardwareView(TR909Processor &p) : m_proc(p)
 	});
 	using Bar = lemus::panel::Bar;
 	m_barSync = m_bar.add(Bar::kSync, "OFF: the 909's own clock. HOST: MIDI sync, run from the DAW's transport");
+	m_barPitch = m_bar.add(Bar::kSlider);
 	m_barRear = m_bar.add(Bar::kRear, "The rear panel: the MULTI OUT jacks and POWER");
 	m_barService = m_bar.add(Bar::kService);
 	// The brand marks come from the user's artwork (a file per place, or an older tr909.svg pack);
@@ -356,8 +357,11 @@ void HardwareView::timerCallback()
 		m_knobValues[i] = v;
 	}
 	const bool sync = paramValue("sync") > 0.5f;
-	bool bar = s.voices != m_snap.voices || s.syncMode != m_snap.syncMode || s.synced != m_snap.synced || sync != m_syncShown;
+	const float bdPitch = paramValue("bdpitch"); // a session load, the host's own editor
+	bool bar = s.voices != m_snap.voices || s.syncMode != m_snap.syncMode || s.synced != m_snap.synced || sync != m_syncShown ||
+	           bdPitch != m_bdPitchShown;
 	m_syncShown = sync;
+	m_bdPitchShown = bdPitch;
 	m_snap = s;
 	// the cables and the host's outputs (a session load, the host turning an output on); the rear
 	// shows only those
@@ -844,6 +848,13 @@ void HardwareView::drawBar(juce::Graphics &g)
 	panel::drawBarBackground(g, m_bar);
 	const bool sync = paramValue("sync") > 0.5f;
 	panel::drawPill(g, m_bar[m_barSync], sync ? "SYNC: HOST" : "SYNC: OFF", sync, m_hover.kind == HitKind::BarSync, kMono);
+	{
+		auto *p = m_proc.params().getParameter("bdpitch");
+		panel::drawBarSlider(g, m_bar[m_barPitch], "BD PITCH", p->getValue(), p->getCurrentValueAsText().upToFirstOccurrenceOf(" Hz", false, false),
+		                     m_hover.kind == HitKind::BarPitch || m_drag.kind == HitKind::BarPitch, kMono);
+		m_bar.setTip(m_barPitch, "The kick settles at " + p->getCurrentValueAsText() + " (C14, R27); 909s range from about 49 to 54 Hz. "
+		                         "Drag to set, double-click for " + p->getText(p->getDefaultValue(), 16));
+	}
 	panel::drawPill(g, m_bar[m_barRear], "REAR", m_rear, m_hover.kind == HitKind::BarRear, kMono);
 	panel::drawPill(g, m_bar[m_barService], "SERVICE", m_service, m_hover.kind == HitKind::BarService, kMono);
 	panel::drawPill(g, m_bar.help(), "?", m_showHelp, m_hover.kind == HitKind::BarHelp, kMono);
@@ -894,8 +905,9 @@ void HardwareView::drawBar(juce::Graphics &g)
 		voices << (m_snap.voices[size_t(k)] > 0.02f ? names[k] : "  ") << " ";
 	g.setColour(panel::col::accent);
 	g.drawText(voices.trimEnd(), juce::Rectangle<float>(voicesX, float(kPanelHeight), 318, float(kBarHeight)), juce::Justification::centredRight);
-	const int tip = m_hover.kind == HitKind::BarSync ? m_barSync : m_hover.kind == HitKind::BarRear ? m_barRear
-	              : m_hover.kind == HitKind::BarService ? m_barService : m_hover.kind == HitKind::BarHelp ? panel::Bar::kHelp : -1;
+	const int tip = m_hover.kind == HitKind::BarSync ? m_barSync : m_hover.kind == HitKind::BarPitch ? m_barPitch
+	              : m_hover.kind == HitKind::BarRear ? m_barRear : m_hover.kind == HitKind::BarService ? m_barService
+	              : m_hover.kind == HitKind::BarHelp ? panel::Bar::kHelp : -1;
 	if (tip != -1 && m_drag.kind == HitKind::None && !m_showHelp)
 		panel::drawBarTip(g, m_bar, tip, getLocalBounds().toFloat(), kMono);
 }
@@ -1266,7 +1278,7 @@ HardwareView::Hit HardwareView::hitAt(juce::Point<float> px) const
 		if (i == lemus::panel::Bar::kHelp)
 			return {HitKind::BarHelp, -1};
 		if (i >= 0)
-			return {i == m_barSync ? HitKind::BarSync : i == m_barRear ? HitKind::BarRear : HitKind::BarService, -1};
+			return {i == m_barSync ? HitKind::BarSync : i == m_barPitch ? HitKind::BarPitch : i == m_barRear ? HitKind::BarRear : HitKind::BarService, -1};
 		return {};
 	}
 	if (m_service)
@@ -1337,6 +1349,13 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 	case HitKind::BarSync:
 		setParamValue("sync", paramValue("sync") > 0.5f ? 0.0f : 1.0f);
 		break;
+	case HitKind::BarPitch: {
+		if (auto *p = m_proc.params().getParameter("bdpitch"))
+			p->beginChangeGesture();
+		const auto track = lemus::panel::barSliderTrack(m_bar[m_barPitch]);
+		setParamValue("bdpitch", (e.position.x - track.getX()) / track.getWidth());
+		break;
+	}
 	case HitKind::BarHelp:
 		m_showHelp = !m_showHelp;
 		break;
@@ -1409,6 +1428,13 @@ void HardwareView::mouseDrag(const juce::MouseEvent &e)
 		repaint();
 		return;
 	}
+	if (m_drag.kind == HitKind::BarPitch) { // along its track (shift: a tenth as far from where the drag is)
+		const auto track = lemus::panel::barSliderTrack(m_bar[m_barPitch]);
+		const float x = e.mods.isShiftDown() ? m_dragStart.x + (e.position.x - m_dragStart.x) * 0.1f : e.position.x;
+		setParamValue("bdpitch", (x - track.getX()) / track.getWidth());
+		repaint();
+		return;
+	}
 	if (m_drag.kind == HitKind::Trim) { // TM: along its track (shift: a tenth as far)
 		const float sens = (e.mods.isShiftDown() ? 0.1f : 1.0f) / 268.0f;
 		setParamValue("tm", m_dragStartValue + (e.position.x - m_dragStart.x) * sens);
@@ -1431,8 +1457,8 @@ void HardwareView::mouseUp(const juce::MouseEvent &)
 	} else if (m_drag.kind == HitKind::Knob) {
 		if (auto *p = m_proc.params().getParameter(elements()[size_t(m_drag.index)].param))
 			p->endChangeGesture();
-	} else if (m_drag.kind == HitKind::Trim) {
-		if (auto *p = m_proc.params().getParameter("tm"))
+	} else if (m_drag.kind == HitKind::Trim || m_drag.kind == HitKind::BarPitch) {
+		if (auto *p = m_proc.params().getParameter(m_drag.kind == HitKind::Trim ? "tm" : "bdpitch"))
 			p->endChangeGesture();
 	}
 	if (m_panning) {
@@ -1449,8 +1475,8 @@ void HardwareView::mouseDoubleClick(const juce::MouseEvent &e)
 	if (h.kind == HitKind::Knob)
 		if (auto *p = m_proc.params().getParameter(elements()[size_t(h.index)].param))
 			p->setValueNotifyingHost(p->getDefaultValue());
-	if (h.kind == HitKind::Trim)
-		if (auto *p = m_proc.params().getParameter("tm"))
+	if (h.kind == HitKind::Trim || h.kind == HitKind::BarPitch)
+		if (auto *p = m_proc.params().getParameter(h.kind == HitKind::Trim ? "tm" : "bdpitch"))
 			p->setValueNotifyingHost(p->getDefaultValue());
 	if (m_service && (h.kind == HitKind::Board || h.kind == HitKind::None) && e.position.y < float(kPanelHeight)) {
 		m_zoom = 1; // the whole unit again
@@ -1469,6 +1495,10 @@ void HardwareView::mouseMagnify(const juce::MouseEvent &e, float scale)
 void HardwareView::mouseWheelMove(const juce::MouseEvent &e, const juce::MouseWheelDetails &w)
 {
 	const auto h = hitAt(e.position);
+	if (h.kind == HitKind::BarPitch) {
+		setParamValue("bdpitch", paramValue("bdpitch") + w.deltaY * (e.mods.isShiftDown() ? 0.01f : 0.05f));
+		return;
+	}
 	if (m_service && h.kind != HitKind::Knob) {
 		if (h.kind == HitKind::Trim)
 			setParamValue("tm", paramValue("tm") + w.deltaY * (e.mods.isShiftDown() ? 0.005f : 0.03f));

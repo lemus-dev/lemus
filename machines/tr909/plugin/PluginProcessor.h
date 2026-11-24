@@ -114,6 +114,9 @@ public:
 	int serial() const { return m_serial; }
 	// The clap's trimmer TM ("tm" parameter, its wiper 0-1) as the unit left the factory.
 	static double factoryTm();
+	// The board's parts: the calibrated unit's, with a serial's production changes and BD PITCH's
+	// C14 and R27 ("bdpitch", Hz).
+	static tr909::Calibration calibration(int serial, double bdPitchHz);
 	// SERVICE's scope: two probes on the board (VoiceBoard::setProbe: "hc.env1", "mix.mhc"), each
 	// recorded at the board's rate into a ring with the trigger lines (channel 2: a bit per voice,
 	// Voice order), from the next block. While a probe is on, the board doesn't sleep, as a unit
@@ -180,6 +183,8 @@ private:
 	juce::AudioProcessorValueTreeState m_params;
 	std::vector<std::atomic<float> *> m_knobValues;
 	std::atomic<float> *m_tempo = nullptr, *m_accent = nullptr, *m_sync = nullptr, *m_tm = nullptr;
+	std::atomic<float> *m_bdPitch = nullptr;
+	float m_bdPitchSet = 0; // BD PITCH as the board has it (under the callback lock)
 	int m_serial = tr909::kLateSerial;
 	// the scope (setProbe): wanted on the message thread, set on the audio thread
 	juce::SpinLock m_probeLock;

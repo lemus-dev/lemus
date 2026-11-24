@@ -30,7 +30,9 @@ public:
 	// For --snapshot: the list has been read (or failed to be), select a plugin, start the work a
 	// button would ("update-all", or "update", "install", "remove" for the selected plugin;
 	// "self-update" and "later" for the prompt that offers a newer manager; "drag" shows the drop
-	// overlay, "drop:<path>|<path>" drops those files).
+	// overlay, "drop:<path>|<path>" drops those files, "select-text:<text>" selects that text in the
+	// details, "double-click:<text>" double-clicks in its middle and
+	// "drag:<text>" drags across it, each then pressing Cmd-C).
 	bool ready() const { return m_loading != Loading::Reading; }
 	void show(const juce::String &plugin) { select(plugin); }
 	void act(const juce::String &action);
@@ -61,16 +63,20 @@ private:
 
 	enum class Loading { Reading, Failed, Ready };
 
-	// One line of the list.
+	// The mark after a plugin's version in the list: [↑] an update is out, a filling circle while
+	// it downloads (full while it's checked and installed), [·] waiting its turn, [✓] just done,
+	// [✗] failed; none when there's nothing new.
 	struct Status {
 		juce::String text;
 		juce::Colour colour, onSelection;
+		double progress = -1; // the circle's fill, 0 to 1; below 0: no circle
 	};
 
 	// A batch of plugins is under way (busy() also counts the manager's own update).
 	bool batchBusy() const;
 	void load();
 	void rescan();
+	void fitNames(); // wider when the list's longest names need it
 	void refresh(); // the list, the details, the header and footer after any change
 
 	std::vector<const Entry *> visible() const;
@@ -82,7 +88,7 @@ private:
 	const Job *jobOf(const Entry &) const;
 	bool hasUpdate(const Entry &) const;
 	int updateCount() const;
-	Status statusOf(const Entry &) const;
+	Status markOf(const Entry &) const;
 	juce::String summary() const;
 
 	void startJobs(std::vector<Job>);

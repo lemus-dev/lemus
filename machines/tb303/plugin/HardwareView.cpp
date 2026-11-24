@@ -176,7 +176,7 @@ HardwareView::HardwareView(TB303Processor &p) : m_proc(p)
 	});
 	using Bar = lemus::panel::Bar;
 	m_barSync = m_bar.add(Bar::kSync, "OFF: the 303's own clock. HOST: run from the DAW's transport (DIN sync)");
-	m_barTop = m_bar.add(196);
+	m_barTop = m_bar.add(Bar::kSlider);
 	m_barService = m_bar.add(Bar::kService);
 
 	auto led = [this](const char *id, Machine::Led l) { m_leds.push_back({findElement(id), l}); };
@@ -775,8 +775,7 @@ juce::Rectangle<float> HardwareView::barRect(BarItem i) const
 // CUT OFF MAX's track inside its item, after its label.
 juce::Rectangle<float> HardwareView::sliderTrack() const
 {
-	const auto r = barRect(BarItem::Top);
-	return {r.getX() + 90, r.getCentreY() - 1.5f, 62, 3};
+	return lemus::panel::barSliderTrack(barRect(BarItem::Top));
 }
 
 void HardwareView::drawBar(juce::Graphics &g)
@@ -786,24 +785,7 @@ void HardwareView::drawBar(juce::Graphics &g)
 	auto pill = [&](BarItem i, const juce::String &text, bool on, bool hover) { lp::drawPill(g, barRect(i), text, on, hover, kMono); };
 	pill(BarItem::Sync, paramValue("sync") > 0.5f ? "SYNC: HOST" : "SYNC: OFF", paramValue("sync") > 0.5f, m_hover.kind == HitKind::BarSync);
 	auto slider = [&](BarItem i, HitKind kind, const char *label, const juce::String &value) {
-		const auto r = barRect(i);
-		const bool active = m_hover.kind == kind || m_drag.kind == kind;
-		g.setColour(active ? juce::Colour(0xff2c323b) : juce::Colour(0xff232830));
-		g.fillRoundedRectangle(r, 6);
-		g.setColour(juce::Colour(0xff2e343d));
-		g.drawRoundedRectangle(r.reduced(0.5f), 6, 1);
-		g.setFont(fonts::mono(11.0f, fonts::Weight::Medium));
-		g.setColour(juce::Colour(0xff9aa4b1));
-		const auto track = sliderTrack();
-		g.drawText(label, r.withRight(track.getX()).withTrimmedLeft(8), juce::Justification::centredLeft);
-		const float v = paramValue(barSlider(kind));
-		g.setColour(juce::Colour(0xff3a414c));
-		g.fillRoundedRectangle(track, 1.5f);
-		g.setColour(juce::Colour(0xffff8c1a));
-		g.fillRoundedRectangle(track.withWidth(track.getWidth() * v), 1.5f);
-		g.fillEllipse(track.getX() + track.getWidth() * v - 4, track.getCentreY() - 4, 8, 8);
-		g.setColour(juce::Colour(0xffe9ecf1));
-		g.drawText(value, r.withTrimmedLeft(track.getRight() - r.getX() + 6).withTrimmedRight(8), juce::Justification::centredRight);
+		lp::drawBarSlider(g, barRect(i), label, paramValue(barSlider(kind)), value, m_hover.kind == kind || m_drag.kind == kind, kMono);
 	};
 	const auto valueText = [&](const char *id) { return m_proc.params().getParameter(id)->getCurrentValueAsText(); };
 	slider(BarItem::Top, HitKind::BarTop, "CUT OFF MAX", valueText("fullcutoff").upToFirstOccurrenceOf(" kHz", false, false) + "k");

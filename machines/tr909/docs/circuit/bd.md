@@ -396,6 +396,17 @@ dB or Hz, the RMS spread after the slash):
   differs, `docs/reference.md`). It decays faster than AudioRealism's: t-20 168 / 224 ms at DECAY
   7 / 10 against 198 / 318 (AudioRealism's 100 %: 289), so calibrating to AudioRealism moves the
   decay away from it (+0.26 → +0.49 octave): a unit difference (C8 or VR5 lower in that unit).
+- **Units differ most in f_end**: 49.3-49.6 Hz on AudioRealism's and Rob Roy's, 52.3-52.7 on
+  Regebro's, KB6's and Roland's plugin; the drawn C14 and R27 give 54.2. **BD PITCH** on the bar
+  (`setBdPitch`) moves C14 and R27 together, geometrically, from the fitted values to the printed
+  ones: the VCO's rest 49.35 → 54.19 Hz (within 0.01 Hz of geometric along the way), the whole sweep
+  with it (2-5 % at its start), the default the fitted unit. Moving it builds the BD alone again,
+  its capacitors' voltages carried over (1.8 ms; a fresh unit's kick within -54 dB). Behind it
+  (2026-11-23): a long-time 909 owner heard ours at full TUNE as "tuned up to 75 %", with less knock
+  when driven. Listening blind to five loops at full TUNE (ATTACK and DECAY at 12 o'clock): ours, the
+  printed C14/R27, that with VR2 and C9 +20 % (a longer sweep), that with C14 and R27 -5 %, and that
+  with R44 at its printed 22k. They picked the printed values', the longer sweep second. Both settle
+  at 54.2 Hz, so what they hear is the end pitch, not the sweep.
 - **AudioRealism's chain** explains the "DC-like tail that stops with a kink" (RES §7): the model's
   body leaves a DC step (Q12's emitter current), which the 6.5 Hz high-pass turns into the slow
   excursion after the last cycle. With the chain the DECAY 0 tail's τ went from 6 to 22 ms (real

@@ -7,13 +7,21 @@ export const manager: { slug: string; page: string; release: Release | null; cha
   slug: 'lemus-plugin-manager',
   page: '/plugin-manager',
   release: {
-    version: '0.2.2',
-    tag: 'lemus-plugin-manager-v0.2.2',
+    version: '0.2.3',
+    tag: 'lemus-plugin-manager-v0.2.3',
     stage: 'beta',
-    mac: 'lemus-plugin-manager-0.2.2-mac.pkg',
-    windows: 'lemus-plugin-manager-0.2.2-windows.zip',
+    mac: 'lemus-plugin-manager-0.2.3-mac.pkg',
+    windows: 'lemus-plugin-manager-0.2.3-windows.zip',
   },
   changes: [
+    {
+      version: '0.2.3',
+      notes: [
+        'Names can be copied: in a plugin\'s details, double-click a name, a ROM file or a checksum (or drag across any text) and press Cmd-C or Ctrl-C, or right-click and Copy. Right-click a plugin in the list to copy its machine or plugin name.',
+        'A simpler list: VERSION is yours, with [↑] when an update is out and a circle that fills as it downloads; ROM and ART are [✓], [~] or [✗] (a ROM it can\'t run without), blank when the machine needs none.',
+        'Its own version shows by the title, and the window widens when a machine\'s name needs it (Alesis QuadraVerb GT was cut short).',
+      ],
+    },
     {
       version: '0.2.2',
       notes: [

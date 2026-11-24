@@ -38,6 +38,7 @@ public:
 	static constexpr float kPillHeight = 26, kLeft = 10, kGap = 8;
 	// The standard pills' widths.
 	static constexpr float kSync = 110, kRear = 64, kService = 82;
+	static constexpr float kSlider = 196; // a slider (drawBarSlider)
 	static constexpr int kHelp = -2; // hit(): the ? pill
 
 	Bar(int width, int panelHeight, int barHeight)
@@ -89,6 +90,35 @@ private:
 	float m_width, m_top, m_height, m_y;
 	std::vector<Item> m_items;
 };
+
+// A slider on the bar, for what differs from unit to unit and the unit has no knob for (the 303's
+// CUT OFF MAX, the 909's BD PITCH): its label, its track and its value, in an item Bar::kSlider
+// wide. The machine drags its parameter along barSliderTrack (shift: a tenth as far), the wheel
+// nudges it, a double-click sets its default. `value` is the parameter's 0-1.
+inline juce::Rectangle<float> barSliderTrack(juce::Rectangle<float> item)
+{
+	return {item.getX() + 90, item.getCentreY() - 1.5f, 62, 3};
+}
+
+inline void drawBarSlider(juce::Graphics &g, juce::Rectangle<float> r, const juce::String &label, float value,
+                          const juce::String &valueText, bool active, const Mono &mono)
+{
+	g.setColour(active ? col::pillHover : col::pill);
+	g.fillRoundedRectangle(r, 6);
+	g.setColour(col::border);
+	g.drawRoundedRectangle(r.reduced(0.5f), 6, 1);
+	g.setFont(mono(11.0f, 1));
+	g.setColour(col::status);
+	const auto track = barSliderTrack(r);
+	g.drawText(label, r.withRight(track.getX()).withTrimmedLeft(8), juce::Justification::centredLeft);
+	g.setColour(juce::Colour(0xff3a414c));
+	g.fillRoundedRectangle(track, 1.5f);
+	g.setColour(col::accent);
+	g.fillRoundedRectangle(track.withWidth(track.getWidth() * value), 1.5f);
+	g.fillEllipse(track.getX() + track.getWidth() * value - 4, track.getCentreY() - 4, 8, 8);
+	g.setColour(col::ink);
+	g.drawText(valueText, r.withTrimmedLeft(track.getRight() - r.getX() + 6).withTrimmedRight(8), juce::Justification::centredRight);
+}
 
 inline void drawBarBackground(juce::Graphics &g, const Bar &bar)
 {

@@ -209,6 +209,12 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-23, feature (a user's report): BD PITCH on the bar, the pitch the kick settles on, from
+  the calibrated unit's 49.35 Hz to the printed C14/R27's 54.19 Hz, which a long-time 909 owner
+  picked blind as their unit's at full TUNE (`circuit/bd.md`, "Calibration"). The default is the
+  calibrated unit. `VoiceBoard::setCalibration` now builds again only the voices whose parts moved
+  (not the hi-hat's, crash's or ride's), carrying their state over; the bar's slider is the host's
+  (`host/PanelFrame.h` `drawBarSlider`, the 303's CUT OFF MAX's).
 - 2026-11-20, fix (forum t/40): with SYNC on and the host looping, the 909 stopped at the loop's
   end and stayed silent (Cubase, Bitwig and others). The plugin sent the host's 24 ppqn clocks
   after the last one it had sent, so when the playhead went back it sent none until it passed

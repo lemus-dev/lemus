@@ -6,6 +6,7 @@
 #include "manager/Report.h"
 #include "manager/RomCheck.h"
 #include "manager/Tasks.h"
+#include "manager/TextSelect.h"
 
 #include <juce_data_structures/juce_data_structures.h>
 
@@ -392,6 +393,41 @@ void testHandOff(const juce::File &sandbox)
 	sandbox.createDirectory();
 }
 
+// Selecting text in the details: the name a double click takes, and where characters sit.
+void testTextSelect()
+{
+	const auto name = [](const juce::String &text, int at) {
+		const auto r = nameAround(text, at);
+		return text.substring(r.getStart(), r.getEnd());
+	};
+	const auto tick = juce::String::fromUTF8("[\xe2\x9c\x93] hd44780_a00.bin");
+	check(name(tick, 6) == "hd44780_a00.bin" && name(tick, tick.length()) == "hd44780_a00.bin", "a double click takes a ROM's file name");
+	const auto sub = juce::String::fromUTF8("Mono synth \xc2\xb7 1981 \xc2\xb7 ro-mono-303");
+	check(name(sub, sub.length() - 4) == "ro-mono-303" && name(sub, 2) == "Mono", "a plugin's name, a word");
+	check(name("Roland TB-303 Bass Line", 9) == "TB-303" && name("Roland TB-303 Bass Line", 6) == "Roland", "a model, and the word a space ends");
+	check(name("It doesn't run without tb303.bin.", 30) == "tb303.bin", "a sentence's full stop is left out");
+	check(name("a (b)", 2) == "(" && name("", 0).isEmpty(), "punctuation alone; nothing in nothing");
+
+	const juce::Font font{juce::FontOptions(13.0f)};
+	const juce::String text = "SHA1 0d9b3a5bd0b3f7d4b2f5a1c6e8a9b4c3d2e1f0a9 and some more words to wrap";
+	const TextSpots spots(text, font, 160.0f);
+	const auto all = spots.boxes(0, text.length());
+	check(all.size() > 1, "a long text wraps onto lines");
+	bool ordered = true;
+	int last = -1;
+	for (float x = 0; x < 160; x += 4) {
+		const int at = spots.indexAt({x, all[0].getCentreY()});
+		ordered = ordered && at >= last;
+		last = at;
+	}
+	check(ordered && spots.indexAt({-10, all[0].getCentreY()}) == 0, "boundaries run left to right from the start");
+	const int second = spots.indexAt({0, all[1].getCentreY()});
+	check(second > 0 && spots.indexAt({1000, all[0].getCentreY()}) <= second, "the second line starts where the first ends");
+	const auto five = spots.boxes(0, 4);
+	check(five.size() == 1 && std::abs(five[0].getWidth() - juce::GlyphArrangement::getStringWidth(font, "SHA1")) < 0.5f, "a selection's box is its text's width");
+	check(spots.indexAt({five[0].getRight() + 0.4f, five[0].getCentreY()}) == 4, "a point is at its nearest boundary");
+}
+
 void testReports(const juce::File &sandbox)
 {
 	const auto log = sandbox.getChildFile("install.log");
@@ -502,6 +538,7 @@ int main()
 	testRoms(sandbox);
 	testHandOff(sandbox);
 	testReports(sandbox);
+	testTextSelect();
 	setRoot({});
 	sandbox.deleteRecursively();
 	std::printf(g_failures == 0 ? "all passed\n" : "%d failed\n", g_failures);

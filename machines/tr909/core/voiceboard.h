@@ -55,6 +55,15 @@ struct Calibration {
 	double knob(const char *name, double rotation) const;
 };
 Calibration unitCalibration(); // the unit Lemus plays (docs/model.md, "Calibration")
+// BD PITCH (on the bar): the pitch the kick settles on, its VCO's at rest, which differs from 909
+// to 909 more than anything else in the kick (49.2-49.5 Hz on the two units recorded at known
+// settings, 52.5-53 Hz on others and on Roland's plugin). C14 and R27, the VCO's timing, move
+// together from the unit's values (49.35 Hz) to the printed 0.033 uF and 1.5M (54.19 Hz), the
+// pitch geometric along the way (within 0.01 Hz); the whole sweep moves with it, 2-5 % at its
+// start. A long-time 909 owner, listening blind to five kicks at full TUNE, picked the printed
+// values' as the one most like their unit (2026-11-23, docs/circuit/bd.md "Calibration").
+constexpr double kBdPitchUnitHz = 49.35, kBdPitchPrintedHz = 54.19;
+void setBdPitch(Calibration &c, double hz);
 
 // The TR-909's voicing board and multi-jack board: the trigger and accent latches the CPU
 // writes, the noise generator, the ten voice circuits, each run sample by sample from its netlist
@@ -156,6 +165,9 @@ private:
 	std::array<Decimator, kVoices> m_jackDecimators;
 	std::vector<float> m_jackWork; // kVoices x the factor
 	std::unique_ptr<Impl> m_impl;
+	std::map<std::string, double> ownerParams(const std::string &owner) const; // m_cal's for a netlist
+	void buildVoice(int v); // its circuit from its netlist and m_cal's parts, at the board's rate
+	void ownNoise(int v);
 };
 
 } // namespace tr909

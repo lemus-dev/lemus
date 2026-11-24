@@ -69,7 +69,7 @@ public:
 	void serviceSweep() { updateScope(); } // tools: the scope takes its latest sweep now
 
 private:
-	enum class HitKind { None, Knob, Key, BarSync, BarHelp, BarRear, Jack, Power, BarService,
+	enum class HitKind { None, Knob, Key, BarSync, BarPitch, BarHelp, BarRear, Jack, Power, BarService,
 		                 Board, Drawer, Serial, Trim, TrimButton, Scope };
 	struct Hit {
 		HitKind kind = HitKind::None;
@@ -156,12 +156,13 @@ private:
 	TR909Processor::Snapshot m_snap;
 	std::vector<float> m_knobValues; // as last drawn, to repaint when the host moves one
 	bool m_syncShown = false;
+	float m_bdPitchShown = -1;
 	Hit m_hover, m_drag;
 	float m_dragStartValue = 0;
 	juce::Point<float> m_dragStart;
 	lemus::panel::Keys m_held; // the keys held by the mouse and the computer keyboard
 	lemus::panel::Bar m_bar{kWidth, kPanelHeight, kBarHeight};
-	int m_barSync = -1, m_barRear = -1, m_barService = -1;
+	int m_barSync = -1, m_barPitch = -1, m_barRear = -1, m_barService = -1;
 	bool m_shiftHeld = false;
 	bool m_showHelp = false;
 

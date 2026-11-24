@@ -2,6 +2,7 @@
 // check box the plugins' bar and pop-ups draw (host/LemusEditor.cpp), and text helpers.
 #pragma once
 
+#include "TextSelect.h"
 #include "host/Style.h"
 
 #include <juce_gui_basics/juce_gui_basics.h>
@@ -108,17 +109,6 @@ private:
 	juce::String m_detail;
 	int m_labelWidth = 44;
 };
-
-// Text wrapped to a width, in one font and colour: its height, and drawing it.
-inline juce::TextLayout layoutOf(const juce::String &text, const juce::Font &font, juce::Colour colour, float width)
-{
-	juce::AttributedString s;
-	s.append(text, font, colour);
-	s.setWordWrap(juce::AttributedString::byWord);
-	juce::TextLayout layout;
-	layout.createLayout(s, width);
-	return layout;
-}
 
 // Draws text wrapped to a width at (x, y); returns its height.
 inline float drawWrapped(juce::Graphics &g, const juce::String &text, const juce::Font &font, juce::Colour colour, float x, float y,

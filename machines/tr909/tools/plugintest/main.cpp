@@ -848,6 +848,99 @@ void service(const Roms &r, double rate)
 	      "service: the serial number and TM round-trip with the session");
 }
 
+// BD PITCH (the bar): the kick settles where the slider says, from the calibrated unit's 49.35 Hz
+// (its C14 and R27 exactly, by default) to the printed values' 54.19 Hz; moving it builds the BD
+// alone again, as a fresh unit with those parts would play it, while the other voices ring on; it
+// is saved with the session.
+void bdPitch(const Roms &r, double rate)
+{
+	char what[240];
+	{
+		const auto cal = TR909Processor::calibration(tr909::kLateSerial, tr909::kBdPitchUnitHz), unit = tr909::unitCalibration();
+		check(cal.parts.at("bd.c14") == unit.parts.at("bd.c14") && cal.parts.at("bd.r27") == unit.parts.at("bd.r27"),
+		      "bd pitch: at its default, the calibrated unit's C14 and R27 exactly");
+	}
+	// a BD hit at full DECAY and TUNE 0 (settled by 80 ms), its jack; `during` moves BD PITCH to `to`
+	// (0-1) 0.3 s into an SD hit
+	auto hits = [&](float from, float to, bool during) {
+		TR909Processor p(&r.fw, &r.hh, &r.cr, &r.rd);
+		set(p, "bdpitch", from);
+		set(p, "bd_decay", 1.0f);
+		set(p, "bd_tune", 0.0f);
+		allJacks(p);
+		FakePlayHead ph;
+		p.setPlayHead(&ph);
+		p.prepareToPlay(rate, 512);
+		run(p, ph, 3.0, rate);
+		juce::MidiBuffer sd;
+		sd.addEvent(juce::MidiMessage::noteOn(10, TR909Processor::noteFor(tr909::Voice::SD), juce::uint8(127)), int(0.05 * rate));
+		auto a = run(p, ph, 0.3, rate, &sd, true);
+		if (during)
+			set(p, "bdpitch", to);
+		auto b = run(p, ph, 1.2, rate, nullptr, true);
+		juce::MidiBuffer bd;
+		bd.addEvent(juce::MidiMessage::noteOn(10, TR909Processor::noteFor(tr909::Voice::BD), juce::uint8(127)), int(0.05 * rate));
+		auto c = run(p, ph, 1.0, rate, &bd, true);
+		std::vector<float> snare, kick;
+		for (const auto *buf : {&a, &b})
+			for (int i = 0; i < buf->getNumSamples(); ++i)
+				snare.push_back(buf->getSample(2 + int(tr909::Voice::SD), i));
+		for (int i = 0; i < c.getNumSamples(); ++i)
+			kick.push_back(c.getSample(2 + int(tr909::Voice::BD), i));
+		return std::pair{snare, kick};
+	};
+	// the kick's pitch from 0.4 to 0.9 s: its rising zero crossings, about its mean, after two
+	// one-pole low-passes at 150 Hz (the body's harmonics out)
+	auto settled = [rate](const std::vector<float> &x) {
+		const size_t from = size_t(0.4 * rate), to = size_t(0.9 * rate);
+		double mean = 0;
+		for (size_t i = from; i < to; ++i)
+			mean += x[i];
+		mean /= double(to - from);
+		const double k = 1 - std::exp(-2 * juce::MathConstants<double>::pi * 150 / rate),
+		             h = 1 - std::exp(-2 * juce::MathConstants<double>::pi * 15 / rate);
+		double y1 = 0, y2 = 0, d1 = 0, d2 = 0;
+		std::vector<double> y;
+		for (size_t i = from; i < to; ++i) {
+			y1 += k * (x[i] - mean - y1);
+			y2 += k * (y1 - y2);
+			d1 += h * (y2 - d1); // and two high-passes at 15 Hz: the jack's settling DC out
+			d2 += h * (y2 - d1 - d2);
+			y.push_back(y2 - d1 - d2);
+		}
+		std::vector<double> t;
+		for (size_t i = size_t(0.05 * rate); i < y.size(); ++i) // past the filters' start
+			if (y[i - 1] < 0 && y[i] >= 0)
+				t.push_back(double(i - 1) + y[i - 1] / (y[i - 1] - y[i]));
+		return t.size() > 2 ? rate * double(t.size() - 1) / (t.back() - t.front()) : 0.0;
+	};
+	auto apart = [](const std::vector<float> &a, const std::vector<float> &b) {
+		double d = 0, e = 0;
+		for (size_t i = 0; i < std::min(a.size(), b.size()); ++i) {
+			d += double(a[i] - b[i]) * (a[i] - b[i]);
+			e += double(a[i]) * a[i];
+		}
+		return 20 * std::log10(std::sqrt(d / (e + 1e-30)) + 1e-12);
+	};
+	const auto unit = hits(0, 0, false), printed = hits(1, 1, false), moved = hits(0, 1, true);
+	const double fu = settled(unit.second), fp = settled(printed.second), cents = 1200 * std::log2(fp / fu);
+	std::snprintf(what, sizeof what, "bd pitch: the kick settles at %.2f Hz by default, %.2f Hz at the top (%+.0f cents)", fu, fp, cents);
+	check(std::abs(fu - 49.35) < 0.3 && std::abs(fp - 54.19) < 0.3, what);
+	const double kick = apart(printed.second, moved.second), snare = apart(unit.first, moved.first);
+	std::snprintf(what, sizeof what,
+	              "bd pitch: moved while the SD rings, the next kick is a fresh unit's (%.1f dB apart), the SD untouched (%.1f dB)", kick, snare);
+	check(kick < -50 && snare < -200, what);
+	TR909Processor a(&r.fw, &r.hh, &r.cr, &r.rd);
+	set(a, "bdpitch", 0.6f);
+	juce::MemoryBlock st;
+	a.getStateInformation(st);
+	TR909Processor b(&r.fw, &r.hh, &r.cr, &r.rd);
+	b.setStateInformation(st.getData(), int(st.getSize()));
+	std::snprintf(what, sizeof what, "bd pitch: round-trips with the session (%s)",
+	              b.params().getParameter("bdpitch")->getCurrentValueAsText().toRawUTF8());
+	check(std::abs(b.params().getParameter("bdpitch")->getValue() - 0.6f) < 1e-6, what);
+}
+
 // MIDI OUT as a merge: what comes in goes out again through the CPU's serial port, a little later
 // (the bytes at 31250 baud and the firmware's scan), at its own sample; the input itself is not
 // passed on.
@@ -1124,6 +1217,11 @@ int main(int argc, char **argv)
 		service(r, 48000);
 		return failures ? 1 : 0;
 	}
+	if (argc > 1 && juce::String(argv[1]) == "--bdpitch") { // tools: the BD PITCH checks alone
+		Roms r;
+		bdPitch(r, 48000);
+		return failures ? 1 : 0;
+	}
 	if (argc > 1 && juce::String(argv[1]) == "--hostloop") { // tools: the host loop checks alone
 		Roms r;
 		hostLoop(r, 48000, true);
@@ -1175,6 +1273,7 @@ int main(int argc, char **argv)
 	midiThru(r, 48000);
 	multiOut(r, 48000);
 	service(r, 48000);
+	bdPitch(r, 48000);
 	powerOn(r, 48000);
 	powerSwitch(r, 48000);
 	std::printf("%s (%d failed)\n", failures ? "FAILED" : "all passed", failures);

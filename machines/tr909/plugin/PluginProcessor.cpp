@@ -130,6 +130,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout TR909Processor::createLayout
 		AudioParameterFloatAttributes()
 			.withStringFromValueFunction([](float v, int) { return String(v * 100.0f, 1) + " %"; })
 			.withValueFromStringFunction([number](const String &t) { return jlimit(0.0f, 1.0f, number(t) / 100.0f); })));
+	// BD PITCH (the bar): the pitch the kick settles on, as 909s differ in it (C14 and R27,
+	// tr909::setBdPitch); by default the calibrated unit's. A property of the unit, as TM is: not
+	// automatable.
+	p.push_back(std::make_unique<AudioParameterFloat>(
+		ParameterID{"bdpitch", 1}, "BD Pitch", NormalisableRange<float>(float(tr909::kBdPitchUnitHz), float(tr909::kBdPitchPrintedHz)),
+		float(tr909::kBdPitchUnitHz),
+		AudioParameterFloatAttributes()
+			.withAutomatable(false)
+			.withStringFromValueFunction([](float hz, int) { return String(hz, 1) + " Hz"; })
+			.withValueFromStringFunction([number](const String &t) { return number(t); })));
 	return {p.begin(), p.end()};
 }
 
@@ -149,6 +159,8 @@ TR909Processor::TR909Processor(const juce::MemoryBlock *firmware, const juce::Me
 	m_accent = m_params.getRawParameterValue("accent");
 	m_sync = m_params.getRawParameterValue("sync");
 	m_tm = m_params.getRawParameterValue("tm");
+	m_bdPitch = m_params.getRawParameterValue("bdpitch");
+	m_bdPitchSet = m_bdPitch->load();
 
 	m_romOk = firmware != nullptr && m_machine.setRom(static_cast<const uint8_t *>(firmware->getData()), firmware->getSize());
 	auto rom = [](const juce::MemoryBlock *b) {
@@ -247,15 +259,22 @@ double TR909Processor::factoryTm()
 	return it != cal.parts.end() ? it->second : 0.255;
 }
 
-void TR909Processor::setSerial(int serial)
+tr909::Calibration TR909Processor::calibration(int serial, double bdPitchHz)
 {
-	serial = std::max(serial, tr909::kFirstSerial);
 	auto cal = tr909::unitCalibration();
 	for (const auto &[k, v] : tr909::revisionParts(serial))
 		cal.parts[k] = v;
+	tr909::setBdPitch(cal, bdPitchHz);
+	return cal;
+}
+
+void TR909Processor::setSerial(int serial)
+{
+	serial = std::max(serial, tr909::kFirstSerial);
 	const juce::ScopedLock sl(getCallbackLock()); // between blocks: the circuits are rebuilt
 	m_serial = serial;
-	m_board.setCalibration(cal);
+	m_bdPitchSet = m_bdPitch->load();
+	m_board.setCalibration(calibration(serial, m_bdPitchSet));
 	m_asleep = false;
 }
 
@@ -666,6 +685,12 @@ void TR909Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 		}
 		if (m_probing)
 			m_asleep = false;
+	}
+	if (const float hz = m_bdPitch->load(); hz != m_bdPitchSet) {
+		// BD PITCH moved: C14 and R27 swapped, the BD's circuit alone built again (about 2 ms)
+		m_bdPitchSet = hz;
+		m_board.setCalibration(calibration(m_serial, hz));
+		m_asleep = false;
 	}
 	const int n = buffer.getNumSamples();
 	const int channels = buffer.getNumChannels();

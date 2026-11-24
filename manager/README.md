@@ -36,6 +36,11 @@ What runs with those rights trusts as little as it can:
   from System32 only (`/DEPENDENTLOADFLAG` and `SetDefaultDllDirectories`), never from the folder
   it was started in.
 
+Names can be copied, to search for them elsewhere. The details' text selects as in any details
+pane: drag across it, double-click a name (`ro-mono-303`, `hd44780_a00.bin`, a SHA1), triple-click
+a line, then Cmd-C (Ctrl-C) or the right click's Copy. A right click on a row of the list copies
+its machine's or plugin's name, and Cmd-C there copies the plugin's.
+
 A copy in the user's own `~/Library/Audio/Plug-Ins` (a development build) isn't the manager's;
 it's shown in the details, since a DAW may load either copy.
 
@@ -83,6 +88,8 @@ The app takes, for testing:
     --root <folder>           install under this folder; nothing asks for a password
     --snapshot <png> [--select <plugin>] [--action update-all|update|install|remove] [--wait <ms>]
                               draw the window to a PNG once the list is read
+                              (--action select-text:<text>, or double-click:<text> or
+                              drag:<text> then Cmd-C, for the details' text selection)
 
 ## Release
 

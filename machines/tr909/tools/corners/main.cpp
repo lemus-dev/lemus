@@ -152,7 +152,7 @@ std::vector<Case> cases()
 		bool clean; // no noise past the attack: judged for noise
 	};
 	const std::vector<V> voices = {
-		{"BD", 36, -1, {"bd_tune", "bd_level", "bd_attack", "bd_decay"}, true},
+		{"BD", 36, -1, {"bd_tune", "bd_level", "bd_attack", "bd_decay", "bdpitch"}, true}, // BD PITCH: the bar's
 		{"SD", 38, -1, {"sd_tune", "sd_level", "sd_tone", "sd_snappy"}, false},
 		{"LT", 43, -1, {"lt_tune", "lt_level", "lt_decay"}, true},
 		{"MT", 47, -1, {"mt_tune", "mt_level", "mt_decay"}, true},
