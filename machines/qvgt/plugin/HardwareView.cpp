@@ -118,7 +118,6 @@ HardwareView::HardwareView(QVGTProcessor &p) : m_proc(p)
 		                   j["kind"].toString() == "din", label});
 	}
 	m_held.reset(m_keys.size(), [this](int i, bool down) { m_proc.setKey(m_keys[size_t(i)].key, down, m_hardPress); });
-	m_barHiss = m_bar.add(64, "HISS: the circuits' own noise, as the unit has it. Off: noiseless, silent when idle");
 	m_barRear = m_bar.add(lemus::panel::Bar::kRear, "The rear panel: click the BYPASS or ADVANCE jack to press its footswitch");
 	setWantsKeyboardFocus(true);
 	setOpaque(true);
@@ -483,8 +482,6 @@ juce::String HardwareView::status() const
 void HardwareView::drawBar(juce::Graphics &g)
 {
 	lemus::panel::drawBarBackground(g, m_bar);
-	const auto *hiss = m_proc.params().getParameter("hiss");
-	lemus::panel::drawPill(g, m_bar[m_barHiss], "HISS", hiss != nullptr && hiss->getValue() > 0.5f, m_hoverBar == m_barHiss, barMono());
 	lemus::panel::drawPill(g, m_bar[m_barRear], "REAR", m_rear, m_hoverBar == m_barRear, barMono());
 	lemus::panel::drawStatus(g, m_bar.status(), status(), barMono(), m_held.anyLatched() ? lemus::panel::col::accent : lemus::panel::col::status);
 	lemus::panel::drawPill(g, m_bar.help(), "?", m_help, m_hoverBar == lemus::panel::Bar::kHelp, barMono());
@@ -584,12 +581,6 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 			m_help = true;
 		else if (hit == m_barRear)
 			m_rear = !m_rear;
-		else if (hit == m_barHiss)
-			if (auto *hiss = m_proc.params().getParameter("hiss")) {
-				hiss->beginChangeGesture();
-				hiss->setValueNotifyingHost(hiss->getValue() > 0.5f ? 0.0f : 1.0f);
-				hiss->endChangeGesture();
-			}
 		repaint();
 		return;
 	}

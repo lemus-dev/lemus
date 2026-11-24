@@ -17,8 +17,9 @@ namespace tr909 {
 // firmware's. The computer keyboard plays the panel keys; '?' lists them. REAR turns the 909
 // round: its rear panel (panel.json's rear_panel), where a click plugs a cable into a MULTI OUT
 // jack or pulls it out. SERVICE takes the top panel off (HardwareService.cpp): the boards with every
-// part where the service notes' drawings put it, the clap's trimmer TM, the unit's circuit revision
-// by serial number (its production changes) and a scope.
+// part where the service notes' drawings put it, the clap's trimmer TM, the parts units differ in
+// (PARTS: C14 and R27, where the kick settles), the unit's circuit revision by serial number (its
+// production changes) and a scope.
 class HardwareView : public juce::Component, private juce::Timer {
 public:
 	// The key list (?) shown or not: the editor's --keys snapshot.
@@ -67,10 +68,11 @@ public:
 	void serviceView(float zoom, juce::Point<float> centreMm); // tools: SERVICE zoomed onto a point
 	void serviceSetUpTm() { setUpTm(); }  // tools: the TM procedure's scope set-up (play the clap yourself)
 	void serviceSweep() { updateScope(); } // tools: the scope takes its latest sweep now
+	void servicePart() { m_hover = {HitKind::Part, 0}; repaint(); } // tools: the PARTS row as under the mouse
 
 private:
-	enum class HitKind { None, Knob, Key, BarSync, BarPitch, BarHelp, BarRear, Jack, Power, BarService,
-		                 Board, Drawer, Serial, Trim, TrimButton, Scope };
+	enum class HitKind { None, Knob, Key, BarSync, BarHelp, BarRear, Jack, Power, BarService,
+		                 Board, Drawer, Serial, Trim, TrimButton, Scope, Part };
 	struct Hit {
 		HitKind kind = HitKind::None;
 		int index = -1; // element index; for a Jack, the voice (kVoices: MASTER OUT R, + 1: L)
@@ -105,6 +107,9 @@ private:
 	void updateScope();
 	void scopeMenu(int button);
 	void setUpTm();
+	void drawPartCallout(juce::Graphics &); // the hot PARTS row's parts ringed on the board, named
+	bool partHot() const { return m_hover.kind == HitKind::Part || m_drag.kind == HitKind::Part; }
+	float partTrackWidth() const; // the PARTS row's track, px
 	Hit hitService(juce::Point<float> px) const;
 	void zoomService(float factor, juce::Point<float> aboutPx);
 	void clampPan();
@@ -162,7 +167,7 @@ private:
 	juce::Point<float> m_dragStart;
 	lemus::panel::Keys m_held; // the keys held by the mouse and the computer keyboard
 	lemus::panel::Bar m_bar{kWidth, kPanelHeight, kBarHeight};
-	int m_barSync = -1, m_barPitch = -1, m_barRear = -1, m_barService = -1;
+	int m_barSync = -1, m_barRear = -1, m_barService = -1;
 	bool m_shiftHeld = false;
 	bool m_showHelp = false;
 

@@ -131,6 +131,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout TR808Processor::createLayout
 			AudioParameterFloatAttributes()
 				.withStringFromValueFunction([](float v, int) { return String(v * 100.0f, 1) + " %"; })
 				.withValueFromStringFunction([number](const String &t) { return jlimit(0.0f, 1.0f, number(t) / 100.0f); })));
+	// BD DECAY MAX (SERVICE, Parts: VR6): the kick's time to a tenth at full DECAY, as units differ in it (DECAY's
+	// pot VR6, tr808::bdDecayPot): by default the printed pot's, the service notes' 0.80 s. A part of
+	// the unit, as the trimmers are: not automatable.
+	p.push_back(std::make_unique<AudioParameterFloat>(
+		ParameterID{"bddecaymax", 1}, "BD Decay Max", NormalisableRange<float>(float(tr808::kBdDecayPrintedS), float(tr808::kBdDecayFittedS)),
+		float(tr808::kBdDecayPrintedS),
+		AudioParameterFloatAttributes()
+			.withAutomatable(false)
+			.withStringFromValueFunction([](float s, int) { return String(s, 2) + " s"; })
+			.withValueFromStringFunction([number](const String &t) { return number(t); })));
 	return {p.begin(), p.end()};
 }
 
@@ -168,6 +178,8 @@ TR808Processor::TR808Processor(const juce::MemoryBlock *rom, lemus::Artwork artw
 	m_sync = get("sync");
 	for (int i = 0; i < tr808::kTrimmers; ++i)
 		m_trims[size_t(i)] = get(kTrimIds[i]);
+	m_bdDecayMax = get("bddecaymax");
+	m_bdDecayApplied = m_bdDecayMax->load();
 
 	m_romOk = rom != nullptr && m_machine.setRom(static_cast<const uint8_t *>(rom->getData()), rom->getSize());
 	m_machine.writeFactoryRhythms(); // a new instance is a new 808; a session's own RAM replaces it
@@ -283,6 +295,7 @@ tr808::Calibration TR808Processor::calibration() const
 	cal.noiseRms = trimValue(int(tr808::Trimmer::Noise), m_trims[size_t(tr808::Trimmer::Noise)]->load());
 	cal.cbHz1 = trimValue(int(tr808::Trimmer::Cowbell1), m_trims[size_t(tr808::Trimmer::Cowbell1)]->load());
 	cal.cbHz2 = trimValue(int(tr808::Trimmer::Cowbell2), m_trims[size_t(tr808::Trimmer::Cowbell2)]->load());
+	cal.parts["bd.p6"] = tr808::bdDecayPot(m_bdDecayMax->load());
 	return cal;
 }
 
@@ -299,6 +312,7 @@ void TR808Processor::rebuild(bool retrim)
 	{
 		const juce::ScopedLock sl(getCallbackLock()); // between blocks: the circuits are rebuilt
 		m_trimParts = tr808::TrimParts::forSerial(m_serial);
+		m_bdDecayApplied = m_bdDecayMax->load();
 		m_board.setCalibration(calibration());
 		const auto u = unitTrims(m_trimParts);
 		m_unitRot = u.rotation;
@@ -560,6 +574,11 @@ void TR808Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBu
 			m_trimsApplied = t;
 			m_asleep = false;
 		}
+	}
+	if (const float s = m_bdDecayMax->load(); s != m_bdDecayApplied) { // BD DECAY MAX: VR6, no rebuild
+		m_bdDecayApplied = s;
+		m_board.setBdDecayPot(tr808::bdDecayPot(s));
+		m_asleep = false;
 	}
 	const auto controls = currentControls();
 	{
@@ -838,7 +857,11 @@ void TR808Processor::setStateInformation(const void *data, int sizeInBytes)
 		m_portionLate = late;
 		rebuild(false);
 	}
+	const bool hasDecayMax = tree.getChildWithProperty("id", "bddecaymax").isValid();
 	m_params.replaceState(tree);
+	if (!hasDecayMax) // saved before BD DECAY MAX (model 1): the fitted pot, as it sounded then
+		if (auto *p = m_params.getParameter("bddecaymax"))
+			p->setValueNotifyingHost(p->convertTo0to1(float(tr808::kBdDecayFittedS)));
 	// A session loads as an 808 that has been on a while: the board as it was saved, CPU included,
 	// so the rhythm picked stays picked. Only the POWER switch runs the power-on. Hosts load a
 	// state while playing: not in the middle of a block.

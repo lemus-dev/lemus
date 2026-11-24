@@ -3,7 +3,7 @@
 // firmware in MIDI sync and the host transport runs it, that the idle board sleeps (exact zeros)
 // and wakes sounding as before, and that state (parameters + RAM) round-trips.
 //   tr909plugintest [OUT_DIR]   (writes WAVs of what it plays when given)
-//   tr909plugintest --panel OUT.png [SCALE] [running] [rear] [off] [service] [zoom=Z@X,Y] [tm]
+//   tr909plugintest --panel OUT.png [SCALE] [running] [rear] [off] [service] [zoom=Z@X,Y] [tm] [part]
 //     [--artwork PACK.svg]   (draws the editor; zoom: SERVICE Z times onto panel mm X, Y; tm: the
 //     TM procedure's scope on a clap)
 //   tr909plugintest --service   (the SERVICE checks alone: serial numbers, TM)
@@ -848,7 +848,7 @@ void service(const Roms &r, double rate)
 	      "service: the serial number and TM round-trip with the session");
 }
 
-// BD PITCH (the bar): the kick settles where the slider says, from the calibrated unit's 49.35 Hz
+// BD pitch (SERVICE's PARTS, C14 R27): the kick settles where the slider says, from the measured unit's 49.35 Hz
 // (its C14 and R27 exactly, by default) to the printed values' 54.19 Hz; moving it builds the BD
 // alone again, as a fresh unit with those parts would play it, while the other voices ring on; it
 // is saved with the session.
@@ -858,7 +858,7 @@ void bdPitch(const Roms &r, double rate)
 	{
 		const auto cal = TR909Processor::calibration(tr909::kLateSerial, tr909::kBdPitchUnitHz), unit = tr909::unitCalibration();
 		check(cal.parts.at("bd.c14") == unit.parts.at("bd.c14") && cal.parts.at("bd.r27") == unit.parts.at("bd.r27"),
-		      "bd pitch: at its default, the calibrated unit's C14 and R27 exactly");
+		      "bd pitch: at its default, the measured unit's C14 and R27 exactly");
 	}
 	// a BD hit at full DECAY and TUNE 0 (settled by 80 ms), its jack; `during` moves BD PITCH to `to`
 	// (0-1) 0.3 s into an SD hit
@@ -1004,8 +1004,9 @@ int powerOnSounds(const juce::File &dir)
 
 // --panel OUT.png [SCALE] [running] [rear] [off] [service] [--artwork PACK.svg]: draws the editor (no
 // window) into a PNG; rear: the rear panel, with cables in BD and SD; off: switched off; service:
-// SERVICE, the underside.
-int panelShot(const char *path, float scale, bool running, bool rear, bool off, bool service, juce::Point<float> at, float zoom, bool tm, const char *artworkPath)
+// SERVICE, the underside; part: SERVICE with the PARTS row under the mouse.
+int panelShot(const char *path, float scale, bool running, bool rear, bool off, bool service, juce::Point<float> at, float zoom, bool tm, bool part,
+              const char *artworkPath)
 {
 	Roms r;
 	juce::MemoryBlock artwork;
@@ -1036,6 +1037,8 @@ int panelShot(const char *path, float scale, bool running, bool rear, bool off, 
 				view->showService(true);
 				if (zoom > 1)
 					view->serviceView(zoom, at);
+				if (part)
+					view->servicePart();
 				if (tm) { // the TM procedure: the scope on the clap's MULTI OUT, a clap played
 					view->serviceSetUpTm();
 					run(p, ph, 1.0, 48000); // past the firmware's power-on delay: it takes MIDI then
@@ -1179,7 +1182,7 @@ int main(int argc, char **argv)
 	juce::ScopedJuceInitialiser_GUI gui;
 	if (argc > 1 && juce::String(argv[1]) == "--panel") {
 		const char *artwork = nullptr;
-		bool running = false, rear = false, off = false, service = false, tm = false;
+		bool running = false, rear = false, off = false, service = false, tm = false, part = false;
 		juce::Point<float> at;
 		float zoom = 1;
 		float scale = 1.0f;
@@ -1197,6 +1200,8 @@ int main(int argc, char **argv)
 				service = true;
 			else if (s == "tm")
 				service = tm = true;
+			else if (s == "part")
+				service = part = true;
 			else if (s.startsWith("zoom=")) { // zoom=Z@X,Y: SERVICE zoomed Z times onto panel mm X, Y
 				service = true;
 				zoom = s.fromFirstOccurrenceOf("=", false, false).upToFirstOccurrenceOf("@", false, false).getFloatValue();
@@ -1206,7 +1211,7 @@ int main(int argc, char **argv)
 			else
 				scale = s.getFloatValue();
 		}
-		return argc > 2 ? panelShot(argv[2], scale > 0 ? scale : 1.0f, running, rear, off, service, at, zoom, tm, artwork) : 2;
+		return argc > 2 ? panelShot(argv[2], scale > 0 ? scale : 1.0f, running, rear, off, service, at, zoom, tm, part, artwork) : 2;
 	}
 	if (argc > 3 && juce::String(argv[1]) == "--render")
 		return render(argv[2], argv[3]);

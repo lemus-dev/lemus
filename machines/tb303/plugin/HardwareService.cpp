@@ -123,7 +123,11 @@ constexpr float kIx = 892, kIw = 1188 - 892;
 const juce::Rectangle<float> kScopeCase(kIx, 8, kIw, 182), kScopeScreen(kIx + 12, 32, kIw - 24, 116);
 const juce::Rectangle<float> kCounterCase(kIx, 198, 144, 56), kMeterCase(kIx + kIw - 144, 198, 144, 56);
 const juce::Rectangle<float> kTrimPanel(kIx, 262, kIw, 298);
-constexpr float kRowH = 45;
+constexpr float kRowH = 35;
+// PARTS, under the trimmers: a rule, its heading, then the part's row.
+constexpr float kPartsRuleY = 262 + 28 + 6 * kRowH + 4, kPartRowY = kPartsRuleY + 20;
+// The printed parts' full CUT OFF (the service notes' nominal values): the PARTS row's tick.
+constexpr float kPrintedTopHz = 2200;
 
 const juce::Colour kSilk(0xffe6ece6), kOrange(0xffff8c1a), kProbe(0xfff5d742), kMeterProbe(0xffe8473a);
 const juce::Colour kInSpec(0xff46c37b);
@@ -677,12 +681,17 @@ juce::Rectangle<float> HardwareView::serviceKey(int keyIndex) const
 	return R(c.x - w / 2, c.y + kSwitchDy - h / 2, c.x + w / 2, c.y + kSwitchDy + h / 2);
 }
 
-juce::Rectangle<float> HardwareView::trimRow(int i) const { return {kIx + 4, kTrimPanel.getY() + 28 + i * kRowH, kIw - 8, kRowH - 3}; }
+juce::Rectangle<float> HardwareView::trimRow(int i) const
+{
+	return {kIx + 4, i == kPart ? kPartRowY : kTrimPanel.getY() + 28 + float(i) * kRowH, kIw - 8, kRowH - 3};
+}
 juce::Rectangle<float> HardwareView::trimTrack(int i) const
 {
 	const auto r = trimRow(i);
-	return {r.getX() + 30, r.getY() + 31, r.getWidth() - 50, 4};
+	return {r.getX() + 30, r.getY() + 24, r.getWidth() - 50, 4};
 }
+
+const char *HardwareView::pickId(int i) { return i == kPart ? "fullcutoff" : TB303Processor::kTrimIds[i]; }
 
 void HardwareView::setService(bool on)
 {
@@ -699,7 +708,7 @@ void HardwareView::setService(bool on)
 
 void HardwareView::setServiceTrim(int trim)
 {
-	m_trim = juce::jlimit(0, 5, trim);
+	m_trim = juce::jlimit(0, kPart, trim);
 	m_traces.clear();
 	m_scopeReading.clear();
 	m_proc.params().state.setProperty("serviceTrim", m_trim, nullptr);
@@ -708,7 +717,7 @@ void HardwareView::setServiceTrim(int trim)
 
 void HardwareView::resetTrim(int i)
 {
-	if (auto *p = m_proc.params().getParameter(TB303Processor::kTrimIds[i])) {
+	if (auto *p = m_proc.params().getParameter(pickId(i))) {
 		p->beginChangeGesture();
 		p->setValueNotifyingHost(p->getDefaultValue());
 		p->endChangeGesture();
@@ -718,7 +727,7 @@ void HardwareView::resetTrim(int i)
 
 void HardwareView::nudgeTrim(int i, float delta)
 {
-	if (auto *p = m_proc.params().getParameter(TB303Processor::kTrimIds[i])) {
+	if (auto *p = m_proc.params().getParameter(pickId(i))) {
 		p->beginChangeGesture();
 		p->setValueNotifyingHost(juce::jlimit(0.0f, 1.0f, p->getValue() + delta));
 		p->endChangeGesture();
@@ -767,9 +776,9 @@ juce::String HardwareView::trimmerText(int i) const
 
 HardwareView::Hit HardwareView::hitTestService(juce::Point<float> p) const
 {
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i <= kPart; ++i) {
 		const auto track = trimTrack(i);
-		if (juce::Rectangle<float>(track.getX() - 12, track.getY() - 12, track.getWidth() + 24, track.getHeight() + 24).contains(p))
+		if (juce::Rectangle<float>(track.getX() - 12, track.getY() - 8, track.getWidth() + 24, track.getHeight() + 14).contains(p))
 			return {HitKind::TrimSlider, i};
 		if (trimRow(i).contains(p))
 			return {HitKind::TrimRow, i};
@@ -1287,6 +1296,16 @@ void HardwareView::renderServiceStatic(juce::Graphics &g)
 		g.setColour(juce::Colour(0xff6f7884));
 		g.setFont(fonts::mono(10.0f));
 		g.drawText(juce::String::fromUTF8("green: in spec  \xc2\xb7  tick: factory"), kTrimPanel.reduced(12, 0).withHeight(26), juce::Justification::centredRight);
+		// PARTS: where units differ, the part's printed value ticked.
+		g.setColour(juce::Colour(0xff2a2f37));
+		g.fillRect(juce::Rectangle<float>(kTrimPanel.getX() + 12, kPartsRuleY, kTrimPanel.getWidth() - 24, 1));
+		const auto head = juce::Rectangle<float>(kTrimPanel.getX() + 12, kPartsRuleY + 2, kTrimPanel.getWidth() - 24, 16);
+		g.setColour(juce::Colour(0xffc9cfd8));
+		g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
+		g.drawText("PARTS", head, juce::Justification::centredLeft);
+		g.setColour(juce::Colour(0xff6f7884));
+		g.setFont(fonts::mono(10.0f));
+		g.drawText(juce::String::fromUTF8("units differ  \xc2\xb7  tick: printed"), head, juce::Justification::centredRight);
 	}
 
 	// Grain on the boards (not on the bench or the instruments).
@@ -1326,15 +1345,22 @@ void HardwareView::drawTrimmer(juce::Graphics &g, int i)
 void HardwareView::drawPicked(juce::Graphics &g)
 {
 	const double now = juce::Time::getMillisecondCounterHiRes();
-	const auto c = trimmerPos(m_trim);
-	const float r = L(kTrimmerDia / 2 + 2.2f);
+	auto c = m_trim < kPart ? trimmerPos(m_trim) : juce::Point<float>();
+	float r = L(kTrimmerDia / 2 + 2.2f);
+	juce::String name = m_trim < kPart ? juce::String(kTrims[m_trim].ref) + (*kTrims[m_trim].silk ? juce::String(" ") + kTrims[m_trim].silk : juce::String())
+	                                   : juce::String("VR3 CUT OFF");
+	if (m_trim == kPart) // the part: CUT OFF's pot, VR3, under its knob
+		for (const auto &k : m_knobs)
+			if (std::strcmp(k.param, "cutoff") == 0) {
+				c = servicePos(k.element);
+				r = L(elements[k.element].extra * 0.5f + 1.2f);
+			}
 	const float pulse = 0.5f + 0.5f * std::sin(float(now) * 0.0062f);
 	g.setColour(kOrange.withAlpha(0.18f + 0.22f * pulse));
 	g.drawEllipse(c.x - r - 2, c.y - r - 2, 2 * r + 4, 2 * r + 4, 6.0f);
 	g.setColour(kOrange);
 	g.drawEllipse(c.x - r, c.y - r, 2 * r, 2 * r, 2.0f);
 	// Its name, as the board prints it, on a tag beside it.
-	const juce::String name = juce::String(kTrims[m_trim].ref) + (*kTrims[m_trim].silk ? juce::String(" ") + kTrims[m_trim].silk : juce::String());
 	g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
 	const float w = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), name) + 14;
 	const bool left = c.x + r + 14 + w > kIx - 8;
@@ -1386,7 +1412,7 @@ void HardwareView::drawProbes(juce::Graphics &g)
 		g.setColour(juce::Colour(0xffd9dde1));
 		g.strokePath(hook, juce::PathStrokeType(L(0.45f), juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
 	};
-	probe(P(checkPointMm(kTrims[m_trim].probe)), kProbe, 0.45f);
+	probe(P(checkPointMm(kTrims[scopeTrim()].probe)), kProbe, 0.45f);
 	probe(P(cvJackMm()), kMeterProbe, -0.35f);
 }
 
@@ -1421,6 +1447,23 @@ void HardwareView::drawServiceParts(juce::Graphics &g)
 
 	for (int i = 0; i < 6; ++i)
 		drawTrimmer(g, i);
+	{
+		// The part's row under the mouse, not picked: a dashed ring on its pot's knob, as for a trimmer.
+		const bool hot = ((m_hover.kind == HitKind::TrimRow || m_hover.kind == HitKind::TrimSlider) && m_hover.index == kPart) ||
+		                 (m_drag.kind == HitKind::TrimSlider && m_drag.index == kPart);
+		if (hot && m_trim != kPart)
+			for (const auto &k : m_knobs)
+				if (std::strcmp(k.param, "cutoff") == 0) {
+					const auto c = servicePos(k.element);
+					const float r = L(elements[k.element].extra * 0.5f + 1.2f);
+					juce::Path ring, dashed;
+					ring.addEllipse(c.x - r, c.y - r, 2 * r, 2 * r);
+					const float dash[] = {4, 3};
+					juce::PathStrokeType(1.4f).createDashedStroke(dashed, ring, dash, 2);
+					g.setColour(juce::Colours::white.withAlpha(0.7f));
+					g.fillPath(dashed);
+				}
+	}
 
 	// Key switches' plungers and the LEDs.
 	for (size_t i = 0; i < m_keys.size(); ++i) {
@@ -1476,7 +1519,7 @@ void HardwareView::updateScope()
 		}
 	}
 
-	const TrimDef &st = kTrims[m_trim];
+	const TrimDef &st = kTrims[scopeTrim()];
 	const double rate = m_snap.rate > 0 ? m_snap.rate : 44100;
 	const int show = juce::jmax(16, int(10 * st.msPerDiv * 1e-3 * rate));
 	const int pre = show / 20;
@@ -1577,7 +1620,7 @@ void HardwareView::updateScope()
 		return false;
 	};
 	double lowHz = 0, highHz = 0;
-	switch (m_trim) {
+	switch (scopeTrim()) {
 	case 0:
 	case 1: {
 		const double ms = periodMs();
@@ -1635,7 +1678,7 @@ void HardwareView::updateScope()
 
 void HardwareView::drawScope(juce::Graphics &g, juce::Rectangle<float> sc)
 {
-	const TrimDef &st = kTrims[m_trim];
+	const TrimDef &st = kTrims[scopeTrim()];
 	g.setColour(juce::Colour(0xff07120c));
 	g.fillRoundedRectangle(sc, 4);
 	g.setColour(juce::Colour(0xff0f2a1a));
@@ -1712,20 +1755,20 @@ void HardwareView::drawTrimmerList(juce::Graphics &g)
 		const float v = paramValue(TB303Processor::kTrimIds[i]);
 		const float def = m_proc.params().getParameter(TB303Processor::kTrimIds[i])->getDefaultValue();
 		// Line 1: the name as printed, what it does, the reading.
-		const float y1 = row.getY() + 4;
+		const float y1 = row.getY() + 2;
 		g.setColour(ok ? kInSpec : kOrange);
-		g.fillEllipse(row.getX() + 11, y1 + 5, 7, 7);
+		g.fillEllipse(row.getX() + 11, y1 + 4.5f, 7, 7);
 		g.setFont(fonts::mono(11.5f, fonts::Weight::SemiBold));
 		g.setColour(juce::Colour(0xffeef1f5));
 		const juce::String name = juce::String(d.ref) + (*d.silk ? juce::String(" ") + d.silk : juce::String());
-		g.drawText(name, juce::Rectangle<float>(row.getX() + 24, y1, 100, 17), juce::Justification::centredLeft);
+		g.drawText(name, juce::Rectangle<float>(row.getX() + 24, y1, 100, 16), juce::Justification::centredLeft);
 		const float nameW = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), name);
 		g.setFont(sans(11.0f));
 		g.setColour(juce::Colour(0xff8f98a5));
-		g.drawText(d.plain, juce::Rectangle<float>(row.getX() + 24 + nameW + 8, y1, 110, 17), juce::Justification::centredLeft);
+		g.drawText(d.plain, juce::Rectangle<float>(row.getX() + 24 + nameW + 8, y1, 110, 16), juce::Justification::centredLeft);
 		g.setFont(fonts::mono(11.0f, fonts::Weight::Medium));
 		g.setColour(ok ? juce::Colour(0xffe9ecf1) : juce::Colour(0xffffb866));
-		g.drawText(trimValue(i, t), juce::Rectangle<float>(row.getRight() - 96, y1, 88, 17), juce::Justification::centredRight);
+		g.drawText(trimValue(i, t), juce::Rectangle<float>(row.getRight() - 96, y1, 88, 16), juce::Justification::centredRight);
 		// Line 2: the travel, in-spec stretches green, the factory's trim ticked, the rotor as the thumb.
 		const auto track = trimTrack(i);
 		g.setColour(juce::Colour(0xff3a414c));
@@ -1737,19 +1780,66 @@ void HardwareView::drawTrimmerList(juce::Graphics &g)
 			g.setColour(kInSpec.withAlpha(0.85f));
 			g.fillRoundedRectangle(juce::Rectangle<float>(x0, track.getY() - 1, x1 - x0, track.getHeight() + 2), 2);
 			// And over the track, where the thumb can't hide it.
-			g.fillRoundedRectangle(juce::Rectangle<float>(std::min(x0, (x0 + x1) / 2 - 3), track.getY() - 10, std::max(x1 - x0, 6.0f), 2.5f), 1.2f);
+			g.fillRoundedRectangle(juce::Rectangle<float>(std::min(x0, (x0 + x1) / 2 - 3), track.getY() - 7, std::max(x1 - x0, 6.0f), 2.5f), 1.2f);
 		}
 		g.setColour(juce::Colour(0xffc9cfd8));
 		const float fx = track.getX() + def * track.getWidth();
 		g.drawLine(fx, track.getY() - 5, fx, track.getBottom() + 5, 1.2f);
 		const juce::Point<float> thumb(track.getX() + v * track.getWidth(), track.getCentreY());
-		drawTrimmerAt(g, thumb, 8.0f, v, d.blue);
+		drawTrimmerAt(g, thumb, 7.0f, v, d.blue);
+	}
+
+	// PARTS: VR3, CUT OFF's pot, whose law sets how high full CUT OFF reaches. Green at the
+	// default (a typical unit's), orange when moved; the printed parts' value ticked; a plain knob
+	// for the thumb, as it isn't a trimmer.
+	{
+		const auto row = trimRow(kPart);
+		const bool picked = m_trim == kPart;
+		const bool hover = (m_hover.kind == HitKind::TrimRow || m_hover.kind == HitKind::TrimSlider) && m_hover.index == kPart;
+		const bool dragged = m_drag.kind == HitKind::TrimSlider && m_drag.index == kPart;
+		g.setColour(picked ? juce::Colour(0xff2b2620) : hover ? juce::Colour(0xff262a31) : juce::Colour(0xff21252b));
+		g.fillRoundedRectangle(row, 5);
+		if (picked) {
+			g.setColour(kOrange.withAlpha(0.7f));
+			g.drawRoundedRectangle(row.reduced(0.5f), 5, 1);
+			g.setColour(kOrange);
+			g.fillRoundedRectangle(row.withWidth(3).reduced(0, 6), 1.5f);
+		}
+		auto *p = dynamic_cast<juce::RangedAudioParameter *>(m_proc.params().getParameter(pickId(kPart)));
+		const float v = p->getValue(), def = p->getDefaultValue();
+		const bool atDefault = std::abs(v - def) < 1e-4f;
+		const float y1 = row.getY() + 2;
+		g.setColour(atDefault ? kInSpec : kOrange);
+		g.fillEllipse(row.getX() + 11, y1 + 4.5f, 7, 7);
+		g.setFont(fonts::mono(11.5f, fonts::Weight::SemiBold));
+		g.setColour(juce::Colour(0xffeef1f5));
+		const juce::String name("VR3 CUT OFF");
+		g.drawText(name, juce::Rectangle<float>(row.getX() + 24, y1, 110, 16), juce::Justification::centredLeft);
+		const float nameW = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), name);
+		g.setFont(sans(11.0f));
+		g.setColour(juce::Colour(0xff8f98a5));
+		g.drawText("pot law", juce::Rectangle<float>(row.getX() + 24 + nameW + 8, y1, 80, 16), juce::Justification::centredLeft);
+		g.setFont(fonts::mono(11.0f, fonts::Weight::Medium));
+		g.setColour(juce::Colour(0xffe9ecf1));
+		g.drawText(p->getCurrentValueAsText(), juce::Rectangle<float>(row.getRight() - 96, y1, 88, 16), juce::Justification::centredRight);
+		const auto track = trimTrack(kPart);
+		g.setColour(juce::Colour(0xff3a414c));
+		g.fillRoundedRectangle(track, 2);
+		g.setColour(juce::Colour(0xffc9cfd8));
+		const float px = track.getX() + p->convertTo0to1(kPrintedTopHz) * track.getWidth();
+		g.drawLine(px, track.getY() - 5, px, track.getBottom() + 5, 1.2f);
+		const juce::Point<float> thumb(track.getX() + v * track.getWidth(), track.getCentreY());
+		const float tr = 6.5f;
+		g.setColour(picked || hover || dragged ? kOrange : juce::Colour(0xffc9cfd8));
+		g.fillEllipse(thumb.x - tr, thumb.y - tr, 2 * tr, 2 * tr);
+		g.setColour(juce::Colour(0xff15171a));
+		g.drawEllipse(thumb.x - tr, thumb.y - tr, 2 * tr, 2 * tr, 2.0f);
 	}
 }
 
 void HardwareView::drawInstruments(juce::Graphics &g)
 {
-	const TrimDef &st = kTrims[m_trim];
+	const TrimDef &st = kTrims[scopeTrim()];
 	auto caption = [&](juce::Rectangle<float> c, juce::Colour dot, const juce::String &text, const juce::String &right) {
 		const float y = c.getY() + 8;
 		g.setColour(dot);
@@ -1767,8 +1857,13 @@ void HardwareView::drawInstruments(juce::Graphics &g)
 	drawScope(g, kScopeScreen);
 	g.setFont(sans(10.5f));
 	g.setColour(juce::Colour(0xffaab2bd));
-	g.drawFittedText(juce::String(st.ref) + ": " + st.hint, juce::Rectangle<float>(kIx + 12, kScopeScreen.getBottom() + 3, kIw - 24, 30).toNearestInt(),
-	                 juce::Justification::centredLeft, 2, 0.95f);
+	if (m_trim == kPart) // the part: what it is and how units differ in it
+		g.drawFittedText("VR3, CUT OFF FREQ's pot: its law sets how high full CUT OFF reaches. A typical unit 2.30 kHz (default), "
+		                 "the printed parts 2.2, the measured unit 1.35. TM3 keeps the centre.",
+		                 juce::Rectangle<float>(kIx + 12, kScopeScreen.getBottom() + 2, kIw - 24, 38).toNearestInt(), juce::Justification::centredLeft, 3, 0.95f);
+	else
+		g.drawFittedText(juce::String(st.ref) + ": " + st.hint, juce::Rectangle<float>(kIx + 12, kScopeScreen.getBottom() + 3, kIw - 24, 30).toNearestInt(),
+		                 juce::Justification::centredLeft, 2, 0.95f);
 
 	const auto &pr = m_snap.probe;
 	auto readout = [&](juce::Rectangle<float> c, juce::Colour bg, juce::Colour fg, const juce::String &digits, const juce::String &unit) {
@@ -1878,6 +1973,32 @@ juce::StringArray HardwareView::serviceSelfTest()
 		keyPressed(juce::KeyPress(juce::KeyPress::rightKey));
 		check(m_trim == 3 && approx(value("tm4"), def("tm4") + 0.002f), "down picks TM4, right turns it");
 		resetTrim(3);
+	}
+
+	// PARTS: down from TM6 picks the part (and on round to TM1), its row picks it, its track turns
+	// it from where it is, a double-click puts it back; the dot on SERVICE follows it.
+	{
+		const char *id = pickId(kPart);
+		setParamValue(id, def(id)); // not where the standalone app's saved state left it
+		setServiceTrim(5);
+		keyPressed(juce::KeyPress(juce::KeyPress::downKey));
+		const bool byKey = m_trim == kPart;
+		keyPressed(juce::KeyPress(juce::KeyPress::downKey));
+		const bool wraps = m_trim == 0;
+		click(trimRow(kPart).getTopLeft() + juce::Point<float>(60, 8));
+		const bool picked = m_trim == kPart && int(m_proc.params().state.getProperty("serviceTrim")) == kPart;
+		const bool clean = !offFactory();
+		const auto track = trimTrack(kPart);
+		const juce::Point<float> thumb(track.getX() + value(id) * track.getWidth(), track.getCentreY());
+		drag(thumb, thumb + juce::Point<float>(track.getWidth() * 0.1f, 0));
+		const float turned = value(id);
+		const bool dot = offFactory();
+		const auto at = track.getCentre();
+		mouseDoubleClick(ev(at, at, 2));
+		check(byKey && wraps && picked && clean && dot && !offFactory() && approx(turned, juce::jmin(1.0f, def(id) + 0.1f), 2e-3f) && approx(value(id), def(id)),
+		      "VR3 under PARTS: down from TM6 picks it, its row picks it, its control turned " + juce::String(def(id), 3) + " -> " +
+		          juce::String(turned, 3) + " (the dot on SERVICE " + (dot ? "on" : "off") + "), a double-click puts it back");
+		setServiceTrim(3);
 	}
 
 	// Pots, switches, S1 and the keys work on the boards.

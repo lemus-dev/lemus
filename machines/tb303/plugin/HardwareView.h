@@ -16,7 +16,9 @@
 // SERVICE on the bar takes the panel off (HardwareService.cpp): the boards as the service notes
 // draw them, every part where the board has it; the six trimmers turn on the board or from their
 // controls on the right, where the one picked lights up on the board and the scope, counter and
-// meter hook onto its check point.
+// meter hook onto its check point. Under them, PARTS: VR3, CUT OFF's pot, whose law units differ
+// in (how high full CUT OFF reaches), turned from its row there; the dot on SERVICE shows a
+// trimmer or the part off the factory's.
 class HardwareView : public juce::Component, private juce::Timer {
 public:
 	// The key list (?) shown or not: the editor's --keys snapshot.
@@ -67,13 +69,12 @@ private:
 		int element;
 		tb303::Machine::Led led;
 	};
-	enum class HitKind { None, Knob, Switch, Key, Waveform, Trimmer, TrimRow, TrimSlider, BarSync, BarTop, BarService, BarHelp };
-	// The bar's sliders (CUT OFF MAX): their parameter, or null for other hits.
-	static const char *barSlider(HitKind k);
+	// TrimRow and TrimSlider: index 0-5 a trimmer's control, kPart the part's (PARTS, under them).
+	enum class HitKind { None, Knob, Switch, Key, Waveform, Trimmer, TrimRow, TrimSlider, BarSync, BarService, BarHelp };
 	// The bar's items, left to right.
-	enum class BarItem { Sync, Top, Service, Help };
+	enum class BarItem { Sync, Service, Help };
 	juce::Rectangle<float> barRect(BarItem) const;
-	juce::Rectangle<float> sliderTrack() const; // CUT OFF MAX's
+	bool offFactory() const; // a trimmer off the factory's trim, or the part off its default: the dot on SERVICE
 	struct Hit {
 		HitKind kind = HitKind::None;
 		int index = -1;
@@ -101,7 +102,12 @@ public:
 	// Standalone self-test (--service-test): clicks and drags through the service view with
 	// synthetic mouse events and reports each check ("ok ..." or "FAIL ...").
 	juce::StringArray serviceSelfTest();
-	void setServiceTrim(int trim); // the trimmer picked, 0-5 for TM1-TM6: lit on the board, the instruments on its check point
+	// What's picked on the right: 0-5 for TM1-TM6 (lit on the board, the instruments on its check
+	// point), kPart for the part under PARTS: VR3, CUT OFF's pot, whose law sets how high full CUT
+	// OFF reaches ("fullcutoff"; units differ in it). With the part picked the instruments stay as
+	// for TM3, on the filter.
+	static constexpr int kPart = 6;
+	void setServiceTrim(int trim);
 	int serviceTrim() const { return m_trim; }
 	juce::String scopeReading() const { return m_scopeReading; }
 private:
@@ -112,8 +118,10 @@ private:
 	juce::Point<float> trimmerPos(int i) const;          // TM1-TM6
 	juce::Point<float> waveformPos() const;              // S1, the WAVEFORM switch
 	juce::Rectangle<float> serviceKey(int keyIndex) const; // a key's switch on the switch board
-	juce::Rectangle<float> trimRow(int i) const;         // a trimmer's control on the right
+	juce::Rectangle<float> trimRow(int i) const;         // a trimmer's control on the right (kPart: the part's)
 	juce::Rectangle<float> trimTrack(int i) const;       // its track (0 at the left, fully clockwise at the right)
+	static const char *pickId(int i);                    // the parameter a row turns: a trimmer's, or "fullcutoff"
+	int scopeTrim() const { return m_trim < kPart ? m_trim : 2; } // the trimmer the instruments are set up for
 	void drawServiceParts(juce::Graphics &);
 	void drawTrimmer(juce::Graphics &, int index);
 	void drawPicked(juce::Graphics &);
@@ -151,12 +159,12 @@ private:
 	juce::Point<float> m_dragStart;
 	lemus::panel::Keys m_held; // the keys held by the mouse and the computer keyboard
 	lemus::panel::Bar m_bar{kWidth, kPanelHeight, kBarHeight};
-	int m_barSync = -1, m_barTop = -1, m_barService = -1;
+	int m_barSync = -1, m_barService = -1;
 	bool m_showHelp = false;
 
 	// Service
 	bool m_service = false;
-	int m_trim = 3;          // the trimmer picked (TM1-TM6 as 0-5)
+	int m_trim = 3;          // what's picked: TM1-TM6 as 0-5, or kPart
 	std::array<std::vector<std::pair<float, float>>, 6> m_specBands; // each trimmer's travel in spec, 0-1
 	std::array<double, 6> m_specBandsFor{};                           // the trims they were worked out for
 	juce::Image m_serviceStatic;

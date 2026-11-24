@@ -55,7 +55,7 @@ struct Calibration {
 	double knob(const char *name, double rotation) const;
 };
 Calibration unitCalibration(); // the unit Lemus plays (docs/model.md, "Calibration")
-// BD PITCH (on the bar): the pitch the kick settles on, its VCO's at rest, which differs from 909
+// BD pitch (SERVICE's PARTS, C14 R27): the pitch the kick settles on, its VCO's at rest, which differs from 909
 // to 909 more than anything else in the kick (49.2-49.5 Hz on the two units recorded at known
 // settings, 52.5-53 Hz on others and on Roland's plugin). C14 and R27, the VCO's timing, move
 // together from the unit's values (49.35 Hz) to the printed 0.033 uF and 1.5M (54.19 Hz), the

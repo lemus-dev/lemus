@@ -19,8 +19,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout QVGTProcessor::layout()
 	const auto attrs = juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float v, int) { return juce::String(v, 1); });
 	l.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("input", 1), "Input", juce::NormalisableRange<float>(0.0f, 10.0f), 6.0f, attrs));
 	l.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("output", 1), "Output", juce::NormalisableRange<float>(0.0f, 10.0f), 5.0f, attrs));
-	// Not a panel control: the circuits' own noise (the bar's HISS)
-	l.add(std::make_unique<juce::AudioParameterBool>(juce::ParameterID("hiss", 1), "Hiss", true));
 	return l;
 }
 
@@ -31,7 +29,6 @@ QVGTProcessor::QVGTProcessor(const juce::MemoryBlock *rom, const juce::MemoryBlo
 	m_midiOut.reserve(8192);
 	m_input = m_params.getRawParameterValue("input");
 	m_output = m_params.getRawParameterValue("output");
-	m_hiss = m_params.getRawParameterValue("hiss");
 	if (rom != nullptr) {
 		const auto sha1 = lemus::sha1Hex(rom->getData(), rom->getSize());
 		m_firmware = sha1 == kV103Sha1 ? "v1.03" : sha1 == kV100Sha1 ? "v1.00" : "";
@@ -136,7 +133,6 @@ void QVGTProcessor::applyGains()
 {
 	m_unit->inputPot = rotation(m_input->load());
 	m_unit->outputPot = rotation(m_output->load());
-	m_unit->setHiss(m_hiss->load() > 0.5f);
 }
 
 void QVGTProcessor::setKey(int key, bool down, bool hard)

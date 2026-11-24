@@ -160,28 +160,16 @@ int main(int argc, char **argv)
 
 	std::printf("Sleep\n");
 	{
-		// HISS on (the default): asleep once the tail has settled into the hiss, which goes on
+		// The parts' own noise always, as on the unit: no setting turns it off
+		check(p.params().getParameter("hiss") == nullptr, "no HISS setting: the hiss is always there");
+		// asleep once the tail has settled into the hiss, which goes on
 		const auto quiet = run(p, silence(int(kRate * 20)));
-		check(p.asleep(), "HISS on: asleep once the tail has gone");
-		const float before = rmsDb(quiet, int(kRate * 1), int(kRate * 2)), after = rmsDb(quiet, int(kRate * 18), int(kRate * 20));
+		check(p.asleep(), "asleep once the tail has gone");
+		const float after = rmsDb(quiet, int(kRate * 18), int(kRate * 20));
 		std::printf("    idle %.1f dBFS awake (the tail gone), %.1f dBFS asleep\n", rmsDb(quiet, int(kRate * 8), int(kRate * 9)), after);
 		check(after > -140 && std::abs(after - rmsDb(quiet, int(kRate * 8), int(kRate * 9))) < 3, "and the hiss goes on at its level");
-		(void)before;
 		run(p, riff(kBlock * 4));
 		check(!p.asleep(), "input wakes it");
-		// HISS off: noiseless, asleep with exact zeros
-		auto *hiss = p.params().getParameter("hiss");
-		hiss->setValueNotifyingHost(0.0f);
-		const auto still = run(p, silence(int(kRate * 20)));
-		check(p.asleep(), "HISS off: asleep once the tail has gone");
-		bool zeros = true;
-		for (int ch = 0; ch < 2; ++ch)
-			for (int i = int(kRate * 19); i < still.getNumSamples(); ++i)
-				zeros = zeros && still.getSample(ch, i) == 0.0f;
-		check(zeros, "with exact zeros out");
-		run(p, riff(kBlock * 4));
-		check(!p.asleep(), "input wakes it");
-		hiss->setValueNotifyingHost(1.0f);
 	}
 
 	std::printf("Session\n");

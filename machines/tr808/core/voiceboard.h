@@ -70,6 +70,16 @@ struct Calibration {
 	double knob(const char *name, double tick) const;
 };
 Calibration unitCalibration();
+// BD DECAY MAX (SERVICE, Parts: VR6): how long the kick rings at full DECAY, which differs from unit to
+// unit. The part is DECAY's pot VR6 (500k B), a rheostat (its wiper on one end): Fischer's unit
+// fits 585k (+17 %), 1.19 s to a tenth at full DECAY (the unit: 1.19); the printed 500k gives
+// 0.80 s, the service notes' figure (SN p.14: 50 / 300 / 800 ms). unitCalibration() keeps
+// Fischer's pot, the plugin's default is the printed one (a long tail makes the kick wander when
+// it is hit again on it: docs/improvements.md S12). The time goes geometrically with the pot
+// (within 3 ms): bdDecayPot is the pot for a time at full DECAY, seconds to ohms.
+constexpr double kBdDecayPrintedPot = 500e3, kBdDecayFittedPot = 585e3;
+constexpr double kBdDecayPrintedS = 0.804, kBdDecayFittedS = 1.185;
+double bdDecayPot(double seconds);
 
 // The TR-808's voicing: the common trig and accent circuit, the noise generator and metallic
 // source, all eleven voices and the mixer, each run sample by sample from its netlist
@@ -123,6 +133,10 @@ public:
 	// rebuild: TM1 and TM2 on the voicing board (the cowbell's squares, Calibration::cbHz1 and
 	// cbHz2), TM4 (the white noise's level, noiseRms) and TM3 (the clap's offset, cpOffset).
 	void setTrims(double cbHz1, double cbHz2, double noiseRms, double cpOffset);
+	// DECAY's pot (Calibration::parts "bd.p6", ohms) without a rebuild: the BD's netlist is built
+	// with at least Fischer's 585k, and the pot being a linear rheostat, a smaller one at any
+	// rotation is that one at the rotation times their ratio. A larger one rebuilds the board.
+	void setBdDecayPot(double ohms);
 	// What TP4 reads (volts rms) for a noiseRms of 1, with the noise generator as loaded: the
 	// density formula takes IC24a's gain flat to C202's corner, the circuit has its own band (worked
 	// out from its impulse response at prepare()).
@@ -185,6 +199,8 @@ private:
 	std::array<bool, kVoices> m_plugged{};
 	Calibration m_cal;
 	double m_hostRate = 48000, m_rate = 96000;
+	double m_bdPotBuilt = kBdDecayFittedPot; // VR6 as the BD's netlist has it
+	double bdPot() const; // VR6 as the unit has it
 	int m_factor = 2;
 	Decimator m_decimator;
 	std::vector<float> m_work;

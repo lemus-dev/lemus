@@ -61,17 +61,18 @@ public:
 	// U15's output stages), as rotations 0-1.
 	double inputPot = 1.0, outputPot = 1.0;
 
-	// The parts' own noise (a bar setting, on by default): the op-amps', the VCAs' and the output
-	// stages', and the A/D's offset servo (core/board.h). Off: noiseless, and asleep exact zeros.
+	// The parts' own noise: the op-amps', the VCAs' and the output stages', and the A/D's offset
+	// servo (core/board.h). Always on in the plugin, as on the unit (no setting); off only for the
+	// tools' comparisons against SPICE (qvgtbench QVGT_HISS=0): noiseless, and asleep exact zeros.
 	void setHiss(bool on);
 	bool hiss() const { return m_hiss; }
 
 	// Sleep (effects: the input under -200 dBFS): once the input has been silent for 1.6 s (longer
 	// than the longest delay) and the output has settled, the DSP and the analog stages stop, with the
-	// DSP's memory as it is; the 80C31 runs on. Settled: under -120 dB for 1.6 s, and asleep the output
-	// is exact zeros; with HISS, its level steady (within 1 dB over 1.6 s) and under -40 dBFS, and
-	// asleep the hiss goes on as a noise filter fitted to that last idle output. Any input, key or
-	// MIDI byte wakes it.
+	// DSP's memory as it is; the 80C31 runs on. Settled: the output's level steady (within 1 dB over
+	// 1.6 s) and under -40 dBFS, and asleep the hiss goes on as a noise filter fitted to that last
+	// idle output (without the hiss, tools only: under -120 dB for 1.6 s, then exact zeros). Any
+	// input, key or MIDI byte wakes it.
 	bool asleep() const { return m_asleep; }
 	void wake()
 	{

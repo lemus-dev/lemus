@@ -135,7 +135,7 @@ std::vector<Case> cases()
 		bool clean;                     // no noise past the attack: judged for noise
 	};
 	const std::vector<V> voices = {
-		{"BD", 36, -1, {"bd_level", "bd_tone", "bd_decay"}, true},
+		{"BD", 36, -1, {"bd_level", "bd_tone", "bd_decay", "bddecaymax"}, true}, // BD DECAY MAX: SERVICE's VR6
 		{"SD", 38, -1, {"sd_level", "sd_tone", "sd_snappy"}, false},
 		{"LT", 43, -1, {"lt_level", "lt_tuning", "lc"}, true},
 		{"MT", 47, -1, {"mt_level", "mt_tuning", "mc"}, true},

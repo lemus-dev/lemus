@@ -89,7 +89,7 @@ public:
 	void prepare(double rate);
 	void reset();
 
-	// The parts' own noise (HISS): each op-amp's input voltage noise (TL084, 18 nV/sqrt(Hz)) and the
+	// The parts' own noise (always on in the plugin): each op-amp's input voltage noise (TL084, 18 nV/sqrt(Hz)) and the
 	// SSM2120 VCAs' (19.6 pA/sqrt(Hz) at unity into the data sheet's 36K, rising 0.475 dB a dB of
 	// gain, its Figure 1b). Off: noiseless.
 	void setHiss(bool on) { m_hiss = on; }

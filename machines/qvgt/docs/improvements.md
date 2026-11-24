@@ -19,7 +19,7 @@ is planned. "Real" is the GT with firmware v1.03 unless it says otherwise.
   noise), the SSM2120 VCAs' (its Figure 1b), the CEM3381's and the output stages'. Idle at OUTPUT
   5: about -79 to -91 dBu by program (the gate open or shut, the gains). No recording has a
   measurable idle floor (amps, cameras); a unit's output with nothing in would settle it.
-- **While asleep with HISS on**, the hiss is a 10-pole noise filter fitted to the last 0.25 s of
+- **While asleep**, the hiss is a 10-pole noise filter fitted to the last 0.25 s of
   idle output: within about 0.6 dB of it above 200 Hz, 3 dB under it below.
 - **The preamp at 167 kHz against ngspice** (`tools/spice/tapcheck.py`, the bench's plucks and
   strums): the shaper's output 24-28 dB under the signal below 20 kHz, the input, overdrive and
@@ -72,12 +72,12 @@ above its background at those lags (continuous playing, camera audio, near-mono)
 ## Budget
 
 - **CPU:** `qvgtbench`'s `p30-sweep-48k` (a sine sweep through program 30, the busiest) under
-  4,000 Mins/s (`tools/bench/mins.sh`) and 17 % of a core at 48 kHz, HISS on. Last measured
+  4,000 Mins/s (`tools/bench/mins.sh`) and 17 % of a core at 48 kHz, with the hiss. Last measured
   2026-11-16: 3,618 Mins/s; on 2026-11-12 15 % of a core, its worst 512-sample block 52 %
   (timings swing with the machine's load; instructions don't). The others: p00-pluck 2,776,
   p05-pluck 2,160, p00-strum-hot 3,113, p12-strum-44k 2,703, bypass-pluck 2,783, idle 1,176
   (asleep after 1.6 s, the hiss going on).
-- **Check set baseline:** 2026-11-12, golden renders `build/qvgt-golden-6` (7 workloads, HISS on,
+- **Check set baseline:** 2026-11-12, golden renders `build/qvgt-golden-6` (7 workloads, with the hiss,
   bit-exact on re-render); service checks 9/9; SPICE suite 15/15 at 167 kHz (worst 0.31 % RMS,
   1.31 % peak); `tools/spice/tapcheck.py` (p00-pluck: the shaper 27.7 dB under, the rest 40-77);
   `qvgtplugintest` all; `qvgtdspcheck` all; `lemustest_qvgt`, `lemustest_fx` all; auval passes.
@@ -129,6 +129,10 @@ known level).
 
 ## Done
 
+- 2026-11-24, fix: the HISS setting is gone, on Chris's word ("100 % real at all times"): the parts'
+  own noise and the A/D's servo are always on, as on the unit, and the bar is REAR and ? only. An
+  old session saved with HISS off loads with the hiss. `Unit::setHiss` stays for the tools'
+  comparisons against SPICE (`qvgtbench` QVGT_HISS=0); `qvgtplugintest` checks there is no setting.
 - 2026-11-23, ux round (the first, after UX rounds joined the workflow): walked CONTRIBUTING.md's
   "UX rounds" list against the panel and the shipped machines. Found and fixed: the knobs showed no
   tooltip (now INPUT/OUTPUT with the setting, hovering or turning, as on the Xpander, RAT and the

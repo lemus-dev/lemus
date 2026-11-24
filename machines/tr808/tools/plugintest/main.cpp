@@ -4,9 +4,10 @@
 // voice mode works without the ROM, and that state (parameters + RAM) round-trips.
 //   tr808plugintest [OUT_DIR]   (writes sync.wav, midi.wav, internal.wav when given; TR808_QUICK=1:
 //                               the stress and long runs cut short)
-//   tr808plugintest --panel OUT.png [SCALE] [running|off] [service] [zoom=Z@X,Y] [setup=N]
+//   tr808plugintest --panel OUT.png [SCALE] [running|off] [service] [zoom=Z@X,Y] [setup=N] [part]
 //     (draws the hardware view; running: in 1st PART, BD selected, a rhythm playing; service:
-//     SERVICE, zoomed Z times onto panel mm X, Y; setup: trimmer N's procedure on the scope)
+//     SERVICE, zoomed Z times onto panel mm X, Y; setup: trimmer N's procedure on the scope; part:
+//     SERVICE with PARTS' VR6 as under the mouse; bddecaymax=V: VR6 there, 0-1)
 //   tr808plugintest --factory DIR   (the factory rhythms from the sequencer, as WAVs)
 //   tr808plugintest --service [DIR]   (the SERVICE checks alone; DIR: the view's shots, whole and
 //                                     zoomed)
@@ -150,7 +151,7 @@ void choose(TR808Processor &p, const char *id, int index)
 // --panel OUT.png [SCALE] [running|off] [--artwork PACK.svg]: draws the hardware view (no window)
 // into a PNG and quits; running: a pattern playing; off: switched off; with an artwork pack, its marks.
 int panelShot(const char *path, float scale, bool running, bool off, const char *artworkPath, bool service = false, float zoom = 1,
-              juce::Point<float> at = {}, int setup = -1, bool rear = false)
+              juce::Point<float> at = {}, int setup = -1, bool rear = false, bool part = false, float decayMax = -1)
 {
 	juce::MemoryBlock rom, artwork;
 	juce::File(TR808_ROM_PATH).loadFileAsData(rom);
@@ -158,6 +159,8 @@ int panelShot(const char *path, float scale, bool running, bool off, const char 
 		juce::File::getCurrentWorkingDirectory().getChildFile(artworkPath).loadFileAsData(artwork);
 	TR808Processor p(&rom, lemus::Artwork::parse(artworkPath != nullptr ? &artwork : nullptr));
 	p.prepareToPlay(48000, 512);
+	if (decayMax >= 0)
+		p.params().getParameter("bddecaymax")->setValueNotifyingHost(decayMax);
 	if (running) {
 		// BASIC RHYTHM 1 in 1st PART with BD selected: its steps lit, the running light on them
 		tr808::Machine m;
@@ -202,6 +205,8 @@ int panelShot(const char *path, float scale, bool running, bool off, const char 
 		view.showService(true);
 		if (zoom > 1)
 			view.serviceView(zoom, at);
+		if (part)
+			view.serviceHotPart();
 		if (setup >= 0) { // the procedure on the scope, the board run past it (TM3's: a clap played)
 			view.serviceSetUp(setup);
 			juce::AudioBuffer<float> buf(2, 512);
@@ -654,6 +659,141 @@ int factoryClips(const char *path)
 	return 0;
 }
 
+// BD DECAY MAX (SERVICE, PARTS: VR6): by default the printed 500k, the kick at full DECAY falling to
+// a tenth in the service notes' 0.80 s, at the top the measured unit's 585k and its 1.19 s; at the
+// default, kicks hit on each other's tails stay level (docs/improvements.md S12), at the top they
+// wander; moving it plays as a fresh unit set there; a session saved before it loads at the top, as
+// it sounded; in the view, its row drags across and a double-click puts it back.
+void bdDecayMax(const juce::MemoryBlock &rom, double rate)
+{
+	char what[260];
+	check(tr808::bdDecayPot(float(tr808::kBdDecayPrintedS)) == tr808::kBdDecayPrintedPot &&
+	          tr808::bdDecayPot(float(tr808::kBdDecayFittedS)) == tr808::kBdDecayFittedPot,
+	      "bd decay max: its ends are the printed 500k and the measured unit's 585k exactly");
+	// unaccented kicks at full DECAY, quarter notes at `bpm` from 0.1 s; `moveTo` (0-1) sets BD DECAY
+	// MAX a second before them
+	auto kicks = [&](float decayMax, int hits, double bpm, float moveTo = -1) {
+		TR808Processor p(&rom);
+		set(p, "bddecaymax", decayMax);
+		set(p, "bd_decay", 1.0f);
+		FakePlayHead ph;
+		p.setPlayHead(&ph);
+		p.prepareToPlay(rate, 512);
+		run(p, ph, 3.0, rate); // past the power-on
+		if (moveTo >= 0) {
+			run(p, ph, 1.0, rate);
+			set(p, "bddecaymax", moveTo);
+		}
+		juce::MidiBuffer m;
+		for (int k = 0; k < hits; ++k)
+			m.addEvent(juce::MidiMessage::noteOn(10, 36, uint8_t(90)), int((0.1 + k * 60 / bpm) * rate)); // unaccented
+		return run(p, ph, 0.1 + hits * 60 / bpm + 2.0, rate, &m);
+	};
+	// the time from the kick's peak to a tenth of it, by its half-cycles' peaks
+	auto tenth = [rate](const juce::AudioBuffer<float> &b) {
+		const float *x = b.getReadPointer(0);
+		std::vector<std::pair<double, double>> pk; // (time, peak)
+		int from = int(0.1 * rate);
+		for (int i = from + 1; i < b.getNumSamples(); ++i)
+			if ((x[i - 1] < 0) != (x[i] < 0)) {
+				double m = 0;
+				int at = from;
+				for (int k = from; k < i; ++k)
+					if (std::abs(x[k]) > m) {
+						m = std::abs(x[k]);
+						at = k;
+					}
+				pk.push_back({at / rate, m});
+				from = i;
+			}
+		size_t top = 0;
+		for (size_t k = 0; k < pk.size(); ++k)
+			if (pk[k].second > pk[top].second)
+				top = k;
+		for (size_t k = top; k < pk.size(); ++k)
+			if (pk[k].second < 0.1 * pk[top].second)
+				return pk[k].first - pk[top].first;
+		return 0.0;
+	};
+	const double tp = tenth(kicks(0, 1, 120)), tf = tenth(kicks(1, 1, 120));
+	std::snprintf(what, sizeof what, "bd decay max: full DECAY falls to a tenth in %.3f s by default (the notes' 0.80), %.3f s at the top (the measured unit's 1.19)", tp, tf);
+	check(std::abs(tp - 0.80) < 0.03 && std::abs(tf - 1.19) < 0.03, what);
+	// each kick's peak, quarter notes at 120 BPM: the spread of the 2nd to the 8th
+	auto spread = [rate](const juce::AudioBuffer<float> &b, double bpm) {
+		double lo = 1e9, hi = -1e9;
+		for (int k = 1; k < 8; ++k) {
+			const int a = int((0.1 + k * 60 / bpm) * rate), n = int(0.1 * rate);
+			float m = 0;
+			for (int i = a; i < a + n; ++i)
+				m = std::max(m, std::abs(b.getSample(0, i)));
+			const double db = 20 * std::log10(m + 1e-12);
+			lo = std::min(lo, db);
+			hi = std::max(hi, db);
+		}
+		return hi - lo;
+	};
+	const double sp = spread(kicks(0, 8, 120), 120), sf = spread(kicks(1, 8, 120), 120);
+	std::snprintf(what, sizeof what, "bd decay max: quarter-note kicks at 120 BPM, full DECAY: within %.1f dB of each other by default (%.1f dB at the top)", sp, sf);
+	check(sp < 1.0, what);
+	{
+		const auto moved = kicks(0, 1, 120, 1), fresh = kicks(1, 1, 120);
+		double d = 0, e = 0;
+		for (int i = 0; i < fresh.getNumSamples() && i < moved.getNumSamples(); ++i) {
+			const double a = fresh.getSample(0, i), b = moved.getSample(0, i);
+			d += (a - b) * (a - b);
+			e += a * a;
+		}
+		const double db = 10 * std::log10(d / (e + 1e-30) + 1e-24);
+		std::snprintf(what, sizeof what, "bd decay max: moved on a running unit, the next kick is a fresh unit's at that setting (%.1f dB apart)", db);
+		check(db < -60, what);
+	}
+	{
+		TR808Processor a(&rom);
+		set(a, "bddecaymax", 0.4f);
+		juce::MemoryBlock st;
+		a.getStateInformation(st);
+		TR808Processor b(&rom);
+		b.setStateInformation(st.getData(), int(st.getSize()));
+		auto xml = juce::AudioProcessor::getXmlFromBinary(st.getData(), int(st.getSize()));
+		for (auto *c = xml->getFirstChildElement(); c != nullptr; c = c->getNextElement())
+			if (c->getStringAttribute("id") == "bddecaymax") {
+				xml->removeChildElement(c, true);
+				break;
+			}
+		juce::MemoryBlock old;
+		juce::AudioProcessor::copyXmlToBinary(*xml, old);
+		TR808Processor o(&rom);
+		o.setStateInformation(old.getData(), int(old.getSize()));
+		auto *pb = b.params().getParameter("bddecaymax"), *po = o.params().getParameter("bddecaymax");
+		std::snprintf(what, sizeof what, "bd decay max: round-trips with the session (%s); a session saved before it loads at %s, as it sounded",
+		              pb->getCurrentValueAsText().toRawUTF8(), po->getCurrentValueAsText().toRawUTF8());
+		check(std::abs(pb->getValue() - 0.4f) < 1e-6 && po->getValue() == 1.0f, what);
+	}
+	{ // the view: SERVICE, PARTS' row by the mouse
+		TR808Processor u(nullptr);
+		tr808::HardwareView view(u);
+		view.setBounds(0, 0, tr808::HardwareView::kWidth, tr808::HardwareView::kHeight);
+		view.showService(true);
+		auto at = [&](juce::Point<float> pos, juce::Point<float> down, int clicks) {
+			const auto now = juce::Time::getCurrentTime();
+			return juce::MouseEvent(juce::Desktop::getInstance().getMainMouseSource(), pos, {}, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, &view, &view, now, down, now,
+			                        clicks, pos != down);
+		};
+		const auto c = tr808::HardwareView::servicePartRow().getCentre();
+		auto *p = u.params().getParameter("bddecaymax");
+		const float before = p->getValue();
+		view.mouseDown(at(c, c, 1));
+		view.mouseDrag(at(c + juce::Point<float>(40, 0), c, 1));
+		view.mouseUp(at(c + juce::Point<float>(40, 0), c, 1));
+		const float dragged = p->getValue();
+		view.mouseDoubleClick(at(c, c, 2));
+		const float back = p->getValue();
+		std::snprintf(what, sizeof what, "bd decay max: in SERVICE, PARTS' row drags across (%.2f -> %.2f -> %s) and a double-click puts back the printed pot",
+		              before, dragged, p->getCurrentValueAsText().toRawUTF8());
+		check(before == p->getDefaultValue() && dragged > 0.2f && dragged < 0.3f && back == p->getDefaultValue(), what);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	juce::ScopedJuceInitialiser_GUI init;
@@ -661,7 +801,8 @@ int main(int argc, char **argv)
 		return factoryClips(argv[2]);
 	if (argc > 2 && std::string(argv[1]) == "--panel") {
 		const char *art = nullptr;
-		bool running = false, off = false, svc = false, rear = false;
+		bool running = false, off = false, svc = false, rear = false, part = false;
+		float decayMax = -1;
 		float scale = 1, zoom = 1;
 		juce::Point<float> at;
 		int setup = -1;
@@ -677,6 +818,10 @@ int main(int argc, char **argv)
 				off = true;
 			else if (s == "service")
 				svc = true;
+			else if (s == "part")
+				svc = part = true;
+			else if (s.startsWith("bddecaymax="))
+				decayMax = s.fromFirstOccurrenceOf("=", false, false).getFloatValue();
 			else if (s.startsWith("zoom=")) { // zoom=Z@X,Y
 				svc = true;
 				zoom = s.fromFirstOccurrenceOf("=", false, false).upToFirstOccurrenceOf("@", false, false).getFloatValue();
@@ -688,7 +833,14 @@ int main(int argc, char **argv)
 			} else if (s.containsOnly("0123456789."))
 				scale = s.getFloatValue();
 		}
-		return panelShot(argv[2], scale > 0 ? scale : 1.0f, running, off, art, svc, zoom, at, setup, rear);
+		return panelShot(argv[2], scale > 0 ? scale : 1.0f, running, off, art, svc, zoom, at, setup, rear, part, decayMax);
+	}
+	if (argc > 1 && std::string(argv[1]) == "--bddecaymax") { // the BD DECAY MAX checks alone
+		juce::MemoryBlock rom;
+		juce::File(TR808_ROM_PATH).loadFileAsData(rom);
+		bdDecayMax(rom, 48000);
+		std::printf("%s\n", failures ? "FAILED" : "all passed");
+		return failures ? 1 : 0;
 	}
 	if (argc > 1 && std::string(argv[1]) == "--service") { // the SERVICE checks alone, and the view's shots
 		const juce::File shots = argc > 2 ? juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]) : juce::File();
@@ -1095,6 +1247,7 @@ int main(int argc, char **argv)
 	// 13. Random settings, and long runs at the extremes
 	stress(rom, rate);
 	longRun(rom, rate);
+	bdDecayMax(rom, rate);
 
 	// 14. SERVICE
 	service(juce::File());

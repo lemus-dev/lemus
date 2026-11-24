@@ -90,7 +90,8 @@ Python tools run from the repo's `.venv` (`../../.venv/bin/python tools/...`).
 The editor is the top panel drawn from measurements (`docs/panel.json`, `docs/panel.md`): every
 knob, switch, key and LED where the real one is, brand marks from your own artwork. Drag knobs
 (shift for fine, double-click resets), click or drag the rotary and slide switches, press the
-keys; the LEDs are the firmware's. The bar has SYNC, SERVICE (below) and `?` (the key list).
+keys; the LEDs are the firmware's. The bar has SYNC, REAR, SERVICE (below) and `?` (the key
+list); a dot on SERVICE says a trimmer or VR6 (Parts, below) is off the unit's.
 
 Programming works as on the hardware (the owner's manual; `docs/sequencer.md` has the procedure
 and what was checked): PATTERN CLEAR, 1st PART / 2nd PART with START, INSTRUMENT-SELECT and the
@@ -154,11 +155,20 @@ new instance, its factory rhythms included.
     and FINE fully clockwise for TM2, CP LEVEL fully clockwise for TM3) is said, not done. At its
     trims the unit reads 1.9 ms, 8.33 ms, 157 mV rms, 1.79 ms and 1.21 ms; the notes' are 1.9 ms,
     8.33 ms, 130 mV rms, 1.85 ms and 1.25 ms (`docs/model.md`, "SERVICE").
+  - **Parts**: what units differ in most, as the part it is: BD DECAY's pot VR6, how long the kick
+    rings at full DECAY (`bddecaymax`). By default the printed 500k: at full DECAY the kick falls
+    to a tenth in 0.80 s, the service notes' figure. At the top, the measured unit's 585k: 1.19 s,
+    as in its recordings. A long tail makes kicks hit on each other's ring wander in level, as it
+    does on real units (7 dB at the top, quarter notes at 120 BPM; 0.3 dB by default). Drag across
+    its row (shift for fine steps, the wheel works too); double-click goes back to the printed pot,
+    which its row ticks. Under the mouse the pot is ringed on the board and the scope's caption says
+    the above. Saved with the session, not automatable; sessions saved before it load at the top,
+    as they sounded.
   - **Circuit**: which unit this is, by its serial number (SN p.15 and the drawings' lot notes,
     `core/revisions.h`): SN 000001-000299 (the INT clock's C11 .068 and R49 150k; the cowbell's C6
     .01, R44 390k, R45 330k), 000300-010599 (the clap's R346 1k and R332 22k, the first noise
     generator, the voice gates' 22k; IC6's R101 isn't modelled: the common trig is an ideal 1 ms),
-    010600 up (the late board, the default: Fischer's SN 103852). SNARE + CLAP: EARLY is those two
+    010600 up (the late board, the default: the measured unit, SN 103852). SNARE + CLAP: EARLY is those two
     voices as first drawn, LATE (the default) has the later values of the notes' PORTION CHANGED
     box (SN p.9, no serial given). Both are saved with the session; each change sets the trimmers
     to that unit's trims and rebuilds the board's circuits at their operating points.
@@ -233,17 +243,17 @@ Checked four ways; the numbers are in `docs/model.md`, "Validation".
   |---|---|---|
   | Snare, accent | 14.5 V (10) | The drawn circuit does this in SPICE too. Reverb's unit accents its snare as the model does; the archive.org unit's snappy accents 4 dB less |
   | Low, mid, high tom, accent | 15.2 (12), 14.0 (11), 15.4 V (12) | The archive.org unit accents its toms 13 dB, as the model does, against the table's 10.7 |
-  | Mid conga, level | 2.1 V (3) | R253 as printed (2.2k against the other congas' 1.5k); Fischer's mid conga is 3 dB under his low one too |
+  | Mid conga, level | 2.1 V (3) | R253 as printed (2.2k against the other congas' 1.5k); the measured unit's mid conga is 3 dB under its low one too |
   | Rim shot, level and accent | 3.9 (3), 17.9 V (10) | Peak to peak of a spiky wave; by RMS its accent is within 0.4 dB of the archive.org unit's |
-  | Maracas, level | 4.2 V (3) | Fischer's unit's hotter noise; with the nominal parts it passes |
+  | Maracas, level | 4.2 V (3) | the measured unit's hotter noise; with the nominal parts it passes |
   | Cowbell, accent | 6.3 V (12) | The archive.org unit accents its cowbell 5.6 dB and the model 5.3; the table's 10.7 dB is more than the narrowed trigger allows |
-  | Closed hat, accent | 4.1 V (6) | Fischer's unit's IC2a limit; the archive.org unit's accent is within 0.5 dB |
-  | Cymbal, decay | 355 ms (800) | Fischer's unit decays in 380 ms at the same setting |
+  | Closed hat, accent | 4.1 V (6) | the measured unit's IC2a limit; the archive.org unit's accent is within 0.5 dB |
+  | Cymbal, decay | 355 ms (800) | the measured unit decays in 380 ms at the same setting |
 
 ### Compared with Roland's TR-808 software
 
 Not a reference, but the obvious comparison (`tools/compare/roland.py`, 2026-10-12, the same knobs
-against Fischer's unit): Lemus is the closer of the two on 95 of his 99 recordings both can play
+against the measured unit): Lemus is the closer of the two on 95 of its 99 recordings both can play
 (the clap, the open hat at DECAY 0, and the first milliseconds of BD and SD at one short setting
 each the exceptions), on the knob marks it wasn't fitted to too; Roland's accents swell its hits
 3-6 dB more than the real unit's.
@@ -252,8 +262,9 @@ each the exceptions), on the knob marks it wasn't fitted to too; Roland's accent
 
 All of them, with the plan, are in `docs/improvements.md`.
 
-- The calibration is Fischer's unit's (its trims, knob laws and noise), with the clap's TM3 at the
-  value three other units share. Two fitted values sit outside the parts' tolerances: the
+- The calibration is the measured unit's, Michael Fischer's SN 103852 (its trims, knob laws and noise), with the clap's TM3 at the
+  value three other units share, and the kick's DECAY pot at the printed value (SERVICE, Parts:
+  the measured unit's is VR6's top). Two fitted values sit outside the parts' tolerances: the
   cymbal's R125 and the rim shot's R318 (`docs/model.md`, "Calibration").
 - The clap's level follows its TM3 trim, and real units differ widely: clap against maracas reads
   -3 to +11 dB across four units (`tools/compare/levels.py`), +3.3 here. SERVICE's trimmer sets

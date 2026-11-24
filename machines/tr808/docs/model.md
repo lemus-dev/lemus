@@ -176,7 +176,7 @@ step ticks, which the archive.org and Synthmania units let us hear. Fitted value
 | TM4 (noise) | 130 mV rms | 190 mV | the toms' noise tails (3.3 dB hotter, flat 125 Hz-2 kHz and 30-450 ms); the snare and clap agree |
 | TM3 (clap offset) | mid | 0.37 | the clap's offset: Raum 45's, the archive.org and Reverb's units (their tails within 0.6-1.3 dB RMS from 0.9 to 7 kHz, their tails' -40 dB times, their accents within 1.3 dB); Fischer's unit is 0.26 (Unit spread) |
 | IC2a's limit (`mtrig.ntsat`) | 12.8 V (a typical µPC4558 on the 14.1 V +B1) | 11.4 V | the metal voices' accent (the archive.org unit's four agree; Fischer's hits aren't accented) |
-| BD VR6 (DECAY pot) | 500k | 585k | the decay range at full DECAY |
+| BD VR6 (DECAY pot) | 500k | 585k | the decay range at full DECAY (1.19 s to a tenth, the unit's 1.19; 500k: 0.80 s, the notes' 0.80). The plugin plays the printed 500k by default: SERVICE's Parts row (`bddecaymax`) reaches this (`bdDecayPot`; improvements.md S12) |
 | LT C76, C78, C77, R230, VR11 | 56n, 12n, 47n, 820k, 500 | 53.1n, 11.6n, 47.7n, 838k, 490 | pitch, decay and the TUNING range (LT and LC) |
 | MT C90, C92, C91, R259, VR13 | 27n, 12n, 27n, 820k, 500 | 27.2n, 11.2n, 26.2n, 862k, 527 | pitch, decay and the TUNING range |
 | HT C103, C105, C104, R286, VR15 | 27n, 5.6n, 22n, 820k, 500 | 25.0n, 5.71n, 21.9n, 851k, 540 | pitch, decay and the TUNING range |

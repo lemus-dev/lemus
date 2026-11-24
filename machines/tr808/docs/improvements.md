@@ -20,6 +20,7 @@ commit.
 | S9 | Rails idealised | Rails ideal (+B1 dips 0.1-0.2 V on a cymbal hit through R165); output swing per load only for IC2a | Rails as circuits | P7 |
 | S10 | Not modelled at all | Hum (-80 to -106 dBFS in three sets, its source unknown); temperature drift ("some 808s need to warm up") | - | - |
 | S11 | Partition sleep | A hat hit that wakes its VCA while the last fades differs sample by sample (-25 dB) from a never-sleeping run; envelope within 0.06 dB, spectrum 0.05 dB | Frozen coupling capacitors | inaudible; leave |
+| S12 | BD retriggered on its own tail at DECAY 9-10 | Kicks that land on the last one's ring come out at levels that wander from hit to hit: 4-5 dB at DECAY 9-9.5, 9 dB at 10 (quarter notes at 120 BPM), steady to 0.3 dB up to 8.5. Two free recordings with long tails show less: one (its machine not stated, an 808 or a TR-8) varies up to 5 dB on one step of five and holds 0.4-1.5 dB on the rest, where the model with its gaps varies 5-10 dB on every step; another (the 808 or an analog copy of it) stays within 1-2 dB, the model 6-12 dB | The circuit as drawn (2026-11-20 round, Done): Q43's base-collector junction clipping the ring's negative half while Q43 is off, the same junction that gives the single hits their 2nd and 3rd harmonics as in Fischer's unit. Real units do it too: Roland's engineers (Computer Music, 2019: the kick "changes by adding trigger pulses in at any given resonant state"), Werner, Abel and Smith (DAFx-14: each retriggered note "slightly different, as in a real 808"), techs and owners (Gearspace, Analogue Heaven: worst on units with long or modded decays, stock decay usually short enough), and a real unit at 120 BPM, DECAY full, quarter notes: 4.8 dB, mostly loud and quiet in turn (the model, at the tempo where its pitch meets the next hit as that unit's does: 6.1 dB). It follows the decay: with the service notes' parts (DECAY full 904 ms to 1/10, the notes' 800) the model holds 0.0-0.5 dB up to 130 BPM and wanders from 140; with Fischer's (1323 ms; his unit 1186) from 100 BPM | the unit's; the default now the printed DECAY pot, where it doesn't (BD DECAY MAX, 2026-11-23; in SERVICE's Parts since 2026-11-24) |
 
 ### Behaviour and features
 
@@ -110,6 +111,14 @@ commit.
   and the squares' phase move with it), envelope within 0.034 dB and spectrum 0.13 dB there, the
   long decays' cymbal as ever. The owner's call.
 
+- 2026-11-20, for S12 (all in ngspice as well as the solver): the printed 500k DECAY pot (steady, 0.7 dB,
+  but the tail 1.5 dB short at 0.5 s and 10 dB at 2 s against Fischer's DECAY 10); the tail from R170
+  instead (465k: wanders as much, 7.4 dB; 440k self-oscillates); Q43's BF (100, 600), RC, its low-current
+  gain, BR from 2 to 300 (all wander), BR 1 or 0.5 (steady after a transient, or two-step, but the single hits' 2nd and 3rd
+  harmonics then 3.7-6.1 dB under Fischer's unit, which BR 6 meets within 0.1 dB at 0.05-0.25 s); Q42's
+  BF; C43 shorted, 3.3 or 330 µF, or leaking; C40, C38, C41/C42 and R166 at their tolerances (all wander).
+  Q43 as an ideal switch is steady (0.2 dB) but isn't the part.
+
 ## Declined
 
 - 2026-10-16: buying reference sets, Raum45 *AchtNullAcht* (€9.99) and Cluster Sound CS-808 (€29),
@@ -122,6 +131,9 @@ commit.
 
 | When | What | Commit |
 |---|---|---|
+| 2026-11-24 | BD DECAY MAX off the bar and into SERVICE, as the 909's BD PITCH and the 303's CUT OFF MAX: a Parts row under the trimmers (VR6, BD DECAY pot, main; "500k  0.80 s"; the printed pot ticked, a round thumb, not a trimmer's), dragged across its row (shift: a tenth), double-click back to the printed pot, the wheel. Under the mouse VR6 is ringed on the board with a tag (the 303's picked-trimmer style; the ring follows the zoom, the tag keeps its size), the scope's caption says what the part does and what units have, the status line how to move it. A dot on SERVICE (the 303's) when a trimmer or VR6 is off the unit's. CIRCUIT's other revisions one line each to make room. The parameter, its default and the model version are unchanged. `tr808plugintest`: the row by the mouse; `--panel ... part`, `bddecaymax=V` | |
+| 2026-11-23 | BD DECAY MAX on the bar (S12, and the 909's BD PITCH the same day): the kick's DECAY pot VR6 by default the printed 500k, at full DECAY 0.80 s to a tenth (the notes' 0.80; DECAY 0 / mid / full 45 / 264 / 804 ms against the notes' 50 / 300 / 800), up to Fischer's 585k (1.19 s, the unit's 1.19). Default in spec because the fit's tail is past the notes' figure and makes the retriggered kick wander (quarter notes at 120 BPM: 0.3 dB by default, 7.3 at the top). VR6 is a linear rheostat, so the BD is built with 585k and the knob's rotation scaled by pot/585k: no rebuild, a fresh unit's kick within -127 dB. `unitCalibration()` keeps Fischer's 585k (the compare tools); model version 2, sessions without the parameter load at the top. The voices' readout on the bar 450 -> 230 px (the status line's room) | |
+| 2026-11-20 | Accuracy round on S12 (a forum report: kicks at DECAY ~10, 120 BPM, uneven): no change to the sound. The single hit at DECAY 10 meets Fischer's within 1 dB over 1.5 s (-9.9 / -9.7 dB at 0.5 s, 49.5 / 49.6 Hz). The wander is the netlist itself: the same in ngspice (8.6 dB, ours 8.8, each hit's level differing, the circuit being that sensitive), and in the BD's netlist alone with the fitted 585k pot, not the board's linear mode, threads or rate. Its cause is Q43 (with an ideal switch there, 0.2 dB), through its base-collector junction, whose strength the single hits' harmonics pin (Tried and dropped). Robust to every part's tolerance. Real recordings: seven stretches of free video audio (spread 0.5-1.2 dB, but at shorter tails, where the model is steady too) and two with long tails (S12). | |
 | 2026-11-17 | Session load keeps the picked rhythm: the state now carries the CPU (its RAM holds the rhythm picked and the mode) and the port latches, loaded as saved instead of a cold boot, as the 909 does; only POWER boots. 0.1.3 sessions (RAM only) still boot; 0.1.3 reads new ones as RAM. `tr808plugintest` 12b | |
 | 2026-10-12 | The TR-808, ro-drums-808 | `1f9afc2` |
 | 2026-10-12 | Factory rhythms on a new instance; MEMORY menu | `ee07461` |

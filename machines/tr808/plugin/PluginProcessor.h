@@ -56,7 +56,9 @@ public:
 	// The model version a session is saved with (the state's "model"), so old projects keep their
 	// sound: a change to the model that changes the sound bumps kModelVersion and keeps the old
 	// behaviour for sessions saved with an older version.
-	static constexpr int kModelVersion = 1;
+	// 2 (2026-11-23): BD DECAY MAX, the printed DECAY pot by default; a session saved before it has
+	// no "bddecaymax" and loads with Fischer's 585k, as it sounded.
+	static constexpr int kModelVersion = 2;
 	int modelVersion() const { return m_modelVersion; }
 	const lemus::Artwork &artwork() const { return m_artwork; }
 	void setArtwork(lemus::Artwork artwork) override { m_artwork = std::move(artwork); } // the view reads it when it's built
@@ -181,6 +183,8 @@ private:
 	std::array<double, tr808::kTrimmers> m_unitRot{}, m_unitValue{};
 	std::array<bool, tr808::kTrimmers> m_unitExact{};
 	std::array<float, tr808::kTrimmers> m_trimsApplied{};
+	std::atomic<float> *m_bdDecayMax = nullptr; // BD DECAY MAX (SERVICE, Parts: VR6), seconds
+	float m_bdDecayApplied = 0;                 // as the board has it (under the callback lock)
 	double m_tm2 = 0.5;     // TM2's rotation
 	bool m_tm2AtTrim = true; // at its unit's: TempoClock::bpm as it is
 	// the scope (setProbe): wanted on the message thread, set on the audio thread

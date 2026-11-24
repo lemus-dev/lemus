@@ -846,7 +846,7 @@ void VoiceBoard::setCalibration(const Calibration &c)
 {
 	// On a prepared board, a change to the parts of voices that run from their netlists alone (not
 	// the hi-hat's, crash's or ride's: their ROM halves are timed with them) builds just those
-	// voices again, at their operating points, while the others play on: BD PITCH on the bar
+	// voices again, at their operating points, while the others play on: BD pitch in SERVICE's PARTS
 	// moves C14 and R27 as a kick may be ringing out on the snare. Anything else prepares the board.
 	bool whole = !m_impl->mix.loaded() || c.noiseHz != m_cal.noiseHz || c.hhClockHz != m_cal.hhClockHz;
 	std::array<bool, kVoices> changed{};

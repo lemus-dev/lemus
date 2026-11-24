@@ -69,6 +69,14 @@ double Calibration::knob(const char *name, double tick) const
 	return ys[k] + (ys[k + 1] - ys[k]) * (t - xs[k]) / (xs[k + 1] - xs[k]);
 }
 
+double bdDecayPot(double seconds)
+{
+	// the parameter's ends as a float holds them: each its pot exactly
+	const double lo = double(float(kBdDecayPrintedS)), hi = double(float(kBdDecayFittedS));
+	const double t = std::clamp(std::log(seconds / lo) / std::log(hi / lo), 0.0, 1.0);
+	return kBdDecayPrintedPot + t * (kBdDecayFittedPot - kBdDecayPrintedPot);
+}
+
 Calibration unitCalibration()
 {
 	// Michael Fischer's TR-808 (serial 103852), fitted to his recordings at every knob mark
@@ -902,6 +910,8 @@ void VoiceBoard::prepare(double hostRate)
 		for (const auto &[k, v] : cal.parts)
 			if (k.rfind(std::string(owner) + ".", 0) == 0)
 				params[k.substr(std::string(owner).size() + 1)] = v;
+		if (std::strcmp(owner, "bd") == 0) // DECAY's pot as built (setBdDecayPot)
+			params["p6"] = m_bdPotBuilt;
 		const auto split = full ? std::vector<circuit::Netlist::Partition>{} : circuit::Netlist::partitions(text);
 		if (split.empty()) {
 			single(u, text, owner, params);
@@ -917,6 +927,8 @@ void VoiceBoard::prepare(double hostRate)
 		u.steps = 0;
 	};
 	auto &U = im.units;
+	// the BD with DECAY's pot at least Fischer's (setBdDecayPot: a smaller one scales the rotation)
+	m_bdPotBuilt = std::max(bdPot(), kBdDecayFittedPot);
 	voice(U[size_t(Voice::BD)], netlistText("bd", netlists::bd), "bd");
 	voice(U[size_t(Voice::SD)], netlistText("sd", netlists::sd), "sd", sd);
 	voice(U[size_t(Voice::LT)], netlistText("lt", netlists::lt), "lt");
@@ -1123,7 +1135,7 @@ void VoiceBoard::setControls(const Controls &c)
 	im.accent.set("accent", k("accent", c.accent));
 	u[size_t(Voice::BD)].set("level", k("bdLevel", c.bdLevel));
 	u[size_t(Voice::BD)].set("tone", k("bdTone", c.bdTone));
-	u[size_t(Voice::BD)].set("decay", k("bdDecay", c.bdDecay));
+	u[size_t(Voice::BD)].set("decay", k("bdDecay", c.bdDecay) * bdPot() / m_bdPotBuilt);
 	u[size_t(Voice::SD)].set("level", k("sdLevel", c.sdLevel));
 	u[size_t(Voice::SD)].set("tone", k("sdTone", c.sdTone));
 	u[size_t(Voice::SD)].set("snappy", k("sdSnappy", c.sdSnappy));
@@ -2010,6 +2022,21 @@ const std::vector<VoiceBoard::Part> &VoiceBoard::parts()
 		return out;
 	}();
 	return all;
+}
+
+double VoiceBoard::bdPot() const
+{
+	const auto it = m_cal.parts.find("bd.p6");
+	return it != m_cal.parts.end() ? it->second : kBdDecayPrintedPot; // the netlist's
+}
+
+void VoiceBoard::setBdDecayPot(double ohms)
+{
+	m_cal.parts["bd.p6"] = ohms;
+	if (ohms > m_bdPotBuilt)
+		prepare(m_hostRate);
+	else
+		setControls(m_controls);
 }
 
 } // namespace tr808

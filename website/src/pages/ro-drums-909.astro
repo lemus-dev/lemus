@@ -160,7 +160,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <div class="service-head">
 <div class="text">
 <h2 class="h2 tap">Take the panel off</h2>
-<p class="dim">The voicing board and the switch board, every part where the service notes draw it, with the clap's trimmer TM, the circuit by serial number (<a href="#revisions">Board revisions</a>), and a scope on any pin of any part. <a href="/ro-drums-909/guide#service">SERVICE in the guide</a></p>
+<p class="dim">The voicing board and the switch board, every part where the service notes draw it, with the clap's trimmer TM, the parts units differ in (where the kick settles), the circuit by serial number (<a href="#revisions">Board revisions</a>), and a scope on any pin of any part. <a href="/ro-drums-909/guide#service">SERVICE in the guide</a></p>
 </div>
 <div class="stamp">
 <div><span class="count">62 / 75</span> <span class="spec">Pass</span></div>
@@ -170,9 +170,9 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 </div>
 <figure class="shot">
 <div class="mount">
-<img src={service.src} alt="ro-drums-909 with SERVICE on: the TR-909's voicing board above its switch board, every part drawn where the service notes put it, and on the right the scope, the peak-to-peak and HAND CLAP LEVEL readouts, the trimmer TM with TEST, and the circuit by serial number" width="2430" height="1542" loading="lazy">
+<img src={service.src} alt="ro-drums-909 with SERVICE on: the TR-909's voicing board above its switch board, every part drawn where the service notes put it, and on the right the scope, the peak-to-peak and HAND CLAP LEVEL readouts, the trimmer TM with TEST, the PARTS row, and the circuit by serial number" width="2430" height="1542" loading="lazy">
 </div>
-<figcaption class="caption"><div class="row"><span class="fig">FIG. 2</span><span>SERVICE: the voicing board above the switch board. On the right, the scope, the trimmer <span class="mono">TM</span> and the circuit by serial number, from the first units to the late board.</span></div></figcaption>
+<figcaption class="caption"><div class="row"><span class="fig">FIG. 2</span><span>SERVICE: the voicing board above the switch board. On the right, the scope, the trimmer <span class="mono">TM</span>, the parts units differ in, and the circuit by serial number, from the first units to the late board.</span></div></figcaption>
 </figure>
 </div>
 </section>
@@ -181,7 +181,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <div class="col sec">
 <div class="text">
 <h2 class="h2 tap">Board revisions</h2>
-<p class="dim">Roland changed the TR-909 during production. The service notes list each change by the first serial number to have it (SN p.7). SERVICE’s circuit setting picks the unit by serial number, from the first units (360100) to the late board (426700 up, the default), and the model puts back the parts each later change replaced. Every other part is the calibrated unit’s, a late board. The setting is saved with the session. <a href="/ro-drums-909/guide#service">SERVICE in the guide</a></p>
+<p class="dim">Roland changed the TR-909 during production. The service notes list each change by the first serial number to have it (SN p.7). SERVICE’s circuit setting picks the unit by serial number, from the first units (360100) to the late board (426700 up, the default), and the model puts back the parts each later change replaced. Every other part is the measured unit’s, a late board. The setting is saved with the session. <a href="/ro-drums-909/guide#service">SERVICE in the guide</a></p>
 </div>
 <div class="table-box">
 <table class="table revisions">
@@ -212,9 +212,9 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <div><dt>The clap</dt><dd>Its fourth tooth is a spike where three units have a full tooth, and with it the tail at 60–250 ms differs. A fourth unit has that tooth 3–12 dB down: units differ.</dd></div>
 <div><dt>The rim shot</dt><dd>Its output is taken from IC50a rather than the drawn IC50b: five units' waveforms say so.</dd></div>
 <div><dt>Snare and toms</dt><dd>The snare's pitch bend is 3–10 % high in its first milliseconds. The toms' far tail is up to 0.14 octave short at −40 dB.</dd></div>
-<div><dt>Units differ</dt><dd>The calibration is one unit's. Another unit's toms sit 14–92 cents higher, and the unit in the video takes its crash a semitone below the lowest CRASH TUNE here. Earlier boards come from the serial number in SERVICE (<a href="#revisions">Board revisions</a>), with the calibrated unit's other parts. Two fitted values lie outside their parts' tolerances: the bass drum's R44 (36k, standing for the click's real cause) and the cymbal clocks' 4011UB gates (1.72 times their typical drive).</dd></div>
+<div><dt>Units differ</dt><dd>The calibration is one unit's, the measured unit. Units differ most in where the kick settles: 49.35 Hz here, 52.3–52.7 Hz on two other units, 54.19 Hz with the printed C14 and R27; PARTS in SERVICE sets it. Another unit's toms sit 14–92 cents higher, and the unit in the video takes its crash a semitone below the lowest CRASH TUNE here. Earlier boards come from the serial number in SERVICE (<a href="#revisions">Board revisions</a>), with the measured unit's other parts. Two fitted values lie outside their parts' tolerances: the bass drum's R44 (36k, standing for the click's real cause) and the cymbal clocks' 4011UB gates (1.72 times their typical drive).</dd></div>
 <div><dt>The top octave</dt><dd>The snare and clap are 0.4–1.2 dB low at 10–16 kHz at their jacks, against the board run at 384 kHz. The hi-hat, crash and ride are 0.5–0.7 dB low at 15–20 kHz, against ngspice.</dd></div>
-<div><dt>Service-note checks</dt><dd>13 of 75 fail. The snare's supply peaks at 4.1 V where the notes draw 5. The low tom's and closed hat's accents span about 8 and 6.5 dB where the notes' traces span 5.8 and 4.7. The hats' positive peaks are 1.2–1.5 times their negative ones against the traces' 1.9–2.0; the AudioRealism unit's agree with ro-drums-909's. The snare's snappy noise bursts as its trigger ends, which the traces don't show; the AudioRealism unit's burst is the same size. At the calibrated unit's TM the clap reads 4.1 Vp-p, against the adjustment's 2.</dd></div>
+<div><dt>Service-note checks</dt><dd>13 of 75 fail. The snare's supply peaks at 4.1 V where the notes draw 5. The low tom's and closed hat's accents span about 8 and 6.5 dB where the notes' traces span 5.8 and 4.7. The hats' positive peaks are 1.2–1.5 times their negative ones against the traces' 1.9–2.0; the AudioRealism unit's agree with ro-drums-909's. The snare's snappy noise bursts as its trigger ends, which the traces don't show; the AudioRealism unit's burst is the same size. At the measured unit's TM the clap reads 4.1 Vp-p, against the adjustment's 2.</dd></div>
 <div><dt>CPU</dt><dd>The voices run on two worker threads beside the host's. A busy kit takes about three quarters of one core of an Apple M1 Max at 48 kHz; every voice at once comes near a full audio block.</dd></div>
 </dl>
 <div class="not">

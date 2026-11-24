@@ -114,7 +114,7 @@ const rhythms = [
 <div class="service-head">
 <div class="text">
 <h2 class="h2 tap">Take the panel off</h2>
-<p class="dim">The main board, the voicing board and the switch board, every part where the service notes draw it, with the six trimmers and their procedures, the circuit by serial number (<a href="#revisions">Board revisions</a>), and a scope on any pin of any part. <a href="/ro-drums-808/guide#service">SERVICE in the guide</a></p>
+<p class="dim">The main board, the voicing board and the switch board, every part where the service notes draw it, with the six trimmers and their procedures, the parts units differ in (the kick's DECAY pot), the circuit by serial number (<a href="#revisions">Board revisions</a>), and a scope on any pin of any part. <a href="/ro-drums-808/guide#service">SERVICE in the guide</a></p>
 </div>
 <div class="stamp">
 <div><span class="count">45 / 56</span> <span class="spec">Pass</span></div>
@@ -124,9 +124,9 @@ const rhythms = [
 </div>
 <figure class="shot">
 <div class="mount">
-<img src={service.src} alt="ro-drums-808 with SERVICE on: the TR-808's main and voicing boards above its switch board, every part drawn where the service notes put it, and on the right the scope, its readouts, the six trimmers and the circuit by serial number" width="2440" height="1608" loading="lazy">
+<img src={service.src} alt="ro-drums-808 with SERVICE on: the TR-808's main and voicing boards above its switch board, every part drawn where the service notes put it, and on the right the scope, its readouts, the six trimmers, the PARTS row and the circuit by serial number" width="2440" height="1608" loading="lazy">
 </div>
-<figcaption class="caption"><div class="row"><span class="fig">FIG. 2</span><span>SERVICE: the boards as they hang under the panel. On the right, the scope, the six trimmers with SET UP, and the circuit by serial number.</span></div></figcaption>
+<figcaption class="caption"><div class="row"><span class="fig">FIG. 2</span><span>SERVICE: the boards as they hang under the panel. On the right, the scope, the six trimmers with SET UP, the parts units differ in, and the circuit by serial number.</span></div></figcaption>
 </figure>
 </div>
 </section>
@@ -135,7 +135,7 @@ const rhythms = [
 <div class="col sec">
 <div class="text">
 <h2 class="h2 tap">Board revisions</h2>
-<p class="dim">Roland changed the TR-808 during production. The service notes list each change by the first serial number to have it (SN p.15). SERVICE's circuit setting picks the unit by serial number, and the model puts back the parts each later change replaced. Every other part is the calibrated unit's. The snare and clap's "PORTION CHANGED" gives no serial, so it is a setting of its own, EARLY or LATE. Both are saved with the session. <a href="/ro-drums-808/guide#service">SERVICE in the guide</a></p>
+<p class="dim">Roland changed the TR-808 during production. The service notes list each change by the first serial number to have it (SN p.15). SERVICE's circuit setting picks the unit by serial number, and the model puts back the parts each later change replaced. Every other part is the measured unit's. The snare and clap's "PORTION CHANGED" gives no serial, so it is a setting of its own, EARLY or LATE. Both are saved with the session. <a href="/ro-drums-808/guide#service">SERVICE in the guide</a></p>
 </div>
 <div class="table-box">
 <table class="table revisions">
@@ -158,12 +158,12 @@ const rhythms = [
 <div class="col sec">
 <h2 class="h2 tap red">What is still different</h2>
 <dl class="diffs">
-<div><dt>The snare's snappy</dt><dd>A little short at mid SNAPPY, its −20 dB point 0.09 octave early against the calibrated unit, and a little strong at the top.</dd></div>
+<div><dt>The snare's snappy</dt><dd>A little short at mid SNAPPY, its −20 dB point 0.09 octave early against the measured unit, and a little strong at the top.</dd></div>
 <div><dt>The clap's level</dt><dd>It follows the clap's trimmer, TM3, and real units differ widely: the clap against the maracas reads −3 to +11 dB across four units, +3.3 here.</dd></div>
-<div><dt>Units differ</dt><dd>The calibration is one unit's, Michael Fischer's serial 103852, with the clap's TM3 at the value three other units share. Another unit's cymbal rings 1.6 times as long at the same marks. Earlier boards come from the serial number in SERVICE (<a href="#revisions">Board revisions</a>), with the calibrated unit's other parts.</dd></div>
+<div><dt>Units differ</dt><dd>The calibration is one unit's, the measured unit, Michael Fischer's serial 103852, with the clap's TM3 at the value three other units share. Another unit's cymbal rings 1.6 times as long at the same marks. The kick's DECAY pot, VR6, is the printed 500k by default: at full DECAY the kick falls to a tenth in 0.80 s, the service notes' figure; the measured unit's 585k rings 1.19 s, and PARTS in SERVICE reaches it. Earlier boards come from the serial number in SERVICE (<a href="#revisions">Board revisions</a>), with the measured unit's other parts.</dd></div>
 <div><dt>Fitted values</dt><dd>Two lie outside their parts' tolerances: the cymbal's R125 (3.55 kΩ against the printed 2.2) and the rim shot's R318 (165 kΩ against 220).</dd></div>
 <div><dt>The toms' diodes</dt><dd>The 1S188FM germanium diodes have no data sheet. Their model is a guess that a real unit's accents bear out.</dd></div>
-<div><dt>Service-note checks</dt><dd>11 of 56 fail. The accents of the snare and toms read 14–15 V against the notes' 10–12: the archive.org unit accents its toms as the model does, and Reverb's its snare. The rim shot reads 3.9 and 17.9 V against 3 and 10, the peak to peak of a spiky wave; its accent by RMS is within 0.4 dB of a real unit's. The mid conga's 2.1 V is R253 as printed. The maracas' 4.2 V is the calibrated unit's hotter noise. The cowbell and closed hat accent less than the table; a real unit's accents agree with the model's. The cymbal decays in 355 ms against 800: the calibrated unit takes 380.</dd></div>
+<div><dt>Service-note checks</dt><dd>11 of 56 fail. The accents of the snare and toms read 14–15 V against the notes' 10–12: the archive.org unit accents its toms as the model does, and Reverb's its snare. The rim shot reads 3.9 and 17.9 V against 3 and 10, the peak to peak of a spiky wave; its accent by RMS is within 0.4 dB of a real unit's. The mid conga's 2.1 V is R253 as printed. The maracas' 4.2 V is the measured unit's hotter noise. The cowbell and closed hat accent less than the table; a real unit's accents agree with the model's. The cymbal decays in 355 ms against 800: the calibrated unit takes 380.</dd></div>
 <div><dt>CPU</dt><dd>The voices run on worker threads beside the host's. On one core of an Apple M5 Max at 48 kHz, the audio thread carries about 10 % for a kit and 15 % with every voice going.</dd></div>
 </dl>
 <div class="not">

@@ -88,7 +88,7 @@ private:
 	std::map<juce::String, lemus::Mark> m_logos;
 	lemus::panel::Keys m_held;
 	lemus::panel::Bar m_bar{kWidth, kPanelHeight, kBarHeight};
-	int m_barHiss = -1, m_barRear = -1;
+	int m_barRear = -1;
 
 	int m_hoverKnob = -1, m_hoverKey = -1, m_hoverBar = -1, m_hoverJack = -1;
 	int m_dragKnob = -1, m_mouseKey = -1, m_footswitch = -1;

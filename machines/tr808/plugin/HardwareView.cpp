@@ -1033,8 +1033,16 @@ void HardwareView::drawBar(juce::Graphics &g)
 	panel::drawPill(g, m_bar[m_barSync], sync ? "SYNC: HOST" : "SYNC: OFF", sync, m_hover.kind == HitKind::BarSync, kMono);
 	panel::drawPill(g, m_bar[m_barRear], "REAR", m_rear, m_hover.kind == HitKind::BarRear, kMono);
 	panel::drawPill(g, m_bar[m_barService], "SERVICE", m_service, m_hover.kind == HitKind::BarService, kMono);
+	const bool dot = offDefault();
+	if (dot) { // a trimmer off the unit's trim, or VR6 off the printed pot: a dot on SERVICE
+		const auto r = m_bar[m_barService];
+		g.setColour(panel::col::accent);
+		g.fillEllipse(r.getRight() - 13, r.getCentreY() - 3, 6, 6);
+	}
 	panel::drawPill(g, m_bar.help(), "?", m_showHelp, m_hover.kind == HitKind::BarHelp, kMono);
-	m_bar.setTip(m_barService, m_service ? "Put the panel back" : "Take the panel off: every part on the boards, the six trimmers and a scope");
+	m_bar.setTip(m_barService, m_service ? "Put the panel back"
+	                         : juce::String("Take the panel off: every part on the boards, the six trimmers, BD DECAY's pot VR6 and a scope")
+	                               + (dot ? ". The dot: one of them is off the unit's" : ""));
 
 	juce::String status;
 	if (m_service)
@@ -1064,11 +1072,12 @@ void HardwareView::drawBar(juce::Graphics &g)
 	juce::String voices;
 	for (int k = 0; k < tr808::kVoices; ++k)
 		voices << (m_snap.voices[size_t(k)] > 0.05f ? names[k] : "  ") << " ";
-	const float voicesX = m_bar.help().getX() - 12 - 450;
+	const float voicesX = m_bar.help().getX() - 12 - 230; // the eleven names: 32 characters
 	panel::drawStatus(g, m_bar.status(voicesX - 6), status, kMono, held.isEmpty() ? panel::col::status : panel::col::accent);
 	g.setColour(panel::col::accent);
-	g.drawText(voices, juce::Rectangle<float>(voicesX, float(kPanelHeight), 450, float(kBarHeight)), juce::Justification::centredRight);
-	const int tip = m_hover.kind == HitKind::BarSync ? m_barSync : m_hover.kind == HitKind::BarRear ? m_barRear : m_hover.kind == HitKind::BarService ? m_barService
+	g.drawText(voices, juce::Rectangle<float>(voicesX, float(kPanelHeight), 230, float(kBarHeight)), juce::Justification::centredRight);
+	const int tip = m_hover.kind == HitKind::BarSync ? m_barSync
+	              : m_hover.kind == HitKind::BarRear ? m_barRear : m_hover.kind == HitKind::BarService ? m_barService
 	              : m_hover.kind == HitKind::BarHelp ? panel::Bar::kHelp : -1;
 	if (tip != -1 && m_drag.kind == HitKind::None && !m_showHelp)
 		panel::drawBarTip(g, m_bar, tip, getLocalBounds().toFloat(), kMono);
@@ -1092,7 +1101,9 @@ void HardwareView::drawHelp(juce::Graphics &g)
 	                           "SYNC: HOST runs the sequencer from the DAW transport (DIN sync: run + 24 ppqn clock).",
 	                           "REAR: the back panel. A cable in a MULTI OUT jack takes its voice out of the main mix to its own output.",
 	                           "SERVICE: the top panel off, every part on the boards (wheel or pinch: zoom, drag: move); the",
-	                           "six trimmers (SN p.14), the circuit by serial number (SN p.15), a scope on any part's pin.",
+	                           "six trimmers (SN p.14), BD DECAY's pot VR6 (how long the kick rings at full DECAY: units",
+	                           "differ), the circuit by serial number (SN p.15), a scope on any part's pin. A dot on SERVICE:",
+	                           "a trimmer or VR6 off the unit's.",
 	                           "Programming follows the original manual: PATTERN CLEAR a rhythm, 1st PART, START,",
 	                           "set PRE-SCALE and press CLEAR, pick the instrument, then the steps; hold a key about",
 	                           "a step's length, as the original reads one key a step.",
@@ -1301,6 +1312,10 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 		if (auto *p = m_proc.params().getParameter(TR808Processor::kTrimIds[h.index]))
 			p->beginChangeGesture();
 		m_dragStartValue = paramValue(TR808Processor::kTrimIds[h.index]);
+	} else if (h.kind == HitKind::Part) { // VR6: dragged along its track, from where it is
+		if (auto *p = m_proc.params().getParameter("bddecaymax"))
+			p->beginChangeGesture();
+		m_dragStartValue = paramValue("bddecaymax");
 	} else if (h.kind == HitKind::Power) {
 		m_proc.setPower(!m_proc.powered());
 	} else if (h.kind == HitKind::BarHelp) {
@@ -1360,6 +1375,12 @@ void HardwareView::mouseDrag(const juce::MouseEvent &e)
 		repaint();
 		return;
 	}
+	if (m_drag.kind == HitKind::Part) { // VR6: across its track (shift: a tenth as far)
+		const float sens = (e.mods.isShiftDown() ? 0.1f : 1.0f) / servicePartTrackWidth();
+		setParamValue("bddecaymax", m_dragStartValue + (e.position.x - m_dragStart.x) * sens);
+		repaint();
+		return;
+	}
 	if (m_drag.kind == HitKind::Trim || m_drag.kind == HitKind::Trimmer) { // along its track (shift: a tenth as far)
 		const float sens = (e.mods.isShiftDown() ? 0.1f : 1.0f) / 200.0f;
 		setTrim(m_drag.index, m_dragStartValue + (e.position.x - m_dragStart.x) * sens);
@@ -1388,6 +1409,9 @@ void HardwareView::mouseUp(const juce::MouseEvent &e)
 	if (m_drag.kind == HitKind::Trim || m_drag.kind == HitKind::Trimmer) {
 		if (auto *p = m_proc.params().getParameter(TR808Processor::kTrimIds[m_drag.index]))
 			p->endChangeGesture();
+	} else if (m_drag.kind == HitKind::Part) {
+		if (auto *p = m_proc.params().getParameter("bddecaymax"))
+			p->endChangeGesture();
 	} else if (m_drag.kind == HitKind::Key)
 		m_held.mouseUp(m_drag.index);
 	else if (m_drag.kind == HitKind::Switch && e.position.getDistanceFrom(m_dragStart) < 4) {
@@ -1406,6 +1430,9 @@ void HardwareView::mouseDoubleClick(const juce::MouseEvent &e)
 	const auto h = hitAt(e.position);
 	if (h.kind == HitKind::Knob)
 		if (auto *p = m_proc.params().getParameter(paramId(elements()[size_t(h.index)].param)))
+			p->setValueNotifyingHost(p->getDefaultValue());
+	if (h.kind == HitKind::Part) // back to the printed 500k
+		if (auto *p = m_proc.params().getParameter("bddecaymax"))
 			p->setValueNotifyingHost(p->getDefaultValue());
 	if (h.kind == HitKind::Trim || h.kind == HitKind::Trimmer) // back to the chosen unit's trim
 		setTrim(h.index, float(m_proc.unitTrim(h.index)));
@@ -1426,6 +1453,11 @@ void HardwareView::mouseMagnify(const juce::MouseEvent &e, float scale)
 void HardwareView::mouseWheelMove(const juce::MouseEvent &e, const juce::MouseWheelDetails &w)
 {
 	const auto h = hitAt(e.position);
+	if (m_service && h.kind == HitKind::Part) {
+		setParamValue("bddecaymax", paramValue("bddecaymax") + w.deltaY * (e.mods.isShiftDown() ? 0.01f : 0.05f));
+		repaint();
+		return;
+	}
 	if (m_service && (h.kind == HitKind::Trim || h.kind == HitKind::Trimmer)) {
 		setTrim(h.index, paramValue(TR808Processor::kTrimIds[h.index]) + w.deltaY * (e.mods.isShiftDown() ? 0.005f : 0.03f));
 		return;

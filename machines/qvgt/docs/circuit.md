@@ -117,9 +117,9 @@ control outputs, the solver's statistics and its speed.
 second of audio (about 8-15 % of a core at 48 kHz), the preamp the largest part, its clipper about
 half of that (`improvements.md`, Budget).
 
-## Noise (HISS)
+## Noise
 
-With HISS on (the bar; on by default): a source in series with each op-amp's + input (the netlists'
+Always on in the plugin, as on the unit (no setting): a source in series with each op-amp's + input (the netlists'
 `noise_<part>` inputs), white at TL084's 18 nV/sqrt(Hz) (its 1/f corner left out); the SSM2120
 VCAs' output noise, 19.6 pA/sqrt(Hz) at unity (the data sheet's -80 dBV in 20 kHz into its 36K) and
 rising 0.475 dB a dB of gain (Figure 1b); after the D/A, U18's and U16's input noise, U15's summers'
@@ -127,7 +127,7 @@ at a noise gain of 2, the CEM3381's 10 pA/sqrt(Hz) (100 dB under 400 uA p-p in 2
 the square root of its gain, and the output stages' at their + inputs. And the A/D's offset servo:
 the DASP's LSTMSB (the last conversion's sign) through R140 51K into C64 4.7u, R137 51K into the
 A/D's node against R136 510K from -12 V, so the input's DC sits at the conversions' sign change
-and the A/D toggles about zero (`core/board.cpp`). Off: noiseless, the A/D reads exactly what it is
+and the A/D toggles about zero (`core/board.cpp`). Off (only in the tools' comparisons against SPICE): noiseless, the A/D reads exactly what it is
 given.
 
 ## Not modelled

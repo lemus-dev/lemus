@@ -12,12 +12,12 @@ juce::String knobText(float v) { return juce::String(v * 10.0f, 1); }
 // POWER SW, ganged with VOLUME: it clicks on just clockwise of OFF, so VOLUME under this is off.
 constexpr float kPowerOnFrom = 0.005f;
 
-// FULL CUT OFF (the bar's CUT OFF MAX): how high the cutoff reaches at full CUT OFF (the ring at
+// FULL CUT OFF (SERVICE, PARTS: VR3's law): how high the cutoff reaches at full CUT OFF (the ring at
 // full RESONANCE, no env mod), 1.2 to 3 kHz, as a unit whose CUT OFF pot has the share of its
 // track at mid rotation that gets there (TM3 still holds cutoff centre). Real units spread from
-// Din Sync's ~1.4 kHz (the fitted unit's own law) to acidvoice.com's ~3.3 kHz. It ships at 2.3
-// kHz, a typical unit's (the nominal parts give ~2.2, Whittle's typical ~2.5): the fitted unit
-// is at the dark end.
+// Din Sync's ~1.4 kHz (the measured unit's own law) to acidvoice.com's ~3.3 kHz. It ships at
+// 2.3 kHz, a typical unit's (the nominal parts give ~2.2, Whittle's typical ~2.5): the measured
+// unit is at the dark end.
 constexpr float kTopLowHz = 1200, kTopHighHz = 3000, kTopDefaultHz = 2300;
 
 // The pot law against the top it gives, at the unit's calibration: (log Hz, log share at mid),

@@ -415,7 +415,7 @@ note of each clip holds a steady resonant peak, 702 Hz at CUT OFF 60 % and ~3.3 
 cents): Din Sync's unit tops out much lower than acidvoice's (its cutoff sweep with everything
 else at 0 matches the fitted unit within 50 cents at every position, including 100 %). Whittle
 gives ~2.5 kHz as the typical stock maximum. Units spread this far; TM3 moves the whole cutoff
-law, not the top alone, so the FULL CUT OFF control (CUT OFF MAX) sets the top,
+law, not the top alone, so the FULL CUT OFF control (VR3 CUT OFF, under PARTS in SERVICE) sets the top,
 1.2 to 3 kHz of ring at full CUT OFF: the CUT OFF pot's share of its track at mid rotation (TM3
 holding cutoff centre) that reaches it, from a table of the model's own top against that share
 (`fullCutOffHz`), within ~1 % in the running voice. The fitted unit's law (21.5 %) gives 1.35

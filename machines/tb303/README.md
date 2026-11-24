@@ -64,7 +64,7 @@ keyline and control placed to about 0.3 mm), brand marks from your own artwork w
 bar-knob rotary switches, key caps and LEDs driven by the firmware. Drag knobs (shift for
 fine, double-click resets), click or drag the MODE and TRACK/PATT.GROUP switches, press the
 keys. The WAVEFORM switch, which is on the rear of the real unit, sits at the rear edge above
-its legend. The bar has SYNC, CUT OFF MAX, SERVICE and `?` (key list).
+its legend. The bar has SYNC, SERVICE and `?` (key list).
 
 Programming works as on the hardware (see the owner's manual, `private/docs/tb303-owners-manual.pdf`): PATTERN WRITE, pick
 section A/B (ACCENT/SLIDE) and a pattern key, hold it and press PATTERN CLEAR, PITCH MODE to
@@ -97,16 +97,19 @@ CLEAR leaves it (16 steps, all rest). Pattern memory is saved with the session.
   notes' procedure underneath. Drag along a control to turn its trimmer (shift: a tenth as far;
   left/right keys; the wheel), or the trimmer on the board; green on the track is where it is in
   spec, the tick is the factory's trim and a double-click puts it back (the host's State: Reset puts
-  the whole instance back, as new). A dot on SERVICE shows a unit out of its factory trim. The pots,
-  switches and keys work on the boards too, and the trims are saved with the session. How each
-  trimmer acts is in `docs/model.md` ("Service trimmers").
-- **CUT OFF MAX** (FULL CUT OFF): how high full CUT OFF reaches (the ring at full RESONANCE, no
-  env mod), 1.2 to 3 kHz, as a unit whose CUT OFF pot has a different law; cutoff centre stays
-  where TM3 puts it. Drag it (shift for fine steps, the mouse wheel works too); double-click goes
-  back to 2.3 kHz, where it ships: a typical unit's. The fitted unit's own law gives 1.35 kHz (Din
-  Sync's unit, at the dark end), Roland's TB-303 software reaches ~1.8 kHz, the service notes'
-  nominal parts ~2.2 kHz, a typical unit ~2.5 kHz (Whittle). Raising it brightens the whole upper
-  half of CUT OFF, not only the top.
+  the whole instance back, as new). A dot on SERVICE shows a unit out of its factory trim, or with
+  its part (below) moved. The pots, switches and keys work on the boards too, and the trims are
+  saved with the session. How each trimmer acts is in `docs/model.md` ("Service trimmers").
+  - **PARTS**, under the trimmers: where units differ. **VR3 CUT OFF** (FULL CUT OFF): CUT OFF
+    FREQ's pot, whose law sets how high full CUT OFF reaches (the ring at full RESONANCE, no env
+    mod), 1.2 to 3 kHz; cutoff centre stays where TM3 puts it. Picked like a trimmer (its row,
+    or up/down), VR3's knob lights up on the board and the scope's caption says what it is; drag
+    along its row (shift: a tenth as far; left/right keys; the wheel); the tick is the printed
+    parts' value, and a double-click goes back to 2.3 kHz, where it ships: a typical unit's. The
+    measured unit's own law gives 1.35 kHz (Din Sync's unit, at the dark end), Roland's TB-303
+    software reaches ~1.8 kHz, the service notes' nominal parts ~2.2 kHz, a typical unit ~2.5 kHz
+    (Whittle). Raising it brightens the whole upper half of CUT OFF, not only the top. Saved with
+    the session. With it picked, the scope stays on TM3's TP6, the filter.
 - **Power:** VOLUME is ganged with the POWER switch, as on the unit: turned to OFF, the 303 is
   off (silent, every LED dark, no keys or MIDI notes); turned back up, the CPU starts afresh,
   stopped, with its pattern memory kept (battery backed). Automating VOLUME to 0 does the same.
@@ -172,8 +175,8 @@ Checked four ways; the numbers are in `docs/model.md`, "Validation".
   saw's levels, the resonance loop's gain, the gate release, the cutoff converter, the output
   stage, and the VCA and its envelope (Q31 and Q32 as real transistors: accent +4 dB at half
   ACCENT, a slower start to the VEG's decay).
-- **A real TB-303** (Din Sync's 400 single notes, `tools/compare/dinsync.py`, with CUT OFF MAX at
-  the fitted unit's 1.35 kHz, not the 2.3 kHz the plugin ships at): log-spectral
+- **A real TB-303** (Din Sync's 400 single notes, `tools/compare/dinsync.py`, with VR3 CUT OFF at
+  the measured unit's 1.35 kHz, not the 2.3 kHz the plugin ships at): log-spectral
   distance 3.0 dB (the unit against its own retakes: 2.4 dB; Roland's software: 3.3 dB),
   resonant peak within 140 cents on average (Roland's: 360), level within 0.8 dB (Roland's:
   1.7). Note by note it is closer than Roland's software on 63 % of notes for the spectrum and
@@ -187,7 +190,7 @@ Known differences and approximations:
 - At cutoff 0 and full resonance the peak is ~3.6 dB weaker than Roland's (+7.4 vs +11.0 dB).
 - The BA662 VCA has no Rohm data sheet: it is modelled from Open Music Labs' reverse
   engineering of an original chip and its clones' data sheets (`docs/circuit.md` 6.1).
-- Units differ: the fitted unit tops out at ~1.4 kHz of resonant peak at full CUT OFF, as Din
+- Units differ: the measured unit tops out at ~1.4 kHz of resonant peak at full CUT OFF, as Din
   Sync's does; acidvoice.com's unit reaches ~3.3 kHz, Whittle gives ~2.5 kHz as typical.
   Brightness in the first 100 ms of a note is still ~25 % off the real unit's.
 - Not emulated: MIX IN, CV/GATE out, headphone amp, battery LED behaviour.

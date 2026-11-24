@@ -130,7 +130,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout TR909Processor::createLayout
 		AudioParameterFloatAttributes()
 			.withStringFromValueFunction([](float v, int) { return String(v * 100.0f, 1) + " %"; })
 			.withValueFromStringFunction([number](const String &t) { return jlimit(0.0f, 1.0f, number(t) / 100.0f); })));
-	// BD PITCH (the bar): the pitch the kick settles on, as 909s differ in it (C14 and R27,
+	// BD pitch (SERVICE's PARTS, C14 R27): the pitch the kick settles on, as 909s differ in it (C14 and R27,
 	// tr909::setBdPitch); by default the calibrated unit's. A property of the unit, as TM is: not
 	// automatable.
 	p.push_back(std::make_unique<AudioParameterFloat>(

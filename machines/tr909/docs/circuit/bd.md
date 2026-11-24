@@ -397,7 +397,7 @@ dB or Hz, the RMS spread after the slash):
   7 / 10 against 198 / 318 (AudioRealism's 100 %: 289), so calibrating to AudioRealism moves the
   decay away from it (+0.26 → +0.49 octave): a unit difference (C8 or VR5 lower in that unit).
 - **Units differ most in f_end**: 49.3-49.6 Hz on AudioRealism's and Rob Roy's, 52.3-52.7 on
-  Regebro's, KB6's and Roland's plugin; the drawn C14 and R27 give 54.2. **BD PITCH** on the bar
+  Regebro's, KB6's and Roland's plugin; the drawn C14 and R27 give 54.2. **BD pitch** (C14 R27) in SERVICE's PARTS
   (`setBdPitch`) moves C14 and R27 together, geometrically, from the fitted values to the printed
   ones: the VCO's rest 49.35 → 54.19 Hz (within 0.01 Hz of geometric along the way), the whole sweep
   with it (2-5 % at its start), the default the fitted unit. Moving it builds the BD alone again,

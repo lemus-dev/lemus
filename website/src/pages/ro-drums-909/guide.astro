@@ -470,20 +470,21 @@ const toc: Entry[] = [
 <dl class="legend">
 <div><dt><Num n="1" /> SYNC</dt><dd>OFF: the 909 runs on its own clock. HOST: your DAW's transport runs it. See <a href="#sync">Sync</a>.</dd></div>
 <div><dt><Num n="2" /> REAR</dt><dd>The rear panel: <a href="#multi-out">MULTI OUT</a> and <a href="#power">POWER</a>.</dd></div>
-<div><dt><Num n="3" /> SERVICE</dt><dd>Takes the top panel off to show the boards. See <a href="#service">SERVICE</a>.</dd></div>
+<div><dt><Num n="3" /> SERVICE</dt><dd>Takes the top panel off to show the boards. A dot on it shows TM or a part moved off the unit's own. See <a href="#service">SERVICE</a>.</dd></div>
 <div><dt><Num n="4" /> Status line</dt><dd>The sync mode, INT, MIDI or DIN (HOST while the DAW runs it), and the TEMPO knob's tempo; a missing sample ROM; the MULTI OUTs with a cable in; a key held by a right-click. At the right, the voices sounding.</dd></div>
 <div><dt><Num n="5" /> ?</dt><dd>Shows the list of computer keys over the panel. Any click, ? or Escape closes it.</dd></div>
 </dl>
 
-<h3 id="service">SERVICE: the boards, TM and the scope</h3>
-<Shot src={service} base={base} alt="SERVICE: the voicing board above the switch board, the trimmer TM on the board outlined, and on the right the scope, the readouts, the TM row with TEST and the circuit by serial number" marks={[{ x: 614, y: 296, w: 25, h: 25, n: 1 }, { x: 920, y: 38, w: 288, h: 194, n: 2 }, { x: 920, y: 239, w: 288, h: 59, n: 3 }, { x: 920, y: 303, w: 288, h: 87, n: 4 }, { x: 920, y: 397, w: 288, h: 328, n: 5 }]} caption="SERVICE, the late board selected." />
+<h3 id="service">SERVICE: the boards, TM, the parts and the scope</h3>
+<Shot src={service} base={base} alt="SERVICE: the voicing board above the switch board, the trimmer TM on the board outlined, and on the right the scope, the readouts, the TM row with TEST, the PARTS row and the circuit by serial number" marks={[{ x: 614, y: 296, w: 25, h: 25, n: 1 }, { x: 920, y: 38, w: 288, h: 194, n: 2 }, { x: 920, y: 239, w: 288, h: 59, n: 3 }, { x: 920, y: 303, w: 288, h: 86, n: 4 }, { x: 920, y: 389, w: 288, h: 77, n: 5 }, { x: 920, y: 473, w: 288, h: 250, n: 6 }]} caption="SERVICE, the late board selected." />
 <p>The voicing board where it hangs under the panel and the switch board folded out in front of it, every part where the service notes' board drawings put it, the copper drawn faintly through. The knobs stay on their pots and the keys on their switches, and work as on the panel; the LEDs and the display run. The wheel or a pinch zooms, and the parts' designators show close up; a drag moves; a double-click shows it all.</p>
 <ul>
 <li><span class="k">The scope</span> <Num n="2" />: click its caption to clip the probe on a MULTI OUT or master jack, a trigger line, an accent DAC, or any pin of any part the netlists draw, by voice, kind, part and pin. It triggers on a voice's TRIG line, or runs free; time and volts per division are set from their captions. The readouts <Num n="3" /> show its peak to peak, and HAND CLAP LEVEL. While a probe is on, the board doesn't sleep.</li>
-<li><span class="k">TM</span>, the hand clap's trimmer (SN p.11), on the board <Num n="1" /> and as a row <Num n="4" />: drag either, shift finer. A double-click puts it back to the calibrated unit's trim, 30 %. TEST sets the scope on the clap's MULTI OUT at the scale of SN p.9 and plays the clap every 0.6 s.</li>
-<li><span class="k">Circuit</span> <Num n="5" />: which unit this is, by serial number, from the first units (360100) to the late board (426700 up, the default). Each range has the production changes of SN p.7 up to it: <a href="/ro-drums-909#revisions">Board revisions</a>. Saved with the session.</li>
+<li><span class="k">TM</span>, the hand clap's trimmer (SN p.11), on the board <Num n="1" /> and as a row <Num n="4" />: drag either, shift finer. A double-click puts it back to the measured unit's trim, 30 %. TEST sets the scope on the clap's MULTI OUT at the scale of SN p.9 and plays the clap every 0.6 s.</li>
+<li><span class="k">Parts</span> <Num n="5" />: where units differ, a part set anywhere between the measured unit's value and the printed one, the tick. The TR-909's is C14 and R27, BD pitch: where the kick settles, which differs from 909 to 909 more than anything else in it, from the measured unit's 49.35 Hz (the default) to 54.19 Hz with the printed parts; two other units settle at 52.3–52.7. The whole sweep moves with it. Drag the row across, shift finer, or use the wheel; a double-click goes back to the measured unit. Under the mouse, C14 and R27 are ringed on the board and the scope's caption says what they do. Saved with the session.</li>
+<li><span class="k">Circuit</span> <Num n="6" />: which unit this is, by serial number, from the first units (360100) to the late board (426700 up, the default). Each range has the production changes of SN p.7 up to it: <a href="/ro-drums-909#revisions">Board revisions</a>. Saved with the session.</li>
 </ul>
-<p>The service notes set TM for 2 Vp-p at the clap's MULTI OUT. At its 30 % the model reads about 4 Vp-p there: its clap's spikes are narrower than the calibrated unit's, and at 2 Vp-p (25.5 %) the clap would be 6 dB under the other voices.</p>
+<p>The service notes set TM for 2 Vp-p at the clap's MULTI OUT. At its 30 % the model reads about 4 Vp-p there: its clap's spikes are narrower than the measured unit's, and at 2 Vp-p (25.5 %) the clap would be 6 dB under the other voices.</p>
 </section>
 
 <!-- ===================================================================== -->

@@ -45,17 +45,27 @@ constexpr float kIx = kCanvasW + 8, kIw = kDrawerW - 16;
 const juce::Rectangle<float> kScopeCase(kIx, 8, kIw, 192), kScopeScreen(kIx + 12, 32, kIw - 24, 118);
 const juce::Rectangle<float> kVppCase(kIx, 208, 140, 56), kMeasCase(kIx + kIw - 140, 208, 140, 56);
 constexpr float kTrimRowH = 36;
-const juce::Rectangle<float> kTrimCase(kIx, 272, kIw, 28 + 6 * kTrimRowH + 4);
+constexpr float kPartsTop = 28 + 6 * kTrimRowH; // under the trimmers: PARTS' divider, its heading, its row
+const juce::Rectangle<float> kTrimCase(kIx, 272, kIw, kPartsTop + 24 + kTrimRowH + 1);
 const juce::Rectangle<float> kRevCase(kIx, kTrimCase.getBottom() + 8, kIw, float(HardwareView::kPanelHeight) - kTrimCase.getBottom() - 16);
-constexpr float kRevRowH = 36;
+constexpr float kRevLineH = 22, kRevPickedH = 35; // a revision's row: one line; the unit's, two
 juce::Rectangle<float> trimRow(int i) { return {kTrimCase.getX() + 6, kTrimCase.getY() + 28 + float(i) * kTrimRowH, kTrimCase.getWidth() - 12, kTrimRowH - 3}; }
 juce::Rectangle<float> trimTrack(int i) { return {trimRow(i).getX() + 24, trimRow(i).getY() + 24, trimRow(i).getWidth() - 24 - 92, 4}; }
 juce::Rectangle<float> trimPill(int i) { return {trimRow(i).getRight() - 66, trimRow(i).getY() + 3, 60, 16}; }
-juce::Rectangle<float> revRow(int i) { return {kRevCase.getX() + 6, kRevCase.getY() + 26 + float(i) * kRevRowH, kRevCase.getWidth() - 12, kRevRowH - 3}; }
-juce::Rectangle<float> portionRow() { return {kRevCase.getX() + 6, revRow(3).getY(), kRevCase.getWidth() - 12, 25}; }
-juce::Rectangle<float> portionPill(int k)
+juce::Rectangle<float> partRow() { return {kTrimCase.getX() + 6, kTrimCase.getY() + kPartsTop + 24, kTrimCase.getWidth() - 12, kTrimRowH - 3}; }
+juce::Rectangle<float> partTrack() { return {partRow().getX() + 24, partRow().getY() + 24, partRow().getWidth() - 24 - 92, 4}; }
+// revision i's row, `on` the unit's (two lines: its words under its serials; the others one)
+juce::Rectangle<float> revRow(int i, int on)
 {
-	const auto r = portionRow();
+	float y = kRevCase.getY() + 26;
+	for (int k = 0; k < i; ++k)
+		y += k == on ? kRevPickedH : kRevLineH;
+	return {kRevCase.getX() + 6, y, kRevCase.getWidth() - 12, (i == on ? kRevPickedH : kRevLineH) - 2};
+}
+juce::Rectangle<float> portionRow(int on) { return {kRevCase.getX() + 6, revRow(3, on).getY() + 1, kRevCase.getWidth() - 12, 25}; }
+juce::Rectangle<float> portionPill(int k, int on)
+{
+	const auto r = portionRow(on);
 	return {r.getRight() - 4 - float(2 - k) * 78, r.getY() + 4, 74, r.getHeight() - 8};
 }
 // the scope's own controls: its caption (the probe), the time base, the volts, the trigger
@@ -971,8 +981,25 @@ juce::String revisionWords(int index)
 	switch (index) {
 	case 0: return "INT C11 .068, R49 150k; cowbell C6 .01, R44 390k, R45 330k";
 	case 1: return "CP R346 1k, R332 22k; the first noise gen.; gates 22k; R101 (not modelled)";
-	default: return "the late board: as Fischer's SN 103852";
+	default: return "the late board: as the measured unit, SN 103852";
 	}
+}
+
+// The serial range a unit is in (an index into boardSerials()), -1 if before them all.
+int revisionOf(int serial)
+{
+	const auto serials = boardSerials();
+	int on = -1;
+	for (int i = 0; i < int(serials.size()); ++i)
+		if (serial >= serials[size_t(i)])
+			on = i;
+	return on;
+}
+
+// PARTS' value: VR6, BD DECAY's pot, and how long the kick then rings at full DECAY ("500k  0.80 s").
+juce::String partText(double seconds)
+{
+	return juce::String(juce::roundToInt(tr808::bdDecayPot(seconds) / 1000)) + "k  " + juce::String(seconds + 1e-6, 2) + " s";
 }
 } // namespace
 
@@ -1253,6 +1280,36 @@ void HardwareView::paintService(juce::Graphics &g)
 			}
 		}
 	}
+	if (partHot())
+		drawPicked(g, t);
+}
+
+// PARTS' VR6 while its row is under the mouse: a ring round BD DECAY's knob on its pot and a tag,
+// as the 303 marks its picked trimmer (the ring follows the zoom, the tag keeps its size).
+void HardwareView::drawPicked(juce::Graphics &g, const juce::AffineTransform &t)
+{
+	const Element *knob = nullptr;
+	for (const auto &e : elements())
+		if (e.type == "knob" && e.param == "bd_decay")
+			knob = &e;
+	if (knob == nullptr)
+		return;
+	const auto &kd = knob->v["knob_d"];
+	const float r = ((kd.isDouble() || kd.isInt() ? float(double(kd)) : 11.0f) / 2 + 1.6f) * kFit * m_zoom;
+	const auto c = knob->centre.transformedBy(t);
+	g.setColour(kOrange.withAlpha(0.3f));
+	g.drawEllipse(c.x - r - 2, c.y - r - 2, 2 * r + 4, 2 * r + 4, 6.0f);
+	g.setColour(kOrange);
+	g.drawEllipse(c.x - r, c.y - r, 2 * r, 2 * r, 2.0f);
+	const juce::String name = "VR6  BD DECAY";
+	g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
+	const float w = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), name) + 14;
+	const bool left = c.x + r + 14 + w > kCanvasW - 8;
+	const juce::Rectangle<float> tag(left ? c.x - r - 12 - w : c.x + r + 12, c.y - r - 18, w, 18);
+	g.drawLine(juce::Line<float>(c + juce::Point<float>(left ? -r * 0.72f : r * 0.72f, -r * 0.72f), {left ? tag.getRight() : tag.getX(), tag.getBottom() - 4}), 1.6f);
+	g.fillRoundedRectangle(tag, 4);
+	g.setColour(juce::Colour(0xff17120c));
+	g.drawText(name, tag, juce::Justification::centred);
 }
 
 // ====================================================================== the right-hand side
@@ -1336,7 +1393,10 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 	        timeText(kTimes[m_scope.time]) + "/div", m_hover.kind == HitKind::Scope && m_hover.index == 0, m_hover.kind == HitKind::Scope && m_hover.index == 2);
 	drawScope(g);
 	juce::String hint;
-	if (m_scope.procedure >= 0) {
+	if (partHot()) {
+		hint = "VR6, BD DECAY's pot. The printed 500k: 0.80 s at full DECAY, the notes' figure (default). The measured unit's 585k: 1.19 s, past it; "
+		       "repeated kicks wander.";
+	} else if (m_scope.procedure >= 0) {
 		// the procedure's words (SN p.14), and what it asks of the knobs, said rather than done
 		const int i = m_scope.procedure;
 		const double target = i == 0 ? 1.9 : i == 1 ? 8.33 : i == 4 ? 1.85 : i == 5 ? 1.25 : 0.0;
@@ -1448,6 +1508,61 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 		           juce::Justification::centredRight);
 	}
 
+	// PARTS: what units differ in most, as the part it is: VR6, BD DECAY's pot (its value sets how
+	// long the kick rings at full DECAY). The printed 500k by default; the measured unit's 585k at the
+	// top (docs/model.md, VR6).
+	{
+		const float y = kTrimCase.getY() + kPartsTop;
+		g.setColour(juce::Colour(0xff2a2f37));
+		g.fillRect(juce::Rectangle<float>(kTrimCase.getX() + 12, y + 3, kTrimCase.getWidth() - 24, 1));
+		g.setFont(fonts::mono(10.5f, fonts::Weight::SemiBold));
+		g.setColour(juce::Colour(0xffc9cfd8));
+		g.drawText("PARTS", juce::Rectangle<float>(kTrimCase.getX() + 14, y + 6, 120, 16), juce::Justification::centredLeft);
+		g.setFont(fonts::mono(10.0f));
+		g.setColour(juce::Colour(0xff8a929e));
+		g.drawText("units differ  tick: printed", juce::Rectangle<float>(kTrimCase.getX() + 14, y + 6, kTrimCase.getWidth() - 28, 16),
+		           juce::Justification::centredRight);
+		const auto row = partRow();
+		const bool hot = partHot();
+		g.setColour(hot ? juce::Colour(0xff2b2620) : juce::Colour(0xff21252b));
+		g.fillRoundedRectangle(row, 5);
+		if (hot) {
+			g.setColour(kOrange.withAlpha(0.7f));
+			g.drawRoundedRectangle(row.reduced(0.5f), 5, 1);
+			g.setColour(kOrange);
+			g.fillRoundedRectangle(row.withWidth(3).reduced(0, 6), 1.5f);
+		}
+		auto *p = m_proc.params().getParameter("bddecaymax");
+		const float v = p->getValue(), printed = p->getDefaultValue();
+		const bool atDefault = std::abs(v - printed) < 1e-4f;
+		const float y1 = row.getY() + 3;
+		g.setColour(atDefault ? kInSpec : kOrange);
+		g.fillEllipse(row.getX() + 9, y1 + 5, 7, 7);
+		g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
+		g.setColour(juce::Colour(0xffeef1f5));
+		g.drawText("VR6", juce::Rectangle<float>(row.getX() + 21, y1, 34, 16), juce::Justification::centredLeft);
+		g.setFont(sans(10.5f));
+		g.setColour(juce::Colour(0xffc9cfd8));
+		g.drawText("BD DECAY pot", juce::Rectangle<float>(row.getX() + 52, y1, 110, 16), juce::Justification::centredLeft, true);
+		g.setColour(juce::Colour(0xff8f98a5));
+		g.drawText("main", juce::Rectangle<float>(row.getX() + 52 + 104, y1, 50, 16), juce::Justification::centredLeft, true);
+		const auto track = partTrack();
+		g.setColour(juce::Colour(0xff3a414c));
+		g.fillRoundedRectangle(track, 2);
+		g.setColour(juce::Colour(0xffc9cfd8));
+		const float tx = track.getX() + printed * track.getWidth();
+		g.drawLine(tx, track.getY() - 5, tx, track.getBottom() + 5, 1.2f);
+		const juce::Point<float> c(track.getX() + v * track.getWidth(), track.getCentreY());
+		g.setColour(juce::Colour(0xff15171a));
+		g.fillEllipse(c.x - 7, c.y - 7, 14, 14);
+		g.setColour(hot ? kOrange : juce::Colour(0xffc9cfd8));
+		g.fillEllipse(c.x - 5, c.y - 5, 10, 10);
+		g.setFont(fonts::mono(11.0f, fonts::Weight::Medium));
+		g.setColour(atDefault ? juce::Colour(0xffe9ecf1) : juce::Colour(0xffffb866));
+		g.drawText(partText(double(p->convertFrom0to1(v))), juce::Rectangle<float>(row.getRight() - 90, row.getY() + 18, 84, 14),
+		           juce::Justification::centredRight);
+	}
+
 	// the circuit: which unit this is, by its serial number (SN p.15), and the snare's and clap's
 	// portion
 	card(kRevCase);
@@ -1460,8 +1575,9 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 	           juce::Justification::centredRight);
 	const auto serials = boardSerials();
 	auto sn = [](int n) { return juce::String(n).paddedLeft('0', 6); };
+	const int unitRev = revisionOf(m_proc.serial());
 	for (int i = 0; i < int(serials.size()); ++i) {
-		const auto row = revRow(i);
+		const auto row = revRow(i, unitRev);
 		const int from = serials[size_t(i)], to = i + 1 < int(serials.size()) ? serials[size_t(i + 1)] - 1 : 0;
 		const bool on = m_proc.serial() >= from && (to == 0 || m_proc.serial() <= to);
 		const bool hov = m_hover.kind == HitKind::Serial && m_hover.index == i;
@@ -1473,30 +1589,39 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 			g.setColour(kOrange);
 			g.fillRoundedRectangle(row.withWidth(3).reduced(0, 6), 1.5f);
 		}
+		const bool twoLines = i == unitRev;
 		g.setColour(on ? kOrange : juce::Colour(0xff3a414c));
-		g.fillEllipse(row.getX() + 11, row.getY() + 7, 7, 7);
+		g.fillEllipse(row.getX() + 11, twoLines ? row.getY() + 7 : row.getCentreY() - 3.5f, 7, 7);
 		g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
 		g.setColour(juce::Colour(0xffeef1f5));
-		g.drawText(to == 0 ? "SN " + sn(from) + " up" : "SN " + sn(from) + " - " + sn(to), juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, row.getWidth() - 30, 16),
-		           juce::Justification::centredLeft);
+		const juce::String range = to == 0 ? "SN " + sn(from) + " up" : "SN " + sn(from) + " - " + sn(to);
+		g.drawText(range, juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, row.getWidth() - 30, 16), juce::Justification::centredLeft);
 		if (on) {
 			g.setFont(fonts::mono(10.0f));
 			g.setColour(juce::Colour(0xff8a929e));
 			g.drawText("this: " + sn(m_proc.serial()), juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, row.getWidth() - 32, 16), juce::Justification::centredRight);
 		}
-		g.setFont(sans(10.0f));
-		g.setColour(on ? juce::Colour(0xffd6dbe2) : juce::Colour(0xff8f98a5));
-		g.drawFittedText(revisionWords(i), juce::Rectangle<float>(row.getX() + 24, row.getY() + 17, row.getWidth() - 30, 14).toNearestInt(),
-		                 juce::Justification::centredLeft, 1, 0.8f);
+		if (twoLines) { // the unit's: its words under its serials
+			g.setFont(sans(10.0f));
+			g.setColour(on ? juce::Colour(0xffd6dbe2) : juce::Colour(0xff8f98a5));
+			g.drawFittedText(revisionWords(i), juce::Rectangle<float>(row.getX() + 24, row.getY() + 17, row.getWidth() - 30, 14).toNearestInt(),
+			                 juce::Justification::centredLeft, 1, 0.8f);
+		} else { // the others: their words after their serials, cut short
+			const float w = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), range) + 10;
+			g.setFont(sans(10.0f));
+			g.setColour(juce::Colour(0xff8f98a5));
+			g.drawText(revisionWords(i), juce::Rectangle<float>(row.getX() + 24 + w, row.getY() + 2, row.getWidth() - 34 - w, 16),
+			           juce::Justification::centredLeft, true);
+		}
 	}
-	const auto portion = portionRow();
+	const auto portion = portionRow(unitRev);
 	g.setColour(juce::Colour(0xff21252b));
 	g.fillRoundedRectangle(portion, 5);
 	g.setFont(fonts::mono(10.5f, fonts::Weight::SemiBold));
 	g.setColour(juce::Colour(0xffeef1f5));
 	g.drawText("SNARE + CLAP", juce::Rectangle<float>(portion.getX() + 10, portion.getY(), 100, portion.getHeight()), juce::Justification::centredLeft);
 	for (int c = 0; c < 2; ++c)
-		pill(portionPill(c), c == 0 ? "EARLY" : "LATE", (c == 1) == m_proc.portionChanged(), m_hover.kind == HitKind::Portion && m_hover.index == c);
+		pill(portionPill(c, unitRev), c == 0 ? "EARLY" : "LATE", (c == 1) == m_proc.portionChanged(), m_hover.kind == HitKind::Portion && m_hover.index == c);
 }
 
 // The scope's sweep: the latest whole one after a trigger, each pixel column's min and max; and
@@ -1767,12 +1892,14 @@ HardwareView::Hit HardwareView::hitService(juce::Point<float> px) const
 			if (trimRow(i).contains(px))
 				return {HitKind::Trim, i};
 		}
-		const int ranges = int(boardSerials().size());
+		if (partRow().contains(px))
+			return {HitKind::Part, 0};
+		const int ranges = int(boardSerials().size()), unitRev = revisionOf(m_proc.serial());
 		for (int i = 0; i < ranges; ++i)
-			if (revRow(i).contains(px))
+			if (revRow(i, unitRev).contains(px))
 				return {HitKind::Serial, i};
 		for (int c = 0; c < 2; ++c)
-			if (portionPill(c).contains(px))
+			if (portionPill(c, unitRev).contains(px))
 				return {HitKind::Portion, c};
 		return {HitKind::Drawer, -1};
 	}
@@ -1814,6 +1941,8 @@ juce::String HardwareView::serviceStatus() const
 			return juce::String(d.ref) + " " + d.name + ": the notes' procedure, the probe on " + d.tp + (d.plays ? ", CP played" : "");
 		return juce::String(d.ref) + " " + d.part + " (" + d.board + ") " + d.name + ": drag across (shift: finer), double-click: back to the unit's trim";
 	}
+	if (m_hover.kind == HitKind::Part || m_drag.kind == HitKind::Part)
+		return "VR6, BD decay: drag across (shift: finer), double-click: back to the printed 500k";
 	if (m_hover.kind == HitKind::Serial)
 		return "the circuit as Roland built it from that serial number on (SN p.15)";
 	if (m_hover.kind == HitKind::Portion)
@@ -1823,5 +1952,22 @@ juce::String HardwareView::serviceStatus() const
 		return "the panel's controls, on the boards: they work as on the panel";
 	return "SN " + juce::String(m_proc.serial()).paddedLeft('0', 6) + "   wheel: zoom, drag: move";
 }
+
+bool HardwareView::partHot() const
+{
+	return m_hover.kind == HitKind::Part || m_drag.kind == HitKind::Part;
+}
+
+bool HardwareView::offDefault() const
+{
+	for (int i = 0; i < kTrimmers; ++i)
+		if (std::abs(paramValue(TR808Processor::kTrimIds[i]) - float(m_proc.unitTrim(i))) >= 1e-4f)
+			return true;
+	const auto *p = m_proc.params().getParameter("bddecaymax");
+	return p != nullptr && std::abs(p->getValue() - p->getDefaultValue()) >= 1e-4f;
+}
+
+juce::Rectangle<float> HardwareView::servicePartRow() { return partRow(); }
+float HardwareView::servicePartTrackWidth() { return partTrack().getWidth(); }
 
 } // namespace tr808

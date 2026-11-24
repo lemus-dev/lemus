@@ -209,6 +209,12 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-24, UX: BD PITCH leaves the bar for SERVICE, as PARTS under TM: the row "C14 R27  BD pitch"
+  (dot, value in Hz, a tick at the printed parts), dragged across, double-click back to the measured
+  unit, the wheel; under the mouse C14 and R27 are ringed and named on the board and the scope's
+  caption says what they do. The bar is SYNC, REAR, SERVICE and `?` again, with a dot on SERVICE
+  when TM or a part is off the unit's own (as the 303's). CIRCUIT's rows are 36 px to make room.
+  The same on the 808 (VR6) and the 303 (VR3). Wording: "the measured unit" in what users see.
 - 2026-11-23, feature (a user's report): BD PITCH on the bar, the pitch the kick settles on, from
   the calibrated unit's 49.35 Hz to the printed C14/R27's 54.19 Hz, which a long-time 909 owner
   picked blind as their unit's at full TUNE (`circuit/bd.md`, "Calibration"). The default is the

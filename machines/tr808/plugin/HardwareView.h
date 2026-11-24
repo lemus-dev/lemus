@@ -16,7 +16,8 @@ namespace tr808 {
 // click to their nearest position, keys press and release like the real ones, and the LEDs show
 // the firmware's. The computer keyboard plays the panel keys; '?' lists them. SERVICE takes the top
 // panel off (HardwareService.cpp): the boards with every part where the service notes' drawings put
-// it, the six trimmers, the unit's circuit by serial number and a scope. REAR turns the 808 round:
+// it, the six trimmers, the part units differ in most (VR6, how long the kick can ring), the unit's
+// circuit by serial number and a scope. REAR turns the 808 round:
 // its rear panel (panel.json's rear_panel), where a click plugs a cable into a MULTI OUT jack.
 class HardwareView : public juce::Component, private juce::Timer {
 public:
@@ -62,10 +63,14 @@ public:
 	void serviceSetUp(int trimmer) { setUpTrim(trimmer); }
 	void serviceSweep() { updateScope(); }
 	double serviceReading() const { return m_scope.reading; }
+	// Tools: PARTS' row (VR6) in the drawer, view px; shown as under the mouse (the ring on the board,
+	// the caption under the scope).
+	static juce::Rectangle<float> servicePartRow();
+	void serviceHotPart() { m_hover = {HitKind::Part, 0}; repaint(); }
 
 private:
 	enum class HitKind { None, Knob, Switch, Slide, Lever, Key, Power, BarSync, BarHelp, BarRear, Jack, BarService,
-		                 Board, Drawer, Serial, Portion, Trim, Trimmer, TrimButton, Scope };
+		                 Board, Drawer, Serial, Portion, Trim, Trimmer, TrimButton, Part, Scope };
 	struct Hit {
 		HitKind kind = HitKind::None;
 		int index = -1; // element index
@@ -105,6 +110,10 @@ private:
 	void clampPan();
 	juce::String serviceStatus() const;
 	void setTrim(int trimmer, float rotation);
+	bool partHot() const; // PARTS' row under the mouse or being dragged
+	static float servicePartTrackWidth(); // px: a drag across it is the whole range
+	bool offDefault() const; // a trimmer off the unit's trim or VR6 off the printed pot: SERVICE's dot
+	void drawPicked(juce::Graphics &, const juce::AffineTransform &mmToPx); // VR6 ringed on the board
 
 	float paramValue(const juce::String &id) const;
 	void setParamValue(const juce::String &id, float v);

@@ -5,8 +5,8 @@ comparisons with the real units found it (`docs/circuit.md`, `docs/model.md`), a
 "Real" is Din Sync's unit (400 single notes, 2010; `docs/model.md`, "Real TB-303 single notes"),
 the one the plugin's unit is fitted to, unless it says otherwise; "acidvoice" is acidvoice.com's
 unit (its shootout clips); "the RE-303" is acidvoice.com's RE-303, a replica of the TB-303's boards
-(`tools/compare/re303.py`). The figures against Din Sync's unit are with CUT OFF MAX at the fitted
-unit's 1.35 kHz, not the 2.3 kHz the plugin ships at.
+(`tools/compare/re303.py`). The figures against Din Sync's unit are with VR3 CUT OFF (SERVICE,
+PARTS) at the measured unit's 1.35 kHz, not the 2.3 kHz the plugin ships at.
 
 ro-mono-303 has shipped (0.1.5, 2026-11-01). A change to the sound bumps `kModelVersion` (now 1)
 and keeps the old behaviour for sessions saved before it (`plugin/PluginProcessor.h`); such a change is
@@ -46,7 +46,7 @@ agreed before it ships.
   and then a 3 ms attack").
 - **CUT OFF's upper half: units differ.** The fitted unit's law reaches 1.35 kHz of ring at full
   CUT OFF, and Din Sync's cutoff sweep with everything else at 0 matches it within 50 cents at every
-  position. The plugin ships CUT OFF MAX at 2.3 kHz, a typical unit's (Whittle: ~2.5 kHz). One
+  position. The plugin ships VR3 CUT OFF at 2.3 kHz, a typical unit's (Whittle: ~2.5 kHz). One
   two-segment law sets the top and the whole upper half: at 2.5 kHz, CUT OFF 60 % (RESONANCE full,
   no env mod) rings ~1040 Hz where acidvoice's unit rings ~700 Hz at 60 % (the fitted law: 622 Hz;
   ours at 54 % matches it). Waits on data.
@@ -243,6 +243,15 @@ Waits on data:
 
 ## Done
 
+- 2026-11-24, CUT OFF MAX leaves the bar for SERVICE (with the 909's BD PITCH and the 808's BD
+  DECAY MAX, the same day): under the trimmers, PARTS, where units differ, with one row, VR3 CUT
+  OFF (the "fullcutoff" parameter, unchanged: sessions keep their value, the sound doesn't
+  change). Picked like a trimmer (its row, up/down past TM6), it rings VR3's knob on the board
+  with a tag, the scope's caption says what it is (a typical unit 2.30 kHz, the printed parts 2.2,
+  the measured unit 1.35), and the instruments stay on TM3's TP6; dragged along its row, shift
+  finer, the wheel, a double-click back to 2.3 kHz; the tick is the printed parts'. The trimmer
+  rows went from 45 to 35 px to make room. The dot on SERVICE now also shows the part moved. The
+  bar is SYNC, SERVICE, `?`. Check: the editor's `--service-test` (a PARTS line).
 - 2026-11-17, session load keeps the selected pattern (a user's email report, in Bitwig): a session
   restored the pattern RAM but then cold-booted the CPU, whose own RAM holds the selected pattern,
   so it reopened on pattern 1. It now loads the whole board as saved (CPU, its RAM, the latches),

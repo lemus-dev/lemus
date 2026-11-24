@@ -43,13 +43,15 @@ const juce::Point<float> kOrigin((kCanvasW - kContent.getWidth() * kFit) / 2, (k
 constexpr float kIx = kCanvasW + 8, kIw = kDrawerW - 16;
 const juce::Rectangle<float> kScopeCase(kIx, 8, kIw, 192), kScopeScreen(kIx + 12, 32, kIw - 24, 118);
 const juce::Rectangle<float> kVppCase(kIx, 208, 140, 56), kLevelCase(kIx + kIw - 140, 208, 140, 56);
-const juce::Rectangle<float> kTrimCase(kIx, 272, kIw, 86);
-const juce::Rectangle<float> kRevCase(kIx, 366, kIw, 325);
-constexpr float kRevRowH = 47;
+const juce::Rectangle<float> kTrimCase(kIx, 272, kIw, 162); // TM, then PARTS
+const juce::Rectangle<float> kRevCase(kIx, 442, kIw, 249);
+constexpr float kRevRowH = 36;
 juce::Rectangle<float> trimRow() { return {kTrimCase.getX() + 6, kTrimCase.getY() + 30, kTrimCase.getWidth() - 12, 50}; }
 juce::Rectangle<float> trimTrack() { return {trimRow().getX() + 30, trimRow().getY() + 32, trimRow().getWidth() - 60, 4}; }
+juce::Rectangle<float> partRow() { return {kTrimCase.getX() + 6, kTrimCase.getY() + 108, kTrimCase.getWidth() - 12, 50}; }
+juce::Rectangle<float> partTrack() { return {partRow().getX() + 30, partRow().getY() + 32, partRow().getWidth() - 60, 4}; }
 juce::Rectangle<float> testPill() { return {kTrimCase.getRight() - 82, kTrimCase.getY() + 7, 72, 18}; }
-juce::Rectangle<float> revRow(int i) { return {kRevCase.getX() + 6, kRevCase.getY() + 30 + float(i) * kRevRowH, kRevCase.getWidth() - 12, kRevRowH - 4}; }
+juce::Rectangle<float> revRow(int i) { return {kRevCase.getX() + 6, kRevCase.getY() + 28 + float(i) * kRevRowH, kRevCase.getWidth() - 12, kRevRowH - 2}; }
 // the scope's own controls: its caption (the probe), the time base, the volts, the trigger
 juce::Rectangle<float> scopeHot(int i)
 {
@@ -1046,6 +1048,49 @@ void HardwareView::paintService(juce::Graphics &g)
 			g.drawEllipse(c.x - 4.4f, c.y - 4.4f, 8.8f, 8.8f, 0.5f);
 		}
 	}
+	if (partHot())
+		drawPartCallout(g);
+}
+
+// The PARTS row's parts, while it's under the mouse: each ringed where it sits on the voicing board,
+// and a tag naming them, in view px (the same size at any zoom).
+void HardwareView::drawPartCallout(juce::Graphics &g)
+{
+	const auto t = underside(m_zoom, m_pan);
+	std::vector<juce::Point<float>> at;
+	for (const auto &p : boards().parts)
+		if (p.ref == "C14" || p.ref == "R27") // both on the voicing board only
+			at.push_back(centreOf(p).transformedBy(t));
+	if (at.empty())
+		return;
+	const float r = std::max(9.0f, 3.0f * kFit * m_zoom);
+	juce::Point<float> mid;
+	for (const auto c : at) {
+		mid += c;
+		g.setColour(kOrange.withAlpha(0.3f));
+		g.drawEllipse(c.x - r - 2, c.y - r - 2, 2 * r + 4, 2 * r + 4, 6.0f);
+		g.setColour(kOrange);
+		g.drawEllipse(c.x - r, c.y - r, 2 * r, 2 * r, 2.0f);
+	}
+	mid /= float(at.size());
+	const juce::String name = "C14 R27  BD PITCH";
+	g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
+	const float w = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), name) + 14;
+	const bool left = mid.x + r + 30 + w > kCanvasW - 8;
+	const juce::Rectangle<float> tag(left ? mid.x - r - 30 - w : mid.x + r + 30, mid.y - 9, w, 18);
+	const juce::Point<float> end(left ? tag.getRight() : tag.getX(), tag.getCentreY());
+	g.setColour(kOrange);
+	for (const auto c : at)
+		if (const float d = end.getDistanceFrom(c); d > r)
+			g.drawLine(juce::Line<float>(c + (end - c) * (r / d), end), 1.6f);
+	g.fillRoundedRectangle(tag, 4);
+	g.setColour(juce::Colour(0xff17120c));
+	g.drawText(name, tag, juce::Justification::centred);
+}
+
+float HardwareView::partTrackWidth() const
+{
+	return partTrack().getWidth();
 }
 
 // ====================================================================== the right-hand side
@@ -1120,10 +1165,14 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 	drawScope(g);
 	g.setFont(sans(10.5f));
 	g.setColour(juce::Colour(0xffaab2bd));
-	const juce::String hint = probe == "mix.mhc" ? "TM: HAND CLAP LEVEL at centre, MULTI OUT 2 Vp-p (SN p.11); this model reads 4.0 at its default trim, the calibrated unit's"
+	const bool part = partHot();
+	const juce::String hint = part ? "C14, R27: where the kick settles, what 909s differ in most. The measured unit 49.35 Hz (default), "
+	                                 "the printed parts 54.19, two other units 52.3-52.7."
+	                        : probe == "mix.mhc" ? "TM: HAND CLAP LEVEL at centre, MULTI OUT 2 Vp-p (SN p.11); this model reads 4.0 at its default trim, the measured unit's"
 	                                             : probe.isEmpty() ? "Click the caption to clip the probe on: a jack, a trigger, any part's pin."
 	                                                               : "Click the caption to move the probe, the time base or the trigger to change them.";
-	g.drawFittedText(hint, juce::Rectangle<float>(kIx + 12, kScopeScreen.getBottom() + 4, kIw - 24, 32).toNearestInt(), juce::Justification::centredLeft, 2, 0.95f);
+	g.drawFittedText(hint, juce::Rectangle<float>(kIx + 12, kScopeScreen.getBottom() + 4, kIw - 24, part ? 42.0f : 32.0f).toNearestInt(),
+	                 juce::Justification::centredLeft, part ? 3 : 2, 0.95f);
 
 	// the readouts: the probe's peak to peak, and where HAND CLAP LEVEL is
 	auto readout = [&](juce::Rectangle<float> c, juce::Colour bg, juce::Colour fg, const juce::String &digits, const juce::String &unit) {
@@ -1194,6 +1243,55 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 		drawTrimmerAt(g, {track.getX() + tm * track.getWidth(), track.getCentreY()}, 8.0f, tm);
 	}
 
+	// PARTS: the parts units differ in, each between the measured unit's value and the printed one.
+	// The TR-909's: C14 and R27, the BD VCO's timing, where the kick settles (BD PITCH, "bdpitch").
+	g.setColour(juce::Colour(0xff2a2f37));
+	g.fillRect(juce::Rectangle<float>(kTrimCase.getX() + 12, kTrimCase.getY() + 87, kTrimCase.getWidth() - 24, 1));
+	g.setFont(fonts::mono(10.5f, fonts::Weight::SemiBold));
+	g.setColour(juce::Colour(0xffc9cfd8));
+	g.drawText("PARTS", juce::Rectangle<float>(kTrimCase.getX() + 14, kTrimCase.getY() + 90, 120, 16), juce::Justification::centredLeft);
+	g.setFont(fonts::mono(10.0f));
+	g.setColour(juce::Colour(0xff8a929e));
+	g.drawText("units differ  tick: printed", juce::Rectangle<float>(kTrimCase.getX() + 14, kTrimCase.getY() + 90, kTrimCase.getWidth() - 28, 16),
+	           juce::Justification::centredRight);
+	if (auto *p = m_proc.params().getParameter("bdpitch")) {
+		const auto row = partRow();
+		const bool hot = partHot();
+		g.setColour(hot ? juce::Colour(0xff2b2620) : juce::Colour(0xff21252b));
+		g.fillRoundedRectangle(row, 5);
+		if (hot) {
+			g.setColour(kOrange.withAlpha(0.7f));
+			g.drawRoundedRectangle(row.reduced(0.5f), 5, 1);
+			g.setColour(kOrange);
+			g.fillRoundedRectangle(row.withWidth(3).reduced(0, 6), 1.5f);
+		}
+		const float v = p->getValue();
+		const bool atDefault = std::abs(v - p->getDefaultValue()) < 1e-4f;
+		const float y1 = row.getY() + 4;
+		g.setColour(atDefault ? juce::Colour(0xff46c37b) : kOrange);
+		g.fillEllipse(row.getX() + 11, y1 + 5, 7, 7);
+		g.setFont(fonts::mono(11.5f, fonts::Weight::SemiBold));
+		g.setColour(juce::Colour(0xffeef1f5));
+		g.drawText("C14 R27", juce::Rectangle<float>(row.getX() + 24, y1, 64, 17), juce::Justification::centredLeft);
+		g.setFont(sans(11.0f));
+		g.setColour(juce::Colour(0xff8f98a5));
+		g.drawText("BD pitch", juce::Rectangle<float>(row.getX() + 84, y1, 90, 17), juce::Justification::centredLeft);
+		g.setFont(fonts::mono(11.0f, fonts::Weight::Medium));
+		g.setColour(atDefault ? juce::Colour(0xffe9ecf1) : juce::Colour(0xffffb866));
+		g.drawText(juce::String(p->convertFrom0to1(v), 2) + " Hz", juce::Rectangle<float>(row.getRight() - 96, y1, 88, 17), juce::Justification::centredRight);
+		const auto track = partTrack();
+		g.setColour(juce::Colour(0xff3a414c));
+		g.fillRoundedRectangle(track, 2);
+		g.setColour(juce::Colour(0xffc9cfd8)); // the printed C14 and R27
+		const float px = track.getX() + p->convertTo0to1(float(tr909::kBdPitchPrintedHz)) * track.getWidth();
+		g.drawLine(px, track.getY() - 5, px, track.getBottom() + 5, 1.2f);
+		const juce::Point<float> knob(track.getX() + v * track.getWidth(), track.getCentreY());
+		g.setColour(hot ? kOrange : juce::Colour(0xffc9cfd8));
+		g.fillEllipse(juce::Rectangle<float>(13, 13).withCentre(knob));
+		g.setColour(juce::Colour(0xff15171a));
+		g.drawEllipse(juce::Rectangle<float>(13, 13).withCentre(knob), 2);
+	}
+
 	// the circuit: which unit this is, by its serial number (SN p.7)
 	card(kRevCase);
 	g.setFont(fonts::mono(10.5f, fonts::Weight::SemiBold));
@@ -1218,14 +1316,14 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 			g.fillRoundedRectangle(row.withWidth(3).reduced(0, 6), 1.5f);
 		}
 		g.setColour(on ? kOrange : juce::Colour(0xff3a414c));
-		g.fillEllipse(row.getX() + 11, row.getY() + 9, 7, 7);
+		g.fillEllipse(row.getX() + 11, row.getY() + 6, 7, 7);
 		g.setFont(fonts::mono(11.5f, fonts::Weight::SemiBold));
 		g.setColour(juce::Colour(0xffeef1f5));
 		g.drawText(to == 0 ? "SN " + juce::String(from) + " up" : "SN " + juce::String(from) + " - " + juce::String(to),
-		           juce::Rectangle<float>(row.getX() + 24, row.getY() + 4, row.getWidth() - 30, 17), juce::Justification::centredLeft);
+		           juce::Rectangle<float>(row.getX() + 24, row.getY() + 1, row.getWidth() - 30, 16), juce::Justification::centredLeft);
 		g.setFont(sans(10.5f));
 		g.setColour(on ? juce::Colour(0xffd6dbe2) : juce::Colour(0xff8f98a5));
-		g.drawText(revisionWords(i, serials), juce::Rectangle<float>(row.getX() + 24, row.getY() + 21, row.getWidth() - 30, 16),
+		g.drawText(revisionWords(i, serials), juce::Rectangle<float>(row.getX() + 24, row.getY() + 17, row.getWidth() - 30, 15),
 		           juce::Justification::centredLeft, true);
 	}
 }
@@ -1417,6 +1515,8 @@ HardwareView::Hit HardwareView::hitService(juce::Point<float> px) const
 			return {HitKind::TrimButton, 1};
 		if (trimRow().contains(px))
 			return {HitKind::Trim, 0};
+		if (partRow().contains(px))
+			return {HitKind::Part, 0};
 		const int ranges = int(boardSerials().size());
 		for (int i = 0; i < ranges; ++i)
 			if (revRow(i).contains(px))
@@ -1444,7 +1544,9 @@ HardwareView::Hit HardwareView::hitService(juce::Point<float> px) const
 juce::String HardwareView::serviceStatus() const
 {
 	if (m_hover.kind == HitKind::Trim)
-		return "TM, the hand clap's trimmer: drag across (shift: finer), double-click: back to the calibrated unit's trim";
+		return "TM, the hand clap's trimmer: drag across (shift: finer), double-click: back to the measured unit's trim";
+	if (partHot())
+		return "C14 R27, BD pitch: drag across (shift: finer), double-click: back to the measured unit's";
 	if (m_hover.kind == HitKind::Serial)
 		return "the circuit as Roland built it from that serial number on (SN p.7)";
 	if (m_hover.kind == HitKind::Knob || m_hover.kind == HitKind::Key)

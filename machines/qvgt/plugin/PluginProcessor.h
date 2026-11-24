@@ -112,7 +112,7 @@ private:
 	std::vector<uint8_t> m_rom; // descrambled; a copy: the host's ROM set doesn't outlive the constructor
 	lemus::Artwork m_artwork;
 	juce::AudioProcessorValueTreeState m_params;
-	std::atomic<float> *m_input = nullptr, *m_output = nullptr, *m_hiss = nullptr;
+	std::atomic<float> *m_input = nullptr, *m_output = nullptr;
 	int m_modelVersion = kModelVersion;
 
 	std::unique_ptr<qvgt::Unit> m_unit;

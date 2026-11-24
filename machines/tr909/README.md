@@ -114,7 +114,7 @@ buttons as the firmware drives them, brand marks from your own artwork. Drag a k
 to press it, as long as the button is held. A right-click (ctrl-click) holds a key down until it's
 clicked again, for what takes two keys at once (SHIFT or CLEAR with a step key, INSTRUMENT SELECT
 with one); Escape lets go of them all. The bar has SYNC (host sync: the 909 in MIDI sync, run from
-the DAW's transport), BD PITCH, REAR, SERVICE (all three below) and `?` (the key list). There is no memory clear,
+the DAW's transport), REAR, SERVICE (both below) and `?` (the key list). There is no memory clear,
 as there is none on the unit; the host's State: Reset makes the 909 a new instance, its factory
 patterns included.
 
@@ -160,11 +160,6 @@ SCALE, LAST STEP, TRACK WRITE, BANK, COPY/INS/DEL. The memory is saved with the 
   the real power-on: the firmware boots for 0.6 s, and the master outputs are muted for about 2 s
   while C143 charges, then open; the MULTI OUTs are not muted, and the hi-hat's, crash's and ride's
   thump as their stages charge (`docs/circuit/power.md`). A session always loads switched on.
-- **BD PITCH** in the bar: the pitch the kick settles on, which differs from 909 to 909 more than
-  anything else in it, from the calibrated unit's 49.4 Hz to 54.2 Hz, the service notes' printed
-  C14 and R27 (Regebro's and KB6's units and Roland's plugin settle at 52.3-52.7). The whole sweep
-  moves with it. Drag it (shift for fine steps, the wheel works too); double-click goes back to the
-  calibrated unit. Saved with the session, not automatable: it is a part of the unit, as TM is.
 - **SERVICE** in the bar takes the top panel off, as on the 303 (`docs/boards.md`): the voicing
   board where it hangs under the panel, the switch board folded out in front of it, every part where
   the service notes' board drawings put it (p.9, p.10), drawn as the part it is, the copper showing
@@ -176,12 +171,21 @@ SCALE, LAST STEP, TRACK WRITE, BANK, COPY/INS/DEL. The memory is saved with the 
     line; the readouts show its peak to peak and HAND CLAP LEVEL. While a probe is on the board
     doesn't sleep.
   - **Trimmer TM**, the clap's (SN p.11: "LEVEL Center, MULTI OUT 2 Vp-p"), on the board and as a
-    control, a parameter saved with the session; a double-click puts it back to the calibrated unit's
+    control, a parameter saved with the session; a double-click puts it back to the measured unit's
     trim (0.30). TEST
     sets the scope up on the clap's MULTI OUT at SN p.9's scale and plays the clap every 0.6 s. The
     model at that trim reads 4.1 Vp-p there on average (3.1-5.6 from hit to hit, with its noise), not 2: its spikes are narrower than the unit's, whose clap
     has 2.4 dB more energy at the same peak to peak, so the notes' 2 Vp-p (TM 0.255) would leave the
     clap 6 dB under the other voices (`docs/circuit/rshc.md`, "TM").
+  - **Parts** (PARTS, under TM): where units differ, a part between the measured unit's value and
+    the printed one (the tick). The TR-909's is **C14 R27, BD pitch**: the pitch the kick settles
+    on, which differs from 909 to 909 more than anything else in it, from the measured unit's
+    49.35 Hz to 54.19 Hz, the service notes' printed C14 and R27 (Regebro's and KB6's units and
+    Roland's plugin settle at 52.3-52.7). The whole sweep moves with it. Drag across the row (shift
+    for fine steps, the wheel works too); double-click goes back to the measured unit. Under the
+    mouse, C14 and R27 are ringed on the board and the scope's caption says what they do. Saved
+    with the session, not automatable: it is a part of the unit, as TM is. A dot on SERVICE shows a
+    unit off its own: TM or a part moved.
   - **Circuit**: which unit this is, by serial number, from the first (360100) to the late board
     (426700 up, the default): the production changes of SN p.7's change table (`core/revisions.h`:
     the BD's C9 and R495, the cymbals' clocks, the rim shot, the hi-hat's C134, the jacks'
@@ -243,8 +247,8 @@ Checked six ways; the numbers are in `docs/model.md`, "Validation".
   the toms and the rim shot within 0.12 % RMS (the toms' noise 0.24 %), the clap 0.65 %, the jack board 0.35 %; the hi-hat
   and crash within 0.45 % at their 192 kHz (the ride 0.6 %); the VCOs' pitch within 0.01 %, the
   cymbals' clocks within 0.007 %.
-- **A real TR-909** (AudioRealism's recordings of a late unit on a fine knob grid, the one it is
-  calibrated to): the BD's end pitch exact, its decays within 0.04 octave; the toms -4/-6/-10 cents
+- **A real TR-909** (AudioRealism's recordings of a late unit on a fine knob grid: the measured unit,
+  the one it is calibrated to): the BD's end pitch exact, its decays within 0.04 octave; the toms -4/-6/-10 cents
   median over 121 settings; the snare's VCOs within 1.4 %; the rim shot's lines within 1 Hz; the
   hi-hat's clock and closed decays the unit's; the crash's and ride's clocks within 15 cents RMS
   over TUNE; log-spectral distances 0.3-4.2 dB (the BD the largest). Settings held out of each fit
@@ -256,14 +260,14 @@ Checked six ways; the numbers are in `docs/model.md`, "Validation".
   within ±28), its cymbal clocks 29-118 cents under (within ±21), its BD's sweep 45 % long (within
   1 %).
 - **The service notes** (`tools/service/check.py`): 62 of 75 checks pass, with the notes' parts and
-  with the calibrated unit's: the specifications (tempo range, TRIGGER OUT, the master out's 6 Vp-p),
+  with the measured unit's: the specifications (tempo range, TRIGGER OUT, the master out's 6 Vp-p),
   the CPU board's trigger pulses and tape sync, the hi-hat's oscillator and counters, the snare's
   supply rails but their peak, the rim shot's three sketches, the crash and ride, the power rails.
   The rest: the snare's V_DD peaks at 4.1 V where the notes draw 5 (its drawn parts can't reach 5);
   the low tom's and the closed hat's accents span about 8 and 6.5 dB where p.9's traces span 5.8
   and 4.7; the hats' positive peaks are 1.2-1.5 times their negative ones against the traces' 1.9-2.0
   (the AudioRealism unit's agree with the model's); the snare's snappy noise bursts as its trigger
-  ends, which the traces don't show (the AudioRealism unit's burst is the same size, clip by clip); and at the calibrated unit's TM the clap's level is 4.1 Vp-p against the
+  ends, which the traces don't show (the AudioRealism unit's burst is the same size, clip by clip); and at the measured unit's TM the clap's level is 4.1 Vp-p against the
   adjustment's 2 (1.93 at the notes' TM).
 
 Known differences and approximations (all of them, with the plan, in `docs/improvements.md`):
@@ -275,9 +279,9 @@ Known differences and approximations (all of them, with the plan, in `docs/impro
   so.
 - The snare's pitch bend is 3-10 % high in its first milliseconds; the toms' far tail is up to 0.14
   octave short at -40 dB.
-- The calibration is one unit's. Others differ: the BD's end pitch most (BD PITCH, above), Rob Roy's toms sit 14-92 cents higher, and a
+- The calibration is one unit's, the measured unit. Others differ: the BD's end pitch most (PARTS in SERVICE, above), Rob Roy's toms sit 14-92 cents higher, and a
   video's unit takes its crash a semitone below the lowest TUNE here. Earlier boards come from the
-  serial number in SERVICE (the service notes' production changes), with the calibrated unit's
+  serial number in SERVICE (the service notes' production changes), with the measured unit's
   other parts. Two fitted values lie outside their parts' tolerances: the BD's R44 (36k, standing
   for the click's real cause) and the cymbal clocks' 4011UB gates (1.72 times their typical drive).
 - Rates: the noisy voices are 0.4-1.2 dB low at 10-16 kHz at their jacks against the board at

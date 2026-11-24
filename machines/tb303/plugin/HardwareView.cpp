@@ -176,7 +176,6 @@ HardwareView::HardwareView(TB303Processor &p) : m_proc(p)
 	});
 	using Bar = lemus::panel::Bar;
 	m_barSync = m_bar.add(Bar::kSync, "OFF: the 303's own clock. HOST: run from the DAW's transport (DIN sync)");
-	m_barTop = m_bar.add(Bar::kSlider);
 	m_barService = m_bar.add(Bar::kService);
 
 	auto led = [this](const char *id, Machine::Led l) { m_leds.push_back({findElement(id), l}); };
@@ -208,7 +207,7 @@ HardwareView::HardwareView(TB303Processor &p) : m_proc(p)
 	for (const auto &mark : p.artwork().marks())
 		m_logos["logo_" + mark.id.toStdString()] = mark;
 
-	m_trim = juce::jlimit(0, 5, int(p.params().state.getProperty("serviceTrim", m_trim)));
+	m_trim = juce::jlimit(0, kPart, int(p.params().state.getProperty("serviceTrim", m_trim)));
 	setService(bool(p.params().state.getProperty("service", false)));
 	startTimerHz(30);
 }
@@ -765,17 +764,19 @@ juce::Rectangle<float> HardwareView::barRect(BarItem i) const
 {
 	switch (i) {
 	case BarItem::Sync: return m_bar[m_barSync];
-	case BarItem::Top: return m_bar[m_barTop];
 	case BarItem::Service: return m_bar[m_barService];
 	case BarItem::Help: return m_bar.help();
 	}
 	return {};
 }
 
-// CUT OFF MAX's track inside its item, after its label.
-juce::Rectangle<float> HardwareView::sliderTrack() const
+bool HardwareView::offFactory() const
 {
-	return lemus::panel::barSliderTrack(barRect(BarItem::Top));
+	for (int i = 0; i < 6; ++i)
+		if (!m_proc.trimAtFactory(i))
+			return true;
+	const auto *p = m_proc.params().getParameter(pickId(kPart));
+	return std::abs(p->getValue() - p->getDefaultValue()) > 1e-4f;
 }
 
 void HardwareView::drawBar(juce::Graphics &g)
@@ -784,22 +785,11 @@ void HardwareView::drawBar(juce::Graphics &g)
 	lp::drawBarBackground(g, m_bar);
 	auto pill = [&](BarItem i, const juce::String &text, bool on, bool hover) { lp::drawPill(g, barRect(i), text, on, hover, kMono); };
 	pill(BarItem::Sync, paramValue("sync") > 0.5f ? "SYNC: HOST" : "SYNC: OFF", paramValue("sync") > 0.5f, m_hover.kind == HitKind::BarSync);
-	auto slider = [&](BarItem i, HitKind kind, const char *label, const juce::String &value) {
-		lp::drawBarSlider(g, barRect(i), label, paramValue(barSlider(kind)), value, m_hover.kind == kind || m_drag.kind == kind, kMono);
-	};
-	const auto valueText = [&](const char *id) { return m_proc.params().getParameter(id)->getCurrentValueAsText(); };
-	slider(BarItem::Top, HitKind::BarTop, "CUT OFF MAX", valueText("fullcutoff").upToFirstOccurrenceOf(" kHz", false, false) + "k");
 	pill(BarItem::Service, "SERVICE", m_service, m_hover.kind == HitKind::BarService);
-	{
-		// A unit out of its factory trim: a dot on SERVICE.
-		bool factory = true;
-		for (int i = 0; i < 6; ++i)
-			factory = factory && m_proc.trimAtFactory(i);
-		if (!factory) {
-			const auto r = barRect(BarItem::Service);
-			g.setColour(juce::Colour(0xffff8c1a));
-			g.fillEllipse(r.getRight() - 13, r.getCentreY() - 3, 6, 6);
-		}
+	if (offFactory()) { // a unit out of its factory trim, or with the part moved: a dot on SERVICE
+		const auto r = barRect(BarItem::Service);
+		g.setColour(juce::Colour(0xffff8c1a));
+		g.fillEllipse(r.getRight() - 13, r.getCentreY() - 3, 6, 6);
 	}
 	pill(BarItem::Help, "?", m_showHelp, m_hover.kind == HitKind::BarHelp);
 
@@ -822,7 +812,8 @@ void HardwareView::drawBar(juce::Graphics &g)
 	if (!held.isEmpty() && !m_service)
 		status = lp::heldStatus(held);
 	if (m_service)
-		status = juce::String::fromUTF8("PANEL OFF  pick a trimmer on the right \xc2\xb7 \xe2\x86\x91\xe2\x86\x93 pick, \xe2\x86\x90\xe2\x86\x92 turn \xc2\xb7 the keys play");
+		status = m_trim == kPart ? juce::String::fromUTF8("PANEL OFF  VR3 CUT OFF: \xe2\x86\x90\xe2\x86\x92 turn, double-click: 2.30 kHz, a typical unit's \xc2\xb7 \xe2\x86\x91\xe2\x86\x93 pick \xc2\xb7 the keys play")
+		                         : juce::String::fromUTF8("PANEL OFF  pick a trimmer or part on the right \xc2\xb7 \xe2\x86\x91\xe2\x86\x93 pick, \xe2\x86\x90\xe2\x86\x92 turn \xc2\xb7 the keys play");
 	lp::drawStatus(g, m_bar.status(), status, kMono, held.isEmpty() || m_service ? lp::col::status : lp::col::accent);
 }
 
@@ -846,8 +837,8 @@ void HardwareView::drawHelp(juce::Graphics &g)
 	                           "MIDI notes play the voice directly: velocity >= 100 accents, overlapping notes slide (the same pitch too),",
 	                           "and with the sustain pedal down every note slides: an accented slide into the same note.",
 	                           "SYNC: HOST runs the sequencer from the DAW transport (DIN sync: run + 24 ppqn clock).",
-	                           "CUT OFF MAX: how high full CUT OFF reaches, 1.2 to 3 kHz: drag it (double-click: the fitted unit's).",
-	                           "SERVICE: the panel off. Pick a trimmer on the right (up/down), turn it there or on the board (left/right).",
+	                           "SERVICE: the panel off. Pick a trimmer or part on the right (up/down), turn it there or on the board (left/right).",
+	                           "PARTS in SERVICE: VR3, CUT OFF's pot law: how high full CUT OFF reaches, 1.2 to 3 kHz (double-click: 2.3 kHz, a typical unit's).",
 	                           "Programming follows the original manual: PATTERN WRITE, pick A/B and 1-8, hold the",
 	                           "pattern key + PATTERN CLEAR, PITCH MODE to enter notes, TIME MODE for note/tie/rest.",
 	                       }),
@@ -872,15 +863,13 @@ void HardwareView::drawTooltip(juce::Graphics &g)
 	} else if (h.kind == HitKind::Waveform) {
 		text = paramText("waveform");
 		at = {35.2f * kPxPerMm, 10 * kPxPerMm};
-	} else if (h.kind == HitKind::BarSync || h.kind == HitKind::BarTop || h.kind == HitKind::BarService || h.kind == HitKind::BarHelp) {
-		auto *p = m_proc.params().getParameter("fullcutoff");
-		m_bar.setTip(m_barTop, "Full CUT OFF reaches " + p->getCurrentValueAsText() + "; drag to set, double-click for " +
-		                           p->getText(p->getDefaultValue(), 16));
-		m_bar.setTip(m_barService, m_service ? "Put the panel back" : "Take the panel off: the trimmers, and the service notes' adjustments");
+	} else if (h.kind == HitKind::BarSync || h.kind == HitKind::BarService || h.kind == HitKind::BarHelp) {
+		m_bar.setTip(m_barService, m_service      ? "Put the panel back"
+		                           : offFactory() ? "Take the panel off: the trimmers and CUT OFF's pot (the dot: one is off the factory's)"
+		                                          : "Take the panel off: the trimmers, CUT OFF's pot, and the service notes' adjustments");
 		if (!m_showHelp)
 			lemus::panel::drawBarTip(g, m_bar,
-			                         h.kind == HitKind::BarSync  ? m_barSync
-			                         : h.kind == HitKind::BarTop ? m_barTop
+			                         h.kind == HitKind::BarSync      ? m_barSync
 			                         : h.kind == HitKind::BarService ? m_barService
 			                                                         : lemus::panel::Bar::kHelp,
 			                         getLocalBounds().toFloat(), kMono);
@@ -976,8 +965,6 @@ HardwareView::Hit HardwareView::hitTest(juce::Point<float> p) const
 			return {HitKind::BarHelp, int(BarItem::Help)};
 		if (i == m_barSync)
 			return {HitKind::BarSync, int(BarItem::Sync)};
-		if (i == m_barTop)
-			return {HitKind::BarTop, int(BarItem::Top)};
 		if (i == m_barService)
 			return {HitKind::BarService, int(BarItem::Service)};
 		return {};
@@ -1054,11 +1041,6 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 	case HitKind::BarSync:
 		setParamValue("sync", paramValue("sync") > 0.5f ? 0.0f : 1.0f);
 		break;
-	case HitKind::BarTop:
-		if (auto *p = m_proc.params().getParameter(barSlider(m_drag.kind)))
-			p->beginChangeGesture();
-		setParamValue(barSlider(m_drag.kind), (e.position.x - sliderTrack().getX()) / sliderTrack().getWidth());
-		break;
 	case HitKind::BarService:
 		setService(!m_service);
 		break;
@@ -1067,10 +1049,10 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 		// On the board or its control: picking it lights it up and sets the instruments on it.
 		if (m_drag.index != m_trim)
 			setServiceTrim(m_drag.index);
-		if (auto *p = m_proc.params().getParameter(TB303Processor::kTrimIds[m_drag.index]))
+		if (auto *p = m_proc.params().getParameter(pickId(m_drag.index)))
 			p->beginChangeGesture();
 		// A click only picks it; a drag turns it from where it is, never jumping to the mouse.
-		m_dragStartValue = paramValue(TB303Processor::kTrimIds[m_drag.index]);
+		m_dragStartValue = paramValue(pickId(m_drag.index));
 		break;
 	case HitKind::TrimRow:
 		setServiceTrim(m_drag.index);
@@ -1107,11 +1089,7 @@ void HardwareView::mouseDrag(const juce::MouseEvent &e)
 	} else if (m_drag.kind == HitKind::TrimSlider) {
 		// Along the control's track; shift a tenth as far.
 		const float dx = (e.position.x - m_dragStart.x) / trimTrack(m_drag.index).getWidth();
-		setParamValue(TB303Processor::kTrimIds[m_drag.index], m_dragStartValue + dx * (e.mods.isShiftDown() ? 0.1f : 1.0f));
-	} else if (barSlider(m_drag.kind) != nullptr) {
-		// Shift: a tenth of the speed from where the drag is, for small steps.
-		const float x = e.mods.isShiftDown() ? m_dragStart.x + (e.position.x - m_dragStart.x) * 0.1f : e.position.x;
-		setParamValue(barSlider(m_drag.kind), (x - sliderTrack().getX()) / sliderTrack().getWidth());
+		setParamValue(pickId(m_drag.index), m_dragStartValue + dx * (e.mods.isShiftDown() ? 0.1f : 1.0f));
 	}
 	repaint();
 }
@@ -1124,10 +1102,7 @@ void HardwareView::mouseUp(const juce::MouseEvent &e)
 		if (auto *p = m_proc.params().getParameter(m_knobs[size_t(m_drag.index)].param))
 			p->endChangeGesture();
 	} else if (m_drag.kind == HitKind::Trimmer || m_drag.kind == HitKind::TrimSlider) {
-		if (auto *p = m_proc.params().getParameter(TB303Processor::kTrimIds[m_drag.index]))
-			p->endChangeGesture();
-	} else if (barSlider(m_drag.kind) != nullptr) {
-		if (auto *p = m_proc.params().getParameter(barSlider(m_drag.kind)))
+		if (auto *p = m_proc.params().getParameter(pickId(m_drag.index)))
 			p->endChangeGesture();
 	} else if (m_drag.kind == HitKind::Switch && e.getDistanceFromDragStart() < 4) {
 		// Click without dragging steps to the next position (wrapping).
@@ -1146,9 +1121,6 @@ void HardwareView::mouseDoubleClick(const juce::MouseEvent &e)
 	if (h.kind == HitKind::Knob)
 		if (auto *p = m_proc.params().getParameter(m_knobs[size_t(h.index)].param))
 			p->setValueNotifyingHost(p->getDefaultValue());
-	if (barSlider(h.kind) != nullptr)
-		if (auto *p = m_proc.params().getParameter(barSlider(h.kind)))
-			p->setValueNotifyingHost(p->getDefaultValue());
 	if (h.kind == HitKind::Trimmer || h.kind == HitKind::TrimSlider)
 		resetTrim(h.index);
 }
@@ -1164,16 +1136,9 @@ void HardwareView::mouseWheelMove(const juce::MouseEvent &e, const juce::MouseWh
 		const int n = int(s.detentsDeg.size());
 		const int pos = juce::roundToInt(paramValue(s.param) * (n - 1)) + (w.deltaY > 0 ? 1 : -1);
 		setParamValue(s.param, float(juce::jlimit(0, n - 1, pos)) / float(n - 1));
-	} else if (const char *id = barSlider(h.kind)) {
-		setParamValue(id, paramValue(id) + w.deltaY * (e.mods.isShiftDown() ? 0.01f : 0.05f));
 	} else if (h.kind == HitKind::Trimmer || h.kind == HitKind::TrimRow || h.kind == HitKind::TrimSlider) {
 		nudgeTrim(h.index, w.deltaY * (e.mods.isShiftDown() ? 0.001f : 0.01f));
 	}
-}
-
-const char *HardwareView::barSlider(HitKind k)
-{
-	return k == HitKind::BarTop ? "fullcutoff" : nullptr;
 }
 
 namespace {
@@ -1224,10 +1189,10 @@ bool HardwareView::keyPressed(const juce::KeyPress &k)
 		break;
 	}
 	if (m_service) {
-		// Up/down pick a trimmer, left/right turn it (shift: a tenth as far).
+		// Up/down pick a trimmer or the part, left/right turn it (shift: a tenth as far).
 		const int code = k.getKeyCode();
 		if (code == juce::KeyPress::upKey || code == juce::KeyPress::downKey) {
-			setServiceTrim((m_trim + (code == juce::KeyPress::upKey ? 5 : 1)) % 6);
+			setServiceTrim((m_trim + (code == juce::KeyPress::upKey ? kPart : 1)) % (kPart + 1));
 			return true;
 		}
 		if (code == juce::KeyPress::leftKey || code == juce::KeyPress::rightKey) {

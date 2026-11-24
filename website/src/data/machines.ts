@@ -139,6 +139,13 @@ export const machines: Machine[] = [
     release: { version: '0.2.6', tag: 'ro-drums-909-v0.2.6', stage: 'beta', mac: 'ro-drums-909-0.2.6-mac.pkg', windows: 'ro-drums-909-0.2.6-windows.zip' },
     changes: [
       {
+        version: '0.2.7',
+        notes: [
+          'BD pitch, in SERVICE under PARTS: where the kick settles, which differs from 909 to 909 more than anything else in it. It goes from the measured unit\'s 49.35 Hz, the default and the sound so far, to 54.19 Hz with the printed C14 and R27; two other units settle at 52.3-52.7 Hz.',
+          "In SERVICE, a part under the mouse is ringed on the board and the scope's caption says what it does. A dot on SERVICE shows TM or a part moved off the unit's own.",
+        ],
+      },
+      {
         version: '0.2.6',
         notes: [
           "With SYNC on HOST, the patterns now land on the DAW's grid in playback and bounces: the plugin reports the firmware's 3.2 ms lag behind the MIDI clock as its latency, so the DAW takes it off. MIDI notes are held back 1.4 ms to match (the firmware takes the rest).",
@@ -193,6 +200,13 @@ export const machines: Machine[] = [
     nav: true,
     release: { version: '0.1.5', tag: 'ro-drums-808-v0.1.5', stage: 'beta', mac: 'ro-drums-808-0.1.5-mac.pkg', windows: 'ro-drums-808-0.1.5-windows.zip' },
     changes: [
+      {
+        version: '0.1.6',
+        notes: [
+          "The kick's DECAY pot, VR6, is now the printed 500k: at full DECAY the kick falls to a tenth in 0.80 s, the service notes' figure, and kicks landing on each other's ring keep their level (0.3 dB apart at 120 BPM, was 7). Sessions saved before keep their sound.",
+          "BD decay, in SERVICE under PARTS: VR6 from the printed 500k up to the measured unit's 585k (1.19 s). Under the mouse the pot is ringed on the board and the scope's caption says what it does. A dot on SERVICE shows a trimmer or the part moved off the unit's own.",
+        ],
+      },
       {
         version: '0.1.5',
         notes: [

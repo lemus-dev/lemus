@@ -65,12 +65,11 @@ What works:
   OUTPUT stages; levels in volts at the jacks (0 dBFS = +4 dBu).
 - The 4-LED signal display (-6 dB, clip; the DSP's overflow lights all four) and the firmware's
   level detector from the same envelope.
-- The parts' own noise and the A/D's offset servo (HISS); the self-diagnostics pass, the clip LED
-  test too. Asleep with HISS on, the hiss goes on.
+- The parts' own noise and the A/D's offset servo, always (no setting turns them off); the
+  self-diagnostics pass, the clip LED test too.
 - Sleep: once the input has been silent for 1.6 s (longer than the longest delay) and the output
-  has settled (HISS off: under -120 dB for 1.6 s, then exact zeros; HISS on: a steady level, then
-  the hiss goes on from a noise filter fitted to it), the DSP and the analog stages stop; the 80C31
-  runs on; input, keys or MIDI wake it.
+  has settled to a steady level, the DSP and the analog stages stop and the hiss goes on from a
+  noise filter fitted to it; the 80C31 runs on; input, keys or MIDI wake it.
 
 ### Known differences
 
@@ -79,7 +78,7 @@ What works:
   (taken as the one that undoes the pre-emphasis), the pots' tapers.
 - The preamp runs at 4 times the DSP's rate (167 kHz): the distorted programs' top octaves (8-24
   kHz) come out 0.2-0.6 dB under the same at 16 times, chosen by ear for a third less CPU.
-- The hiss (HISS on the bar, on by default) is from the parts' data sheets, not measured on a unit.
+- The hiss is from the parts' data sheets, not measured on a unit.
 - **The DSP's arithmetic is a hypothesis**: 24-bit accumulator, 20-bit memory, truncation. Nothing
   has been checked against a unit.
 - **The panel** is measured from photos and the quick-setup drawing (`docs/panel.json`, about
