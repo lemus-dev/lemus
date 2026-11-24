@@ -178,7 +178,7 @@ SCALE, LAST STEP, TRACK WRITE, BANK, COPY/INS/DEL. The memory is saved with the 
     has 2.4 dB more energy at the same peak to peak, so the notes' 2 Vp-p (TM 0.255) would leave the
     clap 6 dB under the other voices (`docs/circuit/rshc.md`, "TM").
   - **Parts** (PARTS, under TM): where units differ, a part between the measured unit's value and
-    the printed one (the tick). The TR-909's is **C14 R27, BD pitch**: the pitch the kick settles
+    the printed one (a tick marks the printed part, a caret the measured unit's). The TR-909's is **C14 R27, BD pitch**: the pitch the kick settles
     on, which differs from 909 to 909 more than anything else in it, from the measured unit's
     49.35 Hz to 54.19 Hz, the service notes' printed C14 and R27 (Regebro's and KB6's units and
     Roland's plugin settle at 52.3-52.7). The whole sweep moves with it. Drag across the row (shift

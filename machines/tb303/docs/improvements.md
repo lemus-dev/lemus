@@ -243,6 +243,8 @@ Waits on data:
 
 ## Done
 
+- 2026-11-24, UX: the PARTS row marks both values: a tick at the printed parts' 2.2 kHz, a caret at the
+  measured unit's 1.35 kHz; the caption is their legend (as the 909's and 808's).
 - 2026-11-24, CUT OFF MAX leaves the bar for SERVICE (with the 909's BD PITCH and the 808's BD
   DECAY MAX, the same day): under the trimmers, PARTS, where units differ, with one row, VR3 CUT
   OFF (the "fullcutoff" parameter, unchanged: sessions keep their value, the sound doesn't

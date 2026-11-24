@@ -28,6 +28,43 @@ using namespace panel;
 namespace tr = tb303::trims;
 
 namespace {
+
+// PARTS: the measured unit's value on a row's track, a caret over it (the printed part's is a tick).
+void drawMeasuredMark(juce::Graphics &g, float x, float trackTop)
+{
+	juce::Path caret;
+	caret.addTriangle(x - 3.5f, trackTop - 8.5f, x + 3.5f, trackTop - 8.5f, x, trackTop - 2.5f);
+	g.setColour(juce::Colour(0xffc9cfd8));
+	g.fillPath(caret);
+}
+
+// PARTS' legend, right-aligned in r: "units differ   | printed   v measured", the marks as the rows
+// draw them.
+void drawPartsLegend(juce::Graphics &g, juce::Rectangle<float> r, juce::Colour text, const juce::Font &font)
+{
+	g.setFont(font);
+	const float cy = r.getCentreY();
+	float x = r.getRight();
+	auto word = [&](const char *s) {
+		const float w = juce::GlyphArrangement::getStringWidth(font, s);
+		x -= w;
+		g.setColour(text);
+		g.drawText(s, juce::Rectangle<float>(x, r.getY(), w + 2, r.getHeight()), juce::Justification::centredLeft, false);
+	};
+	word("measured");
+	x -= 5;
+	juce::Path caret;
+	caret.addTriangle(x - 7, cy - 3, x, cy - 3, x - 3.5f, cy + 2.5f);
+	g.setColour(juce::Colour(0xffc9cfd8));
+	g.fillPath(caret);
+	x -= 7 + 12;
+	word("printed");
+	x -= 5;
+	g.setColour(juce::Colour(0xffc9cfd8));
+	g.drawLine(x - 1, cy - 5, x - 1, cy + 5, 1.2f);
+	x -= 2 + 12;
+	word("units differ");
+}
 constexpr float kPi = juce::MathConstants<float>::pi;
 
 // Board mm (the panel's) to view px: 2.96 px/mm, so both boards fit above the bar.
@@ -127,7 +164,7 @@ constexpr float kRowH = 35;
 // PARTS, under the trimmers: a rule, its heading, then the part's row.
 constexpr float kPartsRuleY = 262 + 28 + 6 * kRowH + 4, kPartRowY = kPartsRuleY + 20;
 // The printed parts' full CUT OFF (the service notes' nominal values): the PARTS row's tick.
-constexpr float kPrintedTopHz = 2200;
+constexpr float kPrintedTopHz = 2200, kMeasuredTopHz = 1350; // full CUT OFF: the printed parts', the measured unit's
 
 const juce::Colour kSilk(0xffe6ece6), kOrange(0xffff8c1a), kProbe(0xfff5d742), kMeterProbe(0xffe8473a);
 const juce::Colour kInSpec(0xff46c37b);
@@ -1303,9 +1340,7 @@ void HardwareView::renderServiceStatic(juce::Graphics &g)
 		g.setColour(juce::Colour(0xffc9cfd8));
 		g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
 		g.drawText("PARTS", head, juce::Justification::centredLeft);
-		g.setColour(juce::Colour(0xff6f7884));
-		g.setFont(fonts::mono(10.0f));
-		g.drawText(juce::String::fromUTF8("units differ  \xc2\xb7  tick: printed"), head, juce::Justification::centredRight);
+		drawPartsLegend(g, head, juce::Colour(0xff6f7884), fonts::mono(10.0f));
 	}
 
 	// Grain on the boards (not on the bench or the instruments).
@@ -1828,6 +1863,7 @@ void HardwareView::drawTrimmerList(juce::Graphics &g)
 		g.setColour(juce::Colour(0xffc9cfd8));
 		const float px = track.getX() + p->convertTo0to1(kPrintedTopHz) * track.getWidth();
 		g.drawLine(px, track.getY() - 5, px, track.getBottom() + 5, 1.2f);
+		drawMeasuredMark(g, track.getX() + p->convertTo0to1(kMeasuredTopHz) * track.getWidth(), track.getY());
 		const juce::Point<float> thumb(track.getX() + v * track.getWidth(), track.getCentreY());
 		const float tr = 6.5f;
 		g.setColour(picked || hover || dragged ? kOrange : juce::Colour(0xffc9cfd8));

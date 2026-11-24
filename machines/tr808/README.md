@@ -160,8 +160,8 @@ new instance, its factory rhythms included.
     to a tenth in 0.80 s, the service notes' figure. At the top, the measured unit's 585k: 1.19 s,
     as in its recordings. A long tail makes kicks hit on each other's ring wander in level, as it
     does on real units (7 dB at the top, quarter notes at 120 BPM; 0.3 dB by default). Drag across
-    its row (shift for fine steps, the wheel works too); double-click goes back to the printed pot,
-    which its row ticks. Under the mouse the pot is ringed on the board and the scope's caption says
+    its row (shift for fine steps, the wheel works too); double-click goes back to the printed pot.
+    A tick marks the printed pot on its row, a caret the measured unit's. Under the mouse the pot is ringed on the board and the scope's caption says
     the above. Saved with the session, not automatable; sessions saved before it load at the top,
     as they sounded.
   - **Circuit**: which unit this is, by its serial number (SN p.15 and the drawings' lot notes,

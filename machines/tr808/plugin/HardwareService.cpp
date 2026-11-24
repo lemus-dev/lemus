@@ -29,6 +29,43 @@
 namespace tr808 {
 
 namespace {
+
+// PARTS: the measured unit's value on a row's track, a caret over it (the printed part's is a tick).
+void drawMeasuredMark(juce::Graphics &g, float x, float trackTop)
+{
+	juce::Path caret;
+	caret.addTriangle(x - 3.5f, trackTop - 8.5f, x + 3.5f, trackTop - 8.5f, x, trackTop - 2.5f);
+	g.setColour(juce::Colour(0xffc9cfd8));
+	g.fillPath(caret);
+}
+
+// PARTS' legend, right-aligned in r: "units differ   | printed   v measured", the marks as the rows
+// draw them.
+void drawPartsLegend(juce::Graphics &g, juce::Rectangle<float> r, juce::Colour text, const juce::Font &font)
+{
+	g.setFont(font);
+	const float cy = r.getCentreY();
+	float x = r.getRight();
+	auto word = [&](const char *s) {
+		const float w = juce::GlyphArrangement::getStringWidth(font, s);
+		x -= w;
+		g.setColour(text);
+		g.drawText(s, juce::Rectangle<float>(x, r.getY(), w + 2, r.getHeight()), juce::Justification::centredLeft, false);
+	};
+	word("measured");
+	x -= 5;
+	juce::Path caret;
+	caret.addTriangle(x - 7, cy - 3, x, cy - 3, x - 3.5f, cy + 2.5f);
+	g.setColour(juce::Colour(0xffc9cfd8));
+	g.fillPath(caret);
+	x -= 7 + 12;
+	word("printed");
+	x -= 5;
+	g.setColour(juce::Colour(0xffc9cfd8));
+	g.drawLine(x - 1, cy - 5, x - 1, cy + 5, 1.2f);
+	x -= 2 + 12;
+	word("units differ");
+}
 constexpr float kPi = juce::MathConstants<float>::pi;
 
 // ------------------------------------------------------------------ layout
@@ -1518,10 +1555,8 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 		g.setFont(fonts::mono(10.5f, fonts::Weight::SemiBold));
 		g.setColour(juce::Colour(0xffc9cfd8));
 		g.drawText("PARTS", juce::Rectangle<float>(kTrimCase.getX() + 14, y + 6, 120, 16), juce::Justification::centredLeft);
-		g.setFont(fonts::mono(10.0f));
-		g.setColour(juce::Colour(0xff8a929e));
-		g.drawText("units differ  tick: printed", juce::Rectangle<float>(kTrimCase.getX() + 14, y + 6, kTrimCase.getWidth() - 28, 16),
-		           juce::Justification::centredRight);
+		drawPartsLegend(g, juce::Rectangle<float>(kTrimCase.getX() + 14, y + 6, kTrimCase.getWidth() - 28, 16), juce::Colour(0xff8a929e),
+		                fonts::mono(10.0f));
 		const auto row = partRow();
 		const bool hot = partHot();
 		g.setColour(hot ? juce::Colour(0xff2b2620) : juce::Colour(0xff21252b));
@@ -1552,6 +1587,7 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 		g.setColour(juce::Colour(0xffc9cfd8));
 		const float tx = track.getX() + printed * track.getWidth();
 		g.drawLine(tx, track.getY() - 5, tx, track.getBottom() + 5, 1.2f);
+		drawMeasuredMark(g, track.getX() + p->convertTo0to1(float(tr808::kBdDecayFittedS)) * track.getWidth(), track.getY());
 		const juce::Point<float> c(track.getX() + v * track.getWidth(), track.getCentreY());
 		g.setColour(juce::Colour(0xff15171a));
 		g.fillEllipse(c.x - 7, c.y - 7, 14, 14);

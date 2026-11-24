@@ -104,8 +104,8 @@ CLEAR leaves it (16 steps, all rest). Pattern memory is saved with the session.
     FREQ's pot, whose law sets how high full CUT OFF reaches (the ring at full RESONANCE, no env
     mod), 1.2 to 3 kHz; cutoff centre stays where TM3 puts it. Picked like a trimmer (its row,
     or up/down), VR3's knob lights up on the board and the scope's caption says what it is; drag
-    along its row (shift: a tenth as far; left/right keys; the wheel); the tick is the printed
-    parts' value, and a double-click goes back to 2.3 kHz, where it ships: a typical unit's. The
+    along its row (shift: a tenth as far; left/right keys; the wheel); a tick marks the printed
+    parts' value and a caret the measured unit's, and a double-click goes back to 2.3 kHz, where it ships: a typical unit's. The
     measured unit's own law gives 1.35 kHz (Din Sync's unit, at the dark end), Roland's TB-303
     software reaches ~1.8 kHz, the service notes' nominal parts ~2.2 kHz, a typical unit ~2.5 kHz
     (Whittle). Raising it brightens the whole upper half of CUT OFF, not only the top. Saved with

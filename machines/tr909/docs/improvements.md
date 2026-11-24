@@ -209,6 +209,8 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-24, UX: the PARTS row marks both values: a tick at the printed part, a caret at the measured
+  unit's; the card's caption is their legend. The same on the 808 and the 303.
 - 2026-11-24, UX: BD PITCH leaves the bar for SERVICE, as PARTS under TM: the row "C14 R27  BD pitch"
   (dot, value in Hz, a tick at the printed parts), dragged across, double-click back to the measured
   unit, the wheel; under the mouse C14 and R27 are ringed and named on the board and the scope's
