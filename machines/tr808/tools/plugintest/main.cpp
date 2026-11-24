@@ -320,6 +320,31 @@ void service(const juce::File &dir)
 		check(c.serial() == tr808::kFittedSerial && c.portionChanged(),
 		      "service: a new instance is the fitted unit, SN 103852, the portion changed");
 	}
+	// CIRCUIT by the mouse: EARLY and LATE; a session's earlier unit, no longer offered, loads as it was
+	{
+		TR808Processor a(&rom);
+		a.setUnit(50000, false); // the later board with the early snare
+		juce::MemoryBlock st;
+		a.getStateInformation(st);
+		TR808Processor o(&rom);
+		o.setStateInformation(st.getData(), int(st.getSize()));
+		const bool kept = o.serial() == 50000 && !o.portionChanged();
+		tr808::HardwareView view(o);
+		view.setBounds(0, 0, tr808::HardwareView::kWidth, tr808::HardwareView::kHeight);
+		view.showService(true);
+		auto click = [&](int i) {
+			const auto c = tr808::HardwareView::serviceCircuitRow(i).getCentre();
+			const auto now = juce::Time::getCurrentTime();
+			const juce::MouseEvent e(juce::Desktop::getInstance().getMainMouseSource(), c, {}, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, &view, &view, now, c, now, 1, false);
+			view.mouseDown(e);
+			view.mouseUp(e);
+		};
+		click(0);
+		const bool early = o.serial() == tr808::kEarlySerial && !o.portionChanged() && o.params().getParameter("tm_cb1")->getValue() == float(o.unitTrim(4));
+		click(1);
+		const bool late = o.serial() == tr808::kFittedSerial && o.portionChanged();
+		check(kept && early && late, "service: CIRCUIT's EARLY and LATE by the mouse, with their trims; a session's earlier unit (SN 050000, early snare) loads as it was");
+	}
 	// 3. The 000300-010599 board's clap. Its R332 22k feeds IC21b's band-pass more noise, for the
 	// bursts (the OTA, IC22) and the reverb (Q70); its R346 1k gives the reverb's VCA a larger share
 	// of it (R342 15k over R346). On the board itself, R332 and R346 alone (the same noise), each
@@ -797,6 +822,27 @@ void bdDecayMax(const juce::MemoryBlock &rom, double rate)
 int main(int argc, char **argv)
 {
 	juce::ScopedJuceInitialiser_GUI init;
+	if (argc > 4 && std::string(argv[1]) == "--state") { // --state OUT SERIAL drawn|changed: ro-drums-808's state for that unit,
+		// its board by serial and the snare's and clap's portion, trimmed as SERVICE trims it (for A/B scenes)
+		juce::MemoryBlock rom;
+		juce::File(TR808_ROM_PATH).loadFileAsData(rom);
+		TR808Processor p(&rom);
+		p.prepareToPlay(48000, 512);
+		p.setSerial(std::atoi(argv[3]), true);
+		p.setPortionChanged(std::string(argv[4]) != "drawn", true);
+		juce::MemoryBlock machineState, state;
+		p.getStateInformation(machineState);
+		// as ro-drums-808 saves it: the host's LEMUS tree (host/LemusProcessor.cpp) around the 808's own
+		juce::ValueTree lemus("LEMUS");
+		lemus.setProperty("version", 1, nullptr);
+		lemus.setProperty("machine", "tr808", nullptr);
+		lemus.setProperty("state", machineState, nullptr);
+		{
+			juce::MemoryOutputStream out(state, false);
+			lemus.writeToStream(out);
+		}
+		return juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]).replaceWithData(state.getData(), state.getSize()) ? 0 : 1;
+	}
 	if (argc > 2 && std::string(argv[1]) == "--factory")
 		return factoryClips(argv[2]);
 	if (argc > 2 && std::string(argv[1]) == "--panel") {

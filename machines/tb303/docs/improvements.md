@@ -188,6 +188,13 @@ No paid sets, and no real unit here to measure.
     sessions, or not? Then: solve C62's current to convergence (and fit DECAY and the MEG again)
     and give pin 1 a relative tolerance (Known inaccuracies); both change the sound slightly, so
     both go behind `kModelVersion`.
+16. **Drift** (accuracy): the oscillators' slow wander with temperature, always on with no setting
+    (no machine has a drift or noise-off switch, decided 2026-11-24), as the Minimoog's
+    (`machines/minimoog/docs/model.md`, "Oscillators' noise and drift"): cents per kelvin from this
+    circuit's parts (the VCO's exponential converter and its reference; one oscillator, so it is the
+    note's pitch that moves, not a beat), a few kelvin over a session as slow random walks pulled
+    back to tuned, checked against a long held note of a warmed-up unit if a recording has one.
+    Added 2026-11-24; not scheduled yet.
 
 No release blockers: sleep, the model version, artwork places and the plugin name are in, and the
 ship gate's checks (`tools/service/check.py`, `tb303bench time`) exist. Any item above that changes

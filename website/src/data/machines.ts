@@ -136,7 +136,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.7', tag: 'ro-drums-909-v0.2.7', stage: 'beta', mac: 'ro-drums-909-0.2.7-mac.pkg', windows: 'ro-drums-909-0.2.7-windows.zip' },
+    release: { version: '0.2.8', tag: 'ro-drums-909-v0.2.8', stage: 'beta', mac: 'ro-drums-909-0.2.8-mac.pkg', windows: 'ro-drums-909-0.2.8-windows.zip' },
     changes: [
       {
         version: '0.2.8',
@@ -202,8 +202,12 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '808 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.1.6', tag: 'ro-drums-808-v0.1.6', stage: 'beta', mac: 'ro-drums-808-0.1.6-mac.pkg', windows: 'ro-drums-808-0.1.6-windows.zip' },
+    release: { version: '0.1.7', tag: 'ro-drums-808-v0.1.7', stage: 'beta', mac: 'ro-drums-808-0.1.7-mac.pkg', windows: 'ro-drums-808-0.1.7-windows.zip' },
     changes: [
+      {
+        version: '0.1.8',
+        notes: ["SERVICE's CIRCUIT is now EARLY or LATE: an early unit, with the snare and clap as first drawn (the high snare), or the measured unit. Side by side, the other production changes can't be heard. A session saved with another unit plays on as it was until one is picked."],
+      },
       {
         version: '0.1.7',
         notes: ["SERVICE's PARTS row marks both values: a tick at the printed 500k, a caret at the measured unit's 585k."],

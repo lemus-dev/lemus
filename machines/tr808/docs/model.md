@@ -266,8 +266,9 @@ types) touch nothing the model runs. R332 22k and R346 1k on their own (the same
 clap's bursts +1.16 dB (IC21b's band-pass with its admittances, over the noise's flat band: +1.03)
 and its reverb +4.59 dB (with R342/R346: +4.20); the 000300-010599 board's clap, its gate at 22k
 too (less drive to Q29 at an unaccented trig, a weaker trig into both envelopes), is +2.5 dB at the
-master out. The portion (`lateSnare`, `lateClap`; SNARE + CLAP, EARLY or LATE, in the view) is a
-choice of its own. Each change rebuilds the board (`setCalibration`), its
+master out. The portion (`lateSnare`, `lateClap`) is a choice of its own. SERVICE offers two units (2026-11-24): EARLY,
+the 000300-010599 board with the drawn portion, and LATE, the fitted unit; the rest stays reachable
+from a session's state. Each change rebuilds the board (`setCalibration`), its
 voices at their operating points; `checkJobs` passes on every board and portion.
 
 **The probe** (`VoiceBoard::setProbe`). A probe on a netlist node loads that node's partition

@@ -241,7 +241,15 @@ Muso, Perfect Circuit, AutomaticGainsay, Once Upon a Synth).
 
 ## Plan, in order
 
-Nothing planned: what is left waits on data.
+1. **Drift** (accuracy): the oscillators' slow wander with temperature, always on with no setting
+   (no machine has a drift or noise-off switch, decided 2026-11-24), as the Minimoog's
+   (`machines/minimoog/docs/model.md`, "Oscillators' noise and drift"): cents per kelvin from this
+   circuit's parts (the VCO's exponential converter against TH1's compensation, above; one
+   oscillator, so it is the note's pitch that moves), a few kelvin over a session as slow random
+   walks pulled back to tuned, checked against a long held note of a warmed-up unit if a recording
+   has one. Added 2026-11-24; not scheduled yet.
+
+Otherwise what is left waits on data.
 
 Waits on data:
 - the ENV's weight: new service material, or a healthy unit's voltages at IC18b's inputs at ENV

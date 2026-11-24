@@ -135,6 +135,13 @@ download's 138 kbps, 2026-11-19); the others' floors match without.
    8 % with six voices, a third of idle) would need a rewrite. What's left moves bits: fewer Newton
    iterations, a reciprocal in the S&H updates; each needs a decision. (cpu) The filter's Newton takes 2.4 iterations on average, 7 at most over the extremes;
    `xpandercorners` checks any such change (capped at 4, 1 % of its samples stay unconverged).
+4. **Drift** (accuracy): the oscillators' slow wander with temperature, always on with no setting
+   (no machine has a drift or noise-off switch, decided 2026-11-24), as the Minimoog's
+   (`machines/minimoog/docs/model.md`, "Oscillators' noise and drift"): cents per kelvin from this
+   circuit's parts (the CEM3374s' own drift, the temperature sensors U805 reads and what the
+   firmware's tuning takes out of it; six voices, so their beats move), a few kelvin over a session
+   as slow random walks pulled back to tuned, checked against a long held note of a warmed-up unit
+   if a recording has one. Added 2026-11-24; not scheduled yet.
 
 Waits on data: the RES 62/63 pitch, the input taper, the comparator delay, the RES scale in
 4P LP, VCF OUT's gain on a second unit (above).

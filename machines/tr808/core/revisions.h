@@ -60,6 +60,9 @@ inline const std::vector<Change> &changes()
 constexpr int kFirstSerial = 1;        // SN 000001
 constexpr int kLateSerial = 10600;     // the late board: every change, the netlists' defaults
 constexpr int kFittedSerial = 103852;  // Michael Fischer's unit, which Lemus is fitted to
+// SERVICE's CIRCUIT offers two units: EARLY, the 000300-010599 board with the snare and clap as first
+// drawn (the high snare), and LATE, the measured unit with the notes' PORTION CHANGED values.
+constexpr int kEarlySerial = 300;
 
 // The serials where the board changes, the first unit included: the ranges a unit can be in.
 inline std::vector<int> boardSerials()

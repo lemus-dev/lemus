@@ -66,11 +66,12 @@ public:
 	// Tools: PARTS' row (VR6) in the drawer, view px; shown as under the mouse (the ring on the board,
 	// the caption under the scope).
 	static juce::Rectangle<float> servicePartRow();
+	static juce::Rectangle<float> serviceCircuitRow(int i); // tools: CIRCUIT's EARLY (0) or LATE (1)
 	void serviceHotPart() { m_hover = {HitKind::Part, 0}; repaint(); }
 
 private:
 	enum class HitKind { None, Knob, Switch, Slide, Lever, Key, Power, BarSync, BarHelp, BarRear, Jack, BarService,
-		                 Board, Drawer, Serial, Portion, Trim, Trimmer, TrimButton, Part, Scope };
+		                 Board, Drawer, Serial, Trim, Trimmer, TrimButton, Part, Scope };
 	struct Hit {
 		HitKind kind = HitKind::None;
 		int index = -1; // element index
@@ -111,6 +112,7 @@ private:
 	juce::String serviceStatus() const;
 	void setTrim(int trimmer, float rotation);
 	bool partHot() const; // PARTS' row under the mouse or being dragged
+	int circuitOf() const; // CIRCUIT's row the unit is: 0 EARLY, 1 LATE, -1 neither (a session saved before 0.1.8)
 	static float servicePartTrackWidth(); // px: a drag across it is the whole range
 	bool offDefault() const; // a trimmer off the unit's trim or VR6 off the printed pot: SERVICE's dot
 	void drawPicked(juce::Graphics &, const juce::AffineTransform &mmToPx); // VR6 ringed on the board

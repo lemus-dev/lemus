@@ -105,6 +105,7 @@ public:
 	int serial() const { return m_serial; }
 	void setPortionChanged(bool late, bool retrim = true);
 	bool portionChanged() const { return m_portionLate; }
+	void setUnit(int serial, bool late, bool retrim = true); // both at once, one rebuild (SERVICE's EARLY and LATE)
 	// The six trimmers (core/trimmers.h, in its order), host parameters: their rotations, 0-1.
 	static constexpr const char *kTrimIds[tr808::kTrimmers] = {"tm_int", "tm_tempo", "tm_cp", "tm_noise", "tm_cb1", "tm_cb2"};
 	double unitTrim(int i) const;       // the chosen unit's rotation for trimmer i

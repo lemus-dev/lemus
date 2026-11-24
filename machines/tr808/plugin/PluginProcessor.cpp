@@ -340,6 +340,13 @@ void TR808Processor::setPortionChanged(bool late, bool retrim)
 	rebuild(retrim);
 }
 
+void TR808Processor::setUnit(int serial, bool late, bool retrim)
+{
+	m_serial = std::max(serial, tr808::kFirstSerial);
+	m_portionLate = late;
+	rebuild(retrim);
+}
+
 double TR808Processor::unitTrim(int i) const
 {
 	return m_unitRot[size_t(juce::jlimit(0, tr808::kTrimmers - 1, i))];

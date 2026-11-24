@@ -1102,7 +1102,7 @@ void HardwareView::drawHelp(juce::Graphics &g)
 	                           "REAR: the back panel. A cable in a MULTI OUT jack takes its voice out of the main mix to its own output.",
 	                           "SERVICE: the top panel off, every part on the boards (wheel or pinch: zoom, drag: move); the",
 	                           "six trimmers (SN p.14), BD DECAY's pot VR6 (how long the kick rings at full DECAY: units",
-	                           "differ), the circuit by serial number (SN p.15), a scope on any part's pin. A dot on SERVICE:",
+	                           "differ), the circuit, EARLY or LATE (SN p.9, p.15), a scope on any part's pin. A dot on SERVICE:",
 	                           "a trimmer or VR6 off the unit's.",
 	                           "Programming follows the original manual: PATTERN CLEAR a rhythm, 1st PART, START,",
 	                           "set PRE-SCALE and press CLEAR, pick the instrument, then the steps; hold a key about",
@@ -1296,17 +1296,9 @@ void HardwareView::mouseDown(const juce::MouseEvent &e)
 			m_drag = {HitKind::Board, -1};
 			m_dragPan = m_pan;
 		}
-	} else if (h.kind == HitKind::Serial) {
-		const auto serials = tr808::boardSerials();
-		if (h.index >= 0 && h.index < int(serials.size())) {
-			const int to = h.index + 1 < int(serials.size()) ? serials[size_t(h.index + 1)] - 1 : 999999;
-			if (m_proc.serial() < serials[size_t(h.index)] || m_proc.serial() > to) // another unit: its range's first, Fischer's for the late board
-				m_proc.setSerial(h.index + 1 == int(serials.size()) ? tr808::kFittedSerial : serials[size_t(h.index)]);
-		}
-		m_drag = {};
-	} else if (h.kind == HitKind::Portion) {
-		if ((h.index == 1) != m_proc.portionChanged())
-			m_proc.setPortionChanged(h.index == 1);
+	} else if (h.kind == HitKind::Serial) { // CIRCUIT: EARLY or LATE, each with its own trims
+		if (h.index != circuitOf())
+			m_proc.setUnit(h.index == 0 ? tr808::kEarlySerial : tr808::kFittedSerial, h.index == 1);
 		m_drag = {};
 	} else if (h.kind == HitKind::Trim || h.kind == HitKind::Trimmer) {
 		if (auto *p = m_proc.params().getParameter(TR808Processor::kTrimIds[h.index]))

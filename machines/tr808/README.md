@@ -164,14 +164,16 @@ new instance, its factory rhythms included.
     A tick marks the printed pot on its row, a caret the measured unit's. Under the mouse the pot is ringed on the board and the scope's caption says
     the above. Saved with the session, not automatable; sessions saved before it load at the top,
     as they sounded.
-  - **Circuit**: which unit this is, by its serial number (SN p.15 and the drawings' lot notes,
-    `core/revisions.h`): SN 000001-000299 (the INT clock's C11 .068 and R49 150k; the cowbell's C6
-    .01, R44 390k, R45 330k), 000300-010599 (the clap's R346 1k and R332 22k, the first noise
-    generator, the voice gates' 22k; IC6's R101 isn't modelled: the common trig is an ideal 1 ms),
-    010600 up (the late board, the default: the measured unit, SN 103852). SNARE + CLAP: EARLY is those two
-    voices as first drawn, LATE (the default) has the later values of the notes' PORTION CHANGED
-    box (SN p.9, no serial given). Both are saved with the session; each change sets the trimmers
-    to that unit's trims and rebuilds the board's circuits at their operating points.
+  - **Circuit**: an early unit or a late one. **EARLY**: the 000300-010599 board (SN p.15: the
+    clap's R346 1k and R332 22k, the first noise generator, the voice gates' 22k) with the snare and
+    clap as first drawn: the high snare, its tones about 250 and 500 Hz. **LATE** (the default): the
+    measured unit, SN 103852, with the later values of the notes' PORTION CHANGED box (SN p.9: the
+    snare's tones about 173 and 336 Hz). Listening side by side, only the snare tells real units'
+    boards apart, so these two are what SERVICE offers; the first 300 units' board (its cowbell
+    can't be set to the notes' figures with its drawn parts) and the later board with the early
+    snare stay in the model, and a session saved with one before 0.1.8 plays on as it was until
+    EARLY or LATE is picked. Saved with the session; each sets the trimmers to that unit's trims
+    and rebuilds the board's circuits at their operating points.
 - **LEVEL knobs** start at their printed standard mark (the service notes' "red mark"), the rest
   at 12 o'clock, MODE at MANUAL PLAY, TEMPO at 120 BPM.
 - Computer keyboard: 1-8 and Q-I are the step keys, Backspace CLEAR, Return TAP, F1-F6 the MODE

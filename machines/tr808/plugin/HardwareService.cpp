@@ -85,26 +85,13 @@ constexpr float kTrimRowH = 36;
 constexpr float kPartsTop = 28 + 6 * kTrimRowH; // under the trimmers: PARTS' divider, its heading, its row
 const juce::Rectangle<float> kTrimCase(kIx, 272, kIw, kPartsTop + 24 + kTrimRowH + 1);
 const juce::Rectangle<float> kRevCase(kIx, kTrimCase.getBottom() + 8, kIw, float(HardwareView::kPanelHeight) - kTrimCase.getBottom() - 16);
-constexpr float kRevLineH = 22, kRevPickedH = 35; // a revision's row: one line; the unit's, two
+constexpr float kCircuitRowH = 37; // CIRCUIT's rows, EARLY and LATE: two lines each
 juce::Rectangle<float> trimRow(int i) { return {kTrimCase.getX() + 6, kTrimCase.getY() + 28 + float(i) * kTrimRowH, kTrimCase.getWidth() - 12, kTrimRowH - 3}; }
 juce::Rectangle<float> trimTrack(int i) { return {trimRow(i).getX() + 24, trimRow(i).getY() + 24, trimRow(i).getWidth() - 24 - 92, 4}; }
 juce::Rectangle<float> trimPill(int i) { return {trimRow(i).getRight() - 66, trimRow(i).getY() + 3, 60, 16}; }
 juce::Rectangle<float> partRow() { return {kTrimCase.getX() + 6, kTrimCase.getY() + kPartsTop + 24, kTrimCase.getWidth() - 12, kTrimRowH - 3}; }
 juce::Rectangle<float> partTrack() { return {partRow().getX() + 24, partRow().getY() + 24, partRow().getWidth() - 24 - 92, 4}; }
-// revision i's row, `on` the unit's (two lines: its words under its serials; the others one)
-juce::Rectangle<float> revRow(int i, int on)
-{
-	float y = kRevCase.getY() + 26;
-	for (int k = 0; k < i; ++k)
-		y += k == on ? kRevPickedH : kRevLineH;
-	return {kRevCase.getX() + 6, y, kRevCase.getWidth() - 12, (i == on ? kRevPickedH : kRevLineH) - 2};
-}
-juce::Rectangle<float> portionRow(int on) { return {kRevCase.getX() + 6, revRow(3, on).getY() + 1, kRevCase.getWidth() - 12, 25}; }
-juce::Rectangle<float> portionPill(int k, int on)
-{
-	const auto r = portionRow(on);
-	return {r.getRight() - 4 - float(2 - k) * 78, r.getY() + 4, 74, r.getHeight() - 8};
-}
+juce::Rectangle<float> circuitRow(int i) { return {kRevCase.getX() + 6, kRevCase.getY() + 26 + float(i) * kCircuitRowH, kRevCase.getWidth() - 12, kCircuitRowH - 2}; }
 // the scope's own controls: its caption (the probe), the time base, the volts, the trigger
 juce::Rectangle<float> scopeHot(int i)
 {
@@ -1012,26 +999,6 @@ Measure measureOf(const juce::String &probe)
 	return Measure::None;
 }
 
-// What each serial range is: the changes it has, plainly.
-juce::String revisionWords(int index)
-{
-	switch (index) {
-	case 0: return "INT C11 .068, R49 150k; cowbell C6 .01, R44 390k, R45 330k";
-	case 1: return "CP R346 1k, R332 22k; the first noise gen.; gates 22k; R101 (not modelled)";
-	default: return "the late board: as the measured unit, SN 103852";
-	}
-}
-
-// The serial range a unit is in (an index into boardSerials()), -1 if before them all.
-int revisionOf(int serial)
-{
-	const auto serials = boardSerials();
-	int on = -1;
-	for (int i = 0; i < int(serials.size()); ++i)
-		if (serial >= serials[size_t(i)])
-			on = i;
-	return on;
-}
 
 // PARTS' value: VR6, BD DECAY's pot, and how long the kick then rings at full DECAY ("500k  0.80 s").
 juce::String partText(double seconds)
@@ -1599,24 +1566,23 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 		           juce::Justification::centredRight);
 	}
 
-	// the circuit: which unit this is, by its serial number (SN p.15), and the snare's and clap's
-	// portion
+	// the circuit: an early unit or a late one. EARLY: the 000300-010599 board with the snare and clap
+	// as first drawn, the high snare; LATE: the measured unit, SN 103852, with the notes' PORTION
+	// CHANGED values (SN p.9, p.15). What else the serials change can't be heard.
 	card(kRevCase);
 	g.setFont(fonts::mono(10.5f, fonts::Weight::SemiBold));
 	g.setColour(juce::Colour(0xffc9cfd8));
 	g.drawText("CIRCUIT", juce::Rectangle<float>(kRevCase.getX() + 14, kRevCase.getY() + 6, 120, 18), juce::Justification::centredLeft);
 	g.setFont(fonts::mono(10.0f));
 	g.setColour(juce::Colour(0xff8a929e));
-	g.drawText("serial number  (SN p.15)", juce::Rectangle<float>(kRevCase.getX() + 14, kRevCase.getY() + 6, kRevCase.getWidth() - 28, 18),
+	g.drawText("early or late unit  (SN p.9, p.15)", juce::Rectangle<float>(kRevCase.getX() + 14, kRevCase.getY() + 6, kRevCase.getWidth() - 28, 18),
 	           juce::Justification::centredRight);
-	const auto serials = boardSerials();
-	auto sn = [](int n) { return juce::String(n).paddedLeft('0', 6); };
-	const int unitRev = revisionOf(m_proc.serial());
-	for (int i = 0; i < int(serials.size()); ++i) {
-		const auto row = revRow(i, unitRev);
-		const int from = serials[size_t(i)], to = i + 1 < int(serials.size()) ? serials[size_t(i + 1)] - 1 : 0;
-		const bool on = m_proc.serial() >= from && (to == 0 || m_proc.serial() <= to);
-		const bool hov = m_hover.kind == HitKind::Serial && m_hover.index == i;
+	const int unit = circuitOf();
+	static const char *const kName[2] = {"EARLY", "LATE"}, *const kRange[2] = {"SN 000300 - 010599", "SN 103852"};
+	static const char *const kWords[2] = {"the high snare: the snare and clap as first drawn", "the measured unit: the snare and clap as changed (SN p.9)"};
+	for (int i = 0; i < 2; ++i) {
+		const auto row = circuitRow(i);
+		const bool on = unit == i, hov = m_hover.kind == HitKind::Serial && m_hover.index == i;
 		g.setColour(on ? juce::Colour(0xff2b2620) : hov ? juce::Colour(0xff262a31) : juce::Colour(0xff21252b));
 		g.fillRoundedRectangle(row, 5);
 		if (on) {
@@ -1625,39 +1591,38 @@ void HardwareView::drawDrawer(juce::Graphics &g)
 			g.setColour(kOrange);
 			g.fillRoundedRectangle(row.withWidth(3).reduced(0, 6), 1.5f);
 		}
-		const bool twoLines = i == unitRev;
 		g.setColour(on ? kOrange : juce::Colour(0xff3a414c));
-		g.fillEllipse(row.getX() + 11, twoLines ? row.getY() + 7 : row.getCentreY() - 3.5f, 7, 7);
+		g.fillEllipse(row.getX() + 11, row.getY() + 7, 7, 7);
 		g.setFont(fonts::mono(11.0f, fonts::Weight::SemiBold));
 		g.setColour(juce::Colour(0xffeef1f5));
-		const juce::String range = to == 0 ? "SN " + sn(from) + " up" : "SN " + sn(from) + " - " + sn(to);
-		g.drawText(range, juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, row.getWidth() - 30, 16), juce::Justification::centredLeft);
-		if (on) {
-			g.setFont(fonts::mono(10.0f));
-			g.setColour(juce::Colour(0xff8a929e));
-			g.drawText("this: " + sn(m_proc.serial()), juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, row.getWidth() - 32, 16), juce::Justification::centredRight);
-		}
-		if (twoLines) { // the unit's: its words under its serials
-			g.setFont(sans(10.0f));
-			g.setColour(on ? juce::Colour(0xffd6dbe2) : juce::Colour(0xff8f98a5));
-			g.drawFittedText(revisionWords(i), juce::Rectangle<float>(row.getX() + 24, row.getY() + 17, row.getWidth() - 30, 14).toNearestInt(),
-			                 juce::Justification::centredLeft, 1, 0.8f);
-		} else { // the others: their words after their serials, cut short
-			const float w = juce::GlyphArrangement::getStringWidth(g.getCurrentFont(), range) + 10;
-			g.setFont(sans(10.0f));
-			g.setColour(juce::Colour(0xff8f98a5));
-			g.drawText(revisionWords(i), juce::Rectangle<float>(row.getX() + 24 + w, row.getY() + 2, row.getWidth() - 34 - w, 16),
-			           juce::Justification::centredLeft, true);
-		}
+		g.drawText(kName[i], juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, 60, 16), juce::Justification::centredLeft);
+		g.setFont(fonts::mono(10.0f));
+		g.setColour(juce::Colour(0xff8a929e));
+		g.drawText(kRange[i], juce::Rectangle<float>(row.getX() + 24, row.getY() + 2, row.getWidth() - 32, 16), juce::Justification::centredRight);
+		g.setFont(sans(10.0f));
+		g.setColour(on ? juce::Colour(0xffd6dbe2) : juce::Colour(0xff8f98a5));
+		g.drawFittedText(kWords[i], juce::Rectangle<float>(row.getX() + 24, row.getY() + 18, row.getWidth() - 30, 14).toNearestInt(),
+		                 juce::Justification::centredLeft, 1, 0.85f);
 	}
-	const auto portion = portionRow(unitRev);
-	g.setColour(juce::Colour(0xff21252b));
-	g.fillRoundedRectangle(portion, 5);
-	g.setFont(fonts::mono(10.5f, fonts::Weight::SemiBold));
-	g.setColour(juce::Colour(0xffeef1f5));
-	g.drawText("SNARE + CLAP", juce::Rectangle<float>(portion.getX() + 10, portion.getY(), 100, portion.getHeight()), juce::Justification::centredLeft);
-	for (int c = 0; c < 2; ++c)
-		pill(portionPill(c, unitRev), c == 0 ? "EARLY" : "LATE", (c == 1) == m_proc.portionChanged(), m_hover.kind == HitKind::Portion && m_hover.index == c);
+	if (unit < 0) { // a session saved before 0.1.8 with another unit: it plays on as it was until one is picked
+		g.setFont(sans(10.0f));
+		g.setColour(juce::Colour(0xffffb866));
+		g.drawFittedText("this session: SN " + juce::String(m_proc.serial()).paddedLeft('0', 6) + (m_proc.portionChanged() ? ", late" : ", early") +
+		                     " snare and clap (an earlier choice)",
+		                 juce::Rectangle<float>(kRevCase.getX() + 14, circuitRow(1).getBottom() + 4, kRevCase.getWidth() - 28, 14).toNearestInt(),
+		                 juce::Justification::centredLeft, 1, 0.85f);
+	}
+}
+
+int HardwareView::circuitOf() const
+{
+	const int serial = m_proc.serial();
+	const bool late = m_proc.portionChanged();
+	if (!late && serial >= tr808::kEarlySerial && serial < tr808::kLateSerial)
+		return 0;
+	if (late && serial >= tr808::kLateSerial)
+		return 1;
+	return -1;
 }
 
 // The scope's sweep: the latest whole one after a trigger, each pixel column's min and max; and
@@ -1930,13 +1895,9 @@ HardwareView::Hit HardwareView::hitService(juce::Point<float> px) const
 		}
 		if (partRow().contains(px))
 			return {HitKind::Part, 0};
-		const int ranges = int(boardSerials().size()), unitRev = revisionOf(m_proc.serial());
-		for (int i = 0; i < ranges; ++i)
-			if (revRow(i, unitRev).contains(px))
+		for (int i = 0; i < 2; ++i)
+			if (circuitRow(i).contains(px))
 				return {HitKind::Serial, i};
-		for (int c = 0; c < 2; ++c)
-			if (portionPill(c, unitRev).contains(px))
-				return {HitKind::Portion, c};
 		return {HitKind::Drawer, -1};
 	}
 	const auto mm = px.transformedBy(underside(m_zoom, m_pan).inverted());
@@ -1980,13 +1941,14 @@ juce::String HardwareView::serviceStatus() const
 	if (m_hover.kind == HitKind::Part || m_drag.kind == HitKind::Part)
 		return "VR6, BD decay: drag across (shift: finer), double-click: back to the printed 500k";
 	if (m_hover.kind == HitKind::Serial)
-		return "the circuit as Roland built it from that serial number on (SN p.15)";
-	if (m_hover.kind == HitKind::Portion)
-		return "the snare and clap as first drawn, or with the later values of the notes' PORTION CHANGED box (SN p.9, no serial given)";
+		return m_hover.index == 0 ? "EARLY: an early unit, the snare and clap as first drawn (the high snare), on the 000300-010599 board"
+		                          : "LATE: the measured unit, SN 103852, with the snare and clap of the notes' PORTION CHANGED (SN p.9)";
 	if (m_hover.kind == HitKind::Knob || m_hover.kind == HitKind::Key || m_hover.kind == HitKind::Switch || m_hover.kind == HitKind::Slide
 	    || m_hover.kind == HitKind::Lever)
 		return "the panel's controls, on the boards: they work as on the panel";
-	return "SN " + juce::String(m_proc.serial()).paddedLeft('0', 6) + "   wheel: zoom, drag: move";
+	const int unit = circuitOf();
+	return (unit == 0 ? juce::String("EARLY") : unit == 1 ? juce::String("LATE, SN 103852") : "SN " + juce::String(m_proc.serial()).paddedLeft('0', 6)) +
+	       "   wheel: zoom, drag: move";
 }
 
 bool HardwareView::partHot() const
@@ -2004,6 +1966,7 @@ bool HardwareView::offDefault() const
 }
 
 juce::Rectangle<float> HardwareView::servicePartRow() { return partRow(); }
+juce::Rectangle<float> HardwareView::serviceCircuitRow(int i) { return circuitRow(i); }
 float HardwareView::servicePartTrackWidth() { return partTrack().getWidth(); }
 
 } // namespace tr808
