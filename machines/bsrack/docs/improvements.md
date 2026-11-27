@@ -16,7 +16,9 @@ unit, and what is planned. "Real" means the unit in polynominal.com's recordings
     R51/R63 and C33/C37, fitted for self-oscillation (round 2).
   - Everything else is fitted [F]: the rails, the DAC's full scale, the converters' dividers and
     references, the DCO capacitors, U18's gain, the mixer, the VCA and the output level.
-  - Waits on data: a readable photo of a Rack (or keyboard) board.
+  - Waits on data: a readable photo of a Rack (or keyboard) board, at least about 3 times the
+    resolution of the one set online (`docs/sources.md`, Not downloaded). It would give the
+    resistors only: the SMD capacitors (C33/C37, C30 and the rest) carry no marking.
 - **The demo against its recording, after accuracy round 3** (`build/bsrack-demo-lemus.wav`,
   `tools/compare/demo.py`):
   - frame loudness correlation 0.97, median difference 0.7 dB;
@@ -200,6 +202,14 @@ Waits on data:
   core while idle).
 
 ## Done
+
+- 2026-11-27, 0.1.0 beta released (tag no-mono-bsr-v0.1.0):
+  - A standalone app, like the other instruments.
+  - Windows (clang-cl, the public tag build): the netlist names now go to netlists.cmake with
+    commas (Visual Studio's custom build step split the escaped semicolons), and no M_PI (MSVC
+    lacks it). Bit-exact against golden-5.
+  - Checks: plugintest, host tests (bsrack, instrument), auval arm64 and x86_64 on the release
+    build, the host test on Windows.
 
 - 2026-11-25, accuracy round 4 (RAINMAN still didn't sound right):
   - New reference: zibbybone's video of the 40 factory programs (the pattern transcribed, the

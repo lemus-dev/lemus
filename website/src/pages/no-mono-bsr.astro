@@ -1,0 +1,292 @@
+---
+import Base from '../layouts/Base.astro';
+import MachineTop from '../components/MachineTop.astro';
+import SampleList from '../components/SampleList.astro';
+import { bySlug } from '../data/machines';
+
+const m = bySlug('no-mono-bsr');
+
+// The strip under the header: the page's sections, the one being read underlined.
+const sections = [
+  { id: 'download', label: 'Download' },
+  { id: 'hear', label: 'Hear it' },
+  { id: 'accuracy', label: 'In numbers' },
+  { id: 'differences', label: 'Differences' },
+  { id: 'made', label: 'How it was made' },
+  { id: 'rom', label: 'ROM' },
+  { id: 'artwork', label: 'Artwork' },
+];
+
+// The real units in the recordings.
+const video = (id: string) => `https://www.youtube.com/watch?v=${id}`;
+const polynominal = 'https://www.polynominal.com/novation-bass-station-rack/';
+---
+<Base title="no-mono-bsr · Lemus" description="no-mono-bsr emulates the Novation Bass Station Rack: its v1.5 firmware on an emulated MN1880, and its analog voice modelled from a traced schematic. Free for macOS and Windows." current="no-mono-bsr">
+
+<nav slot="sub" class="onpage" aria-label="On this page">
+<div class="frame sheet">
+<div class="col">
+<ol>
+{sections.map((s) => <li><a href={`#${s.id}`} class:list={{ red: s.id === 'differences' }}>{s.label}</a></li>)}
+</ol>
+</div>
+</div>
+</nav>
+
+<MachineTop machine={m}>
+<SampleList heading="The demo and three programs" plugin="no-mono-bsr" tracks={[
+  { src: '/media/no-mono-bsr/demo.m4a', title: 'The built-in demo', detail: 'MODE three times, then AUDITION' },
+  { src: '/media/no-mono-bsr/moogbass.m4a', title: 'MOOGBASS', detail: 'Program 00' },
+  { src: '/media/no-mono-bsr/autoglide.m4a', title: 'TB3O3AUTOGLIDE BASS', detail: 'Program 10, two notes slide' },
+  { src: '/media/no-mono-bsr/hardsync.m4a', title: 'HARD SYNC LEAD', detail: 'Program 28, an octave up' },
+]} />
+<Fragment slot="data">
+<div><dt class="lbl">ROM image</dt><dd><span class="mono">v1.5.bin</span>, not included</dd></div>
+</Fragment>
+</MachineTop>
+
+<section class="sheet">
+<div class="col sec">
+<figure class="panel">
+<div class="mount">
+<div class="pin">
+<img src="/media/no-mono-bsr/panel.png" alt="no-mono-bsr: the Bass Station Rack's 1U front panel with its knobs, slide switches, keypad and two-digit display showing program 00, its brand marks' places left blank, and the plugin bar with REAR and ?" width="2510" height="308">
+<span class="leader" style="left: 24%; top: -24px; height: calc(30% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 24%; top: 30%" aria-hidden="true"></span>
+<span class="balloon" style="left: 24%; top: -56px" aria-hidden="true">A1</span>
+<span class="leader" style="left: 68.5%; top: 26%; height: calc(74% + 24px)" aria-hidden="true"></span>
+<span class="target" style="left: 68.5%; top: 26%" aria-hidden="true"></span>
+<span class="balloon" style="left: 68.5%; top: calc(100% + 24px)" aria-hidden="true">A2</span>
+</div>
+</div>
+<figcaption class="caption">
+<div class="row"><span class="key">A1</span><span><strong>Panel and programs.</strong> Novation's v1.5 firmware runs on an emulated MN1880 from <span class="mono">v1.5.bin</span>.</span></div>
+<div class="row"><span class="key">A2</span><span><strong>The voice.</strong> Two DCOs, the mixer, the 12 and 24 dB filter and the VCA, modelled from a traced schematic.</span></div>
+<div class="row"><span class="fig">FIG. 1</span><span>Program 00, the brand marks' places left blank, and the plugin bar with REAR and ?.</span></div>
+</figcaption>
+</figure>
+</div>
+</section>
+
+<section id="accuracy" class="sheet">
+<div class="col sec">
+<div class="numbers-head">
+<h2 class="h2 tap">In numbers</h2>
+<p class="dim">We checked it against two real Racks: <a href={polynominal}>polynominal's</a>, playing its built-in demo, and <a href={video('cyiyopNwVAA')}>zibbybone's</a>, stepping through all 40 factory programs in a video. Method: <a href="#made">How it was made</a>.</p>
+<p class="dim small">The clips at the top are no-mono-bsr alone, with no effects. The demo is the firmware's own, and the three programs play a bass line we wrote, with every setting the program's.</p>
+</div>
+
+<div class="numbers">
+<div class="measure">
+<div class="figure">
+<div class="big">0.7 dB</div>
+<div class="what">median level difference from a real unit playing the built-in demo</div>
+<div class="dim small">The firmware plays the demo note for note as the recording does, and the level follows it with a correlation of 0.97. In third-octave bands the tone is within 2.9 dB from 40 Hz to 10 kHz.</div>
+</div>
+</div>
+
+<div class="measure">
+<div class="figure">
+<div class="big">4.3 dB</div>
+<div class="what">average tone difference over the 40 factory programs</div>
+<div class="dim small">In third-octave bands, against the video, and within 2-3 dB from 20 Hz to 2 kHz. That unit probably runs older firmware, because SPIT, SQUARE PORTA and RAINMAN move the filter there in ways v1.5's code doesn't.</div>
+</div>
+</div>
+
+<div class="measure">
+<div class="figure">
+<div class="big">4 %</div>
+<div class="what">of one CPU core at 48 kHz, playing a bass line</div>
+<div class="dim small">Once a note has died away the voice sleeps, so a quiet track costs almost nothing and its output is exact zeros.</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="differences" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap red">What is still different</h2>
+<dl class="diffs">
+<div><dt>Most part values are fitted</dt><dd>The only schematic is a hand trace of a 1995 keyboard board, and it has almost no values on it. We took the filter's from the OSCar's schematic where it has the same part, and fitted the rest to the two recordings.</dd></div>
+<div><dt>Self-oscillation</dt><dd>At full RESONANCE in 24 dB the filter self-oscillates up to about 250 Hz and rings above that. Nobody has recorded a clean sweep of it, so where it stops is part of the fit.</dd></div>
+<div><dt>Key tracking</dt><dd>We take the firmware's filter tracking as full tracking. If a real filter tracks less, our high notes come out too bright.</dd></div>
+<div><dt>Oscillator levels</dt><dd>Saw against pulse, and osc 1 against osc 2, aren't checked, because none of the recordings says how MIX was set.</dd></div>
+<div><dt>No hiss</dt><dd>We don't model the unit's hiss yet, because none of our recordings is clean enough to hear it.</dd></div>
+<div><dt>The VCA closes fully</dt><dd>A real unit leaks the last note at about −76 dB when its VCA is shut. Ours goes silent, so it can sleep.</dd></div>
+</dl>
+<div class="not">
+<h3 class="h3">Not emulated</h3>
+<p class="dim">CV IN, GATE IN, CV OUT and GATE OUT; MIDI THRU; PHONES. The rear's FILTER EXTERNAL AUDIO INPUT works, as the plugin's side-chain.</p>
+</div>
+<div id="help" class="help">
+<div class="help-text">
+<h3 class="h3">Own a Bass Station Rack?</h3>
+<p>A clean recording of self-oscillation played up the keyboard settles the filter, and the factory programs from a unit you know runs v1.5 settle the rest of the sound. A photo where the board's part values can be read would settle a lot more.</p>
+</div>
+<a href="https://lemus.discourse.group" class="btn red">The forum</a>
+</div>
+</div>
+</section>
+
+<section id="made" class="sheet">
+<div class="col sec">
+<h2 class="h2 tap">How it was made</h2>
+<ol class="steps">
+<li>
+<div class="step-n">01</div>
+<div class="step">
+<h3 class="h3">The firmware</h3>
+<p class="dim">The v1.5 firmware runs from reset on an emulated Panasonic MN1880 (ported from MAME's core), with the panel's keys, knobs and switches, the 2 KB EEPROM and MIDI. It clocks the DCOs, runs the envelopes, the LFO and the demo, and writes every CV through the same DAC and sample-and-holds as the unit, so its 4 ms loop is the hardware's.</p>
+</div>
+</li>
+<li>
+<div class="step-n">02</div>
+<div class="step">
+<h3 class="h3">The circuit</h3>
+<p class="dim">We modelled the voice from Zen Instruments' trace of the keyboard's board: the two DCOs, the OTA mixer and VCA, and the two filter sections with their limiter diodes, which run as circuits at twice your DAW's rate. The filter was checked against an ngspice simulation of the same circuit.</p>
+</div>
+</li>
+<li>
+<div class="step-n">03</div>
+<div class="step">
+<h3 class="h3">Real units</h3>
+<p class="dim">Then we fitted the values the trace leaves out to the recordings: the demo note for note, and the 40 factory programs. The filter's top is pinned at 13 kHz, where a real unit's resonance rings in polynominal's 24 dB clip, and a free fit to the demo found the same on its own.</p>
+</div>
+</li>
+</ol>
+</div>
+</section>
+
+<section id="rom" class="sheet">
+<div class="col sec brief">
+<h2 class="h2 tap">ROM image</h2>
+<p class="dim">The firmware is in a 32 KB EPROM, and Novation still owns the copyright, so we can't include it. no-mono-bsr takes firmware v1.5, <span class="mono">v1.5.bin</span> from MAME's <span class="mono">bassstr</span> set, and without it there's nothing to play. <a href="/no-mono-bsr/guide#rom">The ROM</a></p>
+</div>
+</section>
+
+<section id="artwork" class="sheet">
+<div class="col sec brief last">
+<h2 class="h2 tap">Panel artwork</h2>
+<p class="dim">Novation's logo and the BassStation Rack logo are trademarks, so their places on the panel and on the rear are blank. Each place takes an SVG or PNG file of your own in the ROM folder, drawn yourself or generated with an AI tool such as Claude or ChatGPT. <a href="/no-mono-bsr/guide#artwork">Panel artwork</a></p>
+</div>
+</section>
+
+</Base>
+
+<script>
+// Underline the strip's link for the section being read: the last whose top has passed under the
+// strip, or the last of all at the foot of the page.
+const links = [...document.querySelectorAll<HTMLAnchorElement>('.onpage a')];
+const targets = links.map((a) => document.getElementById(a.hash.slice(1))!);
+const strip = document.querySelector<HTMLElement>('.onpage ol')!;
+let current = -2;
+function mark() {
+  let i = -1;
+  targets.forEach((t, j) => { if (t.getBoundingClientRect().top <= 80) i = j; });
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 2) i = targets.length - 1;
+  if (i === current) return;
+  current = i;
+  links.forEach((a, j) => { if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+  // Bring the link into view along the strip only. scrollIntoView would also scroll the page, up
+  // by the scroll padding, since the stuck strip sits inside it.
+  const a = links[i];
+  if (!a) return;
+  const r = a.getBoundingClientRect(), s = strip.getBoundingClientRect();
+  if (r.left < s.left) strip.scrollLeft += r.left - s.left;
+  else if (r.right > s.right) strip.scrollLeft += r.right - s.right;
+}
+let frame = 0;
+const later = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; mark(); }); };
+addEventListener('scroll', later, { passive: true });
+addEventListener('resize', later);
+mark();
+</script>
+
+<style>
+:global(html) { scroll-padding-top: 64px; }
+
+.onpage { position: sticky; top: 0; z-index: 10; background: var(--paper); border-bottom: 1px solid var(--rule); }
+.onpage ol { list-style: none; margin: 0; padding: 0; display: flex; gap: 30px; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.onpage ol::-webkit-scrollbar { display: none; }
+.onpage a { display: inline-flex; align-items: center; min-height: 46px; box-sizing: border-box; padding-top: 3px; border-bottom: 3px solid transparent; color: var(--ink2); text-decoration: none; font-size: 15px; font-weight: 500; }
+.onpage a:hover { color: var(--ink); }
+.onpage a[aria-current] { color: var(--ink); border-bottom-color: var(--wire); }
+.onpage a.red[aria-current] { border-bottom-color: var(--red); }
+
+.panel { margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.panel .mount { padding: 58px 24px; }
+.pin { position: relative; }
+.panel .balloon { width: 34px; height: 34px; font-size: 12px; }
+.caption strong { color: var(--ink); font-weight: 600; }
+.caption .mono { font-size: 13px; color: var(--ink); }
+
+.text { display: flex; flex-direction: column; gap: 18px; min-width: 0; max-width: 48em; }
+.text p { margin: 0; }
+.small { font-size: 15px; }
+.mono { font-size: 0.9em; color: var(--ink); }
+
+.numbers-head { display: flex; flex-direction: column; gap: 18px; }
+.numbers-head p { margin: 0; font-size: 16px; }
+.numbers { display: flex; flex-direction: column; margin-top: -8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.measure { display: flex; flex-wrap: wrap; gap: 24px 56px; padding: 28px 0; }
+.measure + .measure { border-top: 1px solid var(--rule); }
+.figure { flex: 1 1 300px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.big { font: 700 56px/1 var(--display); font-variant-numeric: tabular-nums; }
+.what { font-weight: 500; }
+.chart { flex: 2 1 420px; min-width: 0; position: relative; height: 96px; margin-top: 8px; font: 11px/16px var(--mono); color: var(--ink2); }
+.chart > * { position: absolute; }
+.axis { left: 0; right: 0; top: 40px; border-top: 1.5px solid var(--ink); }
+.tick { top: 40px; height: 7px; border-left: 1px solid var(--ink); }
+.tick-label { top: 50px; transform: translateX(-50%); font-size: 10px; white-space: nowrap; }
+.dot { top: 35px; width: 11px; height: 11px; box-sizing: border-box; transform: translateX(-50%); border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); }
+.dot.ours { top: 33px; width: 15px; height: 15px; border: 0; background: var(--wire); box-shadow: 0 0 0 2px var(--paper); }
+.label { white-space: nowrap; }
+.label.ours { font-weight: 700; color: var(--wire-text); }
+.span { height: 10px; box-sizing: border-box; border: 1.5px solid var(--ink); background-image: repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 5px); }
+/* A row per source, each a dot (or a span) with its label beside it, and a line down to the axis. */
+.dots { height: 152px; }
+.dots .axis, .dots .tick { top: 120px; }
+.dots .tick-label { top: 130px; }
+.dots .dot { transform: translate(-50%, -50%); }
+.dots .label.right { transform: translateX(12px); }
+.dots .label.left { transform: translateX(calc(-100% - 12px)); }
+.drop { bottom: 32px; border-left: 1px dashed var(--rule); }
+
+.diffs { margin: 0; display: flex; flex-direction: column; max-width: 62em; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.diffs > div { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 4px 12px; padding: 18px 0; }
+.diffs > div + div { border-top: 1px solid var(--rule); }
+.diffs > div::before { content: '≠'; grid-row: span 2; font: 700 24px/1.05 var(--mono); color: var(--red); }
+.diffs dt { font-family: var(--display); font-weight: 600; font-size: 23px; line-height: 1.15; letter-spacing: 0.03em; text-transform: uppercase; }
+.diffs dd { margin: 0; color: var(--ink2); font-size: 16px; }
+.not { max-width: 62em; display: flex; flex-direction: column; gap: 8px; }
+.not .h3 { font-size: 26px; letter-spacing: 0.02em; }
+.not p { margin: 0; font-size: 16px; }
+.help { max-width: 62em; box-sizing: border-box; border: 2px dashed var(--red); padding: 24px 26px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; }
+.help-text { flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.help .h3 { font-size: 28px; font-weight: 700; letter-spacing: 0; }
+.help p { margin: 0; font-size: 16px; }
+
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.steps > li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 20px; padding: 28px 0; }
+.steps > li + li { border-top: 1px solid var(--rule); }
+.step-n { width: 48px; height: 48px; box-sizing: border-box; border: 2px solid var(--ink); display: grid; place-items: center; font: 700 16px var(--mono); }
+.step { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.step .h3 { font-size: 28px; letter-spacing: 0.02em; }
+.step p { margin: 0; max-width: 52em; }
+.fitted { min-width: 600px; }
+.fitted .fit { color: var(--red); font-weight: 700; }
+.fitted .total td { background: var(--paper2); border-top: 2px solid var(--ink); font-weight: 600; }
+.fitted .total .num { font-size: 16px; font-weight: 700; }
+.versus { min-width: 980px; }
+.versus tbody th { font-weight: 400; }
+.versus .ours { background: var(--tint); color: var(--wire-text); font-weight: 700; }
+.versus .ours th { font-weight: 700; font-size: 15px; color: var(--wire-text); }
+.beyond { min-width: 760px; }
+.beyond tbody th { font-weight: 600; }
+.beyond thead .mono { font-family: var(--mono); font-size: 14px; letter-spacing: 0; text-transform: none; }
+.sec > p { margin: 0; max-width: 52em; }
+.brief { gap: 18px; }
+.brief p { margin: 0; max-width: 46em; }
+.last { padding-bottom: 96px; }
+</style>

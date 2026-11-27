@@ -227,8 +227,9 @@ the current bank's page (20, 30, 60, 70) and its flags. With g = pattern group 0
 
 A voice's two bits: the higher one normal, the lower one accent, both a flam (BD 02/01/03,
 SD 08/04/0C, ...); the hi-hat 20 CH, 10 CH accent, 30 OH. The step routine reads TOTAL ACCENT
-live, so the RAM holds no levels. The whole 8 KB is the machine's state (`Machine::saveState`);
-nothing else survives a power cycle.
+live, so the RAM holds no levels. The 8 KB is all that survives a power cycle; a session holds
+the whole board as well (`Machine::saveState`: the CPU and its internal RAM, where the mode,
+pattern, track, sync mode and MIDI channels are, and the latches).
 
 ## Factory patterns
 

@@ -142,3 +142,14 @@ in `reference/youtube/zibbybone.json`.
 - A circuitbenders.co.uk forum attachment (a keyboard board photo near the EEPROM,
   topic 926, attachment 777) returned a text page, not the image.
 - A 2010 YouTube demo of a Rack recorded direct (matrixsynth.com, 2010-05-01). Not fetched yet.
+- A keyboard's board (Issue 4, 1995), 43 photos on Flickr by ekosynth (2013-08-24, all rights
+  reserved; https://www.flickr.com/photos/100733559@N02/, IMG_0306-0367), linked from Mod
+  Wiggler's "Bass station keyboard (original) internals" (t=91494). Viewed 2026-11-27, not
+  downloaded. 640x480 at most: the designators read, the resistors' codes don't. The SMD
+  capacitors carry no marking, so no photo gives their values.
+- Pinky's (andrewF's) mods page (sdiy.org/pinky/BStn/, Wayback 2018): the keyboard board's unused
+  24-pin header carries ENV1, ENV2, the VCF output before the VCA, the LFO and OSC 2. Its photos
+  are 567 px.
+- Searched 2026-11-27 with nothing usable: Zen Instruments' post (its schematic blocks only),
+  Circuit Benders topic 926 (its photo zip was on Megaupload), Audiofanzine's 287 Rack photos
+  (all outside), YouTube, Reverb, eBay. Yahoo Japan's auction archive refuses UK visitors.

@@ -139,6 +139,14 @@ export const machines: Machine[] = [
     release: { version: '0.2.9', tag: 'ro-drums-909-v0.2.9', stage: 'beta', mac: 'ro-drums-909-0.2.9-mac.pkg', windows: 'ro-drums-909-0.2.9-windows.zip' },
     changes: [
       {
+        version: '0.2.10',
+        notes: [
+          'A session now reopens the 909 as you left it: pattern play or track play, the pattern or track, and the MIDI channels set on the panel. Before, it always came back on track 1. Sessions saved with 0.2.9 or earlier still open on track 1.',
+          "With SYNC on HOST, playing or bouncing right after a project opens now starts on the grid. Before, the 909 could start a 16th late and stay late (two 16ths with large buffers), as in Logic's Bounce in Place.",
+          'Play and Stop before the first step no longer leaves the next start playing one step and stopping.',
+        ],
+      },
+      {
         version: '0.2.9',
         notes: [
           "SERVICE's CIRCUIT is now three ages, each with every part as it then was. EARLY (SN 360100-371499): the kick's softer attack and shorter TUNE range, louder and brighter hats and cymbals, a softer rim shot ring and tom attack. MIDDLE (371500-381499): as EARLY with the kick's full attack. LATE (426700 up): the measured unit, the default.",
@@ -368,6 +376,18 @@ export const machines: Machine[] = [
     keywords: 'xpander oberheim matrix-12 matrix 12 poly polyphonic analog six voice module cem3372 cem3374 filter modes fm modulation',
     nav: true,
     release: { version: '0.1.0', tag: 'ob-poly-xp-v0.1.0', stage: 'beta', mac: 'ob-poly-xp-0.1.0-mac.pkg', windows: 'ob-poly-xp-0.1.0-windows.zip' },
+    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+  },
+  {
+    slug: 'no-mono-bsr',
+    emulates: 'Novation Bass Station Rack',
+    year: 1995,
+    type: 'mono synth module',
+    status: 'working',
+    withoutRom: 'none',
+    keywords: 'bass station rack novation bassstation analogue mono monophonic bass dco 24db 12db filter 1u module mn1880',
+    nav: true,
+    release: { version: '0.1.0', tag: 'no-mono-bsr-v0.1.0', stage: 'beta', mac: 'no-mono-bsr-0.1.0-mac.pkg', windows: 'no-mono-bsr-0.1.0-windows.zip' },
     changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
   },
 ];

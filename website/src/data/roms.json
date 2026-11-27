@@ -69,6 +69,38 @@
         }
       ]
     },
+    "no-mono-bsr": {
+      "machine": "bsrack",
+      "roms": [
+        {
+          "name": "v1.5.bin",
+          "size": 32768,
+          "sha1": "2c2dc3bee0fabf1e77d02cdf3e53885f2c5b913e",
+          "crc32": "a8bc9721",
+          "what": "Firmware ROM",
+          "optional": false
+        }
+      ],
+      "artwork": "bsrack.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "Novation logo"
+        },
+        {
+          "id": "name",
+          "label": "BassStation Rack logo"
+        },
+        {
+          "id": "rear_maker",
+          "label": "Novation logo (rear)"
+        },
+        {
+          "id": "rear_name",
+          "label": "BassStation Rack logo (rear)"
+        }
+      ]
+    },
     "ob-poly-xp": {
       "machine": "xpander",
       "roms": [

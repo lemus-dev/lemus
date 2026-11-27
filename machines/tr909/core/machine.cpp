@@ -256,17 +256,75 @@ void Machine::setRam(const uint8_t *data, size_t n)
 	std::memcpy(m_ram.data(), data, std::min(n, m_ram.size()));
 }
 
+namespace {
+constexpr uint32_t kStateMagic = 0x39305354; // "TS09"
+template <typename T> void put(std::vector<uint8_t> &v, const T &x)
+{
+	const auto *b = reinterpret_cast<const uint8_t *>(&x);
+	v.insert(v.end(), b, b + sizeof x);
+}
+template <typename T> bool get(const std::vector<uint8_t> &v, size_t &pos, T &x)
+{
+	if (pos + sizeof x > v.size())
+		return false;
+	std::memcpy(&x, v.data() + pos, sizeof x);
+	pos += sizeof x;
+	return true;
+}
+} // namespace
+
 std::vector<uint8_t> Machine::saveState() const
 {
-	std::vector<uint8_t> out(m_ram.begin(), m_ram.end());
-	return out;
+	std::vector<uint8_t> v;
+	put(v, kStateMagic);
+	v.insert(v.end(), m_ram.begin(), m_ram.end());
+	const auto cpu = m_cpu.save_state();
+	put(v, uint32_t(cpu.size()));
+	v.insert(v.end(), cpu.begin(), cpu.end());
+	put(v, m_dac);
+	put(v, m_trig1);
+	put(v, m_trig2);
+	put(v, m_ledLatch);
+	put(v, m_digit);
+	put(v, m_bcd);
+	return v;
 }
 
-bool Machine::loadState(const std::vector<uint8_t> &data)
+bool Machine::loadState(const std::vector<uint8_t> &v)
 {
-	if (data.size() < m_ram.size())
+	size_t pos = 0;
+	uint32_t magic = 0, cpuSize = 0;
+	if (!get(v, pos, magic) || magic != kStateMagic || pos + m_ram.size() > v.size())
 		return false;
-	setRam(data.data(), m_ram.size());
+	const size_t ramAt = pos;
+	pos += m_ram.size();
+	if (!get(v, pos, cpuSize) || pos + cpuSize > v.size())
+		return false;
+	const size_t cpuAt = pos;
+	pos += cpuSize;
+	std::array<uint8_t, 8> dac{}, ledLatch{};
+	uint8_t trig1 = 0, trig2 = 0, bcd = 15;
+	std::array<int, 3> digit{};
+	if (!get(v, pos, dac) || !get(v, pos, trig1) || !get(v, pos, trig2) || !get(v, pos, ledLatch) || !get(v, pos, digit)
+	    || !get(v, pos, bcd))
+		return false;
+	if (!m_cpu.load_state(v.data() + cpuAt, cpuSize))
+		return false;
+	std::memcpy(m_ram.data(), v.data() + ramAt, m_ram.size());
+	m_dac = dac;
+	m_trig1 = trig1;
+	m_trig2 = trig2;
+	m_ledLatch = ledLatch;
+	m_digit = digit;
+	m_bcd = bcd;
+	// the serial lines idle: no byte on its way in or out
+	m_rxQueue.clear();
+	m_rxFree = m_states;
+	m_txBit = -1;
+	m_midiOut.clear();
+	m_writes.clear();
+	m_sliceBase = 0;
+	m_runIcount0 = m_cpu.icount();
 	return true;
 }
 

@@ -10,6 +10,8 @@
 
 #include "emu.h"
 
+#include <vector>
+
 enum
 {
 	UPD7810_PC=1, UPD7810_SP, UPD7810_PSW, UPD7810_IFF,
@@ -78,6 +80,12 @@ public:
 	void sio_rx_byte(u8 data) { if (m_smh & 0x08) { m_rxb = data; m_irr |= INTFSR; } }
 	// Called with the PC before each instruction when set (tools only).
 	std::function<void(u16)> &trace() { return m_trace; }
+	// The CPU as it is (registers, timers, serial and A/D state, internal RAM, the slice's
+	// overrun), for a session that reopens the unit as it was; the bus, the ROM, the callbacks
+	// and the opcode tables are not in it. load_state takes only a state of this build's layout
+	// and leaves the CPU as it was otherwise (false).
+	std::vector<u8> save_state() const;
+	bool load_state(const u8 *data, size_t n);
 
 	// configuration helpers
 	auto &to_func() { return m_to_func; }

@@ -209,6 +209,28 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-27, fix (forum t/67, GitHub #4): a session reopens the 909 as it was saved, and follows
+  the host from its first block. Three bugs, each reproduced first (`tr909plugintest --load`):
+  - A session load booted the CPU from the battery RAM, so the mode, the pattern or track, the
+    sync mode and the panel's MIDI channels (the CPU's own RAM) came back as at power-on: track
+    play, track 1, INT, channel 10. The session now holds the whole board (`Machine::saveState`:
+    the RAM, the CPU with its registers, timers and internal RAM, the DAC, trigger and display
+    latches; `upd7810_device::save_state`, also in `tools/port_upd7810.py`), as the 303, 808 and
+    101 did on 2026-11-18. It keeps the firmware's tempo as saved too (the tempo heard, rather
+    than the knob's BPM). A session saved while the host played reopens stopped when the host
+    is; one saved running on INT plays on, as the 101's arpeggio does. Sessions of 0.2.9 and
+    before (RAM only) still boot; older versions read the new ones (the RAM, then a boot).
+  - With SYNC on, the sync mode was stepped back to MIDI by runSync's key macro, which runs only
+    while the host processes the track. Logic doesn't while stopped, so a bounce made right
+    after a project opened ran it during the bounce: every step a 16th late (two with
+    4096-sample blocks), looking like a slow first step. warmStart now runs the macro in its own
+    warm run, and runSync counts the 909 in sync only once a macro is over.
+  - A stop went out with no start before it (Play and Stop inside the 16th the start waits for,
+    or a host stopping before the first one), and every later start then played one step and
+    stopped. A stop now goes out only after a start.
+  plugintest: the panel's mode, pattern, track and channel round-trip; RAM-only sessions boot;
+  a load then play at once at 512 and 4096 samples is in time; Play/Stop before the first step;
+  a session saved playing.
 - 2026-11-24, UX: CIRCUIT is three ages, EARLY (SN 360100-371499), MIDDLE (371500-381499) and LATE
   (426700 up, the measured unit), each with every part as it then was, after an A/B of the serial
   ranges (private/tr909/reference/scenes/circuits; Chris heard the BD tell all three apart). The six

@@ -7,17 +7,17 @@
 #include "upd7810.h"
 
 #include <algorithm>
+#include <cstring>
 
 #include "upd7810_macros.h"
 
 
 upd7810_device::upd7810_device()
-	: m_pa_pullups(0xff)
-	, m_pb_pullups(0xff)
-	, m_pc_pullups(0xff)
-	, m_pd_pullups(0xff)
-	, m_pf_pullups(0xff)
 {
+	// The state block (save_state: m_ppc to m_adrange) zeroed, its padding too, so a saved state
+	// is the same bytes every time; then the pull-ups.
+	std::memset(static_cast<void *>(&m_ppc), 0, size_t(reinterpret_cast<u8 *>(&m_adrange + 1) - reinterpret_cast<u8 *>(&m_ppc)));
+	m_pa_pullups = m_pb_pullups = m_pc_pullups = m_pd_pullups = m_pf_pullups = 0xff;
 	// MAME's default values for unset read callbacks
 	m_rxd_func.dflt = 1;
 	m_pa_in_cb.dflt = m_pb_in_cb.dflt = m_pc_in_cb.dflt = m_pd_in_cb.dflt = m_pf_in_cb.dflt = 0xff;
@@ -46,6 +46,48 @@ int upd7810_device::run(int cycles)
 	const int before = m_icount;
 	execute_run();
 	return before - m_icount;
+}
+
+// The members from m_ppc to m_adrange are plain values declared together, so they lie in that
+// order: the block between them is the CPU's state. Then the internal RAM, its view and the
+// overrun. A state's first word is the block's size, so one from a build with another layout is
+// refused.
+std::vector<u8> upd7810_device::save_state() const
+{
+	const auto *from = reinterpret_cast<const u8 *>(&m_ppc);
+	const u32 size = u32(reinterpret_cast<const u8 *>(&m_adrange + 1) - from);
+	std::vector<u8> v;
+	auto put = [&](const void *p, size_t n) {
+		const auto *b = static_cast<const u8 *>(p);
+		v.insert(v.end(), b, b + n);
+	};
+	const u8 view = m_ram_view.on ? 1 : 0;
+	put(&size, sizeof size);
+	put(from, size);
+	put(m_iram, sizeof m_iram);
+	put(&view, 1);
+	put(&m_icount, sizeof m_icount);
+	return v;
+}
+
+bool upd7810_device::load_state(const u8 *data, size_t n)
+{
+	auto *from = reinterpret_cast<u8 *>(&m_ppc);
+	const u32 size = u32(reinterpret_cast<u8 *>(&m_adrange + 1) - from);
+	u32 saved = 0;
+	if (data == nullptr || n != sizeof saved + size + sizeof m_iram + 1 + sizeof m_icount)
+		return false;
+	std::memcpy(&saved, data, sizeof saved);
+	if (saved != size)
+		return false;
+	data += sizeof saved;
+	std::memcpy(from, data, size);
+	data += size;
+	std::memcpy(m_iram, data, sizeof m_iram);
+	data += sizeof m_iram;
+	m_ram_view.on = *data++ != 0;
+	std::memcpy(&m_icount, data, sizeof m_icount);
+	return true;
 }
 
 void upd7810_device::configure_ops()

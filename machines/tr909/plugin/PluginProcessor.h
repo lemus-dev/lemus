@@ -179,6 +179,7 @@ private:
 	// Under the callback lock or before prepare.
 	void warmStart();
 	static constexpr double kWarmSeconds = 1.0;
+	void syncFresh(bool running); // runSync's bookkeeping for a firmware just booted or loaded
 
 	juce::AudioProcessorValueTreeState m_params;
 	std::vector<std::atomic<float> *> m_knobValues;
@@ -237,6 +238,7 @@ private:
 	static constexpr double kStopGap = 0.004;    // s between starts and stops: the firmware's scan, and margin
 	int m_syncMacro = 0;    // samples to the macro's next step
 	int m_syncMacroStep = 0;
+	bool m_startSent = false; // a start went out since the last stop (a stop goes out only then)
 
 	struct KeyEvent {
 		Key key;
@@ -247,6 +249,8 @@ private:
 	std::vector<uint8_t> m_uiMidi;
 	std::unique_ptr<std::array<uint8_t, tr909::Machine::kRamSize>> m_factory; // the factory memory, made once
 	bool m_running = false; // the sequencer, as its MIDI out tells it (FA/FB start, FC stop)
+	juce::String m_loadedBoard; // the session's whole board as loaded (kept as is in voice mode)
+	bool m_loadedRunning = false;
 	// The MIDI OUT jack's bytes made into messages (running status kept across blocks)
 	uint8_t m_outStatus = 0;
 	std::array<uint8_t, 2> m_outData{};

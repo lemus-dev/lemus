@@ -159,7 +159,9 @@ SCALE, LAST STEP, TRACK WRITE, BANK, COPY/INS/DEL. The memory is saved with the 
   switch turns it off (silence, the panel dark, the memory kept) and on again, and switching it on is
   the real power-on: the firmware boots for 0.6 s, and the master outputs are muted for about 2 s
   while C143 charges, then open; the MULTI OUTs are not muted, and the hi-hat's, crash's and ride's
-  thump as their stages charge (`docs/circuit/power.md`). A session always loads switched on.
+  thump as their stages charge (`docs/circuit/power.md`). A session always loads switched on, and
+  as it was saved: the mode, pattern or track, sync mode and MIDI channels with it (sessions of
+  0.2.9 and before hold only the memory, and start as at power-on).
 - **SERVICE** in the bar takes the top panel off, as on the 303 (`docs/boards.md`): the voicing
   board where it hangs under the panel, the switch board folded out in front of it, every part where
   the service notes' board drawings put it (p.9, p.10), drawn as the part it is, the copper showing

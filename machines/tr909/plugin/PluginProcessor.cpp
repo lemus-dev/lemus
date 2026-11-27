@@ -327,7 +327,38 @@ void TR909Processor::warmStart()
 	// the latches it leaves are all clear, as the board's operating points have them, and its one
 	// pulse on the HH, crash and ride trigger lines (0.4 ms of 3Ch to latch 10) isn't heard.
 	m_machine.run(int(kWarmSeconds * Machine::kStateHz));
+	// SYNC on: the sync mode stepped to MIDI in the same run, with runSync's SHIFT + TEMPO MODE
+	// macro and its timing, so the 909 follows the host from its first block. Left to runSync, a
+	// host that doesn't process a stopped track (Logic) ran the macro during a bounce made right
+	// after a project opened, and the start came a 16th or two late (forum t/67).
+	for (int k = 0; k < 3 && m_sync->load() > 0.5f && (m_machine.iram(kSyncModeAddr) & 3) != 1; ++k) {
+		auto hold = [&](double ms) { m_machine.run(int(ms / 1000.0 * Machine::kStateHz)); };
+		m_machine.setKey(Key::Shift, true);
+		hold(40);
+		m_machine.setKey(Key::TapeSync, true);
+		hold(60);
+		m_machine.setKey(Key::TapeSync, false);
+		hold(40);
+		m_machine.setKey(Key::Shift, false);
+		hold(150);
+	}
 	m_machine.takeMidiOutTimed();
+	syncFresh(false);
+}
+
+// A firmware just booted (stopped) or loaded (running or not): no start or stop owed to it, no
+// macro under way. One loaded running in MIDI sync counts as started by the host, so a host that
+// is stopped sends it a stop at the next block, and one that plays starts it again in place.
+void TR909Processor::syncFresh(bool running)
+{
+	m_running = running;
+	m_syncMacro = 0;
+	m_syncMacroStep = 0;
+	m_startClock = -1;
+	m_stopDue = -1;
+	m_held = false;
+	m_hostWasPlaying = m_startSent = running && (m_machine.iram(kSyncModeAddr) & 3) == 1;
+	m_nextClock = -1e9;
 }
 
 void TR909Processor::setKey(Key key, bool down)
@@ -476,9 +507,14 @@ void TR909Processor::runSync(const Transport &t, int n, std::vector<std::pair<in
 		events.push_back({at, {0xfc}});
 		m_transportAt = blockStart + at;
 		m_stopDue = -1;
+		m_startSent = false;
 	};
-	// a stop at `at`, or kStopGap after the last start or stop (in a later block if need be)
+	// a stop at `at`, or kStopGap after the last start or stop (in a later block if need be). None
+	// unless a start went out since the last stop: a stop with no start before it (Play and Stop
+	// inside the 16th the start waits for) left every later start playing one step and stopping.
 	auto stop = [&](int at) {
+		if (!m_startSent)
+			return;
 		const int64_t due = std::max(blockStart + at, m_transportAt + gap);
 		if (due < blockStart + n)
 			stopNow(int(due - blockStart));
@@ -487,7 +523,9 @@ void TR909Processor::runSync(const Transport &t, int n, std::vector<std::pair<in
 	};
 	if (m_stopDue >= 0 && m_stopDue < blockStart + n)
 		stopNow(int(std::max<int64_t>(0, m_stopDue - blockStart)));
-	const bool synced = wantMidiSync && t.playing && mode == 1;
+	// in sync once the macro is over: the mode changes 40 ms into it, but a start while it still
+	// holds SHIFT spoils the start after it
+	const bool synced = wantMidiSync && t.playing && mode == 1 && m_syncMacro <= 0;
 	if (!synced) {
 		if (m_hostWasPlaying)
 			stop(0);
@@ -527,6 +565,7 @@ void TR909Processor::runSync(const Transport &t, int n, std::vector<std::pair<in
 				events.push_back({at, m_startMsg});
 				m_transportAt = blockStart + at;
 				m_startClock = -1;
+				m_startSent = true;
 			}
 			events.push_back({at, {0xf8}});
 			m_lastClock = c;
@@ -913,7 +952,18 @@ void TR909Processor::getStateInformation(juce::MemoryBlock &destData)
 	state.setProperty("cables", cables.joinIntoString(","), nullptr);
 	state.setProperty("serial", m_serial, nullptr);
 	const auto &ram = m_machine.ram();
-	state.setProperty("ram", juce::Base64::toBase64(ram.data(), ram.size()), nullptr);
+	state.setProperty("ram", juce::Base64::toBase64(ram.data(), ram.size()), nullptr); // what 0.2.9 and before read
+	// The whole board (Machine::saveState), so a session reopens the 909 as it was: its mode,
+	// pattern or track, sync mode and MIDI channels are in the CPU's own RAM (GitHub #4). Without
+	// the firmware the CPU doesn't run: the board as it was loaded.
+	if (m_romOk) {
+		const auto board = m_machine.saveState();
+		state.setProperty("board", juce::Base64::toBase64(board.data(), board.size()), nullptr);
+		state.setProperty("running", m_running, nullptr);
+	} else if (m_loadedBoard.isNotEmpty()) {
+		state.setProperty("board", m_loadedBoard, nullptr);
+		state.setProperty("running", m_loadedRunning, nullptr);
+	}
 	if (auto xml = state.createXml())
 		copyXmlToBinary(*xml, destData);
 }
@@ -926,6 +976,10 @@ void TR909Processor::setStateInformation(const void *data, int sizeInBytes)
 	auto tree = juce::ValueTree::fromXml(*xml);
 	const juce::String ram = tree.getProperty("ram").toString();
 	tree.removeProperty("ram", nullptr);
+	const juce::String board = tree.getProperty("board").toString();
+	tree.removeProperty("board", nullptr);
+	const bool running = bool(tree.getProperty("running", false));
+	tree.removeProperty("running", nullptr);
 	m_modelVersion = juce::jlimit(1, kModelVersion, int(tree.getProperty("model", kModelVersion)));
 	tree.removeProperty("model", nullptr);
 	const auto cables = juce::StringArray::fromTokens(tree.getProperty("cables").toString(), ",", "");
@@ -937,15 +991,24 @@ void TR909Processor::setStateInformation(const void *data, int sizeInBytes)
 	if (serial != m_serial)
 		setSerial(serial);
 	m_params.replaceState(tree);
-	// A session loads switched on, as a 909 that has been on a while: the CPU from the session's
-	// battery RAM, past its boot (warmStart), the board as it is. Only the POWER switch runs the
-	// power-on. Hosts load a state while playing: not in the middle of a block.
-	juce::MemoryOutputStream mo;
+	// A session loads switched on, as a 909 that has been on a while: the whole board as it was
+	// saved (CPU, its RAM, the latches), or, from a session of 0.2.9 and before (battery RAM only),
+	// the CPU from that RAM past its boot (warmStart). The voice board stays as it is. Only the
+	// POWER switch runs the power-on. Hosts load a state while playing: not in the middle of a block.
+	juce::MemoryOutputStream mo, mb;
 	const bool hasRam = ram.isNotEmpty() && juce::Base64::convertFromBase64(mo, ram);
+	const bool hasBoard = board.isNotEmpty() && juce::Base64::convertFromBase64(mb, board);
 	const juce::ScopedLock sl(getCallbackLock());
-	if (hasRam)
-		m_machine.setRam(static_cast<const uint8_t *>(mo.getData()), mo.getDataSize());
-	if (hasRam || !m_powered)
-		warmStart();
+	m_loadedBoard = hasBoard ? board : juce::String();
+	m_loadedRunning = hasBoard && running;
+	const auto *b = static_cast<const uint8_t *>(mb.getData());
+	if (m_romOk && hasBoard && m_machine.loadState(std::vector<uint8_t>(b, b + mb.getDataSize()))) {
+		syncFresh(running);
+	} else {
+		if (hasRam)
+			m_machine.setRam(static_cast<const uint8_t *>(mo.getData()), mo.getDataSize());
+		if (hasRam || !m_powered)
+			warmStart();
+	}
 	m_powered = true;
 }

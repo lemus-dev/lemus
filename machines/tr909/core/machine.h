@@ -130,6 +130,10 @@ public:
 	uint8_t peek(uint16_t addr) { return read(addr); }
 	void poke(uint16_t addr, uint8_t v) { write(addr, v); }
 	uint8_t iram(int i) const { return m_cpu.iram(i); }
+	// The whole board: the battery RAM, the CPU with its own RAM (the mode, pattern, track, sync
+	// mode and MIDI channels live there), the voice board's DAC and trigger latches and the
+	// display's. loadState takes a state saveState made and returns true; anything else (a state
+	// from another build's CPU layout, or RAM alone) leaves the machine as it was and returns false.
 	std::vector<uint8_t> saveState() const;
 	bool loadState(const std::vector<uint8_t> &data);
 

@@ -70,9 +70,8 @@ double rms(const juce::AudioBuffer<float> &b, int ch, int from, int n)
 // (L, R) and, with jacks, the ten MULTI OUT buses after it; with midiOut, the MIDI it sends at its
 // sample positions from the start.
 juce::AudioBuffer<float> run(TR909Processor &p, FakePlayHead &ph, double seconds, double rate, const juce::MidiBuffer *midiAll = nullptr,
-                             bool jacks = false, juce::MidiBuffer *midiOut = nullptr)
+                             bool jacks = false, juce::MidiBuffer *midiOut = nullptr, int block = 512)
 {
-	const int block = 512;
 	const int total = int(seconds * rate);
 	const int channels = jacks ? 2 + tr909::kVoices : 2;
 	juce::AudioBuffer<float> out(channels, total);
@@ -272,6 +271,116 @@ std::pair<double, double> lag(const juce::AudioBuffer<float> &x, int a, int b, i
 		}
 	}
 	return {at * frame / rate, best};
+}
+
+// A session as 0.2.9 and before saved it: the battery RAM without the whole board.
+juce::MemoryBlock ramOnly(const juce::MemoryBlock &s)
+{
+	auto xml = juce::AudioProcessor::getXmlFromBinary(s.getData(), int(s.getSize()));
+	juce::MemoryBlock out;
+	if (xml) {
+		xml->removeAttribute("board");
+		xml->removeAttribute("running");
+		juce::AudioProcessor::copyXmlToBinary(*xml, out);
+	}
+	return out;
+}
+
+// The bar of x from `from` against the reference's first bar (sync's lag, both in one buffer).
+std::pair<double, double> barLag(const juce::AudioBuffer<float> &ref, const juce::AudioBuffer<float> &x, int from, int bar, double rate)
+{
+	juce::AudioBuffer<float> both(2, 2 * bar + int(0.1 * rate));
+	both.clear();
+	both.copyFrom(0, 0, ref, 0, 0, std::min(bar, ref.getNumSamples()));
+	both.copyFrom(0, bar + int(0.05 * rate), x, 0, from, std::min(bar, x.getNumSamples() - from));
+	return lag(both, 0, bar + int(0.05 * rate), bar - int(0.05 * rate), 0.15, rate);
+}
+
+// SYNC after a session load (forum t/67: Logic doesn't process a stopped track, so a bounce made
+// right after a project opened ran the sync macro during the bounce, and every step came a 16th
+// late, two with 4096-sample blocks): a load, then the host playing from the top at once, plays
+// the bar the 909 played before the save, in time; from a whole-board session and a RAM-only one,
+// at 512 and 4096 samples. Play and Stop inside the 16th the start waits for (no start goes out)
+// leave the next start playing on (a stop with no start before it left every later start playing
+// one step). A session saved while the host played (an autosave) reopens stopped, the host stopped.
+void syncLoad(const Roms &r, double rate)
+{
+	auto synced = [&](TR909Processor &p, FakePlayHead &ph) {
+		p.setPlayHead(&ph);
+		p.prepareToPlay(rate, 512);
+		run(p, ph, 1.0, rate);
+		set(p, "sync", 1.0f);
+		run(p, ph, 1.0, rate);
+	};
+	TR909Processor a(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+	FakePlayHead ph;
+	synced(a, ph);
+	juce::MemoryBlock s;
+	a.getStateInformation(s);
+	const int bar = int(std::lround(4 * 60.0 / ph.bpm * rate));
+	ph.playing = true;
+	ph.ppq = 0;
+	const auto ref = run(a, ph, 1.2 * bar / rate, rate);
+	ph.playing = false;
+	run(a, ph, 0.5, rate);
+	const auto old = ramOnly(s);
+	for (const juce::MemoryBlock *state : std::initializer_list<const juce::MemoryBlock *>{&s, &old})
+		for (const int block : {512, 4096}) {
+			TR909Processor b(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+			FakePlayHead pb;
+			b.setPlayHead(&pb);
+			b.prepareToPlay(rate, block);
+			b.setStateInformation(state->getData(), int(state->getSize()));
+			pb.playing = true;
+			pb.ppq = 0;
+			const auto x = run(b, pb, 1.2 * bar / rate, rate, nullptr, false, nullptr, block);
+			const auto [late, corr] = barLag(ref, x, 0, bar, rate);
+			char line[200];
+			std::snprintf(line, sizeof line, "sync: a %s session loaded, the host playing at once (%d samples), plays in time (%+.1f ms, correlation %.3f)",
+			              state == &s ? "whole-board" : "RAM-only", block, late * 1000, corr);
+			check(std::abs(late) <= 0.003 && corr > 0.8, line);
+		}
+	{
+		ph.ppq = 0.1; // the start waits for the 16th at 0.25
+		ph.playing = true;
+		run(a, ph, 0.05, rate);
+		ph.playing = false;
+		run(a, ph, 0.3, rate);
+		ph.ppq = 0;
+		ph.playing = true;
+		const auto x = run(a, ph, 1.2 * bar / rate, rate);
+		ph.playing = false;
+		run(a, ph, 0.5, rate);
+		const auto [late, corr] = barLag(ref, x, 0, bar, rate);
+		char line[200];
+		std::snprintf(line, sizeof line, "sync: Play and Stop before the first step, then Play: the bar plays on, in time (%+.1f ms, correlation %.3f)",
+		              late * 1000, corr);
+		check(rms(x, 0, bar / 2, bar / 2) > 1e-3 && std::abs(late) <= 0.003 && corr > 0.8, line);
+	}
+	{
+		ph.ppq = 0;
+		ph.playing = true;
+		run(a, ph, 1.0, rate);
+		const bool was = a.snapshot().running;
+		juce::MemoryBlock playing;
+		a.getStateInformation(playing);
+		ph.playing = false;
+		TR909Processor b(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+		FakePlayHead pb;
+		b.setPlayHead(&pb);
+		b.prepareToPlay(rate, 512);
+		b.setStateInformation(playing.getData(), int(playing.getSize()));
+		const auto x = run(b, pb, 1.0, rate);
+		check(was && !b.snapshot().running && rms(x, 0, int(0.5 * rate), int(0.5 * rate)) < 1e-4,
+		      "sync: a session saved while the host played reopens stopped, the host stopped");
+		pb.playing = true;
+		pb.ppq = 0;
+		const auto y = run(b, pb, 1.2 * bar / rate, rate);
+		const auto [late, corr] = barLag(ref, y, 0, bar, rate);
+		char line[200];
+		std::snprintf(line, sizeof line, "sync: and then plays the host's bar in time (%+.1f ms, correlation %.3f)", late * 1000, corr);
+		check(std::abs(late) <= 0.003 && corr > 0.8, line);
+	}
 }
 
 // SYNC with the host looping (forum t/40: the 909 stopped at the loop's end and stayed silent):
@@ -493,6 +602,81 @@ void state(const Roms &r, double rate)
 	for (int v = 0; v < tr909::kVoices; ++v)
 		same = same && c.cable(tr909::Voice(v)) == (v == int(tr909::Voice::SD) || v == int(tr909::Voice::RD));
 	check(same, "state: the MULTI OUT cables round-trip");
+
+	// The whole board (GitHub #4: the 909 came back in track play): pattern play on pattern 3, or
+	// track play on track 2, reopens as saved, and so does a MIDI receive channel set on the panel
+	// (SHUFFLE/FLAM + step 3 in track play: channel 3, omni off). A session of 0.2.9 and before
+	// (RAM only) still loads, booting: track 1, channel 10.
+	FakePlayHead ph;
+	auto press = [&](TR909Processor &p, TR909Processor::Key k) {
+		p.setKey(k, true);
+		run(p, ph, 0.06, rate);
+		p.setKey(k, false);
+		run(p, ph, 0.1, rate);
+	};
+	auto chord = [&](TR909Processor &p, TR909Processor::Key hold, TR909Processor::Key k) {
+		p.setKey(hold, true);
+		run(p, ph, 0.04, rate);
+		press(p, k);
+		p.setKey(hold, false);
+		run(p, ph, 0.1, rate);
+	};
+	// the step, track and pattern LEDs lit at any time over 0.6 s (some blink)
+	auto panel = [&](TR909Processor &p) {
+		std::vector<bool> on(size_t(tr909::Machine::Led::Pattern3) + 1, false);
+		for (int k = 0; k < 30; ++k) {
+			run(p, ph, 0.02, rate);
+			const auto snap = p.snapshot();
+			for (size_t l = 0; l < on.size(); ++l)
+				on[l] = on[l] || snap.leds[l] > 0.5f;
+		}
+		return on;
+	};
+	auto lit = [](const std::vector<bool> &on, tr909::Machine::Led l) { return on[size_t(l)]; };
+	auto reopened = [&](const juce::MemoryBlock &st) {
+		auto q = std::make_unique<TR909Processor>(&r.fw, &r.hh, &r.cr, &r.rd);
+		q->setPlayHead(&ph);
+		q->prepareToPlay(rate, 512);
+		q->setStateInformation(st.getData(), int(st.getSize()));
+		run(*q, ph, 0.3, rate);
+		return q;
+	};
+	using Key = TR909Processor::Key;
+	using Led = tr909::Machine::Led;
+	TR909Processor d(&r.fw, &r.hh, &r.cr, &r.rd);
+	d.setPlayHead(&ph);
+	d.prepareToPlay(rate, 512);
+	run(d, ph, 1.0, rate);
+	press(d, Key::Pattern1);
+	press(d, Key::Step3);
+	const auto pat = panel(d);
+	d.getStateInformation(s);
+	check(lit(pat, Led::Pattern1) && lit(pat, Led::Step3) && !lit(pat, Led::Track1) && panel(*reopened(s)) == pat,
+	      "state: a session reopens pattern play on pattern 3 as saved");
+	press(d, Key::Track2);
+	const auto trk = panel(d);
+	d.getStateInformation(s);
+	check(lit(trk, Led::Track2) && !lit(trk, Led::Track1) && panel(*reopened(s)) == trk, "state: and track play on track 2");
+	const auto booted = panel(*reopened(ramOnly(s)));
+	check(lit(booted, Led::Track1) && !lit(booted, Led::Track2), "state: a RAM-only session (0.2.9 and before) loads, booting into track 1");
+	// the receive channel: a BD note on channel 3 plays, one on 10 doesn't (under 0.02: the
+	// channel-3 hit's tail is still there)
+	auto bdOn = [&](TR909Processor &p, int channel) {
+		juce::MidiBuffer m;
+		m.addEvent(juce::MidiMessage::noteOn(channel, TR909Processor::noteFor(tr909::Voice::BD), juce::uint8(100)), int(0.05 * rate));
+		return run(p, ph, 0.3, rate, &m).getMagnitude(0, 0, int(0.3 * rate));
+	};
+	press(d, Key::Track1);
+	chord(d, Key::ShuffleFlam, Key::Step3);
+	run(d, ph, 0.5, rate);
+	const bool set3 = bdOn(d, 3) > 0.05f && bdOn(d, 10) < 0.02f;
+	d.getStateInformation(s);
+	auto e = reopened(s);
+	run(*e, ph, 0.5, rate);
+	check(set3 && bdOn(*e, 3) > 0.05f && bdOn(*e, 10) < 0.02f, "state: a MIDI channel set on the panel reopens as saved");
+	auto f = reopened(ramOnly(s));
+	run(*f, ph, 0.5, rate);
+	check(bdOn(*f, 10) > 0.05f, "state: from a RAM-only session it goes back to channel 10");
 }
 
 // TEMPO: the BPM the plugin shows for a knob (tempoBpm) is what the firmware runs at after a
@@ -513,15 +697,20 @@ void tempo(const Roms &r, double rate)
 	}
 	const int t = runsAt(b);
 	check(std::abs(TR909Processor::tempoBpmOf(t) - 120.55) < 0.01 && t + 36 == 121, "tempo: a new instance runs at 120.6 BPM, 121 on the display");
-	bool same = true;
+	bool same = true, kept = true;
 	for (const float v : {0.0f, 0.9f, 0.2f, 126 / 255.0f, 128 / 255.0f, 130 / 255.0f, 0.4f, 1.0f, 0.6f}) {
 		set(a, "tempo", v);
+		const int was = runsAt(a);
 		juce::MemoryBlock s;
 		a.getStateInformation(s);
 		b.setStateInformation(s.getData(), int(s.getSize()));
+		kept = kept && runsAt(b) == was;
+		const auto old = ramOnly(s);
+		b.setStateInformation(old.getData(), int(old.getSize()));
 		same = same && TR909Processor::tempoBpmOf(runsAt(b)) == TR909Processor::tempoBpm(v);
 	}
-	check(same, "tempo: a session load runs at the BPM shown for its knob, across the travel, whatever the knob was");
+	check(kept, "tempo: a session load runs at the tempo it was saved at, across the travel");
+	check(same, "tempo: a RAM-only session (0.2.9 and before) runs at the BPM shown for its knob, across the travel, whatever the knob was");
 	set(b, "tempo", 0.7f);
 	const double turned = TR909Processor::tempoBpmOf(runsAt(b));
 	check(std::abs(turned - TR909Processor::tempoBpm(0.7f)) < 2.5, "tempo: a knob turned runs within a step of the BPM shown");
@@ -1269,6 +1458,13 @@ int main(int argc, char **argv)
 		hostLoop(r, 48000, true, true, 133);
 		return failures ? 1 : 0;
 	}
+	if (argc > 1 && juce::String(argv[1]) == "--load") { // tools: the session-load checks alone
+		Roms r;
+		syncLoad(r, 48000);
+		state(r, 48000);
+		tempo(r, 48000);
+		return failures ? 1 : 0;
+	}
 	if (argc > 1 && juce::String(argv[1]) == "--sleep") { // tools: the sleep check alone
 		Roms r;
 		TR909Processor p(&r.fw, &r.hh, &r.cr, &r.rd);
@@ -1307,6 +1503,7 @@ int main(int argc, char **argv)
 		hostLoop(r, 48000, true);
 		hostLoop(r, 48000, false);
 		hostLoop(r, 48000, true, true, 133);
+		syncLoad(r, 48000);
 	}
 	state(r, 48000);
 	tempo(r, 48000);
