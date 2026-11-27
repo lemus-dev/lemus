@@ -1,0 +1,13 @@
+{
+  "bsrack.lemus": {
+    "label": "lemus",
+    "plugin": "no-mono-bsr",
+    "names": {
+      "frequency": "Filter Frequency",
+      "resonance": "Filter Resonance",
+      "moddepth": "Filter Mod Depth",
+      "decay": "Envelope Decay",
+      "volume": "Volume"
+    }
+  }
+}

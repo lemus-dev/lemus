@@ -5,6 +5,8 @@
 
 #include "Scene.h"
 
+#include <array>
+
 namespace lemus::host {
 
 // A plugin file for "Lemus", "Roland/TB-303", "au:Name" or a path: the user's and the system's
@@ -30,7 +32,15 @@ public:
 	// Plays samples [position, position + out.getNumSamples()) of the scene into out (out's channel
 	// count is the plugin's outputs). Positions past the scene's notes play the tail.
 	void process(juce::AudioBuffer<float> &out, int64_t position);
-	void reset(); // all notes off, before jumping
+	// All notes off, before jumping; with notes still held (a restart mid-loop), the plugin then
+	// runs kKeyUp of silence, so the next note is a new key-down.
+	void reset();
+	// Played as a loop ending at `end` (Lemus AB): every held note is released kKeyUp before the
+	// end, and note-ons in that stretch are dropped, so each pass starts with new key-downs, as
+	// lemus-render's single pass does (a note held into the next pass makes its first note legato:
+	// a mono synth's envelopes don't start again). The MS-20's keyboard needs 5-10 ms of key-up.
+	void setLoop(int64_t end) { m_loopEnd = end; }
+	static constexpr double kKeyUp = 0.02; // seconds
 
 	// The plugin parameter a generic name maps to (the source's "names", else the name itself;
 	// matched to parameter names, case-insensitively), or null.
@@ -50,6 +60,8 @@ private:
 	juce::AudioBuffer<float> m_input, m_work, m_recording;
 	int64_t m_now = 0;
 	size_t m_next = 0;
+	int64_t m_loopEnd = -1;            // setLoop's end, or -1: no loop
+	std::array<int, 128> m_held = {}; // note-ons sent minus note-offs, per note
 	bool m_prerolling = false; // the source's preroll: the transport reads stopped
 };
 

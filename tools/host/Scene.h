@@ -15,6 +15,18 @@ struct Note {
 	int note = 60, velocity = 100;
 };
 
+// A MIDI controller change at a beat (cc 1: the mod wheel).
+struct Controller {
+	double at = 0; // beats
+	int cc = 1, value = 0;
+};
+
+struct ProgramChange {
+	double at = 0; // beats
+	int program = 0;
+	int bank = -1; // bank select (CC0 = bank >> 7, CC32 = bank & 127) before it, or none
+};
+
 struct Automation {
 	juce::String param;                          // generic name, mapped per source
 	std::vector<std::pair<double, double>> points; // (beat, normalised value), linear between
@@ -57,6 +69,8 @@ struct Scene {
 	bool matchLevels = true; // Lemus AB brings the sources to one level (false: as rendered, for
 	                         // scenes where the level difference is what is being heard)
 	std::vector<Note> notes;
+	std::vector<Controller> controllers; // "cc": sent with the notes, before them at the same sample
+	std::vector<ProgramChange> programs; // "programs": before the controllers at the same sample
 	std::map<juce::String, juce::var> params; // generic names
 	std::vector<Automation> automation;
 	juce::File input;                         // audio into the plugin (effects); silence if none

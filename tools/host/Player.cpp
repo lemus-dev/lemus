@@ -154,16 +154,36 @@ Player::Player(juce::AudioPluginFormatManager &formats, const Scene &scene, cons
 		else
 			m_warnings.add("no parameter to automate for \"" + a.param + "\"");
 
-	// Notes as MIDI events; at the same sample, note-offs go first (overlap the notes to slide)
-	// unless the scene asks for note-ons first.
+	// Notes as MIDI events; at the same sample, program changes (each after its bank select) go
+	// first, then controller changes, then note-offs (overlap the notes to slide) unless the scene
+	// asks for note-ons first.
 	const double spb = scene.samplesPerBeat();
 	for (const auto &n : scene.notes) {
 		m_events.push_back({int64_t(std::llround(n.at * spb)), juce::MidiMessage::noteOn(1, n.note, juce::uint8(n.velocity))});
 		m_events.push_back({int64_t(std::llround((n.at + n.len) * spb)), juce::MidiMessage::noteOff(1, n.note)});
 	}
-	std::stable_sort(m_events.begin(), m_events.end(), [&scene](const auto &a, const auto &b) {
+	for (const auto &c : scene.controllers)
+		m_events.push_back({int64_t(std::llround(c.at * spb)), juce::MidiMessage::controllerEvent(1, c.cc, c.value)});
+	std::vector<std::pair<int64_t, juce::MidiMessage>> programs;
+	for (const auto &p : scene.programs) {
+		const auto t = int64_t(std::llround(p.at * spb));
+		if (p.bank >= 0) {
+			programs.push_back({t, juce::MidiMessage::controllerEvent(1, 0, p.bank >> 7)});
+			programs.push_back({t, juce::MidiMessage::controllerEvent(1, 32, p.bank & 127)});
+		}
+		programs.push_back({t, juce::MidiMessage::programChange(1, p.program)});
+	}
+	m_events.insert(m_events.begin(), programs.begin(), programs.end());
+	const auto rank = [](const juce::MidiMessage &m) {
+		if (m.isProgramChange() || (m.isController() && (m.getControllerNumber() == 0 || m.getControllerNumber() == 32)))
+			return 0;
+		return m.isController() ? 1 : 2;
+	};
+	std::stable_sort(m_events.begin(), m_events.end(), [&scene, &rank](const auto &a, const auto &b) {
 		if (a.first != b.first)
 			return a.first < b.first;
+		if (rank(a.second) != rank(b.second))
+			return rank(a.second) < rank(b.second);
 		return scene.onsFirst ? (a.second.isNoteOn() && !b.second.isNoteOn()) : (a.second.isNoteOff() && !b.second.isNoteOff());
 	});
 
@@ -232,11 +252,22 @@ void Player::reset()
 {
 	if (m_plugin == nullptr)
 		return;
+	// Each held note's own note-off (not every plugin takes All Notes Off), then All Notes Off.
 	juce::MidiBuffer midi;
+	bool held = false;
+	for (int k = 0; k < 128; ++k)
+		for (; m_held[size_t(k)] > 0; --m_held[size_t(k)])
+			midi.addEvent(juce::MidiMessage::noteOff(1, k), 0), held = true;
 	midi.addEvent(juce::MidiMessage::allNotesOff(1), 0);
-	m_work.clear();
-	juce::AudioBuffer<float> view(m_work.getArrayOfWritePointers(), m_work.getNumChannels(), 0, 1);
-	m_plugin->processBlock(view, midi);
+	const int64_t total = held ? std::max<int64_t>(1, std::llround(kKeyUp * m_scene.rate)) : 1;
+	for (int64_t done = 0; done < total;) {
+		const int n = int(std::min<int64_t>(m_work.getNumSamples(), total - done));
+		m_work.clear();
+		juce::AudioBuffer<float> view(m_work.getArrayOfWritePointers(), m_work.getNumChannels(), 0, n);
+		m_plugin->processBlock(view, midi);
+		midi.clear();
+		done += n;
+	}
 	m_next = 0;
 }
 
@@ -275,21 +306,43 @@ void Player::process(juce::AudioBuffer<float> &out, int64_t position)
 	// Whole blocks unless something is automated: some plugins work out their envelopes per block.
 	const int step = m_automation.empty() ? m_work.getNumSamples() : std::max(1, m_scene.automationStep);
 	const double spb = m_scene.samplesPerBeat();
+	// A loop's key-up stretch (setLoop): from `release` on, no notes; at it, every held note ends.
+	const int64_t release = m_loopEnd < 0 ? std::numeric_limits<int64_t>::max()
+	                                      : m_loopEnd - std::min<int64_t>(std::llround(kKeyUp * m_scene.rate), m_loopEnd / 4);
 	for (int done = 0; done < total;) {
-		const int n = std::min({step, total - done, m_work.getNumSamples()});
+		int n = std::min({step, total - done, m_work.getNumSamples()});
 		m_now = position + done;
+		if (m_now < release && m_now + n > release)
+			n = int(release - m_now); // a block boundary at the release, so its note-offs go first
 		for (const auto &[a, p] : m_automation)
 			p->setValue(juce::jlimit(0.0f, 1.0f, float(a->valueAt(double(m_now) / spb))));
 		juce::MidiBuffer midi;
+		if (m_now >= release)
+			for (int k = 0; k < 128; ++k)
+				for (; m_held[size_t(k)] > 0; --m_held[size_t(k)])
+					midi.addEvent(juce::MidiMessage::noteOff(1, k), 0);
 		while (m_next < m_events.size() && m_events[m_next].first < m_now + n) {
-			midi.addEvent(m_events[m_next].second, int(m_events[m_next].first - m_now));
-			++m_next;
+			const auto &[at, msg] = m_events[m_next++];
+			if (at >= release && (msg.isNoteOn() || msg.isNoteOff()))
+				continue;
+			if (msg.isNoteOn())
+				++m_held[size_t(msg.getNoteNumber())];
+			else if (msg.isNoteOff() && m_held[size_t(msg.getNoteNumber())] > 0)
+				--m_held[size_t(msg.getNoteNumber())];
+			midi.addEvent(msg, int(at - m_now));
 		}
 		m_work.clear();
-		for (int c = 0; c < std::min(m_input.getNumChannels(), m_plugin->getTotalNumInputChannels()); ++c)
-			for (int i = 0; i < n; ++i) {
-				const int64_t at = m_now + i;
-				m_work.setSample(c, i, at < m_input.getNumSamples() ? m_input.getSample(c, int(at)) : 0.0f);
+		// the input file's channels to the plugin's inputs one by one; a mono file to every input, as a
+		// DAW plays a mono clip on a stereo track
+		if (const int files = m_input.getNumChannels(); files > 0)
+			for (int c = 0; c < m_plugin->getTotalNumInputChannels(); ++c) {
+				const int from = std::min(c, files - 1);
+				if (c >= files && files > 1)
+					break;
+				for (int i = 0; i < n; ++i) {
+					const int64_t at = m_now + i;
+					m_work.setSample(c, i, at < m_input.getNumSamples() ? m_input.getSample(from, int(at)) : 0.0f);
+				}
 			}
 		juce::AudioBuffer<float> view(m_work.getArrayOfWritePointers(), m_work.getNumChannels(), 0, n);
 		m_plugin->processBlock(view, midi);

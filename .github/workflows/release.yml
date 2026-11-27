@@ -45,6 +45,7 @@ jobs:
             {"plugin": "al-fx-quadgt", "machine": "qvgt", "toolset": "ClangCL", "targets": "plugin_qvgt_VST3 plugin_qvgt_Standalone lemustest_qvgt lemustest_fx", "tests": "lemustest_qvgt lemustest_fx", "package": "windows"},
             {"plugin": "ro-mono-101", "machine": "sh101", "toolset": "ClangCL", "targets": "plugin_sh101_VST3 plugin_sh101_Standalone lemustest_sh101", "tests": "lemustest_sh101", "package": "windows"},
             {"plugin": "ob-poly-xp", "machine": "xpander", "toolset": "ClangCL", "targets": "plugin_xpander_VST3 plugin_xpander_Standalone lemustest_xpander", "tests": "lemustest_xpander", "package": "windows"},
+            {"plugin": "no-mono-bsr", "machine": "bsrack", "toolset": "ClangCL", "targets": "plugin_bsrack_VST3 plugin_bsrack_Standalone lemustest_bsrack", "tests": "lemustest_bsrack", "package": "windows"},
             {"plugin": "pr-dist-r", "machine": "rat", "toolset": "ClangCL", "targets": "plugin_rat_VST3 lemustest_rat lemustest_fx ratplugintest", "tests": "lemustest_rat lemustest_fx ratplugintest", "package": "windows"},
             {"plugin": "lemus-plugin-manager", "machine": "tb303", "toolset": "", "configure": "-DLEMUS_TOOLS=OFF", "targets": "lemus_manager lemustest_manager", "tests": "lemustest_manager", "package": "manager-windows"}
           ]'

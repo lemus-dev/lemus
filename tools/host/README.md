@@ -19,7 +19,8 @@ Build them from the repo root:
     build/cmake/lemus-render_artefacts/Release/lemus-render --params PLUGIN|use:TEMPLATE [--machine ID]
 
 It writes `DIR/<scene>-<label>.wav` per source (32-bit float, the plugin's outputs; the plugin's
-latency is taken off the start). `--params` lists a plugin's parameters, names and current values,
+latency is taken off the start). `--params` lists a plugin's parameters, names and current values
+(and its own programs, if it has any),
 e.g. `--params Lemus --machine tb303` or `--params use:tb303.roland`.
 
 The same scene renders bit-identically every run. Checked against the earlier pipelines: Lemus's
@@ -30,11 +31,30 @@ processing). `machines/tb303/tools/compare/roland_render.py` renders through it 
 
 ## Lemus AB
 
-    open "build/cmake/lemus-ab_artefacts/Release/Lemus AB.app" --args "$PWD/machines/tb303/host/scenes/tb303-sweep.json"
+    open -n -a "build/cmake/lemus-ab_artefacts/Release/Lemus AB.app" --args "$PWD/machines/tb303/host/scenes/tb303-sweep.json"
 
-(the path must be absolute: an app opened this way starts in `/`), or open it and use Open, or
-drop a scene on the window. Return plays and stops, Space goes to
-the next source, 1-9 pick one, B turns blind mode on and off. D turns dual mode on and off: two
+(the path must be absolute: an app opened this way starts in `/`), or use Open, or drop a scene on
+the window. There's one Lemus AB and one window, whichever session's build opens it. Each folder of
+scenes is a test, listed down the left with the machines it tests (from the sources' templates,
+`machine` or own plugin name, by their machine's README heading), and a scene opened while it runs
+goes to its folder's test, or a new one. Click a test, or press [ and ], to show it. Only the test
+shown plays, and each keeps its scene, sources and modes while another is shown. The list comes
+back after a restart (`~/Library/Application Support/Lemus AB/tests.json`). Never quit it to open
+a scene: the other sessions' tests are in it too.
+
+    open -n -a ".../Lemus AB.app" --args --reload [/abs/PATH]    load the test again (the one shown without PATH)
+    open -n -a ".../Lemus AB.app" --args --remove /abs/PATH      take the test off the list
+
+PATH is a scene or its folder; right-clicking a test does the same. Our own plugins (a machine's,
+or Lemus) load from a copy of the installed bundle, made again whenever it changes, so a plugin
+rebuilt and installed is heard at the next scene load or `--reload`, with no restart (macOS keeps
+playing a bundle it has loaded from a path, and replacing it under a running host can crash it).
+A launch hands its command line to the running one through `inbox/` there and quits; when it is a
+newer build than the one running (another folder's, or this one rebuilt), it takes over: the
+running one saves its tests and starts the newer one, which carries on with them. Builds from
+before this (2026-11-25) still open a window of their own.
+
+Return plays and stops, Space goes to the next source, 1-9 pick one, B turns blind mode on and off. D turns dual mode on and off: two
 sources at once, each in mono, the selected one in the left ear and another in the right (picking
 the right one, or Space, swaps them). The other scenes in the same folder
 are in the list next to Play, and Up/Down step through them (it keeps playing, and blind mode
@@ -45,6 +65,10 @@ editor (a volume, say); blind mode keeps its order.
   brings it to the sources' average level, shown on its button, so A/B is level-matched
   (unless the scene says `"matchLevels": false`).
 - Switching crossfades over 5 ms; all sources keep playing, so a switch is instant and in time.
+- Each pass starts with new key-downs, as lemus-render's single pass does: every held note is
+  released 20 ms before the loop's end (note-ons in those 20 ms are dropped). A note held into
+  the next pass would make its first note legato, and a mono synth's envelopes wouldn't start
+  again. A restart mid-loop gives the same 20 ms of key-up.
 - Blind mode shuffles the sources behind the letters and hides their names until Reveal.
 - Edit opens a source's own plugin window, to change it while it plays.
 - The spectrum under the sources shows the reference (the scene's first recording, else its first
@@ -53,7 +77,8 @@ editor (a volume, say); blind mode keeps its order.
   holds. Left/Right stop and step it through the loop a frame (1/30 s) at a time, Shift a 16th:
   each frame is the spectrum there, from the loop rendered for the level match. Hover for a
   frequency and both levels there.
-- It makes sound only while playing. `--snapshot OUT.png` saves the window after loading and
+- It makes sound only while playing. `--snapshot` and `--selftest` run in their own instance,
+  beside a running one. `--snapshot OUT.png` saves the window after loading and
   quits; `--selftest OUT.wav` plays two loops with switches into a file, without the audio device
   (with `--snapshot` too, the snapshot shows the spectrum at its end).
 
@@ -80,12 +105,14 @@ text the plugin parses ("Square", "440 Hz").
 | `rate`, `block`, `automationStep` | sample rate (render; Lemus AB uses the device's), block size, how often automation is applied (samples) |
 | `notes` | `at`, `len` in beats; `note` as "C-3"/"C#3" (Onyx's names, C-3 = MIDI 48) or a number; `vel`, or `accent: true` for 127 (default 100) |
 | `midi` | a MIDI file's notes, its timing turned into beats at the scene's tempo |
+| `cc` | MIDI controller changes: `at` in beats, `cc` (1: the mod wheel), `value` 0-127; at the same time, before the notes |
+| `programs` | MIDI program changes: `at` in beats, `program` 0-127, `bank` 0-16383 (optional: bank select CC0/CC32 first); at the same time, before the controllers |
 | `repeat`, `every` | play the notes N times, `every` beats apart (default: their length in whole bars) |
 | `matchLevels` | `false`: Lemus AB plays the sources as rendered instead of level-matching them (for scenes where the level difference is the point); each button shows its level |
 | `onsFirst` | at the same time, note-ons before note-offs, as Onyx sends them, so touching notes are legato; by default note-offs go first and a slide needs the notes to overlap |
 | `playing` | the transport the plugins see: `false` reports it stopped (a plugin's own sequencer, such as Roland's TR-808's, then stays quiet and only the notes play); default `true` |
 | `params`, `automation` | generic names (see below); automation is linear between `[beat, value]` points |
-| `input` | an audio file into the plugin's inputs (effects) |
+| `input` | an audio file into the plugin's inputs (effects), channel by channel; a mono file into every input |
 | `sources` | what plays it (below) |
 
 A **source** is a plugin or a recording:

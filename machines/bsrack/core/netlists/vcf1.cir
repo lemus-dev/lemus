@@ -1,0 +1,53 @@
+* Bass Station Rack filter, section 1, with the mixer's output node: OSC_MIX (the mixer OTAs U19, U21
+* as a current in), R49 into node X (R51 to AGND, U28's output), C30 into node A (R50 to AGND, U26's
+* + input, the feedback R57 || C33 from the section's output, the limiter D8/D9 from node B), U26
+* into the integrator U25A/C31, R55/R56 into U27, the integrator U25B/C32: the output 12DB_AUD. The
+* resonance OTA U28 takes node B (R52 from U25A's output) through R53/R54 and damps the loop through
+* node X: its bias (RES_CV) falls as RESONANCE rises; at none, D8/D9 alone limit the oscillation.
+* Transcription: docs/circuit.md (Filter). Values: [O] the OSCar's sheet, [F] fitted.
+* R51 and C33 [F], fitted to what the recordings show at full RESONANCE in 24 dB (U28 off):
+* - R51 (C30's lag at node A): the loop self-oscillates at the low end, as the manual says ("0 to
+*   Self Oscillation (24dB)") and fiolter-4poles (70-170 Hz) and fx-rain (43-172 Hz) show. With
+*   the OSCar's 10k the diodes' leakage damps it above 200 Hz.
+* - C33 (its lead, rising with frequency; the trace has it, the OSCar sheet has no part there):
+*   fitted with the rest to the demo (tools/compare/fitdemo.py, 42p): self-oscillation up to about
+*   250 Hz, rings that die away above (Q ~100 at 1 kHz, ~15 at 10 kHz). Smaller (2.2p, 10p), the
+*   top self-oscillated too: a 12 kHz scream in RAINMAN (program 19) that nothing recorded shows.
+* Docs: docs/improvements.md.
+* Inputs: imix (A, into OSC_MIX), iabc1, iabc2 (U26, U27 bias: the VCF expo's current split
+* four ways), iabcr (U28 bias, from RES_CV through R58).
+.param r36=10k r49=33k r51=3.3k r50=330 r57=33k c33=43p c31=1n c32=1n r55=33k r56=330
++ r52=10k r53=22k r54=330
+VVDD vdd 0 {vdd}
+VVSS vss 0 {vss}
+IMIX 0 mix input imix
+R36 mix 0 {r36}
+R49 mix x {r49}
+R51 x 0 {r51}
+C30 x a 2.2u
+R50 a 0 {r50}
+R57 out a {r57}
+C33 out a {c33}
+* U26: + node A, - AGND, out into U25A's virtual ground
+IABC1 0 abc1 input iabc1
+BU26 abc1 vss a 0 n1 ota is=1e-14 vop=2.5 von=-2.5 iscl=1e-14
+XU25A 0 n1 o1 opamp {gbw27x} {gain27x} {vsat27x} {sr27x}
+C31 o1 n1 {c31}
+R55 o1 m {r55}
+R56 m 0 {r56}
+* U27: + AGND, - the divider
+IABC2 0 abc2 input iabc2
+BU27 abc2 vss 0 m n2 ota is=1e-14 vop=2.5 von=-2.5 iscl=1e-14
+XU25B 0 n2 out opamp {gbw27x} {gain27x} {vsat27x} {sr27x}
+C32 out n2 {c32}
+* the resonance path: R52 from U25A's output to node B, D8/D9 node B <-> node A, R53/R54 into U28
+R52 o1 b {r52}
+D8 b a D1N914
+D9 a b D1N914
+R53 b c {r53}
+R54 c 0 {r54}
+IABCR 0 abcr input iabcr
+BU28 abcr vss c 0 x ota is=1e-14 vop=2.5 von=-2.5 iscl=1e-14
+.output out out
+.output bp o1
+.output mix mix

@@ -1,0 +1,13 @@
+* Bass Station Rack: the part models every block uses.
+* Rails (relative to AGND, node 0) [F]: VDD +4 V, VSS -4 V. The trace draws VDD, VSS, AGND and +5V
+* off a 9 V adapter (an LM317 is named in a comment); the split isn't drawn, so AGND sits mid-rail
+* (docs/circuit.md, Rails).
+.param vdd=4 vss=-4
+* TLC272/TLC274 (TI SLOS091): 1.7 MHz GBW, 3.6 V/us slew at 5 V, open-loop gain ~ 100 dB; the output
+* swings to within ~0.1 V of VSS and ~1.3 V of VDD; taken symmetric at 3.2 V about AGND [D/F].
+.param gbw27x=1.7meg gain27x=1e5 vsat27x=3.2 sr27x=3.6
+* LM3080 (CA3080, Intersil FN475): I_out = I_abc tanh(v_d / 2V_T); the bias input a diode to V-;
+* output compliance about 1.5 V inside the rails [D].
+* 1N4148-class switching diodes for the limiters (the trace draws D8-D11 without a type; the OSCar
+* sheet has 1N914 in the same place) [O].
+.model D1N914 D(IS=2.52n N=1.752 RS=0.568)

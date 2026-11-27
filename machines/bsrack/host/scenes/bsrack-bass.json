@@ -1,0 +1,15 @@
+{
+  "name": "bsrack-bass",
+  "bpm": 120, "bars": 4, "tail": 1, "rate": 48000,
+  "params": {"Osc 1 Waveform": 1, "Filter Resonance": 0.7, "Filter Mod Depth": 0.85, "Envelope": 0.5,
+             "Envelope Decay": 0.35, "Envelope Sustain": 0.2, "Volume": 0.8},
+  "automation": [{"param": "Filter Frequency", "points": [[0, 0.2], [16, 0.7]]}],
+  "notes": [
+    {"at": 0.0, "note": "C-2", "len": 0.4}, {"at": 0.5, "note": "C-3", "len": 0.2}, {"at": 0.75, "note": "C-2", "len": 0.2},
+    {"at": 1.0, "note": "D#2", "len": 0.4}, {"at": 1.5, "note": "G-2", "len": 0.2}, {"at": 2.0, "note": "C-2", "len": 0.4},
+    {"at": 2.5, "note": "A#2", "len": 0.2}, {"at": 3.0, "note": "F-2", "len": 0.4}, {"at": 3.5, "note": "G-2", "len": 0.4},
+    {"at": 4.0, "note": "C-2", "len": 0.4}, {"at": 4.5, "note": "C-3", "len": 0.2}, {"at": 4.75, "note": "C-2", "len": 0.2},
+    {"at": 5.0, "note": "D#2", "len": 0.4}, {"at": 5.5, "note": "G-2", "len": 0.2}, {"at": 6.0, "note": "C-2", "len": 0.4},
+    {"at": 6.5, "note": "A#2", "len": 0.2}, {"at": 7.0, "note": "F-2", "len": 0.4}, {"at": 7.5, "note": "G-2", "len": 0.4}
+  ]
+}

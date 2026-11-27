@@ -1,0 +1,3894 @@
+{
+ "source": "Front panel measured 2026-11-24 from polynominal.com's straight-on cut-out of the whole front (private/bsrack/docs/web/polynominal-rack-front.jpg, 4061x1244, SHA1 e539fb19dd789cf12a2dcefa067822f279b3d560). Plate 178..3905 x 441..780 px taken as 482.6 x 44.0 mm (7.72 px/mm on average); the photo's lens distortion (up to 6 % smaller scale at the left end) taken out with a model fitted to the printed frame lines and the knob tick circles, see docs/panel.md. About +-0.2 mm for printed parts; raised parts (caps, keys, levers) as seen.",
+ "units": "mm from the plate's top left corner; text x/y = anchor (per align) and cap-height centre; angles clockwise from 12 o'clock",
+ "width": 482.6,
+ "height": 44.0,
+ "colours": {
+  "face": "#3d3a33",
+  "frame": "#d0cdc6",
+  "strip": "#a9a79a",
+  "strip_text": "#27281f",
+  "blue": "#6693ba",
+  "legend": "#e6e4de",
+  "yellow": "#c9b26c",
+  "grey_label": "#948270",
+  "label_box": "#c6c0b3",
+  "label_box_text": "#3e3e32",
+  "cap": "#8fb6d1",
+  "skirt": "#1b1c1b",
+  "tick": "#eeedec",
+  "pointer": "#f8f8f8",
+  "key": "#a39e92",
+  "key_text": "#fdfdfd",
+  "switch_slot": "#090a08",
+  "switch_lever": "#24241f",
+  "display": "#272620",
+  "display_filter": "#412e20",
+  "led_display_off": "#6a5345",
+  "led_red_off": "#5a2a18",
+  "novation_logo": "#d7d2cb",
+  "logo_blue": "#9bb3d0",
+  "logo_yellow": "#dec97d",
+  "synth_strip": "#c8c2b6",
+  "synth_strip_text": "#1f1f15",
+  "phones_nut": "#cdc3af",
+  "phones_hole": "#010101",
+  "rear_plate": "#E6E6E2",
+  "rear_ink": "#1A1714"
+ },
+ "colours_note": "Median of real pixels, areas in docs/panel.md. The photo is lit from the upper right and warm; the face reads #2d2c26 at the far left. No LED is lit in the photo, so no 'on' colours were measured.",
+ "slots": {
+  "centres": [
+   [
+    7.74,
+    6.03
+   ],
+   [
+    7.61,
+    37.74
+   ],
+   [
+    474.93,
+    6.3
+   ],
+   [
+    474.48,
+    37.88
+   ]
+  ],
+  "w": 8.8,
+  "h": 6.2,
+  "note": "The site hand-masked the four slots white, so their outlines are approximate (+-0.4 mm). w/h are the mean of the three clean ones; the lower right one sits under the watermark. Centres 31.7 mm apart vertically (EIA 31.75)."
+ },
+ "logos": [
+  {
+   "place": "maker",
+   "mark": "novation",
+   "label": "Novation logo",
+   "box": [
+    104.6,
+    6.72,
+    29.03,
+    2.8
+   ],
+   "note": "White 'novation' letters with the small square at their left, at the top of the display window."
+  },
+  {
+   "place": "name",
+   "mark": "bass_station_rack",
+   "label": "BassStation Rack logo",
+   "box": [
+    421.5,
+    29.46,
+    42.82,
+    5.78
+   ],
+   "parts": {
+    "BassStation": [
+     421.5,
+     30.33,
+     29.21,
+     4.02
+    ],
+    "Rack": [
+     451.84,
+     29.49,
+     12.48,
+     5.75
+    ]
+   },
+   "note": "Blue italic 'BassStation' measured whole. The yellow script 'Rack' is crossed by the site's watermark: the box is the extent of its visible strokes (R swash at the left, top of the k at the right); the strokes under the watermark are assumed to lie inside it."
+  },
+  {
+   "place": "rear_maker",
+   "mark": "novation_rear",
+   "side": "rear",
+   "label": "Novation logo (rear)",
+   "box": [
+    8.6,
+    9.8,
+    88.5,
+    8.6
+   ],
+   "note": "Black: the small square with its emblem, then 'novation' in heavy lower case; the t and i reach the box's top."
+  },
+  {
+   "place": "rear_name",
+   "mark": "bass_station_rack_rear",
+   "side": "rear",
+   "label": "BassStation Rack logo (rear)",
+   "box": [
+    9.4,
+    19.7,
+    87.7,
+    11.9
+   ],
+   "parts": {
+    "BassStation": [
+     9.7,
+     22.4,
+     58.7,
+     8.1
+    ],
+    "Rack": [
+     71.2,
+     19.7,
+     25.9,
+     11.9
+    ]
+   },
+   "note": "Black: 'BassStation' in a serif italic and 'Rack' in a script, as the front's but larger."
+  }
+ ],
+ "frames": [
+  {
+   "name": "left",
+   "box": [
+    15.77,
+    3.0,
+    44.31,
+    37.77
+   ]
+  },
+  {
+   "name": "data_entry",
+   "box": [
+    61.39,
+    3.0,
+    77.96,
+    37.77
+   ]
+  },
+  {
+   "name": "lfo",
+   "box": [
+    140.26,
+    3.0,
+    39.13,
+    37.77
+   ]
+  },
+  {
+   "name": "osc1",
+   "box": [
+    180.31,
+    3.0,
+    19.06,
+    37.77
+   ]
+  },
+  {
+   "name": "osc2",
+   "box": [
+    200.36,
+    3.0,
+    39.06,
+    37.77
+   ]
+  },
+  {
+   "name": "mod_sync",
+   "box": [
+    240.88,
+    3.0,
+    58.97,
+    37.77
+   ]
+  },
+  {
+   "name": "filter",
+   "box": [
+    300.76,
+    3.0,
+    59.12,
+    37.77
+   ]
+  },
+  {
+   "name": "envelopes",
+   "box": [
+    361.11,
+    3.0,
+    104.66,
+    37.77
+   ]
+  }
+ ],
+ "frame_line_w": 0.3,
+ "frames_note": "Boxes run through the centres of the thin light lines; neighbouring frames are separate lines 0.9-1.5 mm apart.",
+ "strips": [
+  {
+   "section": "left",
+   "box": [
+    15.73,
+    22.38,
+    44.54,
+    2.61
+   ]
+  },
+  {
+   "section": "lfo",
+   "box": [
+    140.16,
+    22.38,
+    39.36,
+    2.61
+   ]
+  },
+  {
+   "section": "osc1",
+   "box": [
+    180.19,
+    22.38,
+    19.32,
+    2.61
+   ]
+  },
+  {
+   "section": "osc2",
+   "box": [
+    200.25,
+    22.38,
+    39.28,
+    2.61
+   ]
+  },
+  {
+   "section": "mod_sync",
+   "box": [
+    240.74,
+    22.38,
+    59.23,
+    2.61
+   ]
+  },
+  {
+   "section": "filter",
+   "box": [
+    300.64,
+    22.38,
+    59.37,
+    2.61
+   ]
+  },
+  {
+   "section": "envelopes",
+   "box": [
+    360.98,
+    22.38,
+    104.88,
+    2.61
+   ]
+  }
+ ],
+ "strips_note": "Grey legend strip under each knob row, across the full frame width (to the outer edge of the frame lines). The data entry section has none.",
+ "titles": [
+  {
+   "text": "LFO",
+   "x": 161.13,
+   "y": 26.39,
+   "cap": 2.38,
+   "align": "centre",
+   "colour": "blue",
+   "section": "lfo"
+  },
+  {
+   "text": "OSC 1",
+   "x": 190.83,
+   "y": 26.37,
+   "cap": 2.37,
+   "align": "centre",
+   "colour": "blue",
+   "section": "osc1"
+  },
+  {
+   "text": "OSC 2",
+   "x": 221.56,
+   "y": 26.4,
+   "cap": 2.4,
+   "align": "centre",
+   "colour": "blue",
+   "section": "osc2"
+  },
+  {
+   "text": "OSC 1-2 MOD/SYNC.",
+   "x": 270.57,
+   "y": 26.37,
+   "cap": 2.37,
+   "align": "centre",
+   "colour": "blue",
+   "section": "mod_sync",
+   "note": "the slash runs 0.45 mm below the baseline"
+  },
+  {
+   "text": "FILTER",
+   "x": 331.13,
+   "y": 26.49,
+   "cap": 2.35,
+   "align": "centre",
+   "colour": "blue",
+   "section": "filter"
+  },
+  {
+   "text": "ENVELOPES",
+   "x": 410.66,
+   "y": 26.41,
+   "cap": 2.37,
+   "align": "centre",
+   "colour": "blue",
+   "section": "envelopes"
+  }
+ ],
+ "titles_note": "Bold blue capitals on the face just under the strip, not centred on their frames (as printed).",
+ "knob_cap_d": 8.9,
+ "knob_skirt_d": 12.6,
+ "knob_ticks": {
+  "n": 11,
+  "r_in": 6.45,
+  "r_out": 7.98,
+  "w": 0.3,
+  "from": -141.0,
+  "to": 141.0
+ },
+ "knob_pointer": {
+  "w": 1.0,
+  "from_r": 0.0,
+  "to_r": 4.4
+ },
+ "knob_label_cap": 1.7,
+ "knob_note": "Centres from the tick circles (printed, so free of parallax); all 18 on y 14.0 and a 20.0 mm pitch within a section. Caps (blue) and skirts (black, knurled) are tall: in the photo the caps sit up to 4 mm off their shafts at the ends. cap_d 8.9 is the cap top as seen (about 2 % magnified, being nearer the camera); skirt_d 12.6 is the skirt's outline on the knobs nearest the camera axis (230-310 mm). Ticks: 11 white marks 28.2 deg apart over -141..+141 deg, r 6.45-7.98, 0.3 wide. Pointer: white bar on the cap from the centre to the rim.",
+ "knobs": [
+  {
+   "name": "VOLUME",
+   "param": "volume",
+   "c": [
+    30.74,
+    14.08
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.75,
+   "label": {
+    "text": "VOLUME",
+    "x": 30.68,
+    "y": 23.75,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "left",
+   "legends": [
+    {
+     "text": "0",
+     "x": 24.72,
+     "y": 21.14,
+     "cap": 1.44,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 36.95,
+     "y": 21.15,
+     "cap": 1.43,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "PORTAMENTO",
+   "param": "portamento",
+   "c": [
+    50.69,
+    14.08
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.75,
+   "label": {
+    "text": "PORTAMENTO",
+    "x": 50.6,
+    "y": 23.75,
+    "cap": 1.69,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "left",
+   "legends": [
+    {
+     "text": "0",
+     "x": 44.65,
+     "y": 21.16,
+     "cap": 1.43,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 56.83,
+     "y": 21.04,
+     "cap": 1.43,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "SPEED",
+   "param": "lfo_speed",
+   "c": [
+    149.96,
+    13.99
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.75,
+   "label": {
+    "text": "SPEED",
+    "x": 149.95,
+    "y": 23.75,
+    "cap": 1.64,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "lfo",
+   "legends": [
+    {
+     "text": "0",
+     "x": 143.82,
+     "y": 21.1,
+     "cap": 1.39,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 156.1,
+     "y": 21.11,
+     "cap": 1.39,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "DELAY",
+   "param": "lfo_delay",
+   "c": [
+    170.01,
+    14.03
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.75,
+   "label": {
+    "text": "DELAY",
+    "x": 170.01,
+    "y": 23.75,
+    "cap": 1.63,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "lfo",
+   "legends": [
+    {
+     "text": "0",
+     "x": 163.88,
+     "y": 21.12,
+     "cap": 1.38,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 176.14,
+     "y": 21.12,
+     "cap": 1.38,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "MIX",
+   "param": "mix",
+   "c": [
+    190.03,
+    13.88
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.75,
+   "label": {
+    "text": "MIX",
+    "x": 189.77,
+    "y": 23.75,
+    "cap": 1.62,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "osc1",
+   "legends": [
+    {
+     "text": "OSC1",
+     "x": 183.32,
+     "y": 7.51,
+     "cap": 1.14,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "1&2",
+     "x": 196.91,
+     "y": 7.49,
+     "cap": 1.26,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "EXT.",
+     "x": 182.68,
+     "y": 21.32,
+     "cap": 1.25,
+     "align": "centre",
+     "colour": "yellow"
+    },
+    {
+     "text": "OSC2",
+     "x": 196.47,
+     "y": 21.2,
+     "cap": 1.25,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "ticks": {
+    "n": 11,
+    "r_in": 7.0,
+    "r_out": 8.0,
+    "w": 0.3,
+    "from": -143.0,
+    "to": 141.0
+   },
+   "ring": {
+    "r_in": 6.25,
+    "r_out": 7.0,
+    "from": -143.0,
+    "to": 141.0,
+    "colour": "tick",
+    "yellow": {
+     "from": -143.0,
+     "to": -58.0,
+     "colour": "yellow"
+    }
+   },
+   "note": "MIX has its own scale: an arc (ring) round the skirt from -143 to +141 deg with the ticks standing out from it; the arc is yellow from the EXT. end (-143) to the third tick (-58), light grey after. EXT. is printed yellow. Ring and ticks fitted in mm; centre (190.03, 13.88)."
+  },
+  {
+   "name": "DETUNE",
+   "param": "detune",
+   "c": [
+    210.04,
+    14.01
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.82,
+   "label": {
+    "text": "DETUNE",
+    "x": 209.96,
+    "y": 23.82,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "osc2",
+   "legends": [
+    {
+     "text": "−",
+     "x": 202.63,
+     "y": 20.89,
+     "cap": 1.45,
+     "align": "centre",
+     "note": "bare minus sign, its bar 202.06-203.20 x 20.70-21.08; cap taken from the digit legends",
+     "colour": "legend"
+    },
+    {
+     "text": "+",
+     "x": 216.92,
+     "y": 20.96,
+     "cap": 1.45,
+     "align": "centre",
+     "note": "bare plus sign, glyph 216.23-217.61 x 20.46-21.46",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "SEMI-TONE",
+   "param": "semitone",
+   "c": [
+    230.07,
+    14.0
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.82,
+   "label": {
+    "text": "SEMI-TONE",
+    "x": 229.99,
+    "y": 23.82,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "osc2",
+   "legends": [
+    {
+     "text": "0",
+     "x": 223.53,
+     "y": 21.15,
+     "cap": 1.37,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "+12",
+     "x": 236.78,
+     "y": 21.1,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "ENVELOPE",
+   "param": "mod_env",
+   "c": [
+    250.45,
+    14.01
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.82,
+   "label": {
+    "text": "ENVELOPE",
+    "x": 250.33,
+    "y": 23.82,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "mod_sync",
+   "legends": [
+    {
+     "text": "−5",
+     "x": 243.72,
+     "y": 21.16,
+     "cap": 1.36,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "+5",
+     "x": 256.84,
+     "y": 20.98,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "LFO",
+   "param": "mod_lfo",
+   "c": [
+    270.45,
+    14.02
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.83,
+   "label": {
+    "text": "LFO",
+    "x": 270.6,
+    "y": 23.83,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "mod_sync",
+   "legends": [
+    {
+     "text": "−5",
+     "x": 263.75,
+     "y": 21.11,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "+5",
+     "x": 276.77,
+     "y": 20.99,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "PULSE WIDTH",
+   "param": "pulse_width",
+   "c": [
+    290.45,
+    14.01
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.77,
+   "label": {
+    "text": "PULSE WIDTH",
+    "x": 290.7,
+    "y": 23.77,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "mod_sync",
+   "legends": [
+    {
+     "text": "−5",
+     "x": 283.67,
+     "y": 21.12,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "+5",
+     "x": 296.8,
+     "y": 21.0,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "FREQUENCY",
+   "param": "frequency",
+   "c": [
+    310.47,
+    14.03
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.77,
+   "label": {
+    "text": "FREQUENCY",
+    "x": 310.43,
+    "y": 23.77,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "filter",
+   "legends": [
+    {
+     "text": "0",
+     "x": 304.2,
+     "y": 21.12,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 316.59,
+     "y": 21.13,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "RESONANCE",
+   "param": "resonance",
+   "c": [
+    330.47,
+    14.07
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.84,
+   "label": {
+    "text": "RESONANCE",
+    "x": 330.63,
+    "y": 23.84,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "filter",
+   "legends": [
+    {
+     "text": "0",
+     "x": 324.33,
+     "y": 21.13,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 336.63,
+     "y": 21.13,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "MOD DEPTH",
+   "param": "mod_depth",
+   "c": [
+    350.62,
+    14.01
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.79,
+   "label": {
+    "text": "MOD DEPTH",
+    "x": 350.54,
+    "y": 23.79,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "filter",
+   "legends": [
+    {
+     "text": "−5",
+     "x": 343.64,
+     "y": 21.13,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "+5",
+     "x": 357.06,
+     "y": 21.01,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "ATTACK",
+   "param": "attack",
+   "c": [
+    370.92,
+    13.93
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.73,
+   "label": {
+    "text": "ATTACK",
+    "x": 370.78,
+    "y": 23.73,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "envelopes",
+   "legends": [
+    {
+     "text": "0",
+     "x": 364.86,
+     "y": 21.07,
+     "cap": 1.36,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 377.09,
+     "y": 21.14,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "DECAY",
+   "param": "decay",
+   "c": [
+    390.92,
+    13.92
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.74,
+   "label": {
+    "text": "DECAY",
+    "x": 390.82,
+    "y": 23.74,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "envelopes",
+   "legends": [
+    {
+     "text": "0",
+     "x": 384.8,
+     "y": 21.08,
+     "cap": 1.36,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 397.09,
+     "y": 21.14,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "SUSTAIN",
+   "param": "sustain",
+   "c": [
+    410.91,
+    13.93
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.75,
+   "label": {
+    "text": "SUSTAIN",
+    "x": 410.9,
+    "y": 23.75,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "envelopes",
+   "legends": [
+    {
+     "text": "0",
+     "x": 404.78,
+     "y": 21.08,
+     "cap": 1.36,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 417.01,
+     "y": 21.08,
+     "cap": 1.37,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "RELEASE",
+   "param": "release",
+   "c": [
+    430.89,
+    13.97
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.75,
+   "label": {
+    "text": "RELEASE",
+    "x": 430.94,
+    "y": 23.75,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "envelopes",
+   "legends": [
+    {
+     "text": "0",
+     "x": 424.79,
+     "y": 21.08,
+     "cap": 1.37,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 437.01,
+     "y": 21.14,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  },
+  {
+   "name": "VELOCITY",
+   "param": "velocity",
+   "c": [
+    450.91,
+    13.98
+   ],
+   "d": 12.6,
+   "cap_d": 8.9,
+   "label_y": 23.7,
+   "label": {
+    "text": "VELOCITY",
+    "x": 450.86,
+    "y": 23.7,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   "strip": "envelopes",
+   "legends": [
+    {
+     "text": "0",
+     "x": 444.82,
+     "y": 21.14,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "10",
+     "x": 457.07,
+     "y": 21.15,
+     "cap": 1.5,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ]
+  }
+ ],
+ "switch_lever": {
+  "w": 5.5,
+  "h": 3.5,
+  "y": 29.15,
+  "wall": 0.8
+ },
+ "switches_note": "Slide switches: a black slot (body) with a ribbed dark grey lever. body x measured per switch (half-level edges); y 28.33..32.95 is common (the top edge is crisp at 28.25-28.38; the bottom edge is a soft shadow, 32.9-33.5, taken from the five cleanest). Lever 5.5 x 3.5 mm (mean of ten), its face seen 29.15..32.65, 0.25 mm low from parallax. lever_x = lever centre for each position, ends 0.8 mm in from the slot ends (the gap measured at end-position levers, 0.6-1.2 mm). photo_at = index of the position the lever sits at in the photo; every lever in the photo sits within 0.5 mm of one of these.",
+ "switches": [
+  {
+   "name": "WRITE",
+   "param": "write",
+   "body": [
+    45.64,
+    28.33,
+    10.14,
+    4.62
+   ],
+   "positions": [
+    "PROTECT",
+    "ENABLE"
+   ],
+   "lever_x": [
+    49.19,
+    52.23
+   ],
+   "photo_at": 0,
+   "legends": [
+    {
+     "text": "PROTECT",
+     "x": 44.5,
+     "y": 34.54,
+     "cap": 1.47,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "ENABLE",
+     "x": 55.5,
+     "y": 34.57,
+     "cap": 1.47,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "WRITE",
+    "x": 50.46,
+    "y": 37.38,
+    "cap": 1.66,
+    "align": "centre",
+    "colour": "label_box_text",
+    "box": [
+     46.09,
+     36.15,
+     8.78,
+     2.68
+    ],
+    "box_colour": "label_box"
+   },
+   "led": {
+    "c": [
+     58.02,
+     37.1
+    ],
+    "d": 2.2,
+    "colour": "led_red_off"
+   }
+  },
+  {
+   "name": "SHAPE",
+   "param": "lfo_shape",
+   "body": [
+    163.85,
+    28.33,
+    12.34,
+    4.62
+   ],
+   "positions": [
+    "R'DOM",
+    "TRI",
+    "SAW"
+   ],
+   "lever_x": [
+    167.4,
+    170.02,
+    172.64
+   ],
+   "photo_at": 2,
+   "legends": [
+    {
+     "text": "R'DOM",
+     "x": 164.38,
+     "y": 34.49,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "TRI",
+     "x": 170.2,
+     "y": 34.54,
+     "cap": 1.37,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "SAW",
+     "x": 175.99,
+     "y": 34.59,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "SHAPE",
+    "x": 169.85,
+    "y": 37.56,
+    "cap": 1.86,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "WAVEFORM",
+   "param": "osc1_wave",
+   "body": [
+    184.87,
+    28.33,
+    10.32,
+    4.62
+   ],
+   "positions": [
+    "saw",
+    "pulse"
+   ],
+   "lever_x": [
+    188.42,
+    191.64
+   ],
+   "photo_at": 1,
+   "legends": [
+    {
+     "icon": "saw",
+     "box": [
+      186.32,
+      34.19,
+      2.3,
+      1.12
+     ]
+    },
+    {
+     "icon": "pulse",
+     "box": [
+      191.56,
+      34.06,
+      2.41,
+      1.36
+     ]
+    }
+   ],
+   "label": {
+    "text": "WAVEFORM",
+    "x": 189.93,
+    "y": 37.56,
+    "cap": 1.71,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "RANGE",
+   "param": "osc2_range",
+   "body": [
+    203.46,
+    28.33,
+    13.34,
+    4.62
+   ],
+   "positions": [
+    "16'",
+    "8'",
+    "4'",
+    "2'"
+   ],
+   "lever_x": [
+    207.01,
+    209.09,
+    211.17,
+    213.25
+   ],
+   "photo_at": 1,
+   "legends": [
+    {
+     "text": "16'",
+     "x": 205.42,
+     "y": 34.65,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "8'",
+     "x": 208.97,
+     "y": 34.65,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "4'",
+     "x": 212.25,
+     "y": 34.58,
+     "cap": 1.37,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "2'",
+     "x": 215.41,
+     "y": 34.63,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "RANGE",
+    "x": 209.96,
+    "y": 37.57,
+    "cap": 1.85,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "WAVEFORM",
+   "param": "osc2_wave",
+   "body": [
+    224.97,
+    28.33,
+    10.4,
+    4.62
+   ],
+   "positions": [
+    "saw",
+    "pulse"
+   ],
+   "lever_x": [
+    228.52,
+    231.82
+   ],
+   "photo_at": 1,
+   "legends": [
+    {
+     "icon": "saw",
+     "box": [
+      226.25,
+      34.12,
+      2.25,
+      1.24
+     ]
+    },
+    {
+     "icon": "pulse",
+     "box": [
+      231.52,
+      34.11,
+      2.38,
+      1.36
+     ]
+    }
+   ],
+   "label": {
+    "text": "WAVEFORM",
+    "x": 230.0,
+    "y": 37.59,
+    "cap": 1.71,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "OSC1-2 SYNC",
+   "param": "sync",
+   "body": [
+    245.02,
+    28.33,
+    10.44,
+    4.62
+   ],
+   "positions": [
+    "OFF",
+    "ON"
+   ],
+   "lever_x": [
+    248.57,
+    251.91
+   ],
+   "photo_at": 1,
+   "legends": [
+    {
+     "text": "OFF",
+     "x": 247.93,
+     "y": 34.53,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "ON",
+     "x": 253.43,
+     "y": 34.58,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "OSC1-2 SYNC",
+    "x": 250.73,
+    "y": 37.5,
+    "cap": 1.84,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "OSCILLATOR",
+   "param": "oscillator",
+   "body": [
+    265.14,
+    28.33,
+    10.3,
+    4.62
+   ],
+   "positions": [
+    "1",
+    "2"
+   ],
+   "lever_x": [
+    268.69,
+    271.89
+   ],
+   "photo_at": 1,
+   "legends": [
+    {
+     "text": "1",
+     "x": 267.33,
+     "y": 34.57,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "2",
+     "x": 273.19,
+     "y": 34.63,
+     "cap": 1.36,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "OSCILLATOR",
+    "x": 270.32,
+    "y": 37.6,
+    "cap": 1.84,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "PWM SOURCE",
+   "param": "pwm_source",
+   "body": [
+    284.16,
+    28.33,
+    12.34,
+    4.62
+   ],
+   "positions": [
+    "ENV 2",
+    "MAN.",
+    "LFO"
+   ],
+   "lever_x": [
+    287.71,
+    290.33,
+    292.95
+   ],
+   "photo_at": 2,
+   "legends": [
+    {
+     "text": "ENV 2",
+     "x": 284.83,
+     "y": 34.57,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "MAN.",
+     "x": 290.49,
+     "y": 34.57,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "LFO",
+     "x": 296.66,
+     "y": 34.63,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "PWM SOURCE",
+    "x": 290.43,
+    "y": 37.59,
+    "cap": 1.85,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "CUT- OFF",
+   "param": "cut_off",
+   "body": [
+    305.2,
+    28.33,
+    10.41,
+    4.62
+   ],
+   "positions": [
+    "12dB",
+    "24dB"
+   ],
+   "lever_x": [
+    308.75,
+    312.06
+   ],
+   "photo_at": 1,
+   "legends": [
+    {
+     "text": "12dB",
+     "x": 307.12,
+     "y": 34.63,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "24dB",
+     "x": 313.47,
+     "y": 34.57,
+     "cap": 1.48,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "CUT- OFF",
+    "x": 310.42,
+    "y": 37.59,
+    "cap": 1.86,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "MOD SOURCE",
+   "param": "mod_source",
+   "body": [
+    345.25,
+    28.33,
+    10.49,
+    4.62
+   ],
+   "positions": [
+    "LFO",
+    "ENV 2"
+   ],
+   "lever_x": [
+    348.8,
+    352.19
+   ],
+   "photo_at": 0,
+   "legends": [
+    {
+     "text": "LFO",
+     "x": 346.78,
+     "y": 34.59,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "ENV 2",
+     "x": 353.12,
+     "y": 34.66,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "MOD SOURCE",
+    "x": 350.56,
+    "y": 37.62,
+    "cap": 1.87,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "ENVELOPE",
+   "param": "envelope",
+   "body": [
+    364.35,
+    28.33,
+    12.49,
+    4.62
+   ],
+   "positions": [
+    "1",
+    "2",
+    "1&2"
+   ],
+   "lever_x": [
+    367.9,
+    370.6,
+    373.29
+   ],
+   "photo_at": 2,
+   "legends": [
+    {
+     "text": "1",
+     "x": 365.44,
+     "y": 34.61,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "2",
+     "x": 370.8,
+     "y": 34.62,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "1&2",
+     "x": 375.53,
+     "y": 34.62,
+     "cap": 1.49,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "ENVELOPE",
+    "x": 370.94,
+    "y": 37.53,
+    "cap": 1.87,
+    "align": "centre"
+   }
+  },
+  {
+   "name": "TRIGGERING",
+   "param": "triggering",
+   "body": [
+    404.52,
+    28.33,
+    12.44,
+    4.62
+   ],
+   "positions": [
+    "AUTOGLIDE",
+    "SINGLE",
+    "MULTI"
+   ],
+   "lever_x": [
+    408.07,
+    410.74,
+    413.41
+   ],
+   "photo_at": 0,
+   "legends": [
+    {
+     "text": "AUTOGLIDE",
+     "x": 401.01,
+     "y": 34.59,
+     "cap": 1.5,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "SINGLE",
+     "x": 410.74,
+     "y": 34.55,
+     "cap": 1.5,
+     "align": "centre",
+     "colour": "legend"
+    },
+    {
+     "text": "MULTI",
+     "x": 418.01,
+     "y": 34.56,
+     "cap": 1.5,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "label": {
+    "text": "TRIGGERING",
+    "x": 411.01,
+    "y": 37.59,
+    "cap": 1.89,
+    "align": "centre"
+   }
+  }
+ ],
+ "keys": [
+  {
+   "id": "key1",
+   "box": [
+    62.41,
+    5.19,
+    9.76,
+    4.62
+   ],
+   "legend": {
+    "text": "1",
+    "x": 66.33,
+    "y": 7.95,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "PITCH BEND",
+     "x": 67.81,
+     "y": 11.56,
+     "cap": 1.33,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key2",
+   "box": [
+    75.41,
+    5.15,
+    9.76,
+    4.64
+   ],
+   "legend": {
+    "text": "2",
+    "x": 79.58,
+    "y": 7.82,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "PITCH MOD",
+     "x": 80.85,
+     "y": 11.48,
+     "cap": 1.32,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key3",
+   "box": [
+    88.37,
+    5.07,
+    9.83,
+    4.66
+   ],
+   "legend": {
+    "text": "3",
+    "x": 92.51,
+    "y": 7.75,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "FILTER MOD",
+     "x": 93.77,
+     "y": 11.52,
+     "cap": 1.3,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key4",
+   "box": [
+    62.42,
+    13.72,
+    9.71,
+    4.54
+   ],
+   "legend": {
+    "text": "4",
+    "x": 66.34,
+    "y": 16.27,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "AT/BTH P.MOD",
+     "x": 68.02,
+     "y": 19.95,
+     "cap": 1.3,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key5",
+   "box": [
+    75.44,
+    13.75,
+    9.76,
+    4.53
+   ],
+   "legend": {
+    "text": "5",
+    "x": 79.66,
+    "y": 16.23,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "AT/BTH F.MOD",
+     "x": 80.78,
+     "y": 19.86,
+     "cap": 1.29,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key6",
+   "box": [
+    88.37,
+    13.76,
+    9.86,
+    4.55
+   ],
+   "legend": {
+    "text": "6",
+    "x": 92.6,
+    "y": 16.2,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "AT/BTH EG BIAS",
+     "x": 94.18,
+     "y": 19.87,
+     "cap": 1.29,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key7",
+   "box": [
+    62.44,
+    22.24,
+    9.7,
+    4.53
+   ],
+   "legend": {
+    "text": "7",
+    "x": 66.47,
+    "y": 25.04,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "MIDI/LFO CLK",
+     "x": 68.22,
+     "y": 28.33,
+     "cap": 1.28,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key8",
+   "box": [
+    75.42,
+    22.26,
+    9.71,
+    4.49
+   ],
+   "legend": {
+    "text": "8",
+    "x": 79.52,
+    "y": 25.1,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "CV / GATE CH.",
+     "x": 80.85,
+     "y": 28.32,
+     "cap": 1.28,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key9",
+   "box": [
+    88.43,
+    22.14,
+    9.75,
+    4.56
+   ],
+   "legend": {
+    "text": "9",
+    "x": 92.6,
+    "y": 24.84,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "TUNING",
+     "x": 93.99,
+     "y": 28.36,
+     "cap": 1.28,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key_minus",
+   "box": [
+    62.4,
+    30.68,
+    9.7,
+    4.53
+   ],
+   "legend": {
+    "text": "−",
+    "x": 66.52,
+    "y": 33.37,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "SAVE TYPE",
+     "x": 67.93,
+     "y": 36.47,
+     "cap": 1.26,
+     "align": "centre",
+     "colour": "grey_label"
+    },
+    {
+     "text": "COMPARE",
+     "x": 67.76,
+     "y": 38.54,
+     "cap": 1.25,
+     "align": "centre",
+     "colour": "label_box_text",
+     "box": [
+      62.76,
+      37.51,
+      10.29,
+      2.22
+     ],
+     "box_colour": "label_box"
+    }
+   ]
+  },
+  {
+   "id": "key0",
+   "box": [
+    75.43,
+    30.68,
+    9.71,
+    4.55
+   ],
+   "legend": {
+    "text": "0",
+    "x": 79.57,
+    "y": 33.4,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "POLY MODE",
+     "x": 81.17,
+     "y": 36.55,
+     "cap": 1.25,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "key_plus",
+   "box": [
+    88.44,
+    30.7,
+    9.76,
+    4.53
+   ],
+   "legend": {
+    "text": "+",
+    "x": 92.45,
+    "y": 33.3,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "SAVE",
+     "x": 93.7,
+     "y": 36.5,
+     "cap": 1.27,
+     "align": "centre",
+     "colour": "grey_label"
+    },
+    {
+     "text": "WRITE",
+     "x": 93.81,
+     "y": 38.55,
+     "cap": 1.26,
+     "align": "centre",
+     "colour": "label_box_text",
+     "box": [
+      90.3,
+      37.54,
+      7.17,
+      2.07
+     ],
+     "box_colour": "label_box"
+    }
+   ]
+  },
+  {
+   "id": "audition",
+   "box": [
+    105.62,
+    30.73,
+    9.7,
+    4.57
+   ],
+   "icon": {
+    "icon": "note",
+    "box": [
+     109.26,
+     31.98,
+     1.85,
+     2.8
+    ],
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "AUDITION",
+     "x": 107.18,
+     "y": 37.6,
+     "cap": 1.74,
+     "align": "centre",
+     "colour": "legend",
+     "note": "AUDITION/DEMO printed as one line: AUDITION white, /DEMO yellow"
+    },
+    {
+     "text": "/DEMO",
+     "x": 116.63,
+     "y": 37.69,
+     "cap": 1.74,
+     "align": "centre",
+     "colour": "yellow"
+    }
+   ]
+  },
+  {
+   "id": "mode",
+   "box": [
+    123.71,
+    30.68,
+    9.57,
+    4.55
+   ],
+   "legend": {
+    "text": "SELECT",
+    "x": 128.17,
+    "y": 33.39,
+    "cap": 1.63,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   "labels": [
+    {
+     "text": "MODE",
+     "x": 128.73,
+     "y": 37.64,
+     "cap": 1.75,
+     "align": "centre",
+     "colour": "legend"
+    }
+   ],
+   "bracket": {
+    "points": [
+     [
+      128.81,
+      29.77
+     ],
+     [
+      128.81,
+      28.82
+     ],
+     [
+      134.96,
+      28.81
+     ],
+     [
+      134.97,
+      27.87
+     ]
+    ],
+    "w": 0.3,
+    "colour": "legend"
+   }
+  }
+ ],
+ "keys_note": "Grey keys, outline at the 25 % level between face and key (includes the darker right and lower side faces the camera sees; the lit face alone is about 9.45 x 4.45). Keypad columns 13.0 mm apart (x 67.3/80.3/93.3), rows 8.5 mm apart. Numerals (white, cap 1.7) sit about 0.9 mm left of the outline centre: the key tops are raised and seen from the right. Yellow second-function labels are printed under their keys; SAVE TYPE and SAVE are printed grey-beige with COMPARE and WRITE in light boxes below them. The MODE key's bracket line runs up towards the SAVE LED.",
+ "display": {
+  "window": [
+   101.71,
+   5.37,
+   36.36,
+   21.42
+  ],
+  "window_note": "black bezel with rounded corners; its edges are faint in the photo (+-0.3 mm)",
+  "filter": [
+   104.84,
+   9.96,
+   19.77,
+   12.79
+  ],
+  "digits": [
+   [
+    106.1,
+    11.28,
+    5.6,
+    10.16
+   ],
+   [
+    116.1,
+    11.28,
+    5.6,
+    10.16
+   ]
+  ],
+  "digits_note": "GUESSED, not measured: the 7-segment digits are unlit and invisible behind the red filter. Boxes assume a 0.4 in (10.16 mm) digit, centred in the filter vertically, with its decimal point at the EDIT/WRITE marks (x 112.54 and 122.55, 10.0 mm apart).",
+  "leds": [
+   {
+    "name": "PROGRAM",
+    "c": [
+     135.42,
+     10.49
+    ]
+   },
+   {
+    "name": "MIDI RX CH",
+    "c": [
+     135.32,
+     14.13
+    ]
+   },
+   {
+    "name": "MIDI TX CH",
+    "c": [
+     135.45,
+     17.67
+    ]
+   },
+   {
+    "name": "UTILITY",
+    "c": [
+     135.26,
+     21.13
+    ]
+   },
+   {
+    "name": "SAVE",
+    "c": [
+     135.5,
+     24.77
+    ]
+   }
+  ],
+  "led_d": 2.1,
+  "led_note": "round, behind the window, pale pink (unlit, with a reflection); d at half contrast",
+  "labels": [
+   {
+    "text": "PROGRAM",
+    "x": 125.69,
+    "y": 11.08,
+    "cap": 1.17,
+    "align": "left"
+   },
+   {
+    "text": "MIDI RX CH.",
+    "x": 125.67,
+    "y": 14.63,
+    "cap": 1.16,
+    "align": "left"
+   },
+   {
+    "text": "MIDI TX CH.",
+    "x": 125.65,
+    "y": 18.11,
+    "cap": 1.17,
+    "align": "left"
+   },
+   {
+    "text": "UTILITY",
+    "x": 125.49,
+    "y": 21.79,
+    "cap": 1.27,
+    "align": "left",
+    "colour": "yellow"
+   },
+   {
+    "text": "SAVE",
+    "x": 125.6,
+    "y": 25.08,
+    "cap": 1.27,
+    "align": "left"
+   }
+  ],
+  "marks": [
+   {
+    "text": {
+     "text": "EDIT",
+     "x": 108.65,
+     "y": 24.9,
+     "cap": 1.15,
+     "align": "centre"
+    },
+    "corner": [
+     [
+      111.27,
+      24.96
+     ],
+     [
+      112.54,
+      24.96
+     ],
+     [
+      112.54,
+      24.07
+     ]
+    ]
+   },
+   {
+    "text": {
+     "text": "WRITE",
+     "x": 117.48,
+     "y": 25.02,
+     "cap": 1.14,
+     "align": "centre"
+    },
+    "corner": [
+     [
+      121.28,
+      25.02
+     ],
+     [
+      122.54,
+      25.02
+     ],
+     [
+      122.55,
+      24.2
+     ]
+    ]
+   }
+  ],
+  "marks_note": "EDIT and WRITE are the two decimal points; each word has a small white corner mark pointing up at its DP. Line 0.25 wide."
+ },
+ "leds": [
+  {
+   "name": "LFO SPEED",
+   "c": [
+    145.06,
+    30.57
+   ],
+   "d": 2.5,
+   "colour": "led_red_off",
+   "label": {
+    "text": "SPEED",
+    "x": 146.87,
+    "y": 34.6,
+    "cap": 1.5,
+    "align": "centre",
+    "colour": "legend"
+   }
+  },
+  {
+   "name": "WRITE",
+   "c": [
+    58.02,
+    37.1
+   ],
+   "d": 2.2,
+   "colour": "led_red_off"
+  }
+ ],
+ "leds_note": "Red domes, unlit in the photo; d at half chroma contrast (the lens is likely a 3 mm LED, its rim lost in shadow).",
+ "phones": {
+  "c": [
+   31.1,
+   30.64
+  ],
+  "nut_d": 8.44,
+  "hole_d": 6.34,
+  "icon": {
+   "icon": "headphones",
+   "box": [
+    19.22,
+    27.75,
+    3.62,
+    3.92
+   ],
+   "colour": "legend"
+  },
+  "label": {
+   "text": "PHONES",
+   "x": 21.04,
+   "y": 34.62,
+   "cap": 1.42,
+   "align": "centre"
+  },
+  "note": "1/4 in jack: silver nut ring and black hole; centre between the nut and hole fits (they differ by 0.3 mm from parallax)."
+ },
+ "name_strip": {
+  "box": [
+   421.12,
+   35.43,
+   43.58,
+   2.94
+  ],
+  "colour": "synth_strip",
+  "text": {
+   "text": "ANALOGUE SYNTHESIZER MODULE",
+   "x": 421.91,
+   "y": 36.87,
+   "cap": 1.39,
+   "align": "left",
+   "colour": "synth_strip_text",
+   "w": 41.79
+  },
+  "note": "Light strip under the logo with black capitals. The watermark covers the H and the I of SYNTHESIZER and the M of MODULE; the text's right end (463.70) is at the watermark's edge, so its width is +-0.3 mm. Spelling (with a Z) from the same strip on the rear (docs/web/polynominal-rack-rear.jpg); the front's visible Z agrees."
+ },
+ "texts": {
+  "left": [
+   {
+    "text": "VOLUME",
+    "x": 30.68,
+    "y": 23.75,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 24.72,
+    "y": 21.14,
+    "cap": 1.44,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 36.95,
+    "y": 21.15,
+    "cap": 1.43,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "PORTAMENTO",
+    "x": 50.6,
+    "y": 23.75,
+    "cap": 1.69,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 44.65,
+    "y": 21.16,
+    "cap": 1.43,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 56.83,
+    "y": 21.04,
+    "cap": 1.43,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "PHONES",
+    "x": 21.04,
+    "y": 34.62,
+    "cap": 1.42,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "PROTECT",
+    "x": 44.5,
+    "y": 34.54,
+    "cap": 1.47,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "ENABLE",
+    "x": 55.5,
+    "y": 34.57,
+    "cap": 1.47,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "WRITE",
+    "x": 50.46,
+    "y": 37.38,
+    "cap": 1.66,
+    "align": "centre",
+    "colour": "label_box_text"
+   }
+  ],
+  "data_entry": [
+   {
+    "text": "1",
+    "x": 66.33,
+    "y": 7.95,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "PITCH BEND",
+    "x": 67.81,
+    "y": 11.56,
+    "cap": 1.33,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "2",
+    "x": 79.58,
+    "y": 7.82,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "PITCH MOD",
+    "x": 80.85,
+    "y": 11.48,
+    "cap": 1.32,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "3",
+    "x": 92.51,
+    "y": 7.75,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "FILTER MOD",
+    "x": 93.77,
+    "y": 11.52,
+    "cap": 1.3,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "4",
+    "x": 66.34,
+    "y": 16.27,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "AT/BTH P.MOD",
+    "x": 68.02,
+    "y": 19.95,
+    "cap": 1.3,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "5",
+    "x": 79.66,
+    "y": 16.23,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "AT/BTH F.MOD",
+    "x": 80.78,
+    "y": 19.86,
+    "cap": 1.29,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "6",
+    "x": 92.6,
+    "y": 16.2,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "AT/BTH EG BIAS",
+    "x": 94.18,
+    "y": 19.87,
+    "cap": 1.29,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "7",
+    "x": 66.47,
+    "y": 25.04,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "MIDI/LFO CLK",
+    "x": 68.22,
+    "y": 28.33,
+    "cap": 1.28,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "8",
+    "x": 79.52,
+    "y": 25.1,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "CV / GATE CH.",
+    "x": 80.85,
+    "y": 28.32,
+    "cap": 1.28,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "9",
+    "x": 92.6,
+    "y": 24.84,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "TUNING",
+    "x": 93.99,
+    "y": 28.36,
+    "cap": 1.28,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "−",
+    "x": 66.52,
+    "y": 33.37,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "SAVE TYPE",
+    "x": 67.93,
+    "y": 36.47,
+    "cap": 1.26,
+    "align": "centre",
+    "colour": "grey_label"
+   },
+   {
+    "text": "COMPARE",
+    "x": 67.76,
+    "y": 38.54,
+    "cap": 1.25,
+    "align": "centre",
+    "colour": "label_box_text"
+   },
+   {
+    "text": "0",
+    "x": 79.57,
+    "y": 33.4,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "POLY MODE",
+    "x": 81.17,
+    "y": 36.55,
+    "cap": 1.25,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "+",
+    "x": 92.45,
+    "y": 33.3,
+    "cap": 1.7,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "SAVE",
+    "x": 93.7,
+    "y": 36.5,
+    "cap": 1.27,
+    "align": "centre",
+    "colour": "grey_label"
+   },
+   {
+    "text": "WRITE",
+    "x": 93.81,
+    "y": 38.55,
+    "cap": 1.26,
+    "align": "centre",
+    "colour": "label_box_text"
+   },
+   {
+    "text": "AUDITION",
+    "x": 107.18,
+    "y": 37.6,
+    "cap": 1.74,
+    "align": "centre",
+    "colour": "legend",
+    "note": "AUDITION/DEMO printed as one line: AUDITION white, /DEMO yellow"
+   },
+   {
+    "text": "/DEMO",
+    "x": 116.63,
+    "y": 37.69,
+    "cap": 1.74,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "SELECT",
+    "x": 128.17,
+    "y": 33.39,
+    "cap": 1.63,
+    "align": "centre",
+    "colour": "key_text"
+   },
+   {
+    "text": "MODE",
+    "x": 128.73,
+    "y": 37.64,
+    "cap": 1.75,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "DATA ENTRY",
+    "x": 81.27,
+    "y": 38.6,
+    "cap": 1.74,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "PROGRAM",
+    "x": 125.69,
+    "y": 11.08,
+    "cap": 1.17,
+    "align": "left",
+    "colour": "legend"
+   },
+   {
+    "text": "MIDI RX CH.",
+    "x": 125.67,
+    "y": 14.63,
+    "cap": 1.16,
+    "align": "left",
+    "colour": "legend"
+   },
+   {
+    "text": "MIDI TX CH.",
+    "x": 125.65,
+    "y": 18.11,
+    "cap": 1.17,
+    "align": "left",
+    "colour": "legend"
+   },
+   {
+    "text": "UTILITY",
+    "x": 125.49,
+    "y": 21.79,
+    "cap": 1.27,
+    "align": "left",
+    "colour": "yellow"
+   },
+   {
+    "text": "SAVE",
+    "x": 125.6,
+    "y": 25.08,
+    "cap": 1.27,
+    "align": "left",
+    "colour": "legend"
+   },
+   {
+    "text": "EDIT",
+    "x": 108.65,
+    "y": 24.9,
+    "cap": 1.15,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "WRITE",
+    "x": 117.48,
+    "y": 25.02,
+    "cap": 1.14,
+    "align": "centre",
+    "colour": "legend"
+   }
+  ],
+  "lfo": [
+   {
+    "text": "SPEED",
+    "x": 149.95,
+    "y": 23.75,
+    "cap": 1.64,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 143.82,
+    "y": 21.1,
+    "cap": 1.39,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 156.1,
+    "y": 21.11,
+    "cap": 1.39,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "DELAY",
+    "x": 170.01,
+    "y": 23.75,
+    "cap": 1.63,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 163.88,
+    "y": 21.12,
+    "cap": 1.38,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 176.14,
+    "y": 21.12,
+    "cap": 1.38,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "LFO",
+    "x": 161.13,
+    "y": 26.39,
+    "cap": 2.38,
+    "align": "centre",
+    "colour": "blue",
+    "section": "lfo"
+   },
+   {
+    "text": "SPEED",
+    "x": 146.87,
+    "y": 34.6,
+    "cap": 1.5,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "R'DOM",
+    "x": 164.38,
+    "y": 34.49,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "TRI",
+    "x": 170.2,
+    "y": 34.54,
+    "cap": 1.37,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "SAW",
+    "x": 175.99,
+    "y": 34.59,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "SHAPE",
+    "x": 169.85,
+    "y": 37.56,
+    "cap": 1.86,
+    "align": "centre",
+    "colour": "legend"
+   }
+  ],
+  "osc1": [
+   {
+    "text": "MIX",
+    "x": 189.77,
+    "y": 23.75,
+    "cap": 1.62,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "OSC1",
+    "x": 183.32,
+    "y": 7.51,
+    "cap": 1.14,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "1&2",
+    "x": 196.91,
+    "y": 7.49,
+    "cap": 1.26,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "EXT.",
+    "x": 182.68,
+    "y": 21.32,
+    "cap": 1.25,
+    "align": "centre",
+    "colour": "yellow"
+   },
+   {
+    "text": "OSC2",
+    "x": 196.47,
+    "y": 21.2,
+    "cap": 1.25,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "OSC 1",
+    "x": 190.83,
+    "y": 26.37,
+    "cap": 2.37,
+    "align": "centre",
+    "colour": "blue",
+    "section": "osc1"
+   },
+   {
+    "text": "WAVEFORM",
+    "x": 189.93,
+    "y": 37.56,
+    "cap": 1.71,
+    "align": "centre",
+    "colour": "legend"
+   }
+  ],
+  "osc2": [
+   {
+    "text": "DETUNE",
+    "x": 209.96,
+    "y": 23.82,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "−",
+    "x": 202.63,
+    "y": 20.89,
+    "cap": 1.45,
+    "align": "centre",
+    "note": "bare minus sign, its bar 202.06-203.20 x 20.70-21.08; cap taken from the digit legends",
+    "colour": "legend"
+   },
+   {
+    "text": "+",
+    "x": 216.92,
+    "y": 20.96,
+    "cap": 1.45,
+    "align": "centre",
+    "note": "bare plus sign, glyph 216.23-217.61 x 20.46-21.46",
+    "colour": "legend"
+   },
+   {
+    "text": "SEMI-TONE",
+    "x": 229.99,
+    "y": 23.82,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 223.53,
+    "y": 21.15,
+    "cap": 1.37,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "+12",
+    "x": 236.78,
+    "y": 21.1,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "OSC 2",
+    "x": 221.56,
+    "y": 26.4,
+    "cap": 2.4,
+    "align": "centre",
+    "colour": "blue",
+    "section": "osc2"
+   },
+   {
+    "text": "16'",
+    "x": 205.42,
+    "y": 34.65,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "8'",
+    "x": 208.97,
+    "y": 34.65,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "4'",
+    "x": 212.25,
+    "y": 34.58,
+    "cap": 1.37,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "2'",
+    "x": 215.41,
+    "y": 34.63,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "RANGE",
+    "x": 209.96,
+    "y": 37.57,
+    "cap": 1.85,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "WAVEFORM",
+    "x": 230.0,
+    "y": 37.59,
+    "cap": 1.71,
+    "align": "centre",
+    "colour": "legend"
+   }
+  ],
+  "mod_sync": [
+   {
+    "text": "ENVELOPE",
+    "x": 250.33,
+    "y": 23.82,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "−5",
+    "x": 243.72,
+    "y": 21.16,
+    "cap": 1.36,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "+5",
+    "x": 256.84,
+    "y": 20.98,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "LFO",
+    "x": 270.6,
+    "y": 23.83,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "−5",
+    "x": 263.75,
+    "y": 21.11,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "+5",
+    "x": 276.77,
+    "y": 20.99,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "PULSE WIDTH",
+    "x": 290.7,
+    "y": 23.77,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "−5",
+    "x": 283.67,
+    "y": 21.12,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "+5",
+    "x": 296.8,
+    "y": 21.0,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "OSC 1-2 MOD/SYNC.",
+    "x": 270.57,
+    "y": 26.37,
+    "cap": 2.37,
+    "align": "centre",
+    "colour": "blue",
+    "section": "mod_sync",
+    "note": "the slash runs 0.45 mm below the baseline"
+   },
+   {
+    "text": "OFF",
+    "x": 247.93,
+    "y": 34.53,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "ON",
+    "x": 253.43,
+    "y": 34.58,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "OSC1-2 SYNC",
+    "x": 250.73,
+    "y": 37.5,
+    "cap": 1.84,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "1",
+    "x": 267.33,
+    "y": 34.57,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "2",
+    "x": 273.19,
+    "y": 34.63,
+    "cap": 1.36,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "OSCILLATOR",
+    "x": 270.32,
+    "y": 37.6,
+    "cap": 1.84,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "ENV 2",
+    "x": 284.83,
+    "y": 34.57,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "MAN.",
+    "x": 290.49,
+    "y": 34.57,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "LFO",
+    "x": 296.66,
+    "y": 34.63,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "PWM SOURCE",
+    "x": 290.43,
+    "y": 37.59,
+    "cap": 1.85,
+    "align": "centre",
+    "colour": "legend"
+   }
+  ],
+  "filter": [
+   {
+    "text": "FREQUENCY",
+    "x": 310.43,
+    "y": 23.77,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 304.2,
+    "y": 21.12,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 316.59,
+    "y": 21.13,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "RESONANCE",
+    "x": 330.63,
+    "y": 23.84,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 324.33,
+    "y": 21.13,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 336.63,
+    "y": 21.13,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "MOD DEPTH",
+    "x": 350.54,
+    "y": 23.79,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "−5",
+    "x": 343.64,
+    "y": 21.13,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "+5",
+    "x": 357.06,
+    "y": 21.01,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "FILTER",
+    "x": 331.13,
+    "y": 26.49,
+    "cap": 2.35,
+    "align": "centre",
+    "colour": "blue",
+    "section": "filter"
+   },
+   {
+    "text": "12dB",
+    "x": 307.12,
+    "y": 34.63,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "24dB",
+    "x": 313.47,
+    "y": 34.57,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "CUT- OFF",
+    "x": 310.42,
+    "y": 37.59,
+    "cap": 1.86,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "LFO",
+    "x": 346.78,
+    "y": 34.59,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "ENV 2",
+    "x": 353.12,
+    "y": 34.66,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "MOD SOURCE",
+    "x": 350.56,
+    "y": 37.62,
+    "cap": 1.87,
+    "align": "centre",
+    "colour": "legend"
+   }
+  ],
+  "envelopes": [
+   {
+    "text": "ATTACK",
+    "x": 370.78,
+    "y": 23.73,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 364.86,
+    "y": 21.07,
+    "cap": 1.36,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 377.09,
+    "y": 21.14,
+    "cap": 1.48,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "DECAY",
+    "x": 390.82,
+    "y": 23.74,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 384.8,
+    "y": 21.08,
+    "cap": 1.36,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 397.09,
+    "y": 21.14,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "SUSTAIN",
+    "x": 410.9,
+    "y": 23.75,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 404.78,
+    "y": 21.08,
+    "cap": 1.36,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 417.01,
+    "y": 21.08,
+    "cap": 1.37,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "RELEASE",
+    "x": 430.94,
+    "y": 23.75,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 424.79,
+    "y": 21.08,
+    "cap": 1.37,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 437.01,
+    "y": 21.14,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "VELOCITY",
+    "x": 450.86,
+    "y": 23.7,
+    "cap": 1.73,
+    "align": "centre",
+    "colour": "strip_text"
+   },
+   {
+    "text": "0",
+    "x": 444.82,
+    "y": 21.14,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "10",
+    "x": 457.07,
+    "y": 21.15,
+    "cap": 1.5,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "ENVELOPES",
+    "x": 410.66,
+    "y": 26.41,
+    "cap": 2.37,
+    "align": "centre",
+    "colour": "blue",
+    "section": "envelopes"
+   },
+   {
+    "text": "1",
+    "x": 365.44,
+    "y": 34.61,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "2",
+    "x": 370.8,
+    "y": 34.62,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "1&2",
+    "x": 375.53,
+    "y": 34.62,
+    "cap": 1.49,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "ENVELOPE",
+    "x": 370.94,
+    "y": 37.53,
+    "cap": 1.87,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "AUTOGLIDE",
+    "x": 401.01,
+    "y": 34.59,
+    "cap": 1.5,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "SINGLE",
+    "x": 410.74,
+    "y": 34.55,
+    "cap": 1.5,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "MULTI",
+    "x": 418.01,
+    "y": 34.56,
+    "cap": 1.5,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "TRIGGERING",
+    "x": 411.01,
+    "y": 37.59,
+    "cap": 1.89,
+    "align": "centre",
+    "colour": "legend"
+   },
+   {
+    "text": "ANALOGUE SYNTHESIZER MODULE",
+    "x": 421.91,
+    "y": 36.87,
+    "cap": 1.39,
+    "align": "left",
+    "colour": "synth_strip_text",
+    "w": 41.79
+   }
+  ]
+ },
+ "texts_note": "Every printed word, by frame. x is the left edge, centre or right edge per align; y is the middle of the capitals; cap is the capital height from the word's bounding box (a few switch legends whose box was 0.1-0.15 taller from round O/G/S overshoot are given their line's flat height; PROTECT/ENABLE the mean of the pair). The same entries appear inside knobs/switches/keys/display above; this list is the complete set.",
+ "rear": {
+  "source": "Rear measured 2026-11-25 from polynominal.com's straight-on image of the whole rear (private/bsrack/docs/web/polynominal-rack-rear.jpg, 1032x104, SHA1 df3089582ef130a50539af45e67b71bdd2b649f2). Scale 2.339 px/mm from the jacks' 20.0 mm pitch (CV IN to GATE OUT, the MIDI sockets alike), which makes the plate 1029 px = 440.0 mm, the standard 1U body between the ears; 101 px = 43.2 mm of its height shows. +-0.4 mm for print, +-0.5 mm for the sockets.",
+  "frame": "the rear plate's millimetres, x from its left edge as seen from behind, y down from its top; the view centres it in the front's 482.6 x 44.0 mm",
+  "plate": [
+   440.0,
+   43.2
+  ],
+  "frames": [
+   [
+    186.8,
+    11.5,
+    267.4,
+    39.0
+   ],
+   [
+    288.4,
+    11.5,
+    307.6,
+    39.0
+   ],
+   [
+    308.5,
+    11.5,
+    327.5,
+    39.0
+   ],
+   [
+    341.8,
+    11.5,
+    404.2,
+    39.3
+   ],
+   [
+    413.7,
+    26.5,
+    422.8,
+    37.7
+   ]
+  ],
+  "frame_line_w": 0.45,
+  "dividers": [
+   [
+    227.4,
+    20.1,
+    227.4,
+    35.9
+   ]
+  ],
+  "module_box": [
+   8.6,
+   32.1,
+   97.5,
+   37.4
+  ],
+  "module_text": {
+   "text": "ANALOGUE   SYNTHESIZER   MODULE",
+   "cap": 2.1,
+   "w": 85.0
+  },
+  "jacks": [
+   {
+    "id": "cv_in",
+    "kind": "jack",
+    "x": 197.7,
+    "y": 31.3,
+    "name": "CV IN",
+    "tip": "CV IN: not emulated (the firmware reads it; the plugin has no jack for it)"
+   },
+   {
+    "id": "gate_in",
+    "kind": "jack",
+    "x": 217.6,
+    "y": 31.3,
+    "name": "GATE IN",
+    "tip": "GATE IN: not emulated"
+   },
+   {
+    "id": "cv_out",
+    "kind": "jack",
+    "x": 237.6,
+    "y": 31.3,
+    "name": "CV OUT",
+    "tip": "CV OUT: not emulated (the firmware sets it: the last MIDI note, 1 V/octave)"
+   },
+   {
+    "id": "gate_out",
+    "kind": "jack",
+    "x": 257.8,
+    "y": 31.3,
+    "name": "GATE OUT",
+    "tip": "GATE OUT: not emulated"
+   },
+   {
+    "id": "filter_in",
+    "kind": "jack",
+    "x": 297.9,
+    "y": 31.5,
+    "name": "FILTER: EXTERNAL AUDIO INPUT",
+    "cable": true
+   },
+   {
+    "id": "line_out",
+    "kind": "jack",
+    "x": 318.0,
+    "y": 31.5,
+    "name": "OUTPUT: LINE OUT",
+    "tip": "OUTPUT: LINE OUT, the plugin's output"
+   },
+   {
+    "id": "midi_in",
+    "kind": "din",
+    "x": 353.1,
+    "y": 27.3,
+    "name": "MIDI IN",
+    "tip": "MIDI IN: the host's MIDI"
+   },
+   {
+    "id": "midi_out",
+    "kind": "din",
+    "x": 373.2,
+    "y": 27.3,
+    "name": "MIDI OUT",
+    "tip": "MIDI OUT: the plugin's MIDI output (a knob sends its controller)"
+   },
+   {
+    "id": "midi_thru",
+    "kind": "din",
+    "x": 393.1,
+    "y": 27.3,
+    "name": "MIDI THRU",
+    "tip": "MIDI THRU: not emulated (it copies MIDI IN)"
+   },
+   {
+    "id": "power",
+    "kind": "power",
+    "x": 418.4,
+    "y": 31.8,
+    "name": "POWER IN 9V DC",
+    "tip": "POWER IN 9V DC: the plugin is the power supply"
+   }
+  ],
+  "jack": {
+   "ring_d": 9.4,
+   "hole_d": 5.2
+  },
+  "din": {
+   "shell_d": 14.0,
+   "insulator_d": 7.2,
+   "pin_circle_d": 5.0,
+   "pin_d": 0.9,
+   "note": "5-pin 180 degree DIN: pins on the lower half, the key notch at the top"
+  },
+  "power_socket": {
+   "d": 5.6,
+   "pin_d": 1.0
+  },
+  "texts": [
+   {
+    "text": "CV / GATE",
+    "x": 227.5,
+    "y": 14.75,
+    "cap": 2.1,
+    "colour": "rear_ink",
+    "w": 17.9
+   },
+   {
+    "text": "CV IN",
+    "x": 197.7,
+    "y": 20.95,
+    "cap": 1.0,
+    "colour": "rear_ink",
+    "w": 4.7
+   },
+   {
+    "text": "GATE IN",
+    "x": 217.85,
+    "y": 21.15,
+    "cap": 1.1,
+    "colour": "rear_ink",
+    "w": 7.3
+   },
+   {
+    "text": "CV OUT",
+    "x": 237.5,
+    "y": 21.15,
+    "cap": 1.1,
+    "colour": "rear_ink",
+    "w": 6.4
+   },
+   {
+    "text": "GATE OUT",
+    "x": 257.8,
+    "y": 21.15,
+    "cap": 1.1,
+    "colour": "rear_ink",
+    "w": 9.4
+   },
+   {
+    "text": "FILTER",
+    "x": 298.0,
+    "y": 14.95,
+    "cap": 1.7,
+    "colour": "rear_ink",
+    "w": 9.4
+   },
+   {
+    "text": "EXTERNAL",
+    "x": 298.0,
+    "y": 21.2,
+    "cap": 1.0,
+    "colour": "rear_ink",
+    "w": 8.6
+   },
+   {
+    "text": "AUDIO INPUT",
+    "x": 298.0,
+    "y": 22.8,
+    "cap": 1.0,
+    "colour": "rear_ink",
+    "w": 12.0
+   },
+   {
+    "text": "OUTPUT",
+    "x": 317.65,
+    "y": 14.95,
+    "cap": 1.7,
+    "colour": "rear_ink",
+    "w": 12.9
+   },
+   {
+    "text": "LINE OUT",
+    "x": 317.85,
+    "y": 21.15,
+    "cap": 1.1,
+    "colour": "rear_ink",
+    "w": 8.1
+   },
+   {
+    "text": "MIDI",
+    "x": 373.25,
+    "y": 14.95,
+    "cap": 1.7,
+    "colour": "rear_ink",
+    "w": 6.9
+   },
+   {
+    "text": "IN",
+    "x": 353.0,
+    "y": 18.4,
+    "cap": 0.8,
+    "colour": "rear_ink",
+    "w": 1.3
+   },
+   {
+    "text": "OUT",
+    "x": 373.2,
+    "y": 18.4,
+    "cap": 0.8,
+    "colour": "rear_ink",
+    "w": 3.1
+   },
+   {
+    "text": "THRU",
+    "x": 393.35,
+    "y": 18.4,
+    "cap": 0.8,
+    "colour": "rear_ink",
+    "w": 5.1
+   },
+   {
+    "text": "POWER IN",
+    "x": 418.25,
+    "y": 21.45,
+    "cap": 0.9,
+    "colour": "rear_ink",
+    "w": 9.1
+   },
+   {
+    "text": "9V DC",
+    "x": 418.25,
+    "y": 22.85,
+    "cap": 0.9,
+    "colour": "rear_ink",
+    "w": 5.2
+   },
+   {
+    "text": "This device complies with Part 15 of the FCC Rules.",
+    "x": 140.9,
+    "y": 12.2,
+    "cap": 1.2,
+    "colour": "rear_ink",
+    "w": 62.0
+   },
+   {
+    "text": "Operation is subject to the following two conditions :",
+    "x": 140.4,
+    "y": 14.7,
+    "cap": 1.2,
+    "colour": "rear_ink",
+    "w": 63.3
+   },
+   {
+    "text": "1. This device may not cause harmful interference.",
+    "x": 140.7,
+    "y": 17.2,
+    "cap": 1.2,
+    "colour": "rear_ink",
+    "w": 60.0
+   },
+   {
+    "text": "2. This device must accept any interference received,",
+    "x": 141.1,
+    "y": 19.7,
+    "cap": 1.2,
+    "colour": "rear_ink",
+    "w": 65.0
+   },
+   {
+    "text": "including interference that may cause undesired operation.",
+    "x": 140.9,
+    "y": 22.2,
+    "cap": 1.2,
+    "colour": "rear_ink",
+    "w": 71.4
+   },
+   {
+    "text": "CAUTION: DO NOT OPEN CASE.",
+    "x": 140.7,
+    "y": 28.45,
+    "cap": 1.1,
+    "colour": "rear_ink",
+    "w": 35.1
+   },
+   {
+    "text": "NO USER SERVICEABLE PARTS INSIDE.",
+    "x": 140.6,
+    "y": 30.6,
+    "cap": 1.1,
+    "colour": "rear_ink",
+    "w": 43.0
+   },
+   {
+    "text": "REFER  TO QUALIFIED SERVICE PERSONNEL.",
+    "x": 140.4,
+    "y": 32.7,
+    "cap": 1.1,
+    "colour": "rear_ink",
+    "w": 50.9
+   },
+   {
+    "text": "MADE IN ENGLAND",
+    "x": 140.4,
+    "y": 34.8,
+    "cap": 1.1,
+    "colour": "rear_ink",
+    "w": 22.0
+   }
+  ],
+  "texts_note": "Measured from the image's ink: each line's cap centre and width. The FCC lines run together at that resolution: their pitch (2.5 mm, then 2.1 mm) and the block's width (71.4 mm, line 5) are measured, the other lines' widths read off it."
+ }
+}

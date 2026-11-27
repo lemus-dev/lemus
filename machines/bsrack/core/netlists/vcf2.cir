@@ -1,0 +1,34 @@
+* Bass Station Rack filter, section 2: as section 1 (vcf1.cir) with its own parts (R61-R72, C34-C37,
+* D10/D11, U31-U33, U22A/B), its input 12DB_AUD (section 1's output, an op-amp's) through R61; the
+* output 24DB_AUD. Values as section 1's matching parts [O]/[F].
+* Inputs: in (V, section 1's output), iabc1, iabc2 (U31, U32), iabcr (U33).
+.param r61=33k r63=3.3k r62=330 r69=33k c37=43p c35=1n c36=1n r67=33k r68=330
++ r64=10k r65=22k r66=330
+VVDD vdd 0 {vdd}
+VVSS vss 0 {vss}
+VIN in 0 input in
+R61 in x {r61}
+R63 x 0 {r63}
+C34 x a 2.2u
+R62 a 0 {r62}
+R69 out a {r69}
+C37 out a {c37}
+IABC1 0 abc1 input iabc1
+BU31 abc1 vss a 0 n1 ota is=1e-14 vop=2.5 von=-2.5 iscl=1e-14
+XU22A 0 n1 o1 opamp {gbw27x} {gain27x} {vsat27x} {sr27x}
+C35 o1 n1 {c35}
+R67 o1 m {r67}
+R68 m 0 {r68}
+IABC2 0 abc2 input iabc2
+BU32 abc2 vss 0 m n2 ota is=1e-14 vop=2.5 von=-2.5 iscl=1e-14
+XU22B 0 n2 out opamp {gbw27x} {gain27x} {vsat27x} {sr27x}
+C36 out n2 {c36}
+R64 o1 b {r64}
+D10 b a D1N914
+D11 a b D1N914
+R65 b c {r65}
+R66 c 0 {r66}
+IABCR 0 abcr input iabcr
+BU33 abcr vss c 0 x ota is=1e-14 vop=2.5 von=-2.5 iscl=1e-14
+.output out out
+.output bp o1

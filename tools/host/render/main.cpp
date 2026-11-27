@@ -4,7 +4,7 @@
 //
 //   lemus-render SCENE.json [SCENE.json ...] [--out DIR] [--only LABEL,...] [--sources FILE ...]
 // Source templates come from every machines/<id>/host/sources.json; --sources adds files.
-//   lemus-render --params PLUGIN|use:TEMPLATE [--machine ID]   list a plugin's parameters
+//   lemus-render --params PLUGIN|use:TEMPLATE [--machine ID]   list a plugin's parameters and programs
 #include "../Player.h"
 
 #include <juce_audio_formats/juce_audio_formats.h>
@@ -46,6 +46,11 @@ int listParams(const juce::String &plugin, const juce::String &machine, const Te
 		auto *p = params[i];
 		std::printf("%4d  %-32s %-24s (%.4f, %d steps)\n", i, p->getName(64).toRawUTF8(), p->getCurrentValueAsText().toRawUTF8(),
 		            double(p->getValue()), p->getNumSteps());
+	}
+	if (const int n = player.plugin()->getNumPrograms(); n > 1) {
+		std::printf("%d programs (\"programs\" in a scene selects them by MIDI):\n", n);
+		for (int i = 0; i < n; ++i)
+			std::printf("%4d  %s\n", i, player.plugin()->getProgramName(i).toRawUTF8());
 	}
 	return 0;
 }

@@ -96,6 +96,13 @@ is above):
 Copyright (c) Nathan Woods, Olivier Galibert
 
 
+The Novation Bass Station Rack's MN1880 is a port of MAME's Panasonic MN1880
+core (src/devices/cpu/mn1880), licensed under the BSD 3-Clause licence (its
+text is above):
+
+Copyright (c) AJR
+
+
 The Access Virus C's DSP56362 is the dsp56300 emulator
 (https://github.com/dsp56300/dsp56300), and which DSP timer drives each of
 its LFO RATE LEDs follows Gearmulator (https://github.com/dsp56300/gearmulator),
@@ -130,6 +137,15 @@ The Access Virus C's panel legends use Michroma, licensed under the SIL Open
 Font License 1.1 (its text is below):
 
 Copyright 2011 The Michroma Project Authors (https://github.com/googlefonts/Michroma-font)
+
+
+The Novation Bass Station Rack's panel legends use Liberation Sans Bold,
+licensed under the SIL Open Font License 1.1 (its text is below):
+
+Digitized data copyright (c) 2010 Google Corporation
+	with Reserved Font Arimo, Tinos and Cousine.
+Copyright (c) 2012 Red Hat, Inc.
+	with Reserved Font Name Liberation.
 
 
 Panel legends that stand in for Helvetica use URW++'s base 35 fonts (the

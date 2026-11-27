@@ -9,8 +9,17 @@
 // through the loop a frame at a time.
 // Dual mode (D) plays two at once, one in each ear, each in mono: the selected source left, another
 // right; Space swaps them.
+// One app, one window: a test per scene folder, listed down the left and named for the machines
+// its scenes test. A scene opened while the app runs, from any session's build, goes to its
+// folder's test, or a new one; only the test shown plays. The tests come back after a restart.
+// Our own plugins load from a fresh copy whenever the installed one has changed, so a rebuilt
+// plugin is heard at the next scene load or Reload, without a restart.
 //
-//   Lemus A/B.app/Contents/MacOS/Lemus A/B [SCENE.json]      or drop a scene on the window
+//   open -a "Lemus AB.app" /abs/SCENE.json            add the scene's folder as a test (or go to it)
+//   open -a "Lemus AB.app" --args --reload [/abs/PATH] load the test again, with rebuilt plugins
+//   open -a "Lemus AB.app" --args --remove /abs/PATH   take the test off the list
+//   (or Lemus AB.app/Contents/MacOS/Lemus AB [ARGS], or drop a scene on the window; PATH is a
+//   scene or its folder; without one, --reload is the test shown)
 #include "../Player.h"
 #include "Spectrum.h"
 
@@ -41,15 +50,105 @@ public:
 	void closeButtonPressed() override { setVisible(false); }
 };
 
+// A machine's plugin ("ko-mono-20", or a path to it) -> the machine's folder, from each
+// machines/<id>/machine.cmake's lemus_plugin(<id> NAME "..."); none if it isn't one of ours.
+juce::File machineOfPlugin(const juce::String &plugin)
+{
+	static const auto table = [] {
+		std::map<juce::String, juce::File> t;
+		for (const auto &dir : juce::File(LEMUS_MACHINES_DIR).findChildFiles(juce::File::findDirectories, false)) {
+			const auto text = dir.getChildFile("machine.cmake").loadFileAsString();
+			const int at = text.indexOf("lemus_plugin(");
+			const auto name = at < 0 ? juce::String()
+			                         : text.substring(at).fromFirstOccurrenceOf("NAME \"", false, false).upToFirstOccurrenceOf("\"", false, false);
+			if (name.isNotEmpty())
+				t[name] = dir;
+		}
+		return t;
+	}();
+	const auto key = juce::File::isAbsolutePath(plugin) ? juce::File(plugin).getFileNameWithoutExtension() : plugin;
+	const auto it = table.find(key);
+	return it != table.end() ? it->second : juce::File();
+}
+
+// The machines a scene tests: each source's template ("tb303.roland": machines/tb303), Lemus
+// machine or own plugin ("ko-mono-20"), named by its README's first heading ("# E-mu Drumulator
+// (em-drums-d)": E-mu Drumulator).
+juce::StringArray machinesOf(const juce::File &file, const Templates &templates)
+{
+	juce::StringArray dirs, names;
+	const auto json = juce::JSON::parse(file), list = json.getProperty("sources", {}); // kept: getArray points into them
+	if (const auto *sources = list.getArray())
+		for (const auto &s : *sources) {
+			const auto use = s.getProperty("use", {}).toString();
+			const auto it = templates.entries.find(use);
+			if (use.isNotEmpty() && it != templates.entries.end())
+				dirs.addIfNotAlreadyThere(it->second.second.getParentDirectory().getFullPathName()); // <id>/host
+			else if (const auto m = s.getProperty("machine", {}).toString(); m.isNotEmpty())
+				dirs.addIfNotAlreadyThere(juce::File(LEMUS_MACHINES_DIR).getChildFile(m).getFullPathName());
+			else if (const auto dir = machineOfPlugin(s.getProperty("plugin", {}).toString()); dir != juce::File())
+				dirs.addIfNotAlreadyThere(dir.getFullPathName());
+		}
+	for (const auto &d : dirs) {
+		const juce::File dir(d);
+		juce::String name = dir.getFileName();
+		juce::StringArray lines;
+		lines.addLines(dir.getChildFile("README.md").loadFileAsString());
+		for (const auto &l : lines)
+			if (l.startsWith("# ")) {
+				name = l.substring(2).upToFirstOccurrenceOf(" (", false, false).trim();
+				break;
+			}
+		names.addIfNotAlreadyThere(name);
+	}
+	return names;
+}
+
+// Where the app keeps its tests (tests.json), the commands handed to it (inbox/) and the plugins'
+// copies (plugins/).
+juce::File appDir()
+{
+	return juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("Application Support/Lemus AB");
+}
+
+// One of our plugins (a machine's own, or Lemus) loads from a copy of its bundle, made again
+// whenever the installed one changes: macOS hands back a bundle it has already loaded from a path
+// (CFBundle, dlopen), so a plugin rebuilt and installed over the old one would play the old binary
+// until a restart, and replacing a binary that is loaded can crash the host. Other plugins (Roland's)
+// load where they are.
+juce::String freshCopy(const juce::String &plugin)
+{
+	if (plugin.isEmpty() || plugin.startsWith("au:"))
+		return plugin;
+	const auto installed = findPlugin(plugin);
+	const auto name = installed.getFileNameWithoutExtension();
+	if (!installed.isDirectory() || (machineOfPlugin(name) == juce::File() && name != "Lemus" && name != "Lemus FX"))
+		return plugin;
+	int64_t stamp = 0; // the binary's time and size
+	for (const auto &f : installed.getChildFile("Contents/MacOS").findChildFiles(juce::File::findFiles, false))
+		stamp = stamp * 31 + f.getLastModificationTime().toMilliseconds() * 7 + f.getSize();
+	const auto copy = appDir().getChildFile("plugins").getChildFile(name).getChildFile(juce::String::toHexString(stamp)).getChildFile(installed.getFileName());
+	if (!copy.isDirectory()) {
+		const auto part = copy.getSiblingFile(installed.getFileName() + ".part");
+		part.deleteRecursively();
+		copy.getParentDirectory().createDirectory();
+		juce::ChildProcess ditto; // keeps the bundle as it is (links, modes, the signature)
+		if (!ditto.start(juce::StringArray{"/usr/bin/ditto", installed.getFullPathName(), part.getFullPathName()}) ||
+		    !ditto.waitForProcessToFinish(60000) || ditto.getExitCode() != 0 || !part.moveFileTo(copy)) {
+			part.deleteRecursively();
+			return plugin;
+		}
+	}
+	return copy.getFullPathName();
+}
+
 class Main final : public juce::Component,
                    public juce::FileDragAndDropTarget,
                    private juce::AudioIODeviceCallback,
                    private juce::Timer {
 public:
-	Main()
+	Main(juce::AudioDeviceManager &devices, juce::AudioPluginFormatManager &formats) : m_devices(devices), m_formats(formats)
 	{
-		juce::addDefaultFormatsToManager(m_formats);
-		m_devices.initialiseWithDefaultDevices(0, 2);
 		for (auto *b : {&m_open, &m_play, &m_match, &m_prev, &m_next, &m_dualButton, &m_blind, &m_reveal}) {
 			addAndMakeVisible(*b);
 			b->setWantsKeyboardFocus(false);
@@ -87,6 +186,28 @@ public:
 		m_players.clear();
 	}
 
+	std::function<void()> onPlay;                     // this test started playing (the others stop)
+	std::function<void(const juce::File &)> onOpen;   // Open or a drop: the app finds the scene's test
+	std::function<void()> onLoaded;                   // a scene loaded (the list and the saved tests)
+	void stop()
+	{
+		if (m_playing) {
+			m_playing = false;
+			refresh();
+		}
+	}
+	bool hasScene() const { return m_file != juce::File(); }
+	bool isPlaying() const { return m_playing; }
+	juce::File file() const { return m_file; }
+	const juce::StringArray &machines() const { return m_machines; }
+	int scenes() const { return m_siblings.size(); }
+	// The scene again: the folder's list, the scene, its plugins (a rebuilt one from a new copy).
+	void reload()
+	{
+		if (hasScene())
+			load(m_file);
+	}
+
 	void load(const juce::File &file)
 	{
 		const bool wasPlaying = m_playing;
@@ -100,13 +221,18 @@ public:
 		const auto templates = Templates::load(Templates::standardFiles(), error);
 		if (error.isEmpty())
 			m_scene = Scene::load(file, templates, error);
+		for (auto &src : m_scene.sources)
+			src.plugin = freshCopy(src.plugin);
 		m_file = file;
+		m_machines = error.isEmpty() ? machinesOf(file, templates) : juce::StringArray();
 		listSiblings();
 		juce::StringArray notes;
 		if (error.isNotEmpty()) {
 			m_spectrum.prepare(0, m_scene.rate);
 			m_status.setText(error, juce::dontSendNotification);
 			refresh();
+			if (onLoaded)
+				onLoaded();
 			return;
 		}
 		// Run at the device's rate and block size.
@@ -117,6 +243,7 @@ public:
 		m_loop = std::max<int64_t>(1, int64_t(std::llround(m_scene.beats * m_scene.samplesPerBeat())));
 		for (const auto &src : m_scene.sources) {
 			auto p = std::make_unique<Player>(m_formats, m_scene, src, false);
+			p->setLoop(m_loop); // each pass starts with new key-downs
 			for (const auto &w : p->warnings())
 				notes.add(src.label + ": " + w);
 			if (p->error().isNotEmpty())
@@ -169,10 +296,12 @@ public:
 			notes.insert(0, about);
 		notes.insert(0, "Space: next (dual: swap ears)   1-" + juce::String(int(m_players.size())) +
 		                    ": pick   Return: play/stop   D: dual   B: blind   L: match levels   Up/Down: scene\n"
-		                    "Left/Right: stop, step the spectrum a frame (with Shift, a 16th)\n");
+		                    "Left/Right: stop, step the spectrum a frame (with Shift, a 16th)   [ ]: test\n");
 		m_status.setText(notes.joinIntoString("\n"), juce::dontSendNotification);
 		refresh();
 		resized();
+		if (onLoaded)
+			onLoaded();
 	}
 
 	// Plays two loops into `out` with the audio device detached (so nothing is heard): source 0
@@ -242,17 +371,22 @@ public:
 	}
 
 	bool isInterestedInFileDrag(const juce::StringArray &files) override { return files.size() == 1 && files[0].endsWith(".json"); }
-	void filesDropped(const juce::StringArray &files, int, int) override { load(juce::File(files[0])); }
+	void filesDropped(const juce::StringArray &files, int, int) override { open(juce::File(files[0])); }
 
 	void paint(juce::Graphics &g) override
 	{
 		g.fillAll(colours::background);
-		g.setColour(colours::text);
-		g.setFont(juce::FontOptions(20.0f, juce::Font::bold));
+		// The machines under test (in the accent), then the scene.
 		const int at = m_siblings.indexOf(m_file);
 		const juce::String number = at >= 0 ? juce::String(at + 1) + "  " : juce::String();
-		g.drawText(m_scene.name.isEmpty() ? juce::String("Open or drop a scene") : number + m_scene.name, 16, 12, getWidth() - 32, 28,
-		           juce::Justification::centredLeft);
+		juce::AttributedString title;
+		title.setJustification(juce::Justification::centredLeft);
+		title.setWordWrap(juce::AttributedString::none);
+		if (!m_machines.isEmpty())
+			title.append(m_machines.joinIntoString(", ") + "     ", juce::FontOptions(20.0f, juce::Font::bold), colours::accent);
+		title.append(m_scene.name.isEmpty() ? juce::String("Open or drop a scene") : number + m_scene.name,
+		             juce::FontOptions(20.0f, juce::Font::bold), colours::text);
+		title.draw(g, juce::Rectangle<float>(16, 12, float(getWidth() - 32), 28));
 		if (m_players.empty())
 			return;
 		// Position through the loop.
@@ -317,8 +451,15 @@ private:
 		m_chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
 		                       [this](const juce::FileChooser &fc) {
 			                       if (fc.getResult().existsAsFile())
-				                       load(fc.getResult());
+				                       open(fc.getResult());
 		                       });
+	}
+	void open(const juce::File &file)
+	{
+		if (onOpen)
+			onOpen(file);
+		else
+			load(file);
 	}
 
 	// The scenes next to the current one, by name, for the picker and Up/Down; numbered from 1 in
@@ -459,6 +600,8 @@ private:
 		if (m_playing)
 			m_playing = false;
 		else {
+			if (onPlay)
+				onPlay();
 			m_restart = true;
 			m_playing = true;
 			m_spectrum.setCaption({});
@@ -543,6 +686,8 @@ private:
 
 	void timerCallback() override
 	{
+		if (!isShowing())
+			return;
 		m_spectrum.update();
 		if (m_playing)
 			repaint(getLocalBounds().withBottom(m_spectrum.getY())); // the position and the meters
@@ -606,10 +751,11 @@ private:
 		}
 	}
 
-	juce::AudioDeviceManager m_devices;
-	juce::AudioPluginFormatManager m_formats;
+	juce::AudioDeviceManager &m_devices; // the app's, shared by the tests
+	juce::AudioPluginFormatManager &m_formats;
 	Scene m_scene;
 	juce::File m_file;
+	juce::StringArray m_machines; // what the scene tests, for the title
 	std::vector<std::unique_ptr<Player>> m_players;
 	std::vector<std::unique_ptr<juce::TextButton>> m_sourceButtons, m_editButtons;
 	std::vector<std::unique_ptr<EditorWindow>> m_editors;
@@ -642,32 +788,350 @@ private:
 	}
 };
 
-class App final : public juce::JUCEApplication {
+// The window's content: the tests down the left, the one shown on the right. A test is a folder of
+// scenes; its pane (a Main) keeps its scene, sources and modes while another is shown, and stops
+// when another is shown. A test restored from tests.json loads when it is first shown.
+class Shell final : public juce::Component, private juce::Timer {
 public:
-	const juce::String getApplicationName() override { return "Lemus A/B"; }
-	const juce::String getApplicationVersion() override { return "0.1"; }
+	static constexpr int kNav = 240, kHeader = 44, kRow = 56;
+
+	Shell()
+	{
+		juce::addDefaultFormatsToManager(m_formats);
+		m_devices.initialiseWithDefaultDevices(0, 2);
+		m_blank = makePane();
+		addAndMakeVisible(*m_blank);
+		setWantsKeyboardFocus(true);
+		setSize(kNav + 880, 680);
+		startTimerHz(5);
+	}
+	~Shell() override
+	{
+		m_tests.clear();
+		m_blank.reset();
+	}
+
+	std::function<void()> changed; // the tests, or the scene shown, changed (the app saves them)
+
+	// Into the test on the scene's folder (loaded there), else a new one at the end; shows it.
+	void open(const juce::File &file)
+	{
+		int i = find(file);
+		if (i < 0) {
+			m_tests.push_back(std::make_unique<Test>());
+			m_tests.back()->folder = file.getParentDirectory();
+			describe(*m_tests.back(), file);
+			i = int(m_tests.size()) - 1;
+		}
+		auto &t = *m_tests[size_t(i)];
+		if (t.pane == nullptr || !t.pane->hasScene())
+			t.pending = file;
+		if (!show(i))
+			t.pane->load(file);
+	}
+
+	// The test on `path` (a scene or its folder; none: the one shown) loads its scene again, a
+	// rebuilt plugin from a new copy. A test not shown yet loads fresh when it is.
+	void reload(const juce::File &path)
+	{
+		const int i = path == juce::File() ? m_shown : find(path);
+		if (i >= 0 && i < int(m_tests.size()) && m_tests[size_t(i)]->pane != nullptr)
+			m_tests[size_t(i)]->pane->reload();
+	}
+
+	void remove(const juce::File &path)
+	{
+		const int i = path == juce::File() ? m_shown : find(path);
+		if (i < 0 || i >= int(m_tests.size()))
+			return;
+		m_tests.erase(m_tests.begin() + i);
+		const int next = m_shown == i ? std::min(i, int(m_tests.size()) - 1) : m_shown - (m_shown > i ? 1 : 0);
+		m_shown = -1;
+		if (next >= 0)
+			show(next);
+		else
+			showBlank();
+		if (changed)
+			changed();
+	}
+
+	// {"tests": [{"scene": path}, ...], "shown": n}
+	juce::var saved() const
+	{
+		juce::Array<juce::var> list;
+		for (const auto &t : m_tests) {
+			auto *o = new juce::DynamicObject();
+			o->setProperty("scene", (t->pane != nullptr && t->pane->hasScene() ? t->pane->file() : t->pending).getFullPathName());
+			list.add(juce::var(o));
+		}
+		auto *o = new juce::DynamicObject();
+		o->setProperty("tests", list);
+		o->setProperty("shown", m_shown);
+		return juce::var(o);
+	}
+	void restore(const juce::var &saved)
+	{
+		if (const auto *list = saved.getProperty("tests", {}).getArray())
+			for (const auto &e : *list) {
+				const juce::File file(e.getProperty("scene", {}).toString());
+				if (!juce::File::isAbsolutePath(file.getFullPathName()) || !file.existsAsFile() || find(file) >= 0)
+					continue;
+				m_tests.push_back(std::make_unique<Test>());
+				m_tests.back()->folder = file.getParentDirectory();
+				m_tests.back()->pending = file;
+				describe(*m_tests.back(), file);
+			}
+		if (!m_tests.empty())
+			show(std::clamp(int(saved.getProperty("shown", 0)), 0, int(m_tests.size()) - 1));
+	}
+
+	Main &shown() { return m_shown >= 0 ? *m_tests[size_t(m_shown)]->pane : *m_blank; }
+
+	bool keyPressed(const juce::KeyPress &k) override
+	{
+		if ((k.getTextCharacter() == '[' || k.getTextCharacter() == ']') && !m_tests.empty()) {
+			show((m_shown + (k.getTextCharacter() == '[' ? -1 : 1) + int(m_tests.size())) % int(m_tests.size()));
+			return true;
+		}
+		return false;
+	}
+
+	void paint(juce::Graphics &g) override
+	{
+		g.fillAll(colours::background);
+		const auto nav = getLocalBounds().removeFromLeft(kNav).toFloat();
+		g.setColour(colours::panel);
+		g.fillRect(nav);
+		g.setColour(colours::edge);
+		g.fillRect(nav.withX(nav.getRight() - 1).withWidth(1));
+		g.setColour(colours::dim);
+		g.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+		g.drawText("TESTS", juce::Rectangle<float>(16, 0, kNav - 32, kHeader), juce::Justification::centredLeft);
+		for (size_t i = 0; i < m_tests.size(); ++i) {
+			const auto &t = *m_tests[i];
+			const auto row = rowBounds(int(i)).toFloat();
+			const bool on = int(i) == m_shown, playing = t.pane != nullptr && t.pane->isPlaying();
+			if (on) {
+				g.setColour(colours::accentDim);
+				g.fillRect(row);
+				g.setColour(colours::accent);
+				g.fillRect(row.withWidth(3));
+			}
+			const auto text = row.reduced(16, 8);
+			g.setColour(on ? colours::accent : colours::text);
+			g.setFont(juce::FontOptions(14.0f, juce::Font::bold));
+			g.drawText(t.machines.isEmpty() ? t.where.upToFirstOccurrenceOf("/", false, false) : t.machines.joinIntoString(", "), text.withHeight(20).withTrimmedRight(14),
+			           juce::Justification::centredLeft, true);
+			g.setColour(colours::dim);
+			g.setFont(juce::FontOptions(12.0f));
+			g.drawText(t.where + "   " + juce::String(t.scenes) + (t.scenes == 1 ? " scene" : " scenes"),
+			           text.withTrimmedTop(22).withHeight(18), juce::Justification::centredLeft, true);
+			if (playing) {
+				g.setColour(colours::accent);
+				g.fillEllipse(text.getRight() - 8, text.getY() + 6, 8, 8);
+			}
+		}
+		g.setColour(colours::dim);
+		g.setFont(juce::FontOptions(12.0f));
+		g.drawFittedText(m_tests.empty() ? "Open a scene, or drop one here" : "[ and ] step through the tests. Right-click one to reload or remove it.",
+		                 juce::Rectangle<int>(16, getHeight() - 56, kNav - 32, 44), juce::Justification::bottomLeft, 3);
+	}
+
+	void resized() override
+	{
+		const auto pane = getLocalBounds().withTrimmedLeft(kNav);
+		m_blank->setBounds(pane);
+		for (auto &t : m_tests)
+			if (t->pane != nullptr)
+				t->pane->setBounds(pane);
+	}
+
+	void mouseDown(const juce::MouseEvent &e) override
+	{
+		const int i = e.x < kNav && e.y >= kHeader ? (e.y - kHeader) / kRow : -1;
+		if (i < 0 || i >= int(m_tests.size()))
+			return;
+		if (!e.mods.isPopupMenu()) {
+			show(i);
+			return;
+		}
+		juce::PopupMenu menu;
+		menu.addItem(1, "Reload", m_tests[size_t(i)]->pane != nullptr);
+		menu.addItem(2, "Remove");
+		const auto folder = m_tests[size_t(i)]->folder;
+		menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this).withTargetScreenArea(localAreaToGlobal(rowBounds(i))),
+		                   [this, folder](int r) {
+			                   if (r == 1)
+				                   reload(folder);
+			                   else if (r == 2)
+				                   remove(folder);
+		                   });
+	}
+
+private:
+	struct Test {
+		juce::File folder, pending; // pending: the scene to load when it is first shown
+		std::unique_ptr<Main> pane;
+		juce::StringArray machines;
+		juce::String where; // the folder's last three parts
+		int scenes = 0;
+	};
+
+	juce::Rectangle<int> rowBounds(int i) const { return {0, kHeader + i * kRow, kNav - 1, kRow}; }
+
+	// The test on a scene's folder, or on a folder.
+	int find(const juce::File &path) const
+	{
+		const auto folder = path.isDirectory() ? path : path.getParentDirectory();
+		for (size_t i = 0; i < m_tests.size(); ++i)
+			if (m_tests[i]->folder == folder)
+				return int(i);
+		return -1;
+	}
+
+	// The test's name: the machines its scene tests, else the first that another scene in its folder
+	// names (a scene of recordings only names none).
+	void describe(Test &t, const juce::File &scene)
+	{
+		juce::String error;
+		const auto templates = Templates::load(Templates::standardFiles(), error);
+		t.machines = machinesOf(scene, templates);
+		for (const auto &other : t.folder.findChildFiles(juce::File::findFiles, false, "*.json"))
+			if (t.machines.isEmpty())
+				t.machines = machinesOf(other, templates);
+		t.scenes = t.folder.getNumberOfChildFiles(juce::File::findFiles, "*.json");
+		juce::StringArray parts;
+		for (auto f = t.folder; parts.size() < 3 && f.getParentDirectory() != f; f = f.getParentDirectory())
+			parts.insert(0, f.getFileName());
+		t.where = parts.joinIntoString("/");
+	}
+
+	std::unique_ptr<Main> makePane()
+	{
+		auto pane = std::make_unique<Main>(m_devices, m_formats);
+		pane->onOpen = [this](const juce::File &f) { open(f); };
+		return pane;
+	}
+
+	// Shows test i (its pane made and its pending scene loaded the first time; true if it loaded
+	// one), stopping the one shown before.
+	bool show(int i)
+	{
+		auto &t = *m_tests[size_t(i)];
+		for (auto &other : m_tests)
+			if (other.get() != &t && other->pane != nullptr) {
+				other->pane->stop();
+				other->pane->setVisible(false);
+			}
+		m_blank->setVisible(false);
+		m_shown = i;
+		bool loaded = false;
+		if (t.pane == nullptr) {
+			t.pane = makePane();
+			Main *pane = t.pane.get();
+			pane->onLoaded = [this, pane] {
+				for (auto &x : m_tests)
+					if (x->pane.get() == pane) {
+						if (!pane->machines().isEmpty()) // else the name it had (a scene of recordings only)
+							x->machines = pane->machines();
+						x->scenes = pane->scenes();
+						x->pending = juce::File();
+					}
+				repaint();
+				if (changed)
+					changed();
+			};
+			addChildComponent(*pane);
+			resized();
+		}
+		t.pane->setVisible(true);
+		if (!t.pane->hasScene() && t.pending.existsAsFile()) {
+			t.pane->load(t.pending);
+			loaded = true;
+		}
+		t.pane->grabKeyboardFocus();
+		repaint();
+		if (changed)
+			changed();
+		return loaded;
+	}
+
+	void showBlank()
+	{
+		m_shown = -1;
+		m_blank->setVisible(true);
+		m_blank->grabKeyboardFocus();
+		repaint();
+	}
+
+	void timerCallback() override { repaint(getLocalBounds().removeFromLeft(kNav)); } // the playing dots
+
+	juce::AudioDeviceManager m_devices;
+	juce::AudioPluginFormatManager m_formats;
+	std::vector<std::unique_ptr<Test>> m_tests;
+	std::unique_ptr<Main> m_blank; // shown with no tests: Open and drops
+	int m_shown = -1;
+};
+
+class Window final : public juce::DocumentWindow {
+public:
+	Window() : DocumentWindow("Lemus AB", colours::background, DocumentWindow::allButtons)
+	{
+		setUsingNativeTitleBar(true);
+		shell = new Shell();
+		setContentOwned(shell, true);
+		setResizable(true, false);
+		centreWithSize(shell->getWidth(), shell->getHeight());
+	}
+	void closeButtonPressed() override { juce::JUCEApplication::getInstance()->systemRequestedQuit(); }
+	Shell *shell = nullptr;
+};
+
+class App final : public juce::JUCEApplication, private juce::Timer {
+public:
+	const juce::String getApplicationName() override { return "Lemus AB"; }
+	const juce::String getApplicationVersion() override { return "0.3"; }
+	// One instance for every build (each session builds its own), so all the tests are in one
+	// window. A second launch writes its command line into inbox/ and quits; the running one reads
+	// it (macOS's open-document events reach anotherInstanceStarted directly). JUCE's own check
+	// can't do this: it hands over only between copies at the same path. When the launch that hands
+	// over is a newer build, it takes over: the running one saves its tests and starts it. The
+	// headless runs (--selftest, --snapshot) are their own.
+	bool moreThanOneInstanceAllowed() override { return true; }
 
 	void initialise(const juce::String &commandLine) override
 	{
-		auto *main = new Main();
-		m_window = std::make_unique<juce::DocumentWindow>("Lemus A/B", colours::background, juce::DocumentWindow::allButtons);
-		m_window->setUsingNativeTitleBar(true);
-		m_window->setContentOwned(main, true);
-		m_window->setResizable(true, false);
-		m_window->centreWithSize(main->getWidth(), main->getHeight());
-		m_window->setVisible(true);
-		main->grabKeyboardFocus();
-		// [SCENE.json] [--selftest OUT.wav] [--snapshot OUT.png]: the snapshot writes the window
-		// (scene loaded, not playing; after a selftest, its spectrum) and quits, for checks that
-		// mustn't make a sound.
+		// [SCENE.json ...] [--reload [PATH]] [--remove PATH] [--selftest OUT.wav] [--snapshot OUT.png]:
+		// the snapshot writes the window (scene loaded, not playing; after a selftest, its spectrum)
+		// and quits, for checks that mustn't make a sound.
 		const auto args = juce::StringArray::fromTokens(commandLine, true);
 		const auto cwd = juce::File::getCurrentWorkingDirectory();
-		for (const auto &a : args)
-			if (a.unquoted().endsWith(".json"))
-				main->load(cwd.getChildFile(a.unquoted()));
+		const bool headless = args.contains("--selftest") || args.contains("--snapshot");
+		if (!headless) {
+			if (!m_lock.enter(0)) { // running: hand the command line over
+				handOver(args, cwd);
+				juce::MessageManager::callAsync([] { juce::JUCEApplicationBase::quit(); });
+				return;
+			}
+			appDir().getChildFile("plugins").deleteRecursively(); // no copy is loaded now
+			m_built = built(executable());
+		}
+		m_window = std::make_unique<Window>();
+		Shell &shell = *m_window->shell;
+		m_window->setVisible(true);
+		if (!headless) {
+			shell.restore(juce::JSON::parse(testsFile()));
+			shell.changed = [this] { save(); };
+		}
+		run(args, cwd);
+		if (!headless) {
+			takeInbox();
+			startTimer(250);
+		}
+		Main &main = shell.shown();
 		const int st = args.indexOf("--selftest");
 		if (st >= 0 && st + 1 < args.size()) {
-			main->selfTest(cwd.getChildFile(args[st + 1].unquoted()));
+			main.selfTest(cwd.getChildFile(args[st + 1].unquoted()));
 			if (!args.contains("--snapshot")) {
 				juce::MessageManager::callAsync([] { juce::JUCEApplicationBase::quit(); });
 				return;
@@ -676,8 +1140,8 @@ public:
 		const int at = args.indexOf("--snapshot");
 		if (at >= 0 && at + 1 < args.size()) {
 			const auto out = cwd.getChildFile(args[at + 1].unquoted());
-			juce::Timer::callAfterDelay(800, [main, out] {
-				const auto image = main->createComponentSnapshot(main->getLocalBounds(), true, 2.0f);
+			juce::Timer::callAfterDelay(800, [&shell, out] {
+				const auto image = shell.createComponentSnapshot(shell.getLocalBounds(), true, 2.0f);
 				out.deleteFile();
 				juce::FileOutputStream stream(out);
 				juce::PNGImageFormat().writeImageToStream(image, stream);
@@ -687,11 +1151,126 @@ public:
 		}
 	}
 
-	void shutdown() override { m_window.reset(); }
+	// A scene opened while the app runs (macOS's open-document event). In a launch that is handing
+	// over (no window), `open -a ... SCENE.json`'s scene arrives this way after initialise: it goes
+	// over too.
+	void anotherInstanceStarted(const juce::String &commandLine) override
+	{
+		const auto args = juce::StringArray::fromTokens(commandLine, true);
+		if (m_window == nullptr)
+			handOver(args, juce::File::getCurrentWorkingDirectory());
+		else
+			run(args, juce::File::getCurrentWorkingDirectory());
+	}
+
+	void shutdown() override
+	{
+		stopTimer();
+		m_window.reset();
+	}
 	void systemRequestedQuit() override { quit(); }
 
 private:
-	std::unique_ptr<juce::DocumentWindow> m_window;
+	juce::InterProcessLock m_lock{"Lemus AB, one window"};
+	std::unique_ptr<Window> m_window;
+	int64_t m_built = 0; // this executable's time when it started
+
+	static juce::File testsFile() { return appDir().getChildFile("tests.json"); }
+	static juce::File inbox() { return appDir().getChildFile("inbox"); }
+	static juce::File executable() { return juce::File::getSpecialLocation(juce::File::currentExecutableFile); }
+	static int64_t built(const juce::File &exe) { return exe.getLastModificationTime().toMilliseconds(); }
+
+	static void writeFile(const juce::File &file, const juce::String &text) // whole or not at all
+	{
+		file.getParentDirectory().createDirectory();
+		const auto part = file.getSiblingFile(file.getFileName() + ".part");
+		if (part.replaceWithText(text))
+			part.moveFileTo(file);
+	}
+
+	void save()
+	{
+		if (m_window != nullptr)
+			writeFile(testsFile(), juce::JSON::toString(m_window->shell->saved()));
+	}
+
+	// The scenes to open (each into its folder's test), --reload [PATH], --remove PATH.
+	void run(const juce::StringArray &args, const juce::File &cwd)
+	{
+		if (m_window == nullptr)
+			return;
+		Shell &shell = *m_window->shell;
+		bool opened = false;
+		for (int i = 0; i < args.size(); ++i) {
+			const auto a = args[i].unquoted();
+			const bool hasPath = i + 1 < args.size() && !args[i + 1].startsWith("--");
+			if (a == "--reload" || a == "--remove") {
+				const auto path = hasPath ? cwd.getChildFile(args[++i].unquoted()) : juce::File();
+				a == "--reload" ? shell.reload(path) : shell.remove(path);
+			} else if (a == "--selftest" || a == "--snapshot")
+				++i;
+			else if (a.endsWith(".json")) {
+				shell.open(cwd.getChildFile(a));
+				opened = true;
+			}
+		}
+		if (opened && !args.contains("--selftest") && !args.contains("--snapshot")) {
+			m_window->toFront(true);
+			juce::Process::makeForegroundProcess();
+		}
+	}
+
+	void handOver(const juce::StringArray &args, const juce::File &cwd)
+	{
+		auto *o = new juce::DynamicObject();
+		o->setProperty("cwd", cwd.getFullPathName());
+		o->setProperty("exe", executable().getFullPathName());
+		o->setProperty("built", built(executable()));
+		juce::Array<juce::var> list;
+		for (const auto &a : args)
+			list.add(a);
+		o->setProperty("args", list);
+		writeFile(inbox().getChildFile(juce::String(juce::Time::currentTimeMillis()) + "-" + juce::String::toHexString(juce::Random().nextInt()) + ".json"),
+		          juce::JSON::toString(juce::var(o)));
+	}
+
+	// The command lines handed over, oldest first. One from a newer build hands the app over to it
+	// instead, the command left for the newer one to read.
+	void takeInbox()
+	{
+		auto files = inbox().findChildFiles(juce::File::findFiles, false, "*.json");
+		std::sort(files.begin(), files.end(), [](const juce::File &a, const juce::File &b) { return a.getFileName().compareNatural(b.getFileName()) < 0; });
+		for (const auto &f : files) {
+			const auto json = juce::JSON::parse(f);
+			const juce::File exe(json.getProperty("exe", {}).toString());
+			// newer than this one was at its start (a build in another folder, or this one's rebuilt)
+			if (exe.existsAsFile() && int64_t(json.getProperty("built", 0)) > m_built &&
+			    built(exe) == int64_t(json.getProperty("built", 0))) {
+				takeOver(exe);
+				return;
+			}
+			f.deleteFile();
+			juce::StringArray args;
+			if (const auto *list = json.getProperty("args", {}).getArray())
+				for (const auto &a : *list)
+					args.add(a.toString());
+			run(args, juce::File(json.getProperty("cwd", "/").toString()));
+		}
+	}
+
+	void takeOver(const juce::File &exe)
+	{
+		stopTimer();
+		save();
+		m_lock.exit();
+		const auto app = exe.getParentDirectory().getParentDirectory().getParentDirectory(); // <app>/Contents/MacOS/<exe>
+		juce::ChildProcess open;
+		if (open.start(juce::StringArray{"/usr/bin/open", "-n", app.getFullPathName()}))
+			open.waitForProcessToFinish(10000);
+		quit();
+	}
+
+	void timerCallback() override { takeInbox(); }
 };
 
 } // namespace

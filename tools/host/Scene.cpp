@@ -129,6 +129,14 @@ Scene Scene::load(const juce::File &file, const Templates &templates, juce::Stri
 			}
 			s.notes.push_back(note);
 		}
+	if (auto *arr = json["cc"].getArray())
+		for (const auto &c : *arr)
+			s.controllers.push_back({double(c.getProperty("at", 0.0)), juce::jlimit(0, 127, int(c.getProperty("cc", 1))),
+			                         juce::jlimit(0, 127, int(c.getProperty("value", 0)))});
+	if (auto *arr = json["programs"].getArray())
+		for (const auto &p : *arr)
+			s.programs.push_back({double(p.getProperty("at", 0.0)), juce::jlimit(0, 127, int(p.getProperty("program", 0))),
+			                      p.hasProperty("bank") ? juce::jlimit(0, 16383, int(p["bank"])) : -1});
 	if (json.hasProperty("midi")) {
 		// A MIDI file's notes, its tempo map turned into beats at the scene's tempo.
 		const auto path = file.getParentDirectory().getChildFile(json["midi"].toString());
