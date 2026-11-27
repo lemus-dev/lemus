@@ -1,0 +1,56 @@
+* KORG MS-20 NOISE GENERATOR, board KLM-128, as the service manual's circuit diagram (2) draws it
+* (upper left; docs/circuit/klm128.md §1; read in scan A a-004 and the 1994 TIF korg_ms20_5).
+* TR3 (2SC644R): its base-emitter junction held in reverse breakdown from +15 V through R31 100k
+* (C5 10u, a quiet bias) and R32 1M is the source; its collector is open. C6 couples it into TR2
+* (2SC1685), common emitter with R34 4.7k to +15 V and R33 2.2M || C7 47p from collector to base
+* (shunt feedback, its only bias). C8 and R36 into IC4b (1/2 4558, inverting, VR3 100k NOISE LEVEL
+* trim as its feedback rheostat): WHITE NOISE through R37 1k to J25 and VCO 1's WAVE FORM switch.
+* IC4a (inverting, R35 6.8k in, R28 220k || C2 0.022u feedback): one pole at 32.9 Hz, gain 32.4 below
+* it, -6 dB/octave above: PINK NOISE through R30 1k to J19.
+* Input: noise, the junction's open-circuit noise voltage in volts (its spectrum and level are to be
+* fitted to recordings), in series with the breakdown voltage and the junction's dynamic resistance
+* (both PROVISIONAL stand-ins: the solver has no avalanche model and no 2SC644 data was found).
+* Outputs: white (J25, behind R37 1k: open-circuit voltage), pink (J19, behind R30 1k); probes whiteop
+* (IC4 pin 7), pinkop (IC4 pin 1), tr2c (TR2 collector).
+* Trim: trim_VR3 (VR3 100k, drawn as a rheostat with its wiper on the pin 7 end; 1 = no resistance):
+* the white level (spec: 5 Vp-p +-20 %, service manual §1, at the level the source gives).
+* Not modelled: the 4558s' noise and output current limit; TR3's 1/f and burst noise (the input
+* carries any spectrum).
+* rz3 1k (since 2026-11-24; was 10k): a real unit's WHITE keeps its top as 1k gives (t8t17yEHHUQ against
+* VCO 1's saw: within 0.6-1.3 dB at 6-13 kHz, where 10k lost 2.5-4.9 dB), and the specification's
+* equal WHITE and PINK levels (5 Vpp +-20 % each) need rz3 under about 2k (klm128.md §1.4).
+.param vbr=7 rz3=1k
+VP15 p15 0 15
+VN15 n15 0 -15
+VNZ nzy nzx input noise
+* --- TR3: R31 + C5 a quiet bias, R32 into the emitter, base on ground, collector open
+R31 p15 n31 100k
+C5 n31 0 10u
+R32 n31 tr3e 1meg
+* TR3's reverse-biased base-emitter junction: breakdown voltage + noise behind its resistance
+VBR3 nzx 0 {vbr}
+RZ3 tr3e nzy {rz3}
+* --- TR2: common emitter, R33 || C7 collector to base, R34 load
+C6 tr3e tr2b 1u
+R33 tr2b tr2c 2.2meg
+C7 tr2b tr2c 47p
+R34 p15 tr2c 4.7k
+QTR2 tr2c tr2b 0 2SC1685
+* --- IC4b: C8, R36 in, VR3 feedback (rheostat), WHITE through R37
+C8 tr2c c8b 10u
+R36 c8b ic4n6 10k
+PVR3 ic4n6 whiteop whiteop 100k trim_VR3
+XIC4B 0 ic4n6 whiteop opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R37 whiteop j25 1k
+* --- IC4a: the pink filter, PINK through R30
+R35 whiteop ic4n2 6.8k
+R28 ic4n2 pinkop 220k
+C2 ic4n2 pinkop 0.022u
+XIC4A 0 ic4n2 pinkop opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R30 pinkop j19 1k
+.control trim_VR3 0.5
+.output white j25
+.output pink j19
+.output whiteop whiteop
+.output pinkop pinkop
+.output tr2c tr2c

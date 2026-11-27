@@ -1,0 +1,13 @@
+{
+  "ms20.lemus": {
+    "label": "lemus",
+    "plugin": "ko-mono-20",
+    "names": {
+      "cutoff": "LPF Cutoff Freq",
+      "resonance": "LPF Peak",
+      "envmod": "LPF EG 2/EXT",
+      "decay": "EG 2 Decay Time",
+      "volume": "Volume"
+    }
+  }
+}

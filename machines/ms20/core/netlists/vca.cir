@@ -1,0 +1,63 @@
+* KORG MS-20 (Rev 1) VCA: KLM-127, circuit diagram (1), right side: Q19 (2SC945, "SELECTED"), a
+* transistor in saturation whose collector-emitter path is a resistor the base current sets,
+* between the LPF's output (divided by R123 6.2k / R121 220 ohm) and IC11b's virtual ground (C35,
+* R118 180k || C34 100 pF); its base current from EG 2 (R125 100k, R122 1M) or INITIAL GAIN (J22,
+* through D22) through R124 1M or R126 680k, by Q19's colour rank (the table on the diagram); then
+* C33, R119 1k, the VOLUME pot, SIGNAL OUT (J35) and the phones amp's input.
+* Transcription: docs/circuit/filters.md. Board parts from the service manual (scan A a-003, hyperreal
+* 1994 TIF korg_ms20_4, scan B b-003).
+* Inputs (volts): lpf, check point 16 (lpf.cir); eg2, EG 2's output (FROM EG2); initgain, INITIAL
+* GAIN (J22): the cable's voltage, 0 with no plug (its tip is then open, and D22 is off either way).
+* Outputs: sigout, SIGNAL OUT (J35) and the phones amp's input (the VOLUME wiper); cp19, check point
+* 19 (the VOLUME pot's top); vout, IC11b's output; vc, Q19's collector; vb, its
+* base.
+* Controls: volume (VOLUME, 10 kB: no designator or value on the Rev 1 diagram; the Rev 2 KLM-307
+* drawing gives 10KB).
+* Rank (.param): r124/r126, the one fitted resistor (1e12: not fitted): Orange or Yellow, R126 680k;
+* Green or Blue, R124 1M. Default Orange/Yellow (docs/circuit/filters.md, "The VCA's rank"): with
+* models.cir's 2SC945 (h_FE 424, the middle of rank K) it is the choice nearer the block diagram's
+* "MAX 2VPP" at check point 19 (0.95 Vpp here against 0.69 for Green/Blue).
+* Split: the phones amp's two inverting inputs (KLM-128 R42, R47 4.7k into virtual grounds) are
+* R42L/R47L here; SIGNAL OUT's own load (a cable into an amplifier) is rload.
+* Not modelled: the op-amp's offset and bias current; capacitor leakage; Q19's junction capacitance.
+* The 4558: models.cir's gbw4558, gain4558, vsat4558, sr4558 (semiconductors.md).
+.param r124=1e12 r126=680k rload=100k
+VLPF lpf 0 input lpf
+VEG2 eg2 0 input eg2
+VIG initgain 0 input initgain
+VP15 p15 0 15
+VN15 n15 0 -15
+
+* --- signal: R123 6.2k into R121 220 ohm at Q19's collector; its emitter into C35 10 uF (+ to
+* IC11b), R120 100k to ground
+R123 lpf vc 6.2k
+R121 vc 0 220
+Q19 vc vb ve 2SC945
+R120 ve 0 100k
+C35 v6n ve 10u
+* IC11b (1/2 4558: pin 5 + to ground, pin 6 -, pin 7 out), R118 180k || C34 100 pF
+XIC11B 0 v6n vout opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R118 v6n vout 180k
+C34 v6n vout 100p
+* to check point 19: C33 1 uF/50 V, R119 1k; VOLUME from there to ground, its wiper SIGNAL OUT
+C33 vout v33 1u
+R119 v33 cp19 1k
+PVOLUME cp19 sigout 0 10k volume b
+R42L sigout 0 4.7k
+R47L sigout 0 4.7k
+RLOAD sigout 0 {rload}
+
+* --- gain control: EG 2 through R125 100k (R122 1M to ground), INITIAL GAIN through D22, into the
+* rank's base resistor
+R125 eg2 vctl 100k
+R122 vctl 0 1meg
+D22 initgain vctl 1S1555
+R124 vctl vb {r124}
+R126 vctl vb {r126}
+
+.control volume 1
+.output sigout sigout
+.output cp19 cp19
+.output vout vout
+.output vc vc
+.output vb vb

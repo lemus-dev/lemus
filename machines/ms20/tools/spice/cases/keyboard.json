@@ -1,0 +1,146 @@
+[
+ {
+  "name": "kbd_c3_release_press_c2",
+  "netlist": "models.cir,kbd.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.1",
+   "--rows-from",
+   "0.005",
+   "--control",
+   "key_24=1",
+   "--input",
+   "kbtest=0,0,0.01,0,0.01002,-15,0.04,-15,0.04002,-7.507538,0.07,-7.507538,0.07002,-15"
+  ]
+ },
+ {
+  "name": "kbd_c1_release_press_c4",
+  "netlist": "models.cir,kbd.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.1",
+   "--rows-from",
+   "0.005",
+   "--control",
+   "key_36=1",
+   "--input",
+   "kbtest=0,-13.12965,0.01,-13.12965,0.01002,-15,0.04,-15,0.04002,0,0.07,0,0.07002,-15"
+  ]
+ },
+ {
+  "name": "kbd_c4_release_press_c1",
+  "netlist": "models.cir,kbd.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.1",
+   "--rows-from",
+   "0.005",
+   "--control",
+   "key_36=1",
+   "--input",
+   "kbtest=0,0,0.01,0,0.01002,-15,0.04,-15,0.04002,-13.12965,0.07,-13.12965,0.07002,-15"
+  ]
+ },
+ {
+  "name": "kbd_priority",
+  "netlist": "models.cir,kbd.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.1",
+   "--rows-from",
+   "0.005",
+   "--control",
+   "key_5=1",
+   "--control",
+   "key_20=1",
+   "--input",
+   "kbtest=0,-7.5,0.01,-7.5,0.01002,0,0.04,0,0.04002,-15,0.07,-15,0.07002,0"
+  ]
+ },
+ {
+  "name": "kbd_legato",
+  "netlist": "models.cir,kbd.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.1",
+   "--rows-from",
+   "0.005",
+   "--control",
+   "key_24=1",
+   "--input",
+   "kbtest=0,-7.507538,0.01,-7.507538,0.01002,0,0.04,0,0.04002,-7.507538,0.07,-7.507538,0.07002,-15"
+  ]
+ },
+ {
+  "name": "kbd_glide",
+  "netlist": "models.cir,kbd.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.3",
+   "--rows-from",
+   "0.005",
+   "--control",
+   "key_36=1",
+   "--control",
+   "portamento=0.1",
+   "--input",
+   "kbtest=0,-13.12965,0.01,-13.12965,0.01002,0,0.13,0,0.13002,-13.12965,0.25,-13.12965,0.25002,-15"
+  ]
+ },
+ {
+  "name": "kbd_trim_ends",
+  "netlist": "models.cir,kbd.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.1",
+   "--rows-from",
+   "0.005",
+   "--control",
+   "key_36=1",
+   "--control",
+   "trim_VR4=1",
+   "--control",
+   "trim_VR3=0",
+   "--input",
+   "kbtest=0,0,0.01,0,0.01002,-15,0.04,-15,0.04002,-13.12965,0.07,-13.12965,0.07002,-15"
+  ]
+ },
+ {
+  "name": "trig_press_release",
+  "netlist": "models.cir,trig.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.1",
+   "--input",
+   "ic13a=0,14,0.01,14,0.010028,-14,0.06,-14,0.060028,14"
+  ]
+ },
+ {
+  "name": "trig_gaps",
+  "netlist": "models.cir,trig.cir",
+  "args": [
+   "--rate",
+   "768000",
+   "--seconds",
+   "0.2",
+   "--input",
+   "ic13a=0,14,0.01,14,0.010028,-14,0.05,-14,0.050028,14,0.055,14,0.055028,-14,0.1,-14,0.100028,14,0.112,14,0.112028,-14,0.15,-14,0.150028,14"
+  ]
+ }
+]

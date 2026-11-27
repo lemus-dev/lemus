@@ -1,0 +1,188 @@
+* KORG MS-20 (Rev 1), KLM-127: ENVELOPE GENERATOR 2 (HOLD, ATTACK, DECAY, SUSTAIN, RELEASE): the
+* trigger input (Q22), the HOLD monostable and gate (IC23 4069, C42), the attack-peak comparator
+* (Q21 and IC23's sixth inverter), the switches (IC22 4007), C40, the follower IC21 (TO VCA), and
+* IC20, which subtracts the SUSTAIN level for TO VCF and REV OUT (J23).
+* Service manual circuit diagram (1), "EG-2" (bottom left). Read in scan A (a-003.png), the 1994
+* TIFF (korg_ms20_4.tif) and scan B (b-003.png); the later board's KLM-127.GIF for legibility only.
+* Transcription notes and every part's source: docs/circuit/envelopes.md.
+*
+* Inputs (volts, stiff): kbdtrig (IC13B's output, trig.cir: +14 V idle, -14 V while a key is held),
+*   which reaches J27's tip (check point 22) through R80 100K and J27's normalling contact (check
+*   point 33); trig (a cable in J27, EG 1+2 TRIG IN). S-trigger: high idle, low while triggered.
+* Jacks: controls jack_trig (1 = a cable in J27: its tip on `trig`, the normal contact to R80 open)
+*   and jack_eg1trig (1 = a cable in J20, which takes EG 1's input off J27's tip). Unpatched, EG 1
+*   and EG 2 both hang on J27's tip behind R80; EG 1's input stage is here as a load on the tip
+*   through J20's normal contact (eg1.cir carries EG 2's the same way).
+* Outputs: eg2 (IC21 pin 6, check point 23, TO VCA: the envelope, 0 V idle, 5.2-5.4 V at the
+*   attack peak, the SUSTAIN level, 0 V), eg2vcf (check point 24, TO VCF, through R161: the
+*   envelope less the SUSTAIN level, so 0 V while sustaining, -V_sustain idle), eg2rev (J23 REV OUT,
+*   check point 25, through R170 1k: the SUSTAIN level less the envelope).
+* Probes: c40 (pin 12, the envelope capacitor), sus (VR31's wiper, check point 39: the SUSTAIN
+*   level), c42 (check point 35, the HOLD timer), gate (IC23 pin 8: high while the gate is on), peak
+*   (IC23 pin 10, IC22's gate C: low = attack), q22c (Q22's collector: high while triggered), tip27
+*   (J27's tip, check point 22).
+* Controls: eg2_hold (VR34, 2M A), eg2_attack (VR33, 2M A), eg2_decay (VR32, 1M A), eg2_release
+*   (drawn "VR31 1MA", a second VR31: PVR31R), each a rheostat, 0 ohm at 0 (law p2.25, the A taper
+*   since 2026-11-23: docs/circuit/README.md); eg2_sustain (VR31, 10k B, a divider).
+* Params: r169, the SUSTAIN divider's top resistor. Drawn "R169 43K" in all three copies of the
+*   drawing; 4.3k is what the specification's "Sustain level (0~5V)" needs (4.96 V; 43k gives
+*   0.71 V) and what the MS-10's same network has (R119 4.3K, R117 2.7K, VR19 10KB): envelopes.md.
+*   r169=43k is the drawing as printed. cg, cl: gate capacitance stand-ins (below).
+* Not modelled: the 4007/4069 protection diodes and body effect, the tantalum and electrolytic
+*   capacitors' leakage, the pots' end resistance, the op-amps' slew rate (the envelopes' steepest
+*   slope, about 1 V/ms, is a thousandth of the 4558's 1 V/us; with the slewing stage Newton stalls
+*   on a residual floor at some knob extremes: envelopes.md, "The netlist").
+*
+* IC22 (MC14007UB) on +15 V / ground: pair C (gate 10, P source 11, N source 9, drains at 12) is the
+* attack/decay switch; pair B's N (drain 5 = pin 9, gate 3, source 4) gates the decay path; pair A's
+* N (drain 8, gate 6, source VSS) is the release switch. The unused P devices (pins 1, 2, 13) are
+* tied to +15 V, so they never conduct: left out. IC23 (MC14069UB) on +15 V / ground, all six
+* inverters used: 1-2, 3-4, 5-6, 9-8 (the HOLD Schmitt trigger and the gate), 13-12 (the retrigger
+* pulse), 11-10 (the peak latch).
+.param r169=4.3k r161=33k
+* cg, cl: the gates' input capacitance (MC14069UB: 5 pF typical, 7.5 pF max) and the board's, so
+* that Newton crosses the two bistables (as contour.cir's cob; envelopes.md, "The netlist"): cg on
+* the HOLD Schmitt trigger's inputs (pins 3 and 5), as eg1.cir's; cl on the peak latch's inverter
+* input (pin 11). 10 pF each passes every sweep at 44.1-96 kHz; they delay the flips by up to 9 us
+* and 1 us.
+.param cg=10p cl=10p
+VP15 p15 0 15
+VN15 n15 0 -15
+*
+* --- J27 (EG 1+2 TRIG IN): its normal from IC13B through R80 100K (the keyboard page's part,
+* keyboard.md), or a cable's voltage
+VKBDTRIG kbdtrig 0 input kbdtrig
+R80 kbdtrig n80 100k
+SJ27N n80 tip27 !jack_trig
+VTRIG trig 0 input trig
+SJ27 trig tip27 jack_trig
+*
+* --- EG 1's input stage on J27's tip through J20's normal contact, as eg1.cir has it (D24 ... R155):
+* a load stand-in, the same parts with an L
+SJ20NL tip27 tip20l !jack_eg1trig
+D24L j24l tip20l 1S1555
+R158L p15 j24l 220k
+D23L j24l d23kl 1S1555
+R157L d23kl q20bl 100k
+R156L q20bl 0 33k
+Q20L q20cl q20bl 0 2SC1685
+R155L p15 q20cl 2.2k
+*
+* --- trigger input: J27's tip through D31; R193 pulls the D31/D27 node up; no trigger: Q22 on (R187,
+* R186), its collector low; a trigger (the tip low) turns Q22 off and R185 lifts its collector to
+* +15 V
+D31 j31 tip27 1S1555
+R193 p15 j31 220k
+D27 j31 d27k 1S1555
+R187 d27k q22b 100k
+R186 q22b 0 33k
+Q22 q22c q22b 0 2SC1685
+R185 p15 q22c 10k
+*
+* --- HOLD: inverter 1-2 (in q22c); triggered, its output (pin 2, node 34) is low and empties C42
+* through D30; untriggered, it is high and fills C42 through HOLD TIME (VR34) to the Schmitt
+* trigger's threshold (R190 1M in, R188 10M back from pin 6); then the gate turns off
+MIC23_1P n34 q22c p15 CD4069P
+MIC23_1N n34 q22c 0 CD4069N
+PVR34 n34 n34 n35 2meg eg2_hold p2.25
+D30 n35 n34 1S1555
+C42 n35 0 10u
+R190 n35 i3 1meg
+CI3 i3 0 {cg}
+MIC23_3P i4 i3 p15 CD4069P
+MIC23_3N i4 i3 0 CD4069N
+R189 i4 i5 100k
+CI5 i5 0 {cg}
+MIC23_5P i6 i5 p15 CD4069P
+MIC23_5N i6 i5 0 CD4069N
+R188 i3 i6 10meg
+MIC23_9P gate i6 p15 CD4069P
+MIC23_9N gate i6 0 CD4069N
+*
+* --- retrigger pulse: Q22's rising collector (a new trigger) through C43, D28 into inverter 13-12,
+* whose low output pulls pin 5 down through D29: the gate is off for the pulse (about 7 ms)
+C43 q22c c43b 0.022u
+R191 c43b 0 1meg
+D28 c43b i13 1S1555
+R192 i13 0 1meg
+MIC23_13P i12 i13 p15 CD4069P
+MIC23_13N i12 i13 0 CD4069N
+D29 i5 i12 1S1555
+*
+* --- attack peak comparator: IC21's output through R181 against R176 to -15 V into Q21; Q21's
+* collector (R184 from +15 V) through R200 to node x, which R183 takes to inverter 11-10 (pin 10 is
+* IC22's gate C: low = attack). R182 from pin 10 back to Q21's base latches it. The gate turning
+* on (pin 8 up) kicks x high through C41: attack; gate off, D26 holds x a diode above pin 8 (low)
+R181 env q21b 43k
+R176 q21b n15 150k
+Q21 q21c q21b 0 2SC1685
+R184 p15 q21c 100k
+R200 q21c x 47k
+C41 x gate 3.3n
+D26 x gate 1S1555
+R183 x i11 100k
+CI11 i11 0 {cl}
+MIC23_11P peak i11 p15 CD4069P
+MIC23_11N peak i11 0 CD4069N
+R182 peak q21b 100k
+*
+* --- attack: P-C (gate low) from node 36 (R180 470 / R179 680 from +15 V: 8.87 V) through ATTACK (VR33)
+R180 p15 n36 470
+R179 n36 0 680
+PVR33 n36 n36 n11 2meg eg2_attack p2.25
+MIC22CP c40 peak n11 CD4007P
+*
+* --- decay: N-C (gate high) and N-B (gate on: pin 3 = pin 8 high) in series, R178 and DECAY (VR32) to
+* the SUSTAIN level: R169 from +15 V, R168 2.7k across SUSTAIN (VR31 10k B) to ground
+MIC22CN c40 peak n9 CD4007N
+MIC22BN n9 gate n4 CD4007N
+R178 n4 n38 1k
+PVR32 n38 n38 sus 1meg eg2_decay p2.25
+R169 p15 n40 {r169}
+R168 n40 0 2.7k
+PVR31 n40 sus 0 10k eg2_sustain
+*
+* --- release: N-A (gate 6 = IC23 pin 6, high while the gate is off) through RELEASE (drawn "VR31
+* 1MA") from C40 to ground (pin 7, VSS)
+PVR31R c40 c40 n8 1meg eg2_release p2.25
+MIC22AN n8 i6 0 CD4007N
+C40 c40 0 6.8u
+*
+* --- IC21 (TL081) follower: TO VCA
+XIC21 c40 env env opamp {gbwtl} {gaintl} {vsattl}
+*
+* --- IC20 (4558): a: the SUSTAIN level less the envelope (R171/R172 on +, R177 in, R173 feedback,
+* all 100k metal film) to REV OUT through R170; b: inverted (R174, R175 10k) to TO VCF through R161
+R177 env i20am 100k
+R173 i20am ic20a 100k
+R171 sus i20ap 100k
+R172 i20ap 0 100k
+XIC20A i20ap i20am ic20a opamp {gbw4558} {gain4558} {vsat4558}
+R170 ic20a eg2rev 1k
+R174 ic20a i20bm 10k
+R175 i20bm ic20b 10k
+XIC20B 0 i20bm ic20b opamp {gbw4558} {gain4558} {vsat4558}
+* R161: printed 1K (A, T, G); 33k here: one unit's EG 2 sweeps (scenes 20 and 22, both filters,
+* two SUSTAIN settings) want TO VCF at about 0.6 of the drawn level, which 33k into the pots' 50k
+* gives (docs/circuit/envelopes.md). Decision: the value waits on a board photo of R161.
+R161 ic20b eg2vcf {r161}
+* the filters' EG 2/EXT pots (VR17, VR24: 100k each, both normalled to TO VCF) as its load
+RVCFLOAD eg2vcf 0 50k
+*
+.control jack_trig 0
+.control jack_eg1trig 0
+.control eg2_hold 0
+.control eg2_attack 0
+.control eg2_decay 0.5
+.control eg2_sustain 1
+.control eg2_release 0.2
+.output eg2 env
+.output eg2vcf eg2vcf
+.output eg2rev eg2rev
+.output c40 c40
+.output sus sus
+.output c42 n35
+.output gate gate
+.output peak peak
+.output q22c q22c
+.output tip27 tip27

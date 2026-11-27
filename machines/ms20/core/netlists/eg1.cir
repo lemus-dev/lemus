@@ -1,0 +1,123 @@
+* KORG MS-20 (Rev 1), KLM-127: ENVELOPE GENERATOR 1 (DELAY, ATTACK, RELEASE), its trigger input
+* (Q20), delay timer (C39, IC19's Schmitt trigger), the attack/release switch (IC19's third pair),
+* C38, the buffers IC18a/b, and REVERSE OUT (J11).
+* Service manual circuit diagram (1), "EG-1" (bottom, middle). Read in scan A (a-003.png), the 1994
+* TIFF (korg_ms20_4.tif) and scan B (b-003.png); the later board's KLM-127.GIF for legibility only.
+* Transcription notes and every part's source: docs/circuit/envelopes.md.
+*
+* Inputs (volts, stiff): kbdtrig (IC13B's output, trig.cir: +14 V idle, -14 V while a key is held),
+*   which reaches J27's tip through R80 100K and J27's normalling contact; trig (a cable in J27, EG
+*   1+2 TRIG IN); eg1trig (a cable in J20, EG 1 TRIG IN). S-trigger: high idle, low (0 V on another
+*   unit's TRIG OUT) while triggered (spec: "EG 1 trigger input (Lgnd)").
+* Jacks: controls jack_trig (1 = a cable in J27: its tip on `trig`, the normal contact to R80 open)
+*   and jack_eg1trig (1 = a cable in J20: its tip on `eg1trig`, else J20's normal contact ties it to
+*   J27's tip). Unpatched, EG 1 and EG 2 both hang on J27's tip behind R80; EG 2's input stage is
+*   here as a load on that tip (eg2.cir carries EG 1's the same way), so the tip is right in each.
+* Outputs: eg1 (IC18b pin 7, check point 27, to KLM-128: the MVCA's CONTROL normal and VCO EG 1/EXT;
+*   -0.75 x C38: -7.5 V idle, 0 V at full attack), eg1rev (J11 REVERSE OUT, check point 28: C38 / 2
+*   through R164/R165, +5 V idle, 0 V at full attack; source 1.35 kohm).
+* Probes: c38 (pin 12, the envelope capacitor: 10 V idle, 0 V at full attack), n61 (check point
+*   61, the delay timer's node), c39, q20c (Q20's collector), sw (IC19 pins 1/5/10, the Schmitt
+*   trigger's output: high = attack, low = release), tip20 (J20's tip, check point 26).
+* Controls: eg1_delay (VR27), eg1_attack (VR28), eg1_release (VR29), each a 2 Mohm "A" pot wired as a
+*   rheostat, 0 ohm at 0 (law p2.25, the A taper since 2026-11-23: docs/circuit/README.md).
+* Not modelled: the 4007's protection diodes and its body effect (the solver's
+*   MOSFET has the bulk on the source: P-C's source sits up to 5 V below its bulk at +15 V), the
+*   tantalum capacitors' leakage and dielectric absorption, the pots' end resistance, the op-amps'
+*   slew rate (the steepest slope, about 7 V/ms at ATTACK 0, is a thousandth of the TL082's; with
+*   the slewing stage Newton stalls on a residual floor at some settings: envelopes.md).
+*
+* IC19 (MC14007UB, MC14007 in the parts list) on +15 V / ground. Pins (onsemi data sheet): pair A
+* gate 6, P drain 13, N drain 8 (sources on VDD/VSS); pair B gate 3, P source 2 / drain 1, N source 4
+* / drain 5; pair C gate 10, P source 11, N source 9, drains joined at 12. Drawn: pair A an
+* inverter (6 in, 8+13 out into 3), pair B an inverter (1+5 out), both with R166 a Schmitt trigger;
+* pair C the switch: N-C (gate high) ties C38 through ATTACK to ground, P-C (gate low) through
+* RELEASE to the 10 V divider R159/R160.
+* cg: the gate's input capacitance (MC14007UB: 5 pF typical, 7.5 pF max) and the board's, on the
+* Schmitt trigger's input (pin 6): the bistable has no solution past its switching point without
+* charge in its loop (as contour.cir's cob; envelopes.md, "The netlist"). 10 pF passes every sweep
+* at 44.1-96 kHz; it delays a flip by up to 10 pF x 0.91 Mohm = 9 us.
+.param cg=10p
+VP15 p15 0 15
+*
+* --- J27 (EG 1+2 TRIG IN): its normal from IC13B through R80 100K (the keyboard page's part,
+* keyboard.md), or a cable's voltage; J20 (EG 1 TRIG IN): normalled to J27's tip, or a cable
+VKBDTRIG kbdtrig 0 input kbdtrig
+R80 kbdtrig n80 100k
+SJ27N n80 tip27 !jack_trig
+VTRIG trig 0 input trig
+SJ27 trig tip27 jack_trig
+SJ20N tip27 tip20 !jack_eg1trig
+VEG1TRIG eg1trig 0 input eg1trig
+SJ20 eg1trig tip20 jack_eg1trig
+*
+* --- EG 2's input stage on J27's tip, as eg2.cir has it (D31 ... R185): a load stand-in, the same
+* parts with an L
+D31L j31l tip27 1S1555
+R193L p15 j31l 220k
+D27L j31l d27kl 1S1555
+R187L d27kl q22bl 100k
+R186L q22bl 0 33k
+Q22L q22cl q22bl 0 2SC1685
+R185L p15 q22cl 10k
+*
+* --- trigger input: J20's tip through D24; R158 pulls the D24/D23 node up; while the input is high
+* (no trigger) Q20 is on (R157, R156) and holds its collector low; a trigger (the tip low) takes
+* the node to a diode drop, Q20 turns off and R155 lifts the collector to +15 V.
+D24 j24 tip20 1S1555
+R158 p15 j24 220k
+D23 j24 d23k 1S1555
+R157 d23k q20b 100k
+R156 q20b 0 33k
+Q20 q20c q20b 0 2SC1685
+R155 p15 q20c 2.2k
+*
+* --- delay: DELAY (VR27) from Q20's collector to node 61; R194 into C39 (tantalum 6.8 uF). With DELAY
+* at 0 the step through R155/R194 alone puts node 61 at 9 V, over the Schmitt trigger's threshold:
+* no delay. Trigger off: C39 empties through R194 and D25 into Q20.
+PVR27 q20c q20c n61 2meg eg1_delay p2.25
+D25 n61 q20c 1S1555
+R194 n61 c39 3.3k
+C39 c39 0 6.8u
+*
+* --- Schmitt trigger: R167 1M from node 61 into IC19 pin 6, R166 10M back from the output (pins 1/5)
+R167 n61 g6 1meg
+R166 sw g6 10meg
+CG6 g6 0 {cg}
+MIC19AP inva g6 p15 CD4007P
+MIC19AN inva g6 0 CD4007N
+MIC19BP sw inva p15 CD4007P
+MIC19BN sw inva 0 CD4007N
+*
+* --- the switch (pair C): sw high: N-C on, C38 to ground through ATTACK (VR28, pin 9 to ground);
+* sw low: P-C on, C38 to node 46 (R159 1k / R160 2k from +15 V: 10 V) through RELEASE (VR29)
+MIC19CP c38 sw n11 CD4007P
+MIC19CN c38 sw n9 CD4007N
+PVR28 n9 n9 0 2meg eg1_attack p2.25
+R159 p15 n46 1k
+R160 n46 0 2k
+PVR29 n46 n46 n11 2meg eg1_release p2.25
+C38 c38 0 3.3u
+*
+* --- IC18 (TL082): a follower (pin 3 in, 1 out), then an inverter (R163 in, R162 feedback, pin 5 on
+* ground) to KLM-128; REVERSE OUT is the follower's output halved by R164/R165
+XIC18A c38 ic18a ic18a opamp {gbwtl} {gaintl} {vsattl}
+R163 ic18a ic18m 20k
+R162 ic18m eg1 15k
+XIC18B 0 ic18m eg1 opamp {gbwtl} {gaintl} {vsattl}
+R164 ic18a eg1rev 2.7k
+R165 eg1rev 0 2.7k
+*
+.control jack_trig 0
+.control jack_eg1trig 0
+.control eg1_delay 0
+.control eg1_attack 0
+.control eg1_release 0
+.output eg1 eg1
+.output eg1rev eg1rev
+.output c38 c38
+.output n61 n61
+.output c39 c39
+.output q20c q20c
+.output sw sw
+.output tip20 tip20

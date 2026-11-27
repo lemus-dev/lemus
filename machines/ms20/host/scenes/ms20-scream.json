@@ -1,0 +1,12 @@
+{
+  "name": "ms20-scream",
+  "bpm": 90, "bars": 4, "tail": 2, "rate": 48000,
+  "params": {"VCO 2 Wave Form": 0.333, "VCO 2 Level": 0.8, "HPF Cutoff Freq": 0.4, "HPF Peak": 0.8,
+             "LPF Cutoff Freq": 0.55, "LPF Peak": 0.9, "LPF MG/T.EXT": 0.4, "MG Frequency": 0.3, "Volume": 0.8},
+  "automation": [{"param": "HPF Cutoff Freq", "points": [[0, 0.2], [16, 0.55]]}],
+  "notes": [
+    {"at": 0.0, "note": "G-3", "len": 3.5}, {"at": 4.0, "note": "C-4", "len": 3.5},
+    {"at": 8.0, "note": "A#3", "len": 3.5}, {"at": 12.0, "note": "C-3", "len": 3.5}
+  ],
+  "sources": [{"use": "ms20.lemus"}]
+}

@@ -1,0 +1,111 @@
+* MS-20 (Rev 1) VCO 2 and the ring modulator: KLM-127, service manual circuit diagram (1), middle
+* (scan A a-003; 1994 TIF korg_ms20_4; scan B b-003). Transcription and sources: docs/circuit/vco.md.
+* The core is VCO 1's (vco1.cir) with C11 3000 pF (polystyrene), Q9 2SA564(S), Q10 / Q11 2SC1685,
+* D7, R57 / R58 427, Q12 2SK30A-GR (drain on +18 V), R60 10K, C12 10 uF, R61 10K: node 11, the
+* sawtooth (7.5 Vpp on the block diagram).
+* The shapers: IC6A (4558 half, open loop) compares node 11 with R70 100K / R69 22K's 2.7 V (the
+* narrow pulse), or with ground where SW-4's second deck grounds its + input (square and ring): the
+* pulse through R63 100K / R64 6.8K. The ring modulator: IC6A's output through D8 (R68 100K) and VCO 1's
+* square (IC2A, vco1.cir) through D1 (R3 100K) into IC1 (uPD4011, four NANDs: an exclusive OR),
+* through R65 47K onto R66 100K to -15 V and R67 4.7K. WAVE FORM (SW-4, first deck) into VCO 2 LEVEL.
+* Inputs: ia2 (the charge current, A: vcoctl.cir), vco1sq (IC2A's output: vco1.cir), ramp2x (test
+* mode only).
+* Outputs: vco2 (SW-4's common, into the mixer), vco2sq (IC6A's output); probes ramp2 (for
+* vcoctl.cir), g2 (the PUT gate), n11 (check point 11), sq (R63 / R64), ring (R65 / R66 / R67),
+* x4 (IC1's output, pin 4).
+* Controls: ramp_ext (test mode, 0 as drawn), vco2_wave_saw / _square / _narrow / _ring (SW-4: close
+* one), vco2_level (VR14, the mixer's: its load is here, as in vco1.cir).
+* SW-4 as drawn, top to bottom (the panel's order reversed): ring, narrow, square, saw on the first
+* deck; the second deck's grounded wiper meets the ring and square rows (joined), so IC6A's + input
+* is grounded for those two and at 2.7 V for narrow and saw.
+* IC1's supply is not drawn: +15 V and ground assumed (its inputs swing 0 to about 13 V through D1 /
+* D8). Each NAND is four level-1 MOSFETs (models.cir's CD4011N / CD4011P: one unbuffered stage, sized
+* to the CD4011B's drive; the real gate is buffered, so its edges are sharper than these).
+* Not modelled: C9 10 uF / C10 0.1 uF (the PUT's +15 V decoupling), charge storage, 4011 input
+* protection. The PUT parasitics and the test mode are vco1.cir's (marked below).
+VP15 p15 0 15
+VN15 n15 0 -15
+VP18 p18 0 18
+IA2 ramp2 0 input ia2
+VSQ1 v1sq 0 input vco1sq
+* --- the core
+C11 p15 ramp2 3000p
+R57 p15 th2 427
+R58 th2 0 427
+Q11 g2 g2 th2 2SC1685
+Q10 k2 g2b ramp2 2SC1685
+Q9 a2 k2b an2 2SA564A
+D7 a2 g2 1S1555
+* PUT parasitics (not on the schematic; provisional): as vco1.cir's
+RB10 g2 g2b 50
+RB9 k2 k2b 50
+CE10 g2 ramp2 6p
+CC10 k2 g2 3p
+CE9 p15 k2 7p
+CC9 k2 a2 3.5p
+CE11 g2 th2 6p
+CD7 a2 g2 3p
+* test mode (not on the schematic): the anode lifted, the ramp from an input
+SPUT p15 an2 !ramp_ext
+VRX rx 0 input ramp2x
+SRX rx ramp2 ramp_ext 0.1 1e15
+J12 p18 ramp2 s12 2SK30A_GR
+R60 s12 0 10k
+C12 s12 n11 10u
+R61 n11 0 10k
+* --- IC6A (pins 1, 2, 3): - input node 11; + input R70 100K / R69 22K, grounded by SW-4's second deck
+R70 p15 i6p 100k
+R69 i6p 0 22k
+S4BR i6p 0 vco2_wave_ring
+S4BS i6p 0 vco2_wave_square
+XIC6A i6p n11 o6a opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R63 o6a sq 100k
+R64 sq 0 6.8k
+* --- ring modulator: D8 / R68 and D1 / R3 make 0 / +13 V logic of the two squares (nb, na)
+D8 o6a nb 1S1555
+R68 nb 0 100k
+D1 v1sq na 1S1555
+R3 na 0 100k
+* IC1 (uPD4011): gate (8, 9 -> 10) NAND(a, b); (12, 13 -> 11) NAND(10, b); (1, 2 -> 3) NAND(a, 10);
+* (5, 6 -> 4) NAND(3, 11) = a XOR b. Each: two P-channel in parallel to +15 V, two N-channel in series
+M1P1 x10 na p15 CD4011P
+M1P2 x10 nb p15 CD4011P
+M1N1 x10 na m1 CD4011N
+M1N2 m1 nb 0 CD4011N
+M2P1 x11 x10 p15 CD4011P
+M2P2 x11 nb p15 CD4011P
+M2N1 x11 x10 m2 CD4011N
+M2N2 m2 nb 0 CD4011N
+M3P1 x3 na p15 CD4011P
+M3P2 x3 x10 p15 CD4011P
+M3N1 x3 na m3 CD4011N
+M3N2 m3 x10 0 CD4011N
+M4P1 x4 x3 p15 CD4011P
+M4P2 x4 x11 p15 CD4011P
+M4N1 x4 x3 m4 CD4011N
+M4N2 m4 x11 0 CD4011N
+R65 x4 ring 47k
+R66 ring n15 100k
+R67 ring 0 4.7k
+* --- WAVE FORM (SW-4, first deck); the saw straight from node 11
+S4AR ring c2 vco2_wave_ring
+S4AN sq c2 vco2_wave_narrow
+S4AS sq c2 vco2_wave_square
+S4AW n11 c2 vco2_wave_saw
+* the mixer's load (mixer.cir): VR14 100KB, R77 100K into the virtual ground
+PVR14L c2 w14 0 100k vco2_level
+R77L w14 0 100k
+.control ramp_ext 0
+.control vco2_wave_saw 1
+.control vco2_wave_square 0
+.control vco2_wave_narrow 0
+.control vco2_wave_ring 0
+.control vco2_level 1
+.output vco2 c2
+.output vco2sq o6a
+.output ramp2 ramp2
+.output g2 g2
+.output n11 n11
+.output sq sq
+.output ring ring
+.output x4 x4

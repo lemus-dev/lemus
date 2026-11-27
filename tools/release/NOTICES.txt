@@ -150,7 +150,7 @@ Copyright (c) 2012 Red Hat, Inc.
 
 Panel legends that stand in for Helvetica use URW++'s base 35 fonts (the
 ProCo RAT's: Nimbus Sans Bold; the Oberheim Xpander's: Nimbus Sans Narrow
-Regular and Bold), from
+Regular and Bold; the Korg MS-20's: Nimbus Sans Narrow Regular), from
 https://github.com/ArtifexSoftware/urw-base35-fonts (tag 20200910),
 unmodified. They are licensed under the AGPLv3, Lemus's own licence (its text
 is in LICENSE.txt), with this exception from their LICENSE file: "As a special

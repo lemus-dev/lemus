@@ -1,0 +1,106 @@
+* KORG MS-20 (Rev 1) VC LPF: KLM-127, circuit diagram (1), right side: IC10 (KORG35) as a 12 dB/oct
+* Sallen-Key low-pass (input into pin 3), its input divider R108/R109 from the HPF, its gain stage
+* IC11a with the diode limiter D20/D21, PEAK (VR22), and the cutoff summer IC12b with CUTOFF FREQ
+* (VR21), MG/T.EXT (VR23), EG 2/EXT (VR24) and FC ADJ (VR8). Transcription: docs/circuit/filters.md.
+* The KORG35's insides (IC10_R1-R6, IC10_Q1-Q5) are Korg's 2000 drawing's parts, cited to
+* Stinchcombe, "A Study of the Korg MS10 & MS20 Filters" (2006/2009), Fig. 1; the board parts are
+* the service manual's (scan A a-003, hyperreal 1994 TIF korg_ms20_4, scan B b-003).
+* Inputs (volts): hpf, check point 14 (the HPF's output, hpf.cir); lpfext, the top of VR24: EXT
+* CUTOFF FREQ (J21) with a plug, else EG 2's TO VCF (J21's normal contact; eg2.cir's eg2vcf);
+* totalext, the T.EXT line into VR23 (J4, normalled to the MG triangle).
+* Outputs: lpf, check point 16 (C32's far side) into the VCA; probes l5 (pin 5, the JFET's gate),
+* lout (IC11a's output, before C32).
+* Controls: lpf_cutoff (VR21 100 kB), lpf_peak (VR22 10 kB), lpf_mg (VR23 100 kA), lpf_eg2
+* (VR24 100 kA); trim trim_vr8 (VR8 100 kB, FC ADJ, set by service check 7-4.2): default 0.3370,
+* the setting that gives 500 Hz at CUTOFF 5, PEAK 10 with models.cir as of 2026-11-25 (BR 4.35, D20/D21
+* on 1S1555LIM).
+* Element names: a KORG35 part is its kind letter, then <IC>_<part> (QIC10_Q2 is IC10's Q2).
+* Not modelled: the op-amps' offsets and bias currents; capacitor leakage; the KORG35's stray and
+* junction capacitances (the solver's devices have no charge storage).
+* Split: the VCA's input (vca.cir's R123 6.2k into R121 220 ohm and Q19) is R123L/R121L here. The
+* filtered -15 V that both KORG35s share (R110 470 ohm, C25 220 uF; hpf.cir) is R110L/C25L here, with
+* the HPF block's draw from it as the constant current ihpf (hpf.cir's operating point; C25 makes
+* the rail 7 ohm at 100 Hz, so the blocks' signal currents through it are left out).
+* The 4558: models.cir's gbw4558, gain4558, vsat4558, sr4558 (semiconductors.md).
+.param ihpf=2.2615m
+VP15 p15 0 15
+VN15 n15 0 -15
+VHPF hpf 0 input hpf
+VLPFEXT lpfext 0 input lpfext
+VTEXT totalext 0 input totalext
+
+* --- input divider from check point 14: R108 2.2k, R109 47 ohm (drawn in the HPF section)
+R108 hpf lin 2.2k
+R109 lin 0 47
+* the filtered -15 V as this block sees it (hpf.cir's R110, C25 and the HPF's draw)
+R110L n15 nf 470
+C25L 0 nf 220u
+IHPF 0 nf {ihpf}
+* bias divider into pin 2: R115 15k from the filtered -15 V, R112 220 ohm
+R115 nf l2 15k
+R112 l2 0 220
+
+* --- cutoff summer IC12b (1/2 4558: pin 5 +, pin 6 -, pin 7 out), as IC12a: R95 10k, 1 + R94/R97
+P21 p15 w21 n15 100k lpf_cutoff b
+R129 w21 lbus 470k
+P24 lpfext w24 0 100k lpf_eg2 p2.25
+R130 w24 lbus 100k
+P23 totalext w23 0 100k lpf_mg p2.25
+R131 w23 lbus 100k
+P8 p15 w8 n15 100k trim_vr8 b
+R128 w8 lbus 1meg
+R95 lbus 0 10k
+XIC12B lbus lsn lcv opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R94 lcv lsn 100k
+R97 lsn 0 4.7k
+
+* --- IC10, KORG35 (pins: 1 lcv, 2 l2, 3 lin, 4 l4, 5 l5, 6 nf, 7 l7, 8 +15 V)
+RIC10_R1 lcv ic10x 47k
+RIC10_R2 l2 ic10x 680
+RIC10_R3 p15 lb 470k
+QIC10_Q1 ic10x lb ic10e1 2SC1623
+QIC10_Q2 lin lb l4 2SC1623
+QIC10_Q3 l4 lb l5 2SC1623
+JIC10_Q4 ic10d l5 ic10s 2SK94
+RIC10_R4 p15 ic10d 10k
+QIC10_Q5 l7 ic10d p15 2SA812
+RIC10_R5 ic10s l7 820
+RIC10_R6 ic10s nf 10k
+
+* --- the board's filter parts: C29 0.0033 uF pin 4 to the feedback node (R111 220 ohm), C28
+* 0.001 uF pin 5 to ground
+C29 l4 lfb 3.3n
+C28 l5 0 1n
+R111 lfb 0 220
+R113 lfb lpk 5.6k
+C30 lfb lpk 1n
+
+* --- gain stage IC11a (1/2 4558: pin 3 +, pin 2 -, pin 1 out): 1 + R117/R116 for AC (C31),
+* D20/D21 back to back across R117
+* trap: at a gain of 58 the stage's loop is about 51 kHz, inside the resonance; its pole by
+* backward Euler lagged too little and the self-oscillation ran sharp (+88 cents at 14.5 kHz at
+* 192 kHz against ngspice), by the trapezoidal rule -15 cents, converging second order
+XIC11A l7 l2n lout opamp {gbw4558} {gain4558} {vsat4558} {sr4558} trap
+R117 l2n lout 270k
+D20 l2n lout 1S1555LIM
+D21 lout l2n 1S1555LIM
+C31 l2n l116 10u
+R116 l116 0 4.7k
+C32 lout lpf 33u
+* PEAK: VR22 10 kB from check point 16 to ground, R127 2.2k from its top to its wiper
+P22 lpf lpk 0 10k lpf_peak b
+R127 lpf lpk 2.2k
+* the VCA's input (vca.cir's R123, R121) as this block sees it
+R123L lpf l123 6.2k
+R121L l123 0 220
+
+.control lpf_cutoff 0.5
+.control lpf_peak 0
+.control lpf_mg 0
+.control lpf_eg2 0
+.control trim_vr8 0.3370
+.output lpf lpf
+.output l5 l5
+.output lout lout
+* the cutoff CV at pin 1 (IC12b's output): the machine picks the block's rate from it
+.output lcv lcv

@@ -1,0 +1,35 @@
+* KORG MS-20 (Rev 1), KLM-127: the TRIG DETECTOR from IC13A's output: R85 / C17 / R84 into IC13B
+* (a Schmitt trigger with R83), D11, R82 and R81 to TRIG OUT (J32); IC13B's output is the keyboard
+* trigger that R80 100K normals into EG 1+2 TRIG IN (J27, the envelopes' netlists) and that lights
+* LED2 through R89.
+* Service manual circuit diagram (1), left side, below the KEY BOARD ladder. Read in scan A
+* (a-003.png), the 1994 TIFF (korg_ms20_4.tif) and scan B (b-003.png); the later board's
+* KLM-127.GIF for legibility only. Transcription notes and every part's source:
+* docs/circuit/keyboard.md. The second op-amp is drawn with pins 5, 6, 7 and a label that reads
+* "IC18" or "IC13" in the scans; the KLM-127 board view has only IC-13 in the TRIG DETECTOR, so it
+* is IC13's B half here (IC18 is EG 1's TL082).
+*
+* Input: ic13a, IC13A's output (kbd.cir), volts: about +14 V with no key down, -14 V with one down.
+* Outputs: kbdtrig (IC13B's output, pin 7: about +14 V idle, -14 V while a key is held; the EGs'
+*   normal through R80 100K), trigout (TRIG OUT J32: +5.2 V idle, 0 V while a key is held, behind
+*   R82 4.3K || R81 2.7K = 1.66K, or R81 alone while D11 is off). Probe: c17 (C17, the delay).
+* Not modelled: LED2 and R89 (IC13B's load, which the ideal op-amp ignores: LED2 is lit while
+*   kbdtrig is low), R80 (in the envelopes' netlists), IC13B's offset.
+*
+* Op-amp: models.cir's uPC4558C parameters (gbw4558 ...).
+VIC13A ic13a 0 input ic13a
+* --- the delay: R85 into C17, R84 into IC13B's pin 5 (+); R83 10M from pin 7 to pin 5; pin 6 (-) on
+* ground. Switches when C17 crosses -1/10 of the output (R84 / R83): about +-1.4 V
+R85 ic13a c17 1meg
+C17 c17 0 0.01u
+R84 c17 i13bp 1meg
+R83 kbdtrig i13bp 10meg
+XIC13B i13bp 0 kbdtrig opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- TRIG OUT: D11, R82 into J32, R81 to ground
+D11 kbdtrig d11k 1S1555
+R82 d11k j32 4.3k
+R81 j32 0 2.7k
+*
+.output kbdtrig kbdtrig
+.output trigout j32
+.output c17 c17

@@ -22,6 +22,11 @@ if(NOT EXISTS ${JUCE_DIR}/CMakeLists.txt)
   message(FATAL_ERROR "JUCE is missing: git submodule update --init")
 endif()
 add_subdirectory(${JUCE_DIR} ${CMAKE_BINARY_DIR}/JUCE EXCLUDE_FROM_ALL)
+# On Linux JUCE links libatomic whenever clang needs it for its own check, though nothing in Lemus
+# calls it, and a plain Debian or Fedora doesn't have it: only libraries in use become dependencies.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_link_options(LINKER:--as-needed)
+endif()
 
 # Material this repo must not contain (ROMs, artwork packs, manuals, reference recordings) lives
 # in a private folder next to it. Builds don't need it; the tests and tools find ROMs, artwork

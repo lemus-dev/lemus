@@ -1,0 +1,30 @@
+* KORG MS-20 HEADPHONE AMP, board KLM-128, as the service manual's circuit diagram (2) draws it
+* (lower middle; docs/circuit/klm128.md §5; scan A a-004, the 1994 TIF korg_ms20_5).
+* "FROM SIGNAL OUT" (the VOLUME pot's wiper on KLM-127, J35 SIGNAL OUT, check point 7) into two
+* inverting halves of IC5 (4558): R42 4.7k / R41 27k to PHONES J34's tip through R43 220, R47 4.7k /
+* R45 27k to its ring through R46 220. Gain -27/4.7 = -5.74 (15.2 dB) each, mono on both sides.
+* Input: sigout, the SIGNAL OUT node's voltage. The two inputs load that node with R42 || R47 =
+* 2.35k to virtual ground: the VCA/VOLUME netlist (filters) must carry that load, since this block
+* takes the node's voltage as a stiff input.
+* Outputs: phones (the tip, across the load), phonesr (the ring); probes ic5a, ic5b (op-amp outputs).
+* Param rload: each earphone's resistance (spec, service manual §1: 8 ohm).
+* Not modelled: the 4558's output current limit (into 8 ohm through 220 ohm the halves would need
+* 57 mA at full swing; the data sheets give none for the 4558, short-circuit protected).
+.param rload=8
+VP15 p15 0 15
+VN15 n15 0 -15
+VSIG sig 0 input sigout
+R42 sig ic5n2 4.7k
+R41 ic5n2 ic5a 27k
+XIC5A 0 ic5n2 ic5a opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R43 ic5a tip 220
+R47 sig ic5n6 4.7k
+R45 ic5n6 ic5b 27k
+XIC5B 0 ic5n6 ic5b opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R46 ic5b ring 220
+RLT tip 0 {rload}
+RLR ring 0 {rload}
+.output phones tip
+.output phonesr ring
+.output ic5a ic5a
+.output ic5b ic5b

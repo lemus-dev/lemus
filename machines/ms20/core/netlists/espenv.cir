@@ -1,0 +1,60 @@
+* KORG MS-20 EXTERNAL SIGNAL PROCESSOR: envelope follower, trigger detector and the two LEDs, board
+* KLM-129, as the service manual's circuit diagram (2) draws it (lower left; docs/circuit/esp.md §3;
+* scan A a-004, the 1994 TIF korg_ms20_5, scan B b-004). Split from esp.cir at IC7b's output.
+* IC7b's output through D4 (1S1555) and R48 1k charges C1 1u/50V, R3 22k discharges it (attack about
+* 1 ms, release 22 ms); IC1a (1/2 4558, non-inverting, R4 100k / R2 100k: gain 2) buffers it;
+* ENV OUT (J29) through R11 2.7k / R35 2.7k (half: the envelope itself). IC1b (1/2 4558) compares
+* IC1a's output (its - input) with THRESHOLD LEVEL VR3 (10k, between R20 680 from +15 V and R1 820 to
+* ground) through R21 3.3k, R19 100k from its output for hysteresis: above the threshold its output
+* goes low, lighting the trigger LED (R8 4.7k from it to the LED's cathode, anode on +15 V) and taking
+* TRIG OUT (J30: D1, R9 4.3k / R34 2.7k, +4.8 V idle) to 0 V: "+5 V to GND", as the MS-20's other
+* triggers. TR5 (2SC1685, base from IC1a's output through R5 100k, R6 150k to -15 V) lights the peak
+* LED (R7 2.7k) once IC1a's output passes about 11 V.
+* Input: esppre (IC7b's output, from esp.cir).
+* Control: esp_threshold (VR3; clockwise lowers the threshold: "for longest sustain set at 10",
+* owner's manual supplement).
+* Outputs: espenv (J29 ENV OUT), esptrig (J30 TRIG OUT); probes env (C1), ic1a, ic1b (op-amp outputs),
+* trigled (V across R8: the trigger LED's current x 4.7k), peakled (V across R7: x 2.7k).
+* PROVISIONAL: the LEDs (GD4-203RD, parts list; no data sheet found, and models.cir has no LED) take
+* the red LED of Hamamatsu's P873 photocoupler as a stand-in (its Figure 4, fitted: mvca.cir). Both
+* are driven by resistors from +-14 V, so their currents hardly depend on it.
+.model LEDRED D(IS=1.076e-18 N=1.997 RS=8.87)
+VP15 p15 0 15
+VN15 n15 0 -15
+VPRE pre 0 input esppre
+* --- envelope follower
+D4 pre d4k 1S1555
+R48 d4k env 1k
+C1 env 0 1u
+R3 env 0 22k
+R2 ic1n2 0 100k
+R4 ic1n2 ic1o1 100k
+XIC1A env ic1n2 ic1o1 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R11 ic1o1 j29 2.7k
+R35 j29 0 2.7k
+* --- trigger detector: IC1b with THRESHOLD LEVEL VR3 (a = the clockwise end, at R1)
+R20 p15 vr3t 680
+PVR3 vr3g vr3w vr3t 10k esp_threshold
+R1 vr3g 0 820
+R21 vr3w ic1p5 3.3k
+R19 ic1p5 ic1o7 100k
+XIC1B ic1p5 ic1o1 ic1o7 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+DLED1 p15 led1k LEDRED
+R8 led1k ic1o7 4.7k
+D1 ic1o7 d1k 1S1555
+R9 d1k j30 4.3k
+R34 j30 0 2.7k
+* --- peak indicator: TR5 and its LED
+R5 ic1o1 tr5b 100k
+R6 tr5b n15 150k
+QTR5 tr5c tr5b 0 2SC1685
+R7 led2k tr5c 2.7k
+DLED2 p15 led2k LEDRED
+.control esp_threshold 0.5
+.output espenv j29
+.output esptrig j30
+.output env env
+.output ic1a ic1o1
+.output ic1b ic1o7
+.output trigled led1k ic1o7
+.output peakled led2k tr5c

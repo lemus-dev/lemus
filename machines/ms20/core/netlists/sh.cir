@@ -1,0 +1,47 @@
+* KORG MS-20 SAMPLE & HOLD, board KLM-128, as the service manual's circuit diagram (2) draws it
+* (upper middle; docs/circuit/klm128.md §2; scan A a-004, the 1994 TIF korg_ms20_5, scan B b-004).
+* IN (J2, R10 100k to ground) through R5 10k into IC2a (1/2 4558, follower), R4 470 ohm into F1
+* (2SK30A, rank GR), the switch into C1 0.1u; IC1 (CA3140E, follower) buffers C1 to OUT (J8)
+* through R7 1k. CLOCK (J5: R38 220k to +15 V, R13 100k to ground, so 4.69 V unpatched) through R8
+* 10k into IC2b (1/2 4558, open loop) against R6 10k / R9 1k (1.36 V): clock above it, IC2b's
+* output high, D1 off and R3 1M ties F1's gate to its drain (tracking); clock below it, IC2b low
+* and D1 pulls the gate to about -14 V (holding). It tracks while the clock is high and holds from
+* its falling edge ("clock trigger input, +5 V to GND", service manual §1).
+* Inputs: shin (J2), shclk (J5; the cable's voltage, connected through S5 while shclk_patch is 1;
+* unpatched, the board's own 4.69 V bias: tracking).
+* Outputs: shout (J8, behind R7 1k); probes c1 (the hold capacitor), gate (F1's gate), ic2b (the
+* clock comparator's output).
+* Not modelled: the droop (F1's gate leakage, IC1's input current: no leakage in the models) and
+* the hold step (F1's gate charge: no JFET capacitances); IC1's offset and its null VR1 10k B /
+* R11 1k (pins 1, 5 to V-): docs/circuit/klm128.md §2.4 gives both from the data sheets.
+.param rsrc5=1
+VP15 p15 0 15
+VN15 n15 0 -15
+VSHIN j2 0 input shin
+VSHCLK clksrc 0 input shclk
+* --- input buffer
+R10 j2 0 100k
+R5 j2 ic2p3 10k
+XIC2A ic2p3 ic2o1 ic2o1 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R4 ic2o1 f1d 470
+* --- the switch: F1 (drain at R4, source at C1; symmetric), R3 from drain to gate, D1 to IC2b
+JF1 f1d gate c1 2SK30A_GR
+R3 f1d gate 1meg
+D1 gate ic2o7 1S1555
+C1 c1 0 0.1u
+* --- output buffer (CA3140)
+XIC1 c1 shbuf shbuf opamp {gbw3140} {gain3140} {vsat3140} {sr3140}
+R7 shbuf j8 1k
+* --- clock comparator
+S5 clksrc j5 shclk_patch {rsrc5}
+R38 p15 j5 220k
+R13 j5 0 100k
+R8 j5 ic2p5 10k
+R6 p15 ic2n6 10k
+R9 ic2n6 0 1k
+XIC2B ic2p5 ic2n6 ic2o7 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+.control shclk_patch 1
+.output shout j8
+.output c1 c1
+.output gate gate
+.output ic2b ic2o7

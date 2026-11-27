@@ -1,0 +1,110 @@
+* KORG MS-20 EXTERNAL SIGNAL PROCESSOR: F-V converter, board KLM-129, as the service manual's circuit
+* diagram (2) draws it (lower right; docs/circuit/esp.md §4; scan A a-004, the 1994 TIF korg_ms20_5,
+* scan B b-004). Split from esp.cir at IC5's output (the band-pass's).
+* IC2 (uPC339, open-collector quad comparator on +-15 V [I]):
+* A (pins 4 -, 5 +, out 2; R28 10k pull-up): IC5's output through R33 10k against R30 1k / R29 220k
+*   from its output: a zero-crossing Schmitt trigger, +-66 mV of hysteresis;
+* B (pins 6 -, 7 + grounded, out 1; R31 10k pull-up): A inverted.
+* Each output's rising edge, through C4 / C3 (220p), D3 / D2 and R14 / R12 (47k), turns TR2 (2SC1685,
+*   emitter on -15 V, base held at -15 V by R10 10k; R15 / R13 22k recharge the diodes' anodes to
+*   -15 V) on for some microseconds: C2 (12000p styrol) discharges to -15 V twice per input period;
+* C (pins 8 -, 9 +, out 14): C2's voltage against R17 2.2M from +15 V, R24 100k from its own output
+*   and VR2 (100k B trim) + R25 100k from D's output. While C2 charges (R16 220k from +15 V, R23 22k
+*   from C's output) C's output is off; at the threshold it sinks, and R23 holds C2 below the lower
+*   threshold until TR2 resets it: a retriggered monostable, a fixed-length pulse per half period;
+* D (pins 10 -, 11 +, drawn out "3", the chip's V+ pin by the data sheet: 13 is OUT4): - on the +15 V
+*   rail, + on Z (R27 10k from C's output, R32 4.7k to +15 V), so its output sits low (R26 15k from
+*   +15 V) and VR2 + R25 return pin 9 to about -15 V: drawn so, and it works that way [I].
+* Z (5.5 V while C sinks, about 12 V while it is off) drives the 4069 (IC4) chain, six inverters on
+* +15 V and ground [I]; the last one's 0 / +15 V pulses are averaged by a unity-gain Sallen-Key
+* low-pass, R37 10k + VR6, VR6 + R54 10k, C11 0.056u (feedback) and C6 0.056u, IC3 (TL081): VR6 is
+* LOW CUT FREQ's other two gangs, so the ripple filter tracks the low cut (26 Hz to 284 Hz). R36 470
+* into CV ADJ VR4 (10k A) and R38 1k: the wiper is F-V CV OUT (J18).
+* Input: espbp (IC5's output, from esp.cir).
+* Controls: esp_lowcut (VR6's gangs C, D), esp_cvadj (VR4; 1 = the top, "set at 10 for unison
+* pitch"), trim_VR2 (the F-V scale, a rheostat: 0 = all of its 100k, 1 = none).
+* Outputs: espfv (J18 F-V CV OUT, unloaded); probes cmpa, cmpb (A's and B's outputs), c2 (TR2's
+* collector), cmpc (C's output), z (the 4069's input), pulses (the 4069's output), fvop (IC3's
+* output).
+* Not modelled: IC3's offset null (VR1 10k B, R22 4.7k to -15 V on pins 1, 5); the comparators'
+* response time (1.3 us, uPC339 data sheet).
+* SOLVER (esp.md §4.3): TR2 resets C2 in about 1 us; by the trapezoidal rule the step overshot it
+* and the scale read 9-14 % high against ngspice; C2 by backward Euler (`be`) reads +0.6 to +1.1 % at
+* 192 kHz, +1.4 % at 3.07 MHz (the reset 2.9 us later than ngspice's, IC2C's threshold 0.1 V higher:
+* not the sample grid). At 1 kHz inputs the dense Newton stalls; MS20_SOLVER=sparse runs it (the
+* machine's block is sparse). Run at 192 kHz.
+VP15 p15 0 15
+VN15 n15 0 -15
+VBP bp 0 input espbp
+* --- comparator A: zero-crossing Schmitt trigger
+R33 bp ic2n4 10k
+R30 ic2p5 0 1k
+R29 ic2p5 ic2o2 220k
+R28 p15 ic2o2 10k
+BIC2A ic2p5 ic2n4 ic2o2 n15 comparator isink={isink339} vsat={vsat339} vg={vg339} vcm={vcm339}
+* --- comparator B: A inverted
+R31 p15 ic2o1 10k
+BIC2B 0 ic2o2 ic2o1 n15 comparator isink={isink339} vsat={vsat339} vg={vg339} vcm={vcm339}
+* --- the edges into TR2
+C4 ic2o1 c4b 220p
+D3 c4b d3k 1S1555
+R14 d3k tr2b 47k
+R15 c4b n15 22k
+C3 ic2o2 c3b 220p
+D2 c3b d2k 1S1555
+R12 d2k tr2b 47k
+R13 c3b n15 22k
+R10 tr2b n15 10k
+QTR2 c2 tr2b n15 2SC1685
+* be: TR2 empties C2 in about a microsecond; by the trapezoidal rule the step overshot that reset
+* (C2 to -17.6 V against ngspice's -14.98) and the scale read 9-14 % high (esp.md §4.3)
+C2 c2 n15 12000p be
+* --- comparator C: the monostable
+R16 p15 c2 220k
+R23 c2 ic2o14 22k
+R17 p15 ic2p9 2.2meg
+R24 ic2p9 ic2o14 100k
+PVR2 ic2p9 vr2w vr2w 100k trim_VR2
+R25 vr2w ic2o3 100k
+BIC2C ic2p9 c2 ic2o14 n15 comparator isink={isink339} vsat={vsat339} vg={vg339} vcm={vcm339}
+* --- comparator D (as drawn: - on +15 V)
+R27 ic2o14 z 10k
+R32 z p15 4.7k
+R26 p15 ic2o3 15k
+BIC2D z p15 ic2o3 n15 comparator isink={isink339} vsat={vsat339} vg={vg339} vcm={vcm339}
+* --- IC4, 4069: six inverters on +15 V and ground
+MN1 iv1 z 0 CD4069N
+MP1 iv1 z p15 CD4069P
+MN2 iv2 iv1 0 CD4069N
+MP2 iv2 iv1 p15 CD4069P
+MN3 iv3 iv2 0 CD4069N
+MP3 iv3 iv2 p15 CD4069P
+MN4 iv4 iv3 0 CD4069N
+MP4 iv4 iv3 p15 CD4069P
+MN5 iv5 iv4 0 CD4069N
+MP5 iv5 iv4 p15 CD4069P
+MN6 iv6 iv5 0 CD4069N
+MP6 iv6 iv5 p15 CD4069P
+* --- the averaging filter: Sallen-Key low-pass with VR6's gangs C, D, IC3 (TL081)
+R37 iv6 r37b 10k
+PVR6C r37b f1 f1 100k esp_lowcut c0.15
+C11 f1 ic3o6 0.056u
+PVR6D f1 r54a r54a 100k esp_lowcut c0.15
+R54 r54a ic3p3 10k
+C6 ic3p3 0 0.056u
+XIC3 ic3p3 ic3o6 ic3o6 opamp {gbwtl} {gaintl} {vsattl} {srtl}
+* --- CV ADJ VR4 (a = the clockwise end, at R36) and F-V CV OUT J18
+R36 ic3o6 cp6 470
+PVR4 cp6 j18 r38t 10k esp_cvadj p2.25
+R38 r38t 0 1k
+.control esp_lowcut 0
+.control esp_cvadj 1
+.control trim_VR2 0.5
+.output espfv j18
+.output cmpa ic2o2
+.output cmpb ic2o1
+.output c2 c2
+.output cmpc ic2o14
+.output z z
+.output pulses iv6
+.output fvop ic3o6

@@ -1,0 +1,107 @@
+* MS-20 (Rev 1) VCO 1: KLM-127, service manual circuit diagram (1), top middle (scan A a-003; 1994
+* TIF korg_ms20_4; scan B b-003). Transcription and sources: docs/circuit/vco.md.
+* The core: C2 6200 pF (polystyrene) hangs from +15 V; the charge current (vcoctl.cir's ia1, through
+* the cascode Q5 and R15) pulls its lower plate (ramp1) down. Korg's discrete PUT resets it: Q4
+* (2SA564, anode at +15 V) and Q3 (2SC1685, cathode at the ramp) with D4 from Q4's collector to the
+* gate (g1), and Q2 (2SC1685, diode-connected) from the gate to the R17/R16 427/427 divider (7.5 V):
+* the ramp falls to about 7.5 V + V_T ln(beta of Q4), the pair latches and dumps C2 back towards
+* +15 V. Q1 (2SK30A-GR, drain on the +18 V rail) follows it onto R14; C1 10 uF couples it to node 10
+* (R13 10K): the sawtooth, 7.5 Vpp on the block diagram.
+* The shapers: IC2A (4558 half, open loop) compares node 10 with PW (VR9 1MB between R10 300K /
+* R11 100K's node 56 and R12 1K): the pulse, R2 100K / R1 6.8K, and the square the ring modulator
+* takes; IC2B with D2 / D3 (R8, R5, R9 100K) rectifies node 10: the triangle, R6 10K with R7 100K to
+* +15 V; R4 100K the sawtooth's; WHITE NOISE from KLM-128. WAVE FORM (SW-1) into VCO 1 LEVEL.
+* Inputs: ia1 (the charge current, A), white (KLM-128's white noise), ramp1x (test mode only).
+* Outputs: vco1 (SW-1's common, into the mixer), vco1sq (IC2A's output, to the ring modulator);
+* probes ramp1 (C2's lower plate, for vcoctl.cir), g1 (the PUT gate), n10 (check point 10), saw
+* (R4's switch end), pulse, tri.
+* Controls: ramp_ext (test mode, 0 as drawn), vco1_pw (VR9), vco1_wave_tri / _saw / _pulse / _noise
+* (SW-1: close one), vco1_level (VR13, the mixer's: its load is here, see below).
+* SW-1's common is loaded by the mixer as mixer.cir has it: VR13 100KA to ground, its wiper through
+* R75 100K into IC8A's virtual ground (as ground here), so vco1 is the voltage the mixer sees.
+* Not modelled: C3 0.1 uF / C4 10 uF (they decouple the PUT's +15 V at the board; the rail is ideal
+* here), the transistors' charge storage (the solver has none), the rails' ripple.
+* The PUT's parasitics (marked below, not on the schematic): with models.cir's static transistors
+* alone the latch has no fast mode, never fires, and ngspice stops ("timestep too small") where the
+* solver fails every step (vco.md, "The reset"). With them ngspice runs the core: trip 7.51 V, top
+* 13.52 V, 0.47 us from trip to the top at 40 uA. The solver still can't step through the reset
+* (vco.md): the running model takes the core from ngspice (a band-limited core in C++).
+* Test mode ramp_ext = 1 (not on the schematic): SPUT lifts the PUT's anode and SRX drives C2's lower
+* plate from input ramp1x, so the buffer and shapers can be run against ngspice with a given ramp.
+VP15 p15 0 15
+VN15 n15 0 -15
+VP18 p18 0 18
+IA1 ramp1 0 input ia1
+VWHITE white 0 input white
+* --- the core
+C2 p15 ramp1 6200p
+R17 p15 th1 427
+R16 th1 0 427
+Q2 g1 g1 th1 2SC1685
+Q3 k1 g1b ramp1 2SC1685
+Q4 a1 k1b an1 2SA564A
+D4 a1 g1 1S1555
+* PUT parasitics (not on the schematic; provisional): base resistances RB3, RB4 50 ohm (no sheet
+* gives rbb': chosen so the reset, about 0.5 us, falls between Tanaka's 0.3 us measured and 0.6 us
+* simulated); collector-base capacitances the data sheets' Cob (2SA564A 3.5 pF; 2SC1685 has no
+* sheet: the 2SC945's 3.0 pF), emitter-base twice that (an assumption), D4 3 pF (an assumption)
+RB3 g1 g1b 50
+RB4 k1 k1b 50
+CE3 g1 ramp1 6p
+CC3 k1 g1 3p
+CE4 p15 k1 7p
+CC4 k1 a1 3.5p
+CE2 g1 th1 6p
+CD4 a1 g1 3p
+* test mode (not on the schematic): the anode lifted, the ramp from an input (SRX open is 1e15 ohm:
+* the default 1 Gohm drew 10 nA from the ramp, 1 % of the current at 32' C-1)
+SPUT p15 an1 !ramp_ext
+VRX rx 0 input ramp1x
+SRX rx ramp1 ramp_ext 0.1 1e15
+J1 p18 ramp1 s1 2SK30A_GR
+R14 s1 0 10k
+C1 s1 n10 10u
+R13 n10 0 10k
+* --- pulse: IC2A (pins 1, 2, 3), - input node 10, + input VR9's wiper
+R10 p15 n56 300k
+R11 n56 0 100k
+PVR9 n56 w9 n57 1meg vco1_pw
+R12 n57 0 1k
+XIC2A w9 n10 o2a opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R2 o2a pulse 100k
+R1 pulse 0 6.8k
+* --- triangle: IC2B (pins 5, 6, 7); D2 from node 10 to R8 (positive half, inverted), D3 from the
+* + input to node 10 (negative half, followed)
+D2 n10 d2k 1S1555
+R8 d2k s2b 100k
+D3 i2p n10 1S1555
+R5 i2p 0 100k
+R9 s2b o2b 100k
+XIC2B i2p s2b o2b opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R6 o2b tri 10k
+R7 tri p15 100k
+* --- sawtooth
+R4 n10 saw 100k
+* --- WAVE FORM (SW-1), drawn noise, pulse, saw, triangle from the top; the panel's order reversed
+S1T tri c1 vco1_wave_tri
+S1S saw c1 vco1_wave_saw
+S1P pulse c1 vco1_wave_pulse
+S1N white c1 vco1_wave_noise
+* the mixer's load (mixer.cir): VR13 100KA, R75 100K into the virtual ground
+PVR13L c1 w13 0 100k vco1_level p2.25
+R75L w13 0 100k
+.control ramp_ext 0
+.control vco1_wave_tri 0
+.control vco1_wave_saw 1
+.control vco1_wave_pulse 0
+.control vco1_wave_noise 0
+.control vco1_pw 0
+.control vco1_level 1
+.output vco1 c1
+.output vco1sq o2a
+.output ramp1 ramp1
+.output g1 g1
+.output n10 n10
+.output saw saw
+.output pulse pulse
+.output tri tri

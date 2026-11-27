@@ -1,0 +1,127 @@
+* Semiconductor models for the MS-20 netlists (DC equations only: the solver has no charge storage,
+* and no RB/RE/RC or IKF, so ohmic drops and the high-current fall of h_FE are not modelled). Each is
+* fitted to its data sheet's 25 C typicals (the geometric middle of a min-max range or rank where
+* there is no typical), taken out of the solver's equations at its nominal 27 C. Sheets: private/
+* ms20/docs/datasheets/ (index: private/ms20/docs/SOURCES-gathered.md); NEC 1981 = the 1981 NEC
+* Discrete & Optoelectronics data book there, PDF page numbers. The reasoning per type, the figures
+* read and the fit results: docs/circuit/semiconductors.md. Names are the parts list's types.
+*
+* --- NEC NPN die of the 2SC1623 (mini-mold) and 2SC945 (TO-92): NEC 1981 p. 571 gives the 2SC945
+* as the 2SC1623's TO-92 equivalent, and their tables match figure for figure (h_FE 200, V_BE 0.62,
+* V_CE(sat) 0.15, V_BE(sat) 0.86 V, f_T 250 MHz, C_ob 3 pF).
+* 2SC1623 (KORG35 Q1-Q3; NEC 1981 pp. 645-647, Renesas D17115EJ5V0DS): V_BE 0.62 V and h_FE 200 at
+* 6 V, 1 mA (table typ) fix IS and BF; the 25 C h_FE curve (p. 647: 170 / 187 / 200 / 211 at 10 uA /
+* 0.1 / 1 / 10 mA) fixes ISE and NE. VAF 450: the I_C-V_CE curves at I_B 5-45 uA (Renesas p. 2,
+* vector) slope as V_A 400-540 V (h_oe 20 uS at 1 mA is all base feedback: (1+h_fe) h_re / h_ie =
+* 24 uS). BR 2.665: least squares to the V_CE(sat) plateaus at I_C = 10 / 20 / 50 I_B (Renesas p. 3,
+* vector: 42.3 / 58.5 / 87.2 mV at 0.5-1 mA, where RC adds about 1 mV), with NR 1 and no ISC; each
+* curve alone gives 2.84 / 2.76 / 2.46. Reverse mode is the KORG35's control law (Q2/Q3 in reverse
+* saturation): br1623, nr1623 and isc1623 let a block test the plausible range (semiconductors.md
+* section 3: the same curves fit NR 0.98 with BR 4.35 to NR 1.02 with BR 1.72; Stinchcombe's PSpice
+* library value is BR 4.21; ISC up to 1.2e-11 with NC 2 is invisible on the sheet). The high end
+* since 2026-11-23: real units' recordings (self-oscillation from PEAK 8, the resonance under a
+* full-level square, the self-oscillation's harmonics) need it (semiconductors.md section 3).
+* Fit: h_FE 170.1 / 186.5 / 200.0 / 210.7, V_BE 0.620 V at 1 mA; V_CE(sat) 43.6 / 59.3 / 85.2 mV.
+.param br1623=4.35 nr1623=0.98 isc1623=0
+.model 2SC1623 NPN(IS=3.839e-14 BF=238.6 BR={br1623} NF=1 NR={nr1623} VAF=450 ISE=1.311e-15 NE=1.181 ISC={isc1623} NC=2)
+* 2SC945 (VCA Q19): the parts list's "2SC-945(L)K, special selected": rank K, h_FE 300-600 at 6 V,
+* 1 mA (NEC 1981 p. 201; Renesas ja D17117JJ2V0DS00) -> 424 there. The 2SC1623's die: IS, NE, BR;
+* ISE for the sheet's h_FE(0.1 mA)/h_FE(1 mA) 0.92 typ; VAF 212 by h_FE x V_A held at the typical
+* unit's (200 x 450 V). The schematic's colour ranks (orange/yellow/green/blue -> R126 680k or R124
+* 1M) map to no published figure. Q19 works saturated, its gain about BR I_B / V_T: br945 lets the VCA
+* block calibrate it (to the block diagram's check-point levels). Fit: h_FE 350 / 390 / 424 / 452 at
+* 10 uA ... 10 mA.
+.param br945=2.665
+.model 2SC945 NPN(IS=3.839e-14 BF=521.2 BR={br945} NF=1 NR=1 VAF=212.1 ISE=7.523e-16 NE=1.181)
+* 2SC1685 (S, x13) and 2SC644 (R, the noise source): no maker's sheet found. The 2SC1623 die with BF
+* for the geometric middle of the h_FE range a parts catalogue gives (futurlec.com: 2SC1685 160-460 at
+* 2 mA, 2SC644 130-700 at 1 mA; not maker data, rank letters unknown). The 2SC644's job, emitter-base
+* breakdown noise, is not in the model (no breakdown in the solver). Fit: h_FE 271 at 2 mA; 302 at 1 mA.
+.model 2SC1685 NPN(IS=3.839e-14 BF=338.9 BR=2.665 NF=1 NR=1 VAF=450 ISE=1.311e-15 NE=1.181)
+.model 2SC644 NPN(IS=3.839e-14 BF=401.9 BR=2.665 NF=1 NR=1 VAF=450 ISE=1.311e-15 NE=1.181)
+*
+* --- 2SC1583 G (VCO expo pairs Q6/Q7; Mitsubishi sheet, private/tb303/docs/datasheets/mitsubishi-
+* 2sc1583.pdf, SHA1 19872953300a4d080a321d0b4efe056a08bcb237): matched dual, rank G h_FE 400-800 at
+* 6 V, 1 mA -> 566; V_BE 0.597 V at 1 mA (transfer curve p. 2); relative h_FE 0.45 / 0.58 / 0.66 /
+* 0.90 / 1.40 at 10 uA / 50 uA / 0.1 / 0.5 / 10 mA (p. 3) fix ISE, NE and BF; VAF 30 from the output
+* curves at I_B 0.6-1.4 uA (p. 2, 1.5-6.5 V: 26-31 V). BR: the 2SC1623's (no figure: V_CE(sat) only
+* a maximum). Both halves identical (sheet: |V_BE1 - V_BE2| 1 mV typ, h_FE1/h_FE2 0.98 typ).
+* Fit: h_FE 566, V_BE 0.597 V at 1 mA; relative 0.44 / 0.60 / 0.68 / 0.89 / 1.42.
+.model 2SC1583 NPN(IS=8.01e-14 BF=1984 BR=2.665 NF=1 NR=1 VAF=30 ISE=1.782e-14 NE=1.273)
+*
+* --- PNPs.
+* 2SA812 (KORG35 Q5; NEC 1981 pp. 606-608, Renesas D17119EJ4V0DS): V_BE -0.62 V and h_FE 200 at
+* -6 V, -1 mA (table typ); h_FE flat 0.1-10 mA (p. 608) and h_fe 205 (h-parameters): no ISE. BR 1.98
+* from V_CE(sat) 50 mV at I_C = 10 I_B, 1-2 mA (Renesas p. 2). VAF 500: the I_C-V_CE curves at
+* I_B -5/-10 uA are flat within a pixel from -14 to -38 V (V_A above about 500 V; h_oe is base
+* feedback again). Fit: V_BE 0.620 V, h_FE 200 at 1 mA; V_CE(sat) 50.0 mV.
+.model 2SA812 PNP(IS=3.843e-14 BF=197.9 BR=1.98 NF=1 NR=1 VAF=500)
+* 2SA564A (S, x4: trigger detector, VCO cores; Blue Rocket's second-source sheet, the only one
+* found): rank S h_FE 260-520 at -10 V, -2 mA -> 368. No V_BE, curves or Early figure on that
+* sheet: IS, BR, VAF the 2SA812's (the same 50 V, 100 mA small-signal class). Fit: h_FE 368 at 2 mA.
+.model 2SA564A PNP(IS=3.843e-14 BF=360.9 BR=1.98 NF=1 NR=1 VAF=500)
+*
+* --- JFETs (Shichman-Hodges: I_DSS = BETA VTO^2; gate IS 1e-14, a typical value: the sheets give
+* only a gate-leakage maximum, 1 nA).
+* 2SK30A (Toshiba 2SK30ATM, 2007; the 1973 handbook pp. 643-646 has the period sheet): I_DSS ranks
+* O 0.60-1.40, GR 2.60-6.50 mA at 10 V -> 0.917 and 4.11 mA; |Y_fs| at those I_DSS from the |Y_fs|-I_DSS
+* line (p. 3): 2.18 and 3.92 mS; VTO = -2 I_DSS / |Y_fs|. LAMBDA 1e-4: the static curves are flat to a
+* pixel (0.01 mA in 2.9) from 13 to 48 V. Fit: VTO -0.84 / -2.10 V (the sheet's V_GS(off) at 0.1 uA,
+* -0.96 / -2.19 V, lies on the square law's tail).
+.model 2SK30A_O NJF(VTO=-0.841 BETA=1.296m LAMBDA=1e-4 IS=1e-14 N=1)
+.model 2SK30A_GR NJF(VTO=-2.097 BETA=0.935m LAMBDA=1e-4 IS=1e-14 N=1)
+* 2SK94 (KORG35 Q4): no sheet found. NEC 1981 p. 572 (mini-mold cross reference) gives the 2SK94 as
+* the equivalent of Motorola's MMBF5457 (onsemi MMBF5457/D, 2023; downloaded for this fit, see
+* semiconductors.md): I_DSS 3.0 mA typ (1-5) at 15 V; the process line (Fig. 6) puts 3.0 mA at
+* V_GS(off) -1.57 V and g_fs 4.0 mS -> VTO -1.50; g_os 10 umho typ -> LAMBDA 3.5e-3. Assumed; bounds
+* on the same line: I_DSS 1 mA at V_GS(off) -0.78 V to 5 mA at -2.15 V.
+.model 2SK94 NJF(VTO=-1.50 BETA=1.267m LAMBDA=3.5e-3 IS=1e-14 N=1)
+*
+* --- Diode.
+* 1S1555 (x33; Toshiba 1973 handbook pp. 689-690): least squares to the 25 C forward curve
+* (0.11-112 mA, p. 689, digitised from the scan) within 12 mV (rms 6): 0.463 V at 0.1 mA, 0.581 at
+* 1 mA, 0.709 at 10 mA, 0.944 at 100 mA (table: 1.0 typ, 1.4 max at 100 mA). Reverse current IS,
+* 10 nA, as the p. 690 I_R curve at 25 C (a few nA to about 10 nA up to 30 V; I_R max 0.5 uA).
+.model 1S1555 D(IS=1.023e-8 N=1.949 RS=1.33)
+* 1S1555LIM: the LPF's limiter pair (D20/D21, lpf.cir) only, at microamps, where the sheet's curve
+* stops (0.1 mA): fitted to one unit's resonance (g6OfcNTvJow, scenes 20 and 21, 2026-11-25): its
+* level along the EG 2 sweep and the hand sweep, and how steadily it rings between the oscillators'
+* edges (25 dB from edge to trough with the sheet's knee against the recording's 17; 18.5 with this).
+* The same IS and N on the HPF's pair change nothing measurable. A fit, kept (decided 2026-11-25).
+.model 1S1555LIM D(IS=2.9e-9 N=1.3 RS=1.33)
+*
+* --- CMOS (SPICE level 1, bulk on the source; one N and one P per inverter). Fitted for V_DD 15 V:
+* the drive table at 15 V exactly, VTO 1.0 V from the MC14007UB's 25 C saturation currents (Fig. 4:
+* 3.37 mA at V_GS 5 V, 17.9 mA at 10 V), LAMBDA 0.01 from the flat saturated curves there. The tables
+* are symmetric at 15 V (I_OH = -I_OL), so the P mirrors the N. W and L are only a split of beta =
+* KP/2 W/L. Level 1 cannot also give the 5 V and 10 V drive (13-49 % weak there) or the sheets' soft
+* typical transfer (V_IL/V_IH 6.75/8.25 V at 15 V; the model's 10 %/90 % points are 5.55/9.45 V).
+* MC14007UB (onsemi, EG1/EG2 switches): I_OL 10 mA at 15 V / 1.5 V. R_on near V_DS 0: 144 ohm at V_GS
+* 15 V, 224 at 10 V, 505 at 5 V.
+.model CD4007N NMOS(VTO=1.005 KP=20u LAMBDA=0.01 W=148.8u L=6u)
+.model CD4007P PMOS(VTO=-1.005 KP=20u LAMBDA=0.01 W=148.8u L=6u)
+* MC14069UB (onsemi, EG2 hold, ESP): I_OL 8.8 mA at 15 V / 1.5 V.
+.model CD4069N NMOS(VTO=1.005 KP=20u LAMBDA=0.01 W=130.9u L=6u)
+.model CD4069P PMOS(VTO=-1.005 KP=20u LAMBDA=0.01 W=130.9u L=6u)
+* uPD4011C (ring modulator; TI/RCA CD4011B as the equivalent, a buffered gate): typ I_OL 6.8 mA at
+* 15 V / 1.5 V. For a one-stage NAND built of these (the two N in series, the two P in parallel): the
+* N twice as wide, so the series pair sinks as the sheet's output does, one P sources as it does.
+.model CD4011N NMOS(VTO=1.005 KP=20u LAMBDA=0.01 W=202.4u L=6u)
+.model CD4011P PMOS(VTO=-1.005 KP=20u LAMBDA=0.01 W=101.2u L=6u)
+*
+* --- Op-amps, X elements (in+ in- out opamp gbw gain vsat sr), at +-15 V: semiconductors.md section 7.
+* uPC4558C (x17; NEC 1981 linear p. 68, Renesas G10518EJAV0DS p. 3 and p. 5): A_V 100 000 typ;
+* open-loop response 100 dB to 29 Hz, 0 dB at 2.96 MHz; V_om +-14 V typ into 10k or more (+-13 into
+* 2k); SR 1.0 V/us typ.
+.param gbw4558=3meg gain4558=1e5 vsat4558=14 sr4558=1
+* TL081/TL082 (x5/x1; TI SLOS081O, 5.8-5.9): GBW 3 MHz for the original die (the table's NS/PS and M
+* line; 5.25 MHz for today's D/P packages), A_OL 200 V/mV typ, V_OM +-13.5 V typ at 10k, SR 20 V/us typ.
+.param gbwtl=3meg gaintl=2e5 vsattl=13.5 srtl=20
+* CA3140 (the parts list's alternate for the 081/082; Renesas FN957 p. 3): f_T 4.5 MHz, A_OL 100 kV/V,
+* V_OM +13 / -14.4 V typ (into 2k; the solver clips symmetrically: +-13), SR 9 V/us.
+.param gbw3140=4.5meg gain3140=1e5 vsat3140=13 sr3140=9
+* uPC339C (ESP; Renesas G11764EJ4V0DS p. 3, at V+ 5 V): output sink 16 mA typ (V_O <= 1.5 V) and
+* V_OL 0.2 V typ at 4 mA -> isink 16 mA, vsat 0.783 V (15.3 mA at 1.5 V); A_V 200 V/mV typ into 15k
+* -> vg 11.7 uV; input range 0 to V+ - 1.5 V -> vcm339 13.5 V for V+ = +15 V (set it for the block's
+* supply); V_IO +-2 mV typ, sign unknown: vos 0. Response time 1.3 us is not modelled.
+.param isink339=16m vsat339=0.783 vg339=11.7u vcm339=13.5 vos339=0

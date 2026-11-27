@@ -1,0 +1,65 @@
+* KORG MS-20 (Rev 2) VCA: KLM-307 (hyperreal KLM-307.GIF), right side: Q3 and Q4 (2SC945 (L) K,
+* "Selected", a pair), Q3 a transistor in saturation whose collector-emitter path is a resistor the
+* base current sets, between the LPF's output (C7's far side, divided by R38 / R39 220 ohm) and
+* IC-5's virtual ground through C8; Q4, its twin from the same emitter node to ground, carries the
+* pair's base current to ground rather than into C8. IC-5 (4558) with R41 100k across C9 0.0047 uF
+* + R42 100k (100k at low frequencies, 50k at high: a shelf, pole 169 Hz, zero 339 Hz; Rev 1's
+* IC11b has R118 180k // C34 100 pF), C10, R43 1k, SIGNAL OUT's 10 kB pot (KLM-127). Base current
+* from EG 2 (R47 100k, R48 1M) or INITIAL GAIN (D15) through R44 330k or R45 240k, by the pair's
+* colour rank (the drawing's table). Transcription: docs/circuit/klm307.md §6.
+* Inputs (volts): lpf, C7's far side (lpf307.cir); eg2, EG 2's output (FROM EG-2); initgain,
+* INITIAL GAIN (J22), 0 with no plug.
+* Outputs: as vca.cir (sigout, cp19, vout, vc, vb), so the machine reads either.
+* Controls: volume (SIGNAL OUT, 10 kB).
+* Rank (.param): r44/r45, the one fitted (1e12: cut): Orange or Yellow, R44 cut (R45 240k); Green or
+* Blue, R45 cut (R44 330k). Taken: 1.2M in R45's place, fitted (2026-11-27): with R38 4.7k (above)
+* the drawn ranks put SIGNAL OUT 9-11 dB over Rev 1's on one patch, over the specification's 2 Vpp,
+* where BwBwJosbQkg's Rev 2 stands level with its Rev 1 on the scream (-0.2 dB) and 2.1 dB under on
+* the arpeggios; the pair's base current about a fifth of the drawn ranks' gives -0.1 dB with the
+* same squash. Which part makes it (a rank outside the table, less of EG 2 into vctl: R47's second
+* label) the recordings can't say.
+* R38, printed 3.3K: 4.7k, fitted to the Rev 2 recorded screaming (BwBwJosbQkg, 2026-11-27): how hard
+* the pair is driven sets the whole signal's squash (crest 5.8 dB in the recording: 5.5 with 4.7k,
+* 4.0-4.8 with 3.3k at any VCO levels, 7.6 with 33k) and its brightness; 33k (2026-11-24) is dropped.
+* Doubts (klm307.md §10): R47 carries a second label "47K"; 100k is taken (the designator's own
+* value, and Rev 1's R125 in the same place). D15's type isn't printed: 1S1555 as Rev 1's D22.
+* Split: the phones amp's two inverting inputs (KLM-128 R42, R47 4.7k into virtual grounds) are
+* R42L/R47L here; SIGNAL OUT's own load is rload. The LPF's side of R38/R39 is in lpf307.cir.
+* Not modelled: the op-amp's offset and bias current; capacitor leakage; the pair's junction
+* capacitances; the two transistors' mismatch (selected).
+.param r44=1e12 r45=1.2meg rload=100k
+VLPF lpf 0 input lpf
+VEG2 eg2 0 input eg2
+VIG initgain 0 input initgain
+VP15 p15 0 15
+VN15 n15 0 -15
+
+R38 lpf vc 4.7k
+R39 vc 0 220
+Q3 vc vb ve 2SC945
+Q4 0 vb ve 2SC945
+R40 ve 0 100k
+C8 ve v6n 10u
+XIC5 0 v6n vout opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R41 v6n vout 100k
+C9 v6n v9 4.7n
+R42 v9 vout 100k
+C10 vout v10 10u
+R43 v10 cp19 1k
+PVOLUME cp19 sigout 0 10k volume b
+R42L sigout 0 4.7k
+R47L sigout 0 4.7k
+RLOAD sigout 0 {rload}
+
+R47 eg2 vctl 100k
+R48 vctl 0 1meg
+D15 initgain vctl 1S1555
+R44 vctl vb {r44}
+R45 vctl vb {r45}
+
+.control volume 1
+.output sigout sigout
+.output cp19 cp19
+.output vout vout
+.output vc vc
+.output vb vb

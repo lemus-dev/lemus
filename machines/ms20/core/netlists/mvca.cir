@@ -1,0 +1,74 @@
+* KORG MS-20 MODULATION VCA (MVCA), board KLM-128, as the service manual's circuit diagram (2)
+* draws it (upper right; docs/circuit/klm128.md §3; scan A a-004, the 1994 TIF korg_ms20_5), with
+* the board's EG 1 output network (R1/R2, R18/R19, R20/R21, drawn beside it, §4).
+* IN (J10) through R17 100k into IC3a (1/2 4558, inverting, R15 75k: gain -0.75; R16 47k from + to
+* ground); the CdS cell of PC1 (HTV-P873-G35-201B, Hamamatsu: an LED and a CdS cell) from IC3a's
+* output into IC3b's inverting input (1/2 4558; R14 2.2k + (VR2 22k B rheostat || R12 10k) as its
+* feedback: gain -Rf/R_CdS); OUT (J16) through R23 470. The LED, from +15 V through R24 1k, is the
+* collector load of TR1 (2SC1685; R26 1k emitter resistor, R27 33k from the emitter to -15 V), whose
+* base takes CONTROL (J15) through R22 10k (R25 100k to ground, D2 clamping it above -0.6 V). J15 is
+* not a switched jack: EG 1 (KLM-127 IC18b, "FROM EG-1") reaches its tip through R20 10k, with R21
+* 20k from +15 V (0 V at rest, +5 V at the peak, behind 6.67k), and a cable's source drives the same
+* node.
+* THE CdS CELL is PPC1, a resistance the running model sets from the LED current (the solver has no
+* light-dependent resistor): control pc1 = R_CdS / 100 Mohm, set by the law in
+* docs/circuit/klm128.md §3.3 from the output ledv (the voltage across R24: the LED current in mA).
+* Inputs: mvcain (J10), mvcactl (J15: a cable's voltage through S15 while mvcactl_patch is 1, the
+* param rsrc15 its source resistance), eg1 (IC18b's output on KLM-127: -7.5 V at rest, 0 V at the
+* envelope's peak, by R1/R2, R18/R19 and R20/R21's drawn levels).
+* Outputs: mvcaout (J16, behind R23 470), ledv (V across R24 = LED current in mA), eg1out (J12 EG-1
+* OUT, behind R18 || R19 = 667 ohm), eg1vco (R1/R2's "TO VCO", unloaded: the VCO block's EG 1/EXT
+* normal takes it behind 667 ohm); probes ic3a, ctl (the J15 node), tr1e.
+* Trim: trim_VR2 (VR2 22k B rheostat; 0 = all of its 22k, 1 = none): the gain; 0.647 (7.76k)
+* gives unity at CONTROL +5 V with the data sheet's typical cell (klm128.md §3.3; service manual
+* §1: "control voltage input 0 ~ +5 V, signal -5 V ~ +5 V in and out").
+* PC1's LED (models.cir has no LED): fitted to Hamamatsu's P873-series Figure 4 (I_F against V_F, one
+* curve for the series: 1.79 V at 1 mA, 1.83 at 2, 1.905 at 5, 1.99 at 10, 2.11 at 20 mA), within
+* 3.3 mV (docs/circuit/klm128.md §3.3). TR1 is a current sink, so the LED current hardly depends on it.
+.model PC1LED D(IS=1.076e-18 N=1.997 RS=8.87)
+.param rsrc15=1
+VP15 p15 0 15
+VN15 n15 0 -15
+VMVCAIN j10 0 input mvcain
+VMVCACTL ctlsrc 0 input mvcactl
+VEG1 eg1 0 input eg1
+* --- IC3a: input stage
+R17 j10 ic3n2 100k
+R15 ic3n2 ic3a 75k
+R16 ic3p3 0 47k
+XIC3A ic3p3 ic3n2 ic3a opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- PC1's CdS cell (a resistance set from the law, below) and IC3b
+PPC1 ic3n6 ic3n6 ic3a 100meg pc1
+R14 ic3n6 r14b 2.2k
+PVR2 r14b ic3o7 ic3o7 22k trim_VR2
+R12 r14b ic3o7 10k
+XIC3B 0 ic3n6 ic3o7 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R23 ic3o7 j16 470
+* --- CONTROL: J15 (EG 1 through R20, R21 from +15 V; a cable through S15), TR1 driving PC1's LED
+S15 ctlsrc ctl mvcactl_patch {rsrc15}
+R20 eg1 ctl 10k
+R21 p15 ctl 20k
+R22 ctl tr1b 10k
+R25 tr1b 0 100k
+D2 0 tr1b 1S1555
+QTR1 tr1c tr1b tr1e 2SC1685
+R26 tr1e 0 1k
+R27 tr1e n15 33k
+R24 ledk tr1c 1k
+DPC1 p15 ledk PC1LED
+* --- the rest of the EG 1 network on KLM-128: J12 EG-1 OUT (R19 1k, R18 2k from +15 V) and TO VCO
+* (R1 1k, R2 2k to ground)
+R19 eg1 j12 1k
+R18 p15 j12 2k
+R1 eg1 tovco 1k
+R2 tovco 0 2k
+.control pc1 0.1
+.control trim_VR2 0.647
+.control mvcactl_patch 0
+.output mvcaout j16
+.output ledv ledk tr1c
+.output eg1out j12
+.output eg1vco tovco
+.output ic3a ic3a
+.output ctl ctl
+.output tr1e tr1e

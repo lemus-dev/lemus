@@ -1,0 +1,148 @@
+* KORG MS-20 (Rev 2) VC LPF: the KLM-307 daughterboard's low-pass (IC-3, an LM13600 pair, as two
+* buffered gm-C sections; Q2 and IC-4b the exponential converter; IC-4a with D8-D13 the resonance
+* amplifier and its diode limiter) and the later KLM-127's panel parts that feed it (CUTOFF FREQ,
+* PEAK, MG/T.EXT, EG 2/EXT, FCA ADJ). A drop-in alternative to lpf.cir (the Rev 1 KORG35 filter):
+* the same input, output, control and probe names. Transcription: docs/circuit/klm307.md.
+* Source: the KLM-307 schematic
+* (private/ms20/docs/schematic/hyperreal_late_klm307_klm127/KLM-307.GIF), with the KLM-127 parts it
+* draws in dashed boxes; structure and analysis: Stinchcombe, "A Study of the Korg MS10 & MS20
+* Filters" (2006/2009), Fig. 2 (this circuit) and section 2.1 (its transfer function); the OTA:
+* National's LM13600 data sheet (DS007980, 1998).
+* How it works: OTA B (pins 12-16) takes the input and its own buffered output summed at its
+* inverting input (R19, R22 10k into R21 220), integrating on C4, whose lower end the resonance
+* amplifier drives; OTA A (pins 1-5) follows it on C5 to ground (R24/R25 in, R27/R26 back). Unity
+* gain, inverting: Vo/Vin = -1 / ((s/wc)^2 + (2 - k2) s/wc + 1), Stinchcombe's equation (5), wc =
+* 19.2 I_abc k / C with k = 220/10k. The output (pin 8, check point 6) goes through C7 to the VCA's
+* input (R38 3.3k into R39 220) and, through R29 8.2k, the PEAK pot, whose wiper drives IC-4a (1 +
+* R30 / (R31 + VR2)), three diodes each way across R30.
+* Inputs (volts): hpf, check point 2 (the HPF's output, hpf307.cir), into R19 10k; lpfext, the top
+* of the EG 2/EXT pot: EXT CUTOFF FREQ (J21) with a plug, else EG 2's TO VCF (eg2.cir's eg2vcf);
+* totalext, the T.EXT line into the MG/T.EXT pot (J4, normalled to the MG triangle).
+* Outputs: lpf, C7's far side (where R38 and R29 meet: KLM-307 has no number on it) into the VCA;
+* probes l5 (pin 5: OTA A's output, C5's upper end), lout (pin 8, check point 6, before C7).
+* lcv is node 9 itself (the expo pair's base): the machine picks the block's rate from the KORG35's
+* pin-1 voltage (lpf.cir's lcv) and scales this to 39.92 x (node 9 - 13.19 mV), the one that gives the same
+* self-oscillation pitch (fitted on lpf.cir and lpf307.cir at PEAK 10, 2.5-12 kHz, within 0.03 V).
+* Controls: lpf_cutoff (CUTOFF FREQ, 100 kB, +-15 V), lpf_peak (PEAK, 10 kB), lpf_mg (MG/T.EXT, 100
+* kA), lpf_eg2 (EG 2/EXT, 100 kA: no value printed for it, as Rev 1's VR24 and the HPF's); trims
+* trim_vr8 (FCA ADJ, 100 kB on KLM-127, no designator printed; Rev 1's VR8 has the same place and
+* job), default 0.5488: 500 Hz at CUTOFF 5, PEAK 10 (service manual 7-4) with trim_307vr2 at 0.55;
+* trim_307vr2 (KLM-307's VR2, 2.2k preset in series with R31: the resonance amplifier's gain, 5.55
+* at 0 to 3.27 at 1), the share of its 2.2 kohm in circuit, default 0.55 (no procedure published:
+* fitted to the recording, just under self-oscillation at PEAK 9.5, where its whistle steps from
+* harmonic to harmonic; docs/circuit/klm307.md has the onset against it). New against lpf.cir.
+* Element names: the KLM-307's designators (R19-R39, C4-C7, D8-D14, Q2, IC-3, IC-4, VR2 as P307VR2).
+* The KLM-127 pots keep Rev 1's numbers (P21, P22, P23, P24, P8, R127: the same panel parts); the
+* resistors into node 9 have none printed and are named by role (RCUTL, RMGL, REGL, RFCAL). Q2R /
+* Q2L are Q2's right (reference) and left (output) halves as drawn. An LM13600 part is <IC>_<part>
+* after the data sheet's schematic. D8_10 is D8-D10 in series as one element, D11_13 likewise.
+* The LM13600, its bias mirror, buffer and output limits: as hpf307.cir.
+* Both OTAs' amplifier bias pins (1, 16) are tied, fed from Q2's collector through R36 (printed
+* 3.2K: Stinchcombe redraws it 8.2k, as the HPF's R17; in series with a current source either way),
+* R37 10M from ground adding 1.4 uA. The buffer only sources (R23, R28 10k to -15 V): the output
+* clips on its negative side near -2.7 V with this block's loads (klm307.md).
+* Not modelled: as hpf307.cir (the OTAs' input bias currents and offsets, op-amp offsets, the
+* LM13600's output resistance and capacitances, mismatch, temperature); the VCA transistors Q3/Q4 in
+* parallel with R39 (they carry a few hundred uA at most against R39's milliamps). Assumed: the
+* LM13600's transistors, Q2 "A798F" as models.cir's 2SA812, D14 as 1S1555 (as hpf307.cir). D8-D13
+* (the limiter; no type printed): LIM307X3, three junctions that clamp about 0.55 V later than three
+* 1S1555s, fitted to the one Rev 2 recorded screaming (BwBwJosbQkg, 2026-11-27: with 1S1555s the
+* resonance under two saws is quenched, 5-18 dB under the recording's).
+* Split: the VCA's input divider (R38 3.3k into R39 220 ohm, both on KLM-307) is in this block as
+* the load; a Rev 2 VCA block takes lpf from here (the Rev 2 VCA is on KLM-307 too and differs from
+* vca.cir: klm307.md). The HPF's output is a buffer through 33 uF: the input hpf is stiff enough. No
+* shared filtered -15 V (Rev 1's R110/C25): KLM-307 runs from the +-15 V rails.
+* The 4558: models.cir's gbw4558, gain4558, vsat4558, sr4558.
+VP15 p15 0 15
+VN15 n15 0 -15
+VHPF hpf 0 input hpf
+VLPFEXT lpfext 0 input lpfext
+VTEXT totalext 0 input totalext
+
+* The LM13600's own devices and Q2 (as hpf307.cir; move to models.cir when this block is adopted)
+.model LM13600D D(IS=1e-14 N=1)
+.model LM13600DN NPN(IS=1.4e-13 BF=40000 BR=2 NF=2 NR=1)
+.model 2SA798 PNP(IS=3.843e-14 BF=197.9 BR=1.98 NF=1 NR=1 VAF=500)
+.model LIM307X3 D(IS=3e-10 N=5.847 RS=3.99)
+
+* --- KLM-127: the panel's sources summed passively into node 9 (KLM-307's R34 2.2k to ground):
+* CUTOFF through 270k, MG/T.EXT and EG 2/EXT through 47k, FCA ADJ through 1M
+P21 p15 w21 n15 100k lpf_cutoff b
+RCUTL w21 lc 270k
+P23 totalext w23 0 100k lpf_mg p2.25
+RMGL w23 lc 47k
+P24 lpfext w24 0 100k lpf_eg2 p2.25
+REGL w24 lc 47k
+P8 p15 w8 n15 100k trim_vr8 b
+RFCAL w8 lc 1meg
+
+* --- exponential converter (as hpf307.cir's): Q2's right half the reference (base on node 9,
+* collector at IC-4b's virtual ground, R35 470k), left half the output (base on R32 2.2k)
+R34 lc 0 2.2k
+Q2R lrc lc le 2SA798
+Q2L lq2c lb32 le 2SA798
+R32 lb32 0 2.2k
+XIC4B 0 lrc l47 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+C6 l47 lrc 1n
+R35 lrc n15 470k
+R33 l47 le 4.7k
+D14 0 le 1S1555
+* into both OTAs' amplifier bias pins (1 and 16, tied), R37 10M from ground
+R36 lq2c labc 3.2k
+R37 0 labc 10meg
+
+* --- IC-3, OTA B (pins 14 +, 13 -, 16 bias, 12 out) and its buffer (10 in, 9 out)
+BIC3B labc n15 l14 l13 lc1 ota is=1e-14 vop=13.6 von=-13.8 iscl=1e-14
+QIC3B_B p15 lc1 l9 LM13600DN
+R19 hpf l13 10k
+R20 l14 0 220
+R21 l13 0 220
+R22 l13 l9 10k
+R23 l9 n15 10k
+* C4 0.0022 uF from pin 12 to IC-4a's output (the resonance feedback)
+C4 lc1 l1 2.2n
+
+* --- IC-3, OTA A (pins 3 +, 4 -, 1 bias, 5 out) and its buffer (7 in, 8 out)
+BIC3A labc n15 l3 l4n lc2 ota is=1e-14 vop=13.6 von=-13.8 iscl=1e-14
+QIC3A_B p15 lc2 l8 LM13600DN
+R24 l9 l3 10k
+R25 l3 0 220
+R26 l4n 0 220
+R27 l4n l8 10k
+R28 l8 n15 10k
+C5 lc2 0 2.2n
+
+* --- output: C7 33 uF, R29 8.2k to the PEAK pot (KLM-127: 10 kB, 2.2k from its top to its wiper,
+* as Rev 1's VR22 and R127; KLM-307 nodes 7 and 8)
+C7 l8 lpf 33u
+R29 lpf l7p 8.2k
+P22 l7p lpk 0 10k lpf_peak b
+R127 l7p lpk 2.2k
+
+* --- resonance amplifier IC-4a (pins 3 +, 2 -, 1 out): 1 + R30 / (R31 + VR2), D8-D10 (pin 2 to 1)
+* and D11-D13 (pin 1 to 2) across R30
+XIC4A lpk l2n l1 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R30 l1 l2n 10k
+D8_10 l2n l1 LIM307X3
+D11_13 l1 l2n LIM307X3
+R31 l2n l31 2.2k
+P307VR2 0 0 l31 2.2k trim_307vr2 b
+
+* --- the VCA's input divider (KLM-307 node 10: R38, printed 3.3K, into R39 220 ohm at Q3's
+* collector): 4.7k, fitted (klm307.md §10.10), as vca307.cir's
+R38 lpf lvca 4.7k
+R39 lvca 0 220
+
+* --- lcv: the expo node itself, for the machine's rate picker (Machine::pickFilterRates scales it
+*     to Rev 1's pin-1 terms: 39.92 x (lc - 13.19 mV))
+
+.control lpf_cutoff 0.5
+.control lpf_peak 0
+.control lpf_mg 0
+.control lpf_eg2 0
+.control trim_vr8 0.5488
+.control trim_307vr2 0.55
+.output lpf lpf
+.output l5 lc2
+.output lout l8
+.output lcv lc

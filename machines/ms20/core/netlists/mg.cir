@@ -1,0 +1,85 @@
+* KORG MS-20 (Rev 1), KLM-127: MODULATION GENERATOR (the LFO): the integrator IC14 (TL081, C22), the
+* Schmitt trigger IC15a and inverter IC15b (4558), FREQ (VR25) dividing the Schmitt trigger's output
+* into the integrator's current, WAVE FORM (VR26) splitting it between the rise and the fall through
+* the JFET switches Q17/Q18, LED1, and the outputs J3 (triangle) and J7 (rectangle).
+* Service manual circuit diagram (1), "MODULATION GENERATOR" (middle right). Read in scan A
+* (a-003.png), the 1994 TIFF (korg_ms20_4.tif) and scan B (b-003.png); the later board's
+* KLM-127.GIF for legibility only. Transcription notes and every part's source:
+* docs/circuit/envelopes.md.
+*
+* Inputs: mgkick, amps into IC14's summing node: NOT on the board. A real MG starts from noise; the
+*   solver's DC point is the oscillator's unstable balance (everything at 0 V), from which rounding
+*   starts it after a few milliseconds of sample-rate chatter, at a time that differs between
+*   solvers. A pulse here (the cases use 10 uA for 1 ms: -0.1 V on the triangle) starts it cleanly
+*   and the same in ngspice. Leave it at 0 in the machine (or kick it at load).
+* Outputs: mg (J3, check point 30, also TO TOTAL MODULATION: IC14's output through R144 1k; about
+*   5.6 Vpp centred on 0 V), mgsq (J7, check point 29: 0 V or about +5 V, through R145/R146).
+* Probes: tri (IC14 pin 6), sq (IC15a pin 1, the Schmitt trigger: +-14 V), sqn (IC15b pin 7, LED1's
+*   drive), w25 (FREQ's wiper).
+* Controls: mg_freq (VR25, 10k B, a divider on IC15a's output: rotation 0 = slowest), mg_wave (VR26,
+*   1M B; 0 = the owner's manual's WAVE FORM 0, a ramp that rises at once and falls slowly, the
+*   rectangle mostly high; 1 = the reverse).
+* Not modelled: the op-amps' offsets, LED1's real curve (provisional model below; it only loads
+*   IC15b), the JFETs' capacitances.
+*
+* Provisional model (models.cir has no LED; no GD4-203RD data sheet in hand): a red LED of about
+* 1.8 V at 5 mA. LED1 only loads IC15b's output, which the ideal op-amp element drives regardless.
+.model GD4-203RD D(IS=1e-20 N=1.8 RS=5)
+VN15 n15 0 -15
+*
+* --- integrator: IC14 (TL081), C22 0.1 uF from pin 6 to pin 2, pin 3 on ground
+XIC14 0 i14m tri opamp {gbwtl} {gaintl} {vsattl} {srtl}
+C22 i14m tri 0.1u
+IKICK 0 i14m input mgkick
+*
+* --- Schmitt trigger IC15a (pin 3 +, pin 2 on ground): R149 20k from the integrator, R150 100k back
+* from its output; thresholds +-0.2 x its output swing. IC15b inverts it (pin 6 -, pin 5 on ground)
+R149 tri i15p 20k
+R150 sq i15p 100k
+* IC15a's swing: +-12.5 V (since 2026-11-24; the 4558's typical is +-14, its minimum +-12 at 10k):
+* the specification's and the block diagram's "5VPP" triangle (R149/R150 take 0.2 of it), which
+* with VCO 1+2's 1 octave a volt gives the FM depth one real unit's recordings show (vcoctl.cir,
+* rfm). The rate doesn't move (the thresholds and the integrator's current scale together); the
+* rectangle at J7 goes from 0 / 5.16 V to 0 / 4.59 V (SPEC "+5V").
+.param vsat15a=12.5
+XIC15A i15p 0 sq opamp {gbw4558} {gain4558} {vsat15a} {sr4558}
+XIC15B 0 sq sqn opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R152 sqn led1a 4.7k
+DLED1 led1a n15 GD4-203RD
+*
+* --- FREQ: R147 2.2k, VR25 10k B and R148 48 ohm divide IC15a's output; the wiper through R154 8.2k
+* is the integrator's current source. VR25's track starts 0.91 of a knob unit (27 degrees) from its
+* stop, then runs straight (j0.091/0.5/0.45): fitted to one vintage unit's rate at 13 FREQUENCY
+* readings (1.39 -> 1.06 Hz ... 10 -> 19.57 Hz, 6 % RMS; straight from the stop: 31 %, a power law
+* 15 %), and a second unit's 4.0 -> 7.21 Hz falls within 5 % (docs/circuit/envelopes.md, the MG)
+R147 sq n147 2.2k
+PVR25 n147 w25 n148 10k mg_freq j0.091/0.5/0.45
+R148 n148 0 48
+R154 w25 s1718 8.2k
+*
+* --- WAVE FORM: Q17 (gate from IC15b through R151 10M: on while IC15a is low) takes the current
+* through VR26's end v26a, Q18 (gate from IC15a through R153 10M: on while IC15a is high) through
+* its end v26b; VR26's wiper is IC14's input. IC15a low = the triangle rising (Q17's side), high =
+* falling (Q18's side). Rotation 0 puts the wiper at Q17's end (the owner's manual's WAVE FORM 0:
+* an instant rise and a slow fall).
+JQ17 v26a q17g s1718 2SK30A_O
+R151 sqn q17g 10meg
+JQ18 v26b q18g s1718 2SK30A_O
+R153 sq q18g 10meg
+PVR26 v26b i14m v26a 1meg mg_wave
+*
+* --- outputs: the triangle through R144 1k to J3 and TO TOTAL MODULATION; the rectangle through
+* D14, R145 4.3k / R146 2.7k to J7 (0 V while IC15a is low)
+R144 tri mg 1k
+D14 sq d14k 1S1555
+R145 d14k mgsq 4.3k
+R146 mgsq 0 2.7k
+*
+.control mg_freq 0.5
+.control mg_wave 0.5
+.output mg mg
+.output mgsq mgsq
+.output tri tri
+.output sq sq
+.output sqn sqn
+.output w25 w25

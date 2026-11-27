@@ -1,0 +1,79 @@
+* KORG MS-20 EXTERNAL SIGNAL PROCESSOR (ESP): preamp and band-pass, board KLM-129, as the service
+* manual's circuit diagram (2) draws it (lower half; docs/circuit/esp.md §1-2; scan A a-004, the 1994
+* TIF korg_ms20_5, scan B b-004). The envelope follower and trigger (espenv.cir) take IC7b's output,
+* the F-V converter (espfv.cir) IC5's: the block is split at those op-amp outputs.
+* SIGNAL IN (J1) through R51 2.2k into SIG LEVEL VR7 (1M B): its wiper is IC7a's inverting input
+* (1/2 4558; R53 1M || C17 100p feedback), its far end the junction of C16 and C15 (1u/50V each, back
+* to back, + to + at that junction), so VR7 splits into IC7a's input resistor and (through C16) its
+* feedback: gain 0 (fully anticlockwise) to -(1M || 1M) / 2.2k = -227 (47 dB). C15 and R50 10k into
+* IC7b (R49 220k: -22, 26.8 dB). IC7b's output: AMP OUT (J9) through R47 22k / R46 2.7k (0.109);
+* R55 680 / R56 1k (0.595) into LOW CUT, IC6a: a unity-gain Sallen-Key high-pass, C12 = C10 = 0.033u,
+* R52 2k + VR6 (feedback) and R45 2k + VR6 (to ground); then HIGH CUT, two unity-gain Sallen-Key
+* low-passes: IC6b with R44 2k + VR5, VR5 + R42 2k, C8 0.015u (feedback) and C9 0.015u (to ground);
+* IC5 (one half used, "1/2 NC") with R43 2k + VR5, VR5 + R41 2k, C5 0.15u (feedback, as drawn) and
+* C7 0.015u. FILTER OUT (J17) through R39 10k / R40 2.7k (0.213).
+* VR5 (HIGH CUT FREQ) and VR6 (LOW CUT FREQ) are 100k C four-gang pots ("100KC x 4"); each gang is a
+* rheostat whose resistance falls clockwise (the a-wiper half of the track, c0.15: 100k, 15k at
+* mid-rotation, 0), so both cutoffs rise clockwise as the owner's manuals have them [I]. VR6's other
+* two gangs are in espfv.cir.
+* Input: espin (J1, SIGNAL IN: the plugin's audio input, volts).
+* Controls: esp_level (VR7), esp_lowcut (VR6), esp_highcut (VR5), each the rotation 0-1.
+* Outputs: espamp (J9 AMP OUT), espfilt (J17 FILTER OUT), esppre (IC7b's output, into espenv.cir),
+* espbp (IC5's output, into espfv.cir); probes ic7a, hp (IC6a's output), lp1 (IC6b's output).
+.param c5=0.15u
+VP15 p15 0 15
+VN15 n15 0 -15
+VESPIN j1 0 input espin
+* --- preamp: IC7a with SIG LEVEL VR7, IC7b
+R51 j1 r51b 2.2k
+PVR7 r51b ic7n2 c16p 1meg esp_level
+R53 ic7n2 ic7o1 1meg
+C17 ic7n2 ic7o1 100p
+XIC7A 0 ic7n2 ic7o1 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+C16 c16p ic7o1 1u
+C15 c16p c15b 1u
+R50 c15b ic7n6 10k
+R49 ic7n6 ic7o7 220k
+XIC7B 0 ic7n6 ic7o7 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- AMP OUT J9
+R47 ic7o7 j9 22k
+R46 j9 0 2.7k
+* --- LOW CUT: IC6a, Sallen-Key high-pass
+R55 ic7o7 fin 680
+R56 fin 0 1k
+C12 fin hp1 0.033u
+C10 hp1 ic6p3 0.033u
+R52 hp1 r52b 2k
+PVR6A r52b ic6o1 ic6o1 100k esp_lowcut c0.15
+R45 ic6p3 r45b 2k
+PVR6B r45b 0 0 100k esp_lowcut c0.15
+XIC6A ic6p3 ic6o1 ic6o1 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- HIGH CUT stage 1: IC6b, Sallen-Key low-pass
+R44 ic6o1 r44b 2k
+PVR5A r44b m1 m1 100k esp_highcut c0.15
+C8 m1 ic6o7 0.015u
+PVR5B m1 r42a r42a 100k esp_highcut c0.15
+R42 r42a ic6p5 2k
+C9 ic6p5 0 0.015u
+XIC6B ic6p5 ic6o7 ic6o7 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- HIGH CUT stage 2: IC5, Sallen-Key low-pass (C5 0.15u as drawn)
+R43 ic6o7 r43b 2k
+PVR5C r43b m2 m2 100k esp_highcut c0.15
+C5 m2 ic5o1 {c5}
+PVR5D m2 r41a r41a 100k esp_highcut c0.15
+R41 r41a ic5p3 2k
+C7 ic5p3 0 0.015u
+XIC5A ic5p3 ic5o1 ic5o1 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- FILTER OUT J17
+R39 ic5o1 j17 10k
+R40 j17 0 2.7k
+.control esp_level 0.5
+.control esp_lowcut 0
+.control esp_highcut 1
+.output espamp j9
+.output espfilt j17
+.output esppre ic7o7
+.output espbp ic5o1
+.output ic7a ic7o1
+.output hp ic6o1
+.output lp1 ic6o7

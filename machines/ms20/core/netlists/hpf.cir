@@ -1,0 +1,112 @@
+* KORG MS-20 (Rev 1) VC HPF: KLM-127, circuit diagram (1), right side: IC9 (KORG35) as a 6 dB/oct
+* high-pass (input into the lifted end of the 1 nF capacitor, pin 3 grounded), its gain stage IC8b
+* with the diode limiter D9/D10, PEAK (VR19), the cutoff summer IC12a with CUTOFF FREQ (VR20),
+* MG/T.EXT (VR18), EG 2/EXT (VR17) and FC ADJ (VR7), and the filtered -15 V (R110, C25) that both
+* KORG35s and their bias dividers share. Transcription: docs/circuit/filters.md.
+* The KORG35's insides (IC9_R1-R6, IC9_Q1-Q5) are Korg's 2000 drawing's parts, cited to
+* Stinchcombe, "A Study of the Korg MS10 & MS20 Filters" (2006/2009), Fig. 1; the board parts are
+* the service manual's (scan A a-003, hyperreal 1994 TIF korg_ms20_4, scan B b-003).
+* Inputs (volts): mix, the mixer's output (IC8a pin 1, check point 13); hpfext, the top of VR17:
+* EXT CUTOFF FREQ (J14) with a plug, else EG 2's TO VCF (J14's normal contact;
+* eg2.cir's eg2vcf); totalext, the T.EXT line into
+* VR18 (TOTAL EXT MODULATION, J4, normalled to the MG triangle by its block).
+* Outputs: hpf, check point 14 (C14's far side) into the LPF; probes h5 (pin 5, the JFET's gate),
+* hout (IC8b's output, before C14).
+* Controls: hpf_cutoff (VR20 100 kB), hpf_peak (VR19 10 kB), hpf_mg (VR18 100 kA), hpf_eg2
+* (VR17 100 kA); trim trim_vr7 (VR7 100 kB, FC ADJ, set by service check 7-4.1): default 0.3305,
+* the setting that gives 500 Hz at CUTOFF 5, PEAK 10 with models.cir as of 2026-11-23 (BR 4.35).
+* Element names: a KORG35 part is its kind letter, then <IC>_<part> (QIC9_Q2 is IC9's Q2).
+* Not modelled: the op-amps' offsets and bias currents; capacitor leakage; the KORG35's
+* stray and junction capacitances (the solver's devices have no charge storage); C25's ripple.
+* Split: the LPF's KORG35 and bias divider draw from nf too (C25 220 uF: 7 ohm at 100 Hz); here their
+* draw is the constant current ilpf (lpf.cir's operating point; lpf.cir has R110L/C25L and this
+* block's draw), and the LPF's input divider (R108, R109, in lpf.cir) is R108L/R109L.
+* PROVISIONAL: R101 (IC8b's gain-setting resistor): its value is lost in all three Rev 1 scans
+* (only "K" is printed); 4.7k is the same-role R116 of the LPF (legible) and R63 of the MS-10
+* (Stinchcombe Fig. 1). The 4558: models.cir's gbw4558, gain4558, vsat4558, sr4558.
+.param r101=4.7k ilpf=2.2615m
+VP15 p15 0 15
+VN15 n15 0 -15
+VMIX mix 0 input mix
+VHPFEXT hpfext 0 input hpfext
+VTEXT totalext 0 input totalext
+
+* --- filtered -15 V: R110 470 ohm from -15 V, C25 220 uF/16 V (+ to ground); both KORG35s' pin 6
+* and both bias dividers hang on it
+R110 n15 nf 470
+C25 0 nf 220u
+ILPF 0 nf {ilpf}
+* bias divider into pin 2: R105 15k, R103 220 ohm
+R105 nf h2 15k
+R103 h2 0 220
+
+* --- cutoff summer IC12a (1/2 4558: pin 3 +, pin 2 -, pin 1 out): the panel's sources summed
+* passively into R96 10k, amplified 1 + R93/R98 = 22.3
+P20 p15 w20 n15 100k hpf_cutoff b
+R91 w20 hbus 470k
+P17 hpfext w17 0 100k hpf_eg2 p2.25
+R78 w17 hbus 100k
+P18 totalext w18 0 100k hpf_mg p2.25
+R79 w18 hbus 100k
+P7 p15 w7 n15 100k trim_vr7 b
+R76 w7 hbus 1meg
+R96 hbus 0 10k
+XIC12A hbus hsn hcv opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+R93 hcv hsn 100k
+R98 hsn 0 4.7k
+
+* --- IC9, KORG35 (pins: 1 hcv, 2 h2, 3 ground, 4 h4, 5 h5, 6 nf, 7 h7, 8 +15 V)
+* exponential converter: R3 470k feeds the base node; Q1 (emitter open) is a diode from it to the
+* R1/R2 node, which R1 47k takes to pin 1 and R2 680 ohm to pin 2
+RIC9_R1 hcv ic9x 47k
+RIC9_R2 h2 ic9x 680
+RIC9_R3 p15 hb 470k
+QIC9_Q1 ic9x hb ic9e1 2SC1623
+* the two current-controlled resistors in saturation: Q2 pin 3 to pin 4, Q3 pin 4 to pin 5
+QIC9_Q2 0 hb h4 2SC1623
+QIC9_Q3 h4 hb h5 2SC1623
+* output buffer: Q4 (n-JFET) follows pin 5; its drain current through R4 drives Q5 (PNP), whose
+* collector feeds pin 7 and, through R5, Q4's source (R6 to pin 6)
+JIC9_Q4 ic9d h5 ic9s 2SK94
+RIC9_R4 p15 ic9d 10k
+QIC9_Q5 h7 ic9d p15 2SA812
+RIC9_R5 ic9s h7 820
+RIC9_R6 ic9s nf 10k
+
+* --- the board's filter parts: C26 0.0033 uF pin 4 to the feedback node (R107 220 ohm), C15
+* 0.001 uF pin 5 to the input node 56 (R100 20k from the mixer, R104 47 ohm to ground)
+C26 h4 hfb 3.3n
+C15 h5 hin 1n
+R100 mix hin 20k
+R104 hin 0 47
+R107 hfb 0 220
+R106 hfb hpk 5.6k
+C27 hfb hpk 1n
+
+* --- gain stage IC8b (1/2 4558: pin 5 +, pin 6 -, pin 7 out): 1 + R99/R101 for AC (C16), D9/D10
+* back to back across R99
+* trap: as lpf.cir's IC11a (its pole inside the resonance loop)
+XIC8B h7 h6n hout opamp {gbw4558} {gain4558} {vsat4558} {sr4558} trap
+R99 h6n hout 270k
+D9 h6n hout 1S1555
+D10 hout h6n 1S1555
+C16 h6n h101 10u
+R101 h101 0 {r101}
+C14 hout hpf 33u
+* PEAK: VR19 10 kB from check point 14 to ground, R92 2.2k from its top to its wiper
+P19 hpf hpk 0 10k hpf_peak b
+R92 hpf hpk 2.2k
+* the LPF's input divider (lpf.cir's R108 2.2k, R109 47 ohm) as this block sees it
+R108L hpf lin_l 2.2k
+R109L lin_l 0 47
+
+.control hpf_cutoff 0.5
+.control hpf_peak 0
+.control hpf_mg 0
+.control hpf_eg2 0
+.control trim_vr7 0.3305
+.output hpf hpf
+.output h5 h5
+.output hout hout
+* the cutoff CV at pin 1 (IC12a's output): the machine picks the block's rate from it
+.output hcv hcv

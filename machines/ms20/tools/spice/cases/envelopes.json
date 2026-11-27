@@ -1,0 +1,231 @@
+[
+ {
+  "name": "eg1_fast",
+  "netlist": "models.cir,eg1.cir",
+  "args": [
+   "--rate",
+   "96000",
+   "--seconds",
+   "0.3",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,0.2,-14,0.200028,14"
+  ]
+ },
+ {
+  "name": "eg1_mid",
+  "netlist": "models.cir,eg1.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "2.0",
+   "--control",
+   "eg1_delay=0.1",
+   "--control",
+   "eg1_attack=0.1",
+   "--control",
+   "eg1_release=0.1",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,1.0,-14,1.000028,14"
+  ]
+ },
+ {
+  "name": "eg1_retrigger",
+  "netlist": "models.cir,eg1.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "1.6",
+   "--control",
+   "eg1_delay=0.15",
+   "--control",
+   "eg1_attack=0.2",
+   "--control",
+   "eg1_release=0.25",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,0.6,-14,0.600028,14,0.65,14,0.650028,-14,1.2,-14,1.200028,14"
+  ]
+ },
+ {
+  "name": "eg1_jack",
+  "netlist": "models.cir,eg1.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "0.6",
+   "--control",
+   "jack_eg1trig=1",
+   "--control",
+   "eg1_delay=0.1",
+   "--control",
+   "eg1_attack=0.05",
+   "--control",
+   "eg1_release=0.05",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,0.5,-14,0.500028,14",
+   "--input",
+   "eg1trig=0,5.16,0.1,5.16,0.10001,0,0.4,0,0.40001,5.16"
+  ],
+  "known": "the switch's edge 30 us from ngspice's (one or two samples on a 0.15 s delay); the envelope within 0.11 % (since the A pots' power law, 2026-11-23)"
+ },
+ {
+  "name": "eg2_adsr",
+  "netlist": "models.cir,eg2.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "1.5",
+   "--control",
+   "eg2_attack=0",
+   "--control",
+   "eg2_decay=0.2",
+   "--control",
+   "eg2_sustain=0.5",
+   "--control",
+   "eg2_release=0.2",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,0.8,-14,0.800028,14"
+  ]
+ },
+ {
+  "name": "eg2_slow",
+  "netlist": "models.cir,eg2.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "2.5",
+   "--control",
+   "eg2_attack=0.15",
+   "--control",
+   "eg2_decay=0.25",
+   "--control",
+   "eg2_sustain=0.3",
+   "--control",
+   "eg2_release=0.2",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,1.5,-14,1.500028,14"
+  ]
+ },
+ {
+  "name": "eg2_hold_retrigger",
+  "netlist": "models.cir,eg2.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "1.6",
+   "--control",
+   "eg2_hold=0.2",
+   "--control",
+   "eg2_attack=0.1",
+   "--control",
+   "eg2_decay=0.2",
+   "--control",
+   "eg2_sustain=0.6",
+   "--control",
+   "eg2_release=0.15",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,0.3,-14,0.300028,14,0.5,14,0.500028,-14,0.7,-14,0.700028,14,0.7025,14,0.702528,-14,0.9,-14,0.900028,14"
+  ],
+  "known": "the hold gate's end 0.12 ms from ngspice's (0.015 % of the hold); the envelope within 2.6 % around it (since the A pots' power law, 2026-11-23)"
+ },
+ {
+  "name": "eg2_organ",
+  "netlist": "models.cir,eg2.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "0.6",
+   "--control",
+   "eg2_attack=0",
+   "--control",
+   "eg2_decay=0",
+   "--control",
+   "eg2_sustain=1",
+   "--control",
+   "eg2_release=0",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,0.3,-14,0.300028,14,0.315,14,0.315028,-14,0.45,-14,0.450028,14"
+  ]
+ },
+ {
+  "name": "eg2_jack",
+  "netlist": "models.cir,eg2.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "0.6",
+   "--control",
+   "jack_trig=1",
+   "--control",
+   "eg2_attack=0.05",
+   "--control",
+   "eg2_decay=0.1",
+   "--control",
+   "eg2_sustain=0.4",
+   "--control",
+   "eg2_release=0.05",
+   "--input",
+   "kbdtrig=0,14,0.05,14,0.050028,-14,0.5,-14,0.500028,14",
+   "--input",
+   "trig=0,5.16,0.1,5.16,0.10001,0,0.4,0,0.40001,5.16"
+  ]
+ },
+ {
+  "name": "mg_triangle_fast",
+  "netlist": "models.cir,mg.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "0.5",
+   "--control",
+   "mg_freq=1",
+   "--control",
+   "mg_wave=0.5",
+   "--input",
+   "mgkick=0,0,0.001,0,0.0010001,1e-5,0.002,1e-5,0.0020001,0"
+  ],
+  "known": "free-running: the two oscillators drift in phase; half-periods agree to 0.004-0.1 % (docs/circuit/envelopes.md)"
+ },
+ {
+  "name": "mg_ramp",
+  "netlist": "models.cir,mg.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "0.5",
+   "--control",
+   "mg_freq=0.6",
+   "--control",
+   "mg_wave=0",
+   "--input",
+   "mgkick=0,0,0.001,0,0.0010001,1e-5,0.002,1e-5,0.0020001,0"
+  ],
+  "known": "free-running: the two oscillators drift in phase; half-periods agree to 0.004-0.1 % (docs/circuit/envelopes.md)"
+ },
+ {
+  "name": "mg_slow",
+  "netlist": "models.cir,mg.cir",
+  "args": [
+   "--rate",
+   "48000",
+   "--seconds",
+   "3.0",
+   "--control",
+   "mg_freq=0.05",
+   "--control",
+   "mg_wave=0.85",
+   "--input",
+   "mgkick=0,0,0.001,0,0.0010001,1e-5,0.002,1e-5,0.0020001,0"
+  ],
+  "known": "free-running: the two oscillators drift in phase; half-periods agree to 0.004-0.1 % (docs/circuit/envelopes.md)"
+ }
+]

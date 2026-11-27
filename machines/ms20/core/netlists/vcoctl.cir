@@ -1,0 +1,176 @@
+* MS-20 (Rev 1) VCO control side: KLM-127, service manual circuit diagram (1), top middle (scan A
+* a-003; 1994 TIF korg_ms20_4; scan B b-003). Transcription and sources: docs/circuit/vco.md.
+* From the jacks to the two exponential converters' collector currents, through the JFET cascodes
+* (Q5, Q8) and R15/R59 to the cores' timing capacitors:
+* - TOTAL EXT MODULATION (J4, node 8, normalled to the MG triangle) into IC6B (follower, R71/R72),
+*   "TO VCF" and FM MG/T.EXT VR15
+* - VCO 1+2 EXT FREQ (J6, node 6, normalled to EG 1) into FM EG 1/EXT VR16
+* - IC4B sums them with MASTER TUNE (VR11 through R36 10M): R39 110K feedback, R40 5.11K / R38 100
+*   onto the shared base (vb) of the two log transistors (Q6, Q7 pins 4-5)
+* - the footage ladders (8 x 100K 0.1 %) and SCALE switches into IC3 / IC7 (TL081), each with a
+*   2SC1583 dual in its feedback: the output transistor's collector current is the linear (Hz/V)
+*   CV current times exp((v(base out) - vb) / V_T)
+* - the pitch trims VR1 / VR6 (R19, R56 470K) and VCO 2's PITCH (R55 75K) on the output bases
+*   (R18, R47 100); R201-R206 put about 6.8 nA into each summing node
+* Inputs: vcocv (VCO 1+2 CV IN, J26, node 3), vco2cv (VCO 2 CV IN, J24, node 4; unpatched it is
+* node 3's voltage), totalext (J4, node 8; unpatched the MG triangle), extfreq (J6, node 6;
+* unpatched EG 1), ramp1, ramp2 (the cores' C2 and C11 lower plates: core/netlists/vco1.cir, vco2.cir).
+* Outputs: ia1, ia2 (the charge currents out of C2 and C11, amperes: the drop across 1 ohm), tmod
+* (IC6B's output, "TO VCF": the filters' MG/T.EXT pots); probes vblog (vb: the log transistors' shared
+* base; the VCA has a probe vb of its own), b6, b7, o3, o7, o4.
+* Controls: fm_mg (VR15 100KA), fm_eg1 (VR16 100KA), master_tune (VR11 100KB), vco2_pitch (PITCH
+* 100KB, drawn "VR2"), SW-2 vco1_scale_32/16/8/4, VCO 2 SCALE vco2_scale_16/8/4/2 (close one of
+* each); trims trim_VR1, trim_VR6 (pitch, the procedure's high), trim_VR2, trim_VR5 (IC3's and
+* IC7's offset null, the procedure's low).
+* Not modelled: the TL081s' own offset, bias currents and noise (VR2/VR5 null an offset source
+* here instead), the 2SC1583 pair's mismatch and temperature (models.cir's fit to the Mitsubishi
+* sheet, both halves identical, at 27 C).
+* Op-amps: models.cir's 4558 and TL081 parameters (gbw4558 ..., gbwtl ...).
+* The offset nulls' reach (VR2, VR5 with R29, R42 on the TL081s' null pins): +-13 mV over the trim's
+* rotation, the TL081C's maximum offset over its temperature range (SLOS081 5.8). An assumption: no
+* sheet gives the null's range. The §7-2 low trims land at +7 mV (VCO 1) and +12 mV (VCO 2) (vco.md §4).
+.param vnull=13m
+VP15 p15 0 15
+VN15 n15 0 -15
+* gbwconv: IC3's and IC7's gain-bandwidth inside the log converters. The TL081's 3 MHz makes the
+* two loops MHz-fast: after a keyboard CV step our solver fails Newton on about half the samples at
+* 48 kHz (2251 of 4800 on a 0 -> 2.1 -> 8.4 V test) and the machine's worst block reaches 10x real
+* time. At 300 kHz the loops still settle in microseconds, and the charge currents agree with
+* ngspice's 3 MHz run to 0.005 cents from 1 ms after each step (docs/circuit/vco.md §8).
+.param gbwconv=3e5
+* rfm: R43 and R44 (drawn 100K) at 117.8k since 2026-11-24: the specification's "(OCT/V)" for VCO
+* 1+2 EXT FREQ, 1.00 octave a volt at full FM EG 1/EXT (and FM MG/T.EXT) where the drawn values
+* give 1.18 at 27 C. One real unit's FM depth agrees with the specification (MG ramp at FM 7.4:
+* 2400 cents; at 2.0 through the MVCA, +-55-57 cents); no misread part explains the drawing's
+* (R39, R40, R38 read in three scans and the parts list). MASTER TUNE's range is untouched.
+.param rfm=117.8k
+VCV vcocv 0 input vcocv
+VCV2 vco2cv 0 input vco2cv
+VTEXT n8 0 input totalext
+VEXTF n6 0 input extfreq
+VR1IN ramp1 0 input ramp1
+VR2IN ramp2 0 input ramp2
+* --- TOTAL EXT MODULATION: J4's tip (node 8) with R72 100K to ground, R71 10K into IC6B (pins 5,
+* 6, 7; 6 to 7: a follower); its output to the filters ("TO VCF") and VR15's top
+R72 n8 0 100k
+R71 n8 i6p 10k
+XIC6B i6p o6 o6 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- IC4B (pins 5, 6, 7), the modulation summer: VR15 / VR16 wipers through R43 / R44 100K,
+* MASTER TUNE VR11 (100KB, + to -) through R36 10M; R39 110K feedback; + input on R37 33K
+PVR15 o6 w15 0 100k fm_mg p2.25
+R43 w15 s4 {rfm}
+PVR16 n6 w16 0 100k fm_eg1 p2.25
+R44 w16 s4 {rfm}
+PVR11 p15 w11 n15 100k master_tune
+R36 w11 s4 10meg
+R39 s4 o4 110k
+R37 i4p 0 33k
+XIC4B i4p s4 o4 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* R40 5.11K / R38 100: 19.2 mV at the log bases per volt out of IC4B
+R40 o4 vb 5.11k
+R38 vb 0 100
+* --- VCO 1: the footage ladder R25, R27, R26, R24, R23, R22, R21, R20 (100K x 8, 0.1 % selected) from
+* node 3 to IC3's - input (node 5). SW-2's common is node 5: it shorts the ladder from the chosen tap
+* on, leaving 100K (4'), 200K (8'), 400K (16') or all 800K (32', an open contact).
+R25 vcocv t1_4 100k
+R27 t1_4 t1_8 100k
+R26 t1_8 t1_a 100k
+R24 t1_a t1_16 100k
+R23 t1_16 t1_b 100k
+R22 t1_b t1_c 100k
+R21 t1_c t1_d 100k
+R20 t1_d n5 100k
+* (open contacts 1e12 ohm: the solver's default 1 Gohm would leak 0.07 % of the CV current at 32')
+S2_4 n5 t1_4 vco1_scale_4 0.1 1e12
+S2_8 n5 t1_8 vco1_scale_8 0.1 1e12
+S2_16 n5 t1_16 vco1_scale_16 0.1 1e12
+* R203 220K / R201 1K from +15 V, R202 10M into node 5: +6.8 nA
+R203 p15 j1 220k
+R201 j1 0 1k
+R202 j1 n5 10meg
+* IC3 (TL081) with VR2 / R29 on its offset-null pins (the procedure's low trim): an offset at its
+* + input, -vnull to +vnull over the trim's rotation
+VNA1 na1 0 {vnull}
+VNB1 nb1 0 -{vnull}
+PVR2 na1 wn1 nb1 10k trim_VR2
+EOS3 i3p 0 wn1 0 1
+XIC3 i3p n5 o3 opamp {gbwconv} {gaintl} {vsattl} {srtl}
+C5 n5 o3 100p
+R28 o3 e6 10k
+D5 e6 0 1S1555
+* Q6 (2SC1583): pins 4-5 (C n5, B vb) the log transistor in IC3's feedback, pins 2-1 (C c6, B b6)
+* the output; emitters joined (pin 3)
+Q6A n5 vb e6 2SC1583
+Q6B c6 b6 e6 2SC1583
+* VCO-1 PITCH ADJ VR1 (100KB, + to -) through R19 470K onto R18 100 (the procedure's high trim)
+PVR1 p15 w1 n15 100k trim_VR1
+R19 w1 b6 470k
+R18 b6 0 100
+* Q5 (2SK30A-O), gate grounded: a cascode from the collector to R15 10K and the ramp. (Scan A and
+* the late board draw a dot where the gate's ground line crosses the collector line: a crossing,
+* or the collector would be grounded. vco.md.) RSENSE1 (1 ohm, not on the schematic) reads the
+* current.
+J5 d5 0 c6 2SK30A_O
+R15 rs1 d5 10k
+RSENSE1 ramp1 rs1 1
+* --- VCO 2: the ladder R41, R54, R52, R53, R48, R49, R50, R51 from node 4 to IC7's - input (node 9);
+* VCO 2 SCALE: 100K (2'), 200K (4'), 400K (8'), 800K (16', open)
+R41 vco2cv t2_2 100k
+R54 t2_2 t2_4 100k
+R52 t2_4 t2_a 100k
+R53 t2_a t2_8 100k
+R48 t2_8 t2_b 100k
+R49 t2_b t2_c 100k
+R50 t2_c t2_d 100k
+R51 t2_d n9 100k
+S3_2 n9 t2_2 vco2_scale_2 0.1 1e12
+S3_4 n9 t2_4 vco2_scale_4 0.1 1e12
+S3_8 n9 t2_8 vco2_scale_8 0.1 1e12
+R205 p15 j2 220k
+R204 j2 0 1k
+R206 j2 n9 10meg
+VNA2 na2 0 {vnull}
+VNB2 nb2 0 -{vnull}
+PVR5 na2 wn2 nb2 10k trim_VR5
+EOS7 i7p 0 wn2 0 1
+XIC7 i7p n9 o7 opamp {gbwconv} {gaintl} {vsattl} {srtl}
+C8 n9 o7 100p
+R45 o7 e7 10k
+D6 e7 0 1S1555
+Q7A n9 vb e7 2SC1583
+Q7B c7 b7 e7 2SC1583
+* VCO-2 PITCH ADJ VR6 (100KB) through R56 470K, the panel's PITCH (100KB, drawn "VR2", + to -)
+* through R55 75K, onto R47 100
+PVR6 p15 w6 n15 100k trim_VR6
+R56 w6 b7 470k
+PVR2P p15 wp n15 100k vco2_pitch
+R55 wp b7 75k
+R47 b7 0 100
+J8 d8 0 c7 2SK30A_O
+R59 rs2 d8 10k
+RSENSE2 ramp2 rs2 1
+.control vco1_scale_32 0
+.control vco1_scale_16 0
+.control vco1_scale_8 1
+.control vco1_scale_4 0
+.control vco2_scale_16 0
+.control vco2_scale_8 1
+.control vco2_scale_4 0
+.control vco2_scale_2 0
+.control master_tune 0.5
+.control vco2_pitch 0.5
+.control fm_mg 0
+.control fm_eg1 0
+.control trim_VR1 0.5
+.control trim_VR2 0.5
+.control trim_VR5 0.5
+.control trim_VR6 0.5
+.output ia1 ramp1 rs1
+.output ia2 ramp2 rs2
+.output tmod o6
+.output vblog vb
+.output b6 b6
+.output b7 b7
+.output o3 o3
+.output o7 o7
+.output o4 o4

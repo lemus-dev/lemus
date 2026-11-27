@@ -1,0 +1,14 @@
+{
+  "name": "ms20-bass",
+  "bpm": 120, "bars": 4, "tail": 1, "rate": 48000,
+  "params": {"VCO 1 Scale": 0.333, "LPF Cutoff Freq": 0.4, "LPF Peak": 0.7, "LPF EG 2/EXT": 0.7,
+             "EG 2 Decay Time": 0.3, "EG 2 Sustain Level": 0.2, "EG 2 Release Time": 0.15, "Volume": 0.8},
+  "automation": [{"param": "LPF Cutoff Freq", "points": [[0, 0.3], [16, 0.6]]}],
+  "notes": [
+    {"at": 0.0, "note": "C-3", "len": 0.4}, {"at": 0.5, "note": "C-4", "len": 0.2}, {"at": 0.75, "note": "C-3", "len": 0.2},
+    {"at": 1.0, "note": "D#3", "len": 0.4}, {"at": 1.5, "note": "G-3", "len": 0.2}, {"at": 2.0, "note": "C-3", "len": 0.4},
+    {"at": 2.5, "note": "A#3", "len": 0.2}, {"at": 3.0, "note": "F-3", "len": 0.4}, {"at": 3.5, "note": "G-3", "len": 0.4}
+  ],
+  "repeat": 4,
+  "sources": [{"use": "ms20.lemus"}]
+}

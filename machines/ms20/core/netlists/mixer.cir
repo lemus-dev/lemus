@@ -1,0 +1,24 @@
+* MS-20 (Rev 1) VCO MIXER: KLM-127, service manual circuit diagram (1), right of the VCOs (scan A a-003;
+* 1994 TIF korg_ms20_4; scan B b-003). Transcription and sources: docs/circuit/vco.md.
+* IC8A (4558 half, pins 1, 2, 3), an inverting summer: VCO 1 LEVEL (VR13 100KA) from SW-1's common
+* through R75 100K, VCO 2 LEVEL (VR14 100KB) from SW-4's common through R77 100K, EXT SIGNAL IN (J13,
+* node 12, grounded by the jack's switch when nothing is plugged) through R90 100K; R73 100K feedback,
+* + input on R74 33K. Its output, node 13 ("MAX 10 Vpp" on the block diagram), feeds the HPF.
+* Inputs: vco1, vco2 (the WAVE FORM switches' commons: vco1.cir, vco2.cir, which carry this
+* block's load on them), extsig (J13; 0 V unplugged).
+* Outputs: mix (node 13, into the HPF).
+* Controls: vco1_level (VR13), vco2_level (VR14).
+VV1 v1 0 input vco1
+VV2 v2 0 input vco2
+VEXT n12 0 input extsig
+PVR13 v1 w13 0 100k vco1_level p2.25
+R75 w13 s8 100k
+PVR14 v2 w14 0 100k vco2_level
+R77 w14 s8 100k
+R90 n12 s8 100k
+R73 s8 mix 100k
+R74 i8p 0 33k
+XIC8A i8p s8 mix opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+.control vco1_level 1
+.control vco2_level 0
+.output mix mix

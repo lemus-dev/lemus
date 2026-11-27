@@ -1,0 +1,254 @@
+* KORG MS-20 (Rev 1), KLM-127 and the 37-key keyboard: the KEY BOARD ladder, the KBD FOLLOWER
+* (IC4A, PORTAMENTO, the key hold Q23, IC5 to KBD CV OUT J33 and VCO 1+2 CV IN J26's normal) and the
+* TRIG DETECTOR up to IC13A's output (the key-down comparator IC13A, the change detector Q16, Q15,
+* Q14 and the hold switch Q13). The rest of the trigger (IC13B's delay and Schmitt trigger, TRIG OUT
+* J32) is trig.cir, from IC13A's output.
+* Service manual circuit diagram (1), left side: "KEY BOARD", "PORTAMENTO" and the trigger detector
+* under them. Read in scan A (a-003.png), the 1994 TIFF (korg_ms20_4.tif) and scan B (b-003.png);
+* the later board's KLM-127.GIF for legibility only; the KLM-127 board view (a-005.png) for places.
+* Transcription notes and every part's source: docs/circuit/keyboard.md.
+*
+* Keys: controls key_0 (low C, C-1) ... key_36 (high C, C-4), 1 = that key's contact closed (its
+*   node on the +15 V bus bar). Any number may be closed: the ladder itself gives the highest one
+*   (keyboard.md section 5). A key event rebuilds the matrices (no states or ports are added).
+* Input: kbtest, volts added to the bus bar's +15 V: 0 in the instrument. The cases move it to press
+*   and release the closed keys (-15: the bar at 0 V, the ladder as with no key down) and to step
+*   the ladder between two keys' voltages, a legato (keyboard.md section 7).
+* Outputs: kbdcv (KBD CV OUT J33 and J26's normal: IC5's output through R46 100), ic13a (IC13A's
+*   output, about +14 V with no key down, -14 V with one down: trig.cir's input).
+*   Probes: l (check point 1, the ladder's output), kin (IC4A's input), na (check point 48), nb
+*   (check point 49), c6 (the held voltage), q16c (Q16's collector). Q23's gate (node gate) and
+*   Q13's base (q13b, check point 20) are left out: they switch within a microsecond, where the
+*   solver and ngspice differ by up to 0.44 V for 150 us (keyboard.md section 10).
+* Controls: key_0 ... key_36; portamento (VR10, 2M A, a rheostat: 0 ohm at 0, law p2.25, the
+*   A taper since 2026-11-23: docs/circuit/README.md); trim_VR4 (VR4 100k B as a rheostat, the KBD CV high trim: panel
+*   hole 5 at MASTER TUNE); trim_VR3 (VR3 10k B, IC5's offset null, the KBD CV low trim: panel hole
+*   6 at PORTAMENTO). Defaults: the service check 7-3 setting (keyboard.md section 4).
+* Rate: 64 kHz or more. At 44.1-48 kHz the change detector's first pulse (a few us) is lost in the
+*   sample and a large upward jump with the hold engaged leaks into C6 (C-1 to C-4: 100 cents at
+*   48 kHz, 1038 at 44.1; none from 64 kHz up; keyboard.md section 8).
+* DC: with no key down the operating point puts C6 where Q23's leakage ends it, about -3 V (gate
+*   -5.07 V, VTO -2.1 V); a power-on starts it at 0 V.
+* Not modelled: contact bounce and resistance (0.1 ohm closed); IC4A's and IC13A's offsets and bias
+*   currents; IC5's own offset (VR3 nulls an offset source here instead) and its 10 pA input
+*   current; C6's leakage; Q14's and Q15's emitter-base breakdown (keyboard.md section 9).
+*
+* Op-amps: models.cir's uPC4558C and CA3140 parameters (gbw4558 ..., gbw3140 ...).
+* VR3's reach on IC5's input offset: +-30 mV over the trim's rotation. An assumption: FN957 gives
+* 4.7K from pin 1 or 5 to pin 4 for the maximum offset (15 mV); R32 1K at the wiper reaches further.
+.param vnull3=30m
+VP15 p15 0 15
+VN15 n15 0 -15
+VKBUS kbus p15 input kbtest
+*
+* === KEY BOARD: the contacts and the resistor ladder (on the keyboard, not on KLM-127's board view;
+* the ladder's parts carry no designators). Nodes k0 (low C) ... k36 (high C), l = check point 1
+* key contacts: the bus bar (kbus) onto each key's node
+SK0 kbus k0 key_0 0.1 1e12
+SK1 kbus k1 key_1 0.1 1e12
+SK2 kbus k2 key_2 0.1 1e12
+SK3 kbus k3 key_3 0.1 1e12
+SK4 kbus k4 key_4 0.1 1e12
+SK5 kbus k5 key_5 0.1 1e12
+SK6 kbus k6 key_6 0.1 1e12
+SK7 kbus k7 key_7 0.1 1e12
+SK8 kbus k8 key_8 0.1 1e12
+SK9 kbus k9 key_9 0.1 1e12
+SK10 kbus k10 key_10 0.1 1e12
+SK11 kbus k11 key_11 0.1 1e12
+SK12 kbus k12 key_12 0.1 1e12
+SK13 kbus k13 key_13 0.1 1e12
+SK14 kbus k14 key_14 0.1 1e12
+SK15 kbus k15 key_15 0.1 1e12
+SK16 kbus k16 key_16 0.1 1e12
+SK17 kbus k17 key_17 0.1 1e12
+SK18 kbus k18 key_18 0.1 1e12
+SK19 kbus k19 key_19 0.1 1e12
+SK20 kbus k20 key_20 0.1 1e12
+SK21 kbus k21 key_21 0.1 1e12
+SK22 kbus k22 key_22 0.1 1e12
+SK23 kbus k23 key_23 0.1 1e12
+SK24 kbus k24 key_24 0.1 1e12
+SK25 kbus k25 key_25 0.1 1e12
+SK26 kbus k26 key_26 0.1 1e12
+SK27 kbus k27 key_27 0.1 1e12
+SK28 kbus k28 key_28 0.1 1e12
+SK29 kbus k29 key_29 0.1 1e12
+SK30 kbus k30 key_30 0.1 1e12
+SK31 kbus k31 key_31 0.1 1e12
+SK32 kbus k32 key_32 0.1 1e12
+SK33 kbus k33 key_33 0.1 1e12
+SK34 kbus k34 key_34 0.1 1e12
+SK35 kbus k35 key_35 0.1 1e12
+SK36 kbus k36 key_36 0.1 1e12
+* the string, bottom (k0, low C) to top (k36, high C): RA<n> from k<n> to k<n+1>, 403 and 427 ohm
+* 1 % alternating, then RA36, the drawn 403 from the top key's node to check point 1; RB<n> 61.9K
+* 1 % from every odd node, RB0 6.8K from k0. (The parts list counts 18 x 403, 18 x 427 for the
+* ladder and 17 x 61.9K, one 403 and one 61.9K fewer than this: keyboard.md section 3.)
+RB0 k0 0 6.8k
+RA0 k0 k1 403
+RB1 k1 0 61.9k
+RA1 k1 k2 427
+RA2 k2 k3 403
+RB3 k3 0 61.9k
+RA3 k3 k4 427
+RA4 k4 k5 403
+RB5 k5 0 61.9k
+RA5 k5 k6 427
+RA6 k6 k7 403
+RB7 k7 0 61.9k
+RA7 k7 k8 427
+RA8 k8 k9 403
+RB9 k9 0 61.9k
+RA9 k9 k10 427
+RA10 k10 k11 403
+RB11 k11 0 61.9k
+RA11 k11 k12 427
+RA12 k12 k13 403
+RB13 k13 0 61.9k
+RA13 k13 k14 427
+RA14 k14 k15 403
+RB15 k15 0 61.9k
+RA15 k15 k16 427
+RA16 k16 k17 403
+RB17 k17 0 61.9k
+RA17 k17 k18 427
+RA18 k18 k19 403
+RB19 k19 0 61.9k
+RA19 k19 k20 427
+RA20 k20 k21 403
+RB21 k21 0 61.9k
+RA21 k21 k22 427
+RA22 k22 k23 403
+RB23 k23 0 61.9k
+RA23 k23 k24 427
+RA24 k24 k25 403
+RB25 k25 0 61.9k
+RA25 k25 k26 427
+RA26 k26 k27 403
+RB27 k27 0 61.9k
+RA27 k27 k28 427
+RA28 k28 k29 403
+RB29 k29 0 61.9k
+RA29 k29 k30 427
+RA30 k30 k31 403
+RB31 k31 0 61.9k
+RA31 k31 k32 427
+RA32 k32 k33 403
+RB33 k33 0 61.9k
+RA33 k33 k34 427
+RA34 k34 k35 403
+RB35 k35 0 61.9k
+RA35 k35 k36 427
+RA36 k36 l 403
+*
+* === KBD FOLLOWER
+* --- check point 1 (l): VR4 (rheostat) + R33 to ground, R34 / R35 into IC4A (follower, pins 1-3)
+PVR4 l l r33a 100k trim_VR4
+R33 r33a 0 68k
+R34 l kin 2.94k
+R35 kin 0 4.27k
+XIC4A kin o4 o4 opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- PORTAMENTO: R30, VR10 (a rheostat, na to nb) into the key-hold JFET Q23; R31 ties Q23's gate
+* to na; Q13 (below) pulls the gate down to hold; C7 on the gate; C6 the held voltage
+R30 o4 na 680
+PVR10 na na nb 2meg portamento p2.25
+R31 na gate 10meg
+JQ23 nb gate c6 2SK30A_GR
+C7 gate 0 100p
+C6 c6 0 0.22u
+* --- IC5 (CA3140, follower, output pin 6 to pin 2) and R46 to J33 / J26's normal. VR3 (pins 1-5,
+* wiper through R32 1K to -15 V) is the stand-in offset source EOS5 in series with pin 3
+VNP3 np3 0 {vnull3}
+VNN3 nn3 0 -{vnull3}
+PVR3 np3 w3 nn3 10k trim_VR3
+EOS5 i5p c6 w3 0 1
+XIC5 i5p o5 o5 opamp {gbw3140} {gain3140} {vsat3140} {sr3140}
+R46 o5 kcv 100
+*
+* === TRIG DETECTOR (to IC13A's output)
+* --- IC13A (pins 1-3): the ladder through R141 on pin 2, R88 / R87 (0.44 V) on pin 3: high with no
+* key down, low with any key down
+R141 l i13n 100k
+R88 p15 i13p 33k
+R87 i13p 0 1k
+XIC13A i13p i13n ic13a opamp {gbw4558} {gain4558} {vsat4558} {sr4558}
+* --- change detector: the ladder through C21 / R142 into Q16 (R143 and C20 collector to base,
+* R140 load), C19 into Q15's base (R139); Q15 and Q14 (base grounded) with their emitters on R137 /
+* R135 from +15 V and coupled by C18, collectors on R138 / R136 to -15 V; D13, D12 OR them onto
+* Q13's base
+C21 l c21b 1n
+R142 c21b q16b 68k
+R143 q16c q16b 3.3meg
+C20 q16c q16b 22p
+R140 p15 q16c 6.8k
+Q16 q16c q16b 0 2SC1685
+C19 q16c q15b 22n
+R139 q15b 0 100k
+R137 p15 e15 100k
+R135 p15 e14 100k
+C18 e15 e14 1u
+Q15 c15 q15b e15 2SA564A
+Q14 c14 0 e14 2SA564A
+R138 c15 n15 47k
+R136 c14 n15 47k
+D13 c15 q13b 1S1555
+D12 c14 q13b 1S1555
+* --- hold switch Q13: on while IC13A is high (no key: R86 and the undesignated diode DX13) or while
+* the change detector pulses; its collector holds Q23's gate near -5 V. Emitter: R134 to ground
+* (drawn as a short bar: keyboard.md section 3), R132 to -15 V; R133 base to emitter
+R86 ic13a dxa 47k
+DX13 dxa q13b 1S1555
+R133 q13b q13e 100k
+R134 q13e 0 4.7k
+R132 q13e n15 6.8k
+Q13 gate q13b q13e 2SC1685
+*
+.control key_0 0
+.control key_1 0
+.control key_2 0
+.control key_3 0
+.control key_4 0
+.control key_5 0
+.control key_6 0
+.control key_7 0
+.control key_8 0
+.control key_9 0
+.control key_10 0
+.control key_11 0
+.control key_12 0
+.control key_13 0
+.control key_14 0
+.control key_15 0
+.control key_16 0
+.control key_17 0
+.control key_18 0
+.control key_19 0
+.control key_20 0
+.control key_21 0
+.control key_22 0
+.control key_23 0
+.control key_24 0
+.control key_25 0
+.control key_26 0
+.control key_27 0
+.control key_28 0
+.control key_29 0
+.control key_30 0
+.control key_31 0
+.control key_32 0
+.control key_33 0
+.control key_34 0
+.control key_35 0
+.control key_36 0
+.control portamento 0
+.control trim_VR4 0.4649
+.control trim_VR3 0.5413
+.output kbdcv kcv
+.output ic13a ic13a
+.output l l
+.output kin kin
+.output na na
+.output nb nb
+.output c6 c6
+.output q16c q16c
