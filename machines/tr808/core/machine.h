@@ -3,6 +3,7 @@
 #include "ucom43.h"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 

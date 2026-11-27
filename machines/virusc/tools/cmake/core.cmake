@@ -15,9 +15,8 @@ if(NOT TARGET lemus_viruscore)
     target_compile_options(lemus_viruscengine PRIVATE /O2 /W0 /constexpr:steps10000000 /permissive-)
   else()
     target_compile_options(lemus_viruscengine PRIVATE -O3 -w)
-    if(UNIX AND NOT APPLE)
-      target_compile_options(lemus_viruscengine PRIVATE -fconstexpr-loop-limit=10000000)
-    endif()
+    # GCC's name for the constexpr step limit (upstream builds Linux with GCC); clang's default is enough
+    target_compile_options(lemus_viruscengine PRIVATE $<$<CXX_COMPILER_ID:GNU>:-fconstexpr-loop-limit=10000000>)
   endif()
 
   add_library(lemus_viruscore STATIC ${_vc}/c515.cpp ${_vc}/hd44780.cpp ${_vc}/machine.cpp ${_vc}/resampler.cpp)

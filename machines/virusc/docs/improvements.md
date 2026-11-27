@@ -127,6 +127,12 @@ None yet.
 
 ## Done
 
+- 2026-11-27, Linux port: STORE TO FLASH crashed the DSP engine on Linux (x86-64 and arm64), in
+  `JitBlockChain::getChildBlock` after the firmware swaps RAM in as code. `dsp56kBase/mmuarray.h`
+  took its MMU path (blocks remapped from one shared default page) everywhere but macOS; it now takes
+  the fallback on every platform, as the macOS builds always have, and viruscplugintest passes on
+  Linux. Windows took the MMU path too and has never run viruscplugintest with ROMs, so it most
+  likely crashed there as well: the next ac-digital-vc release carries the fix to Windows.
 - 2026-11-27, UX: the panel's print. Each legend was fitted to its own measured box, so print that is
   one size on the unit came out at uneven sizes and widths (the boxes scatter by 0.1-0.25 mm). Each
   print class (`fonts.classes` in `docs/panel.json`) now has one cap height and one squeeze for words

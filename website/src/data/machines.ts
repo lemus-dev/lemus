@@ -40,7 +40,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '303 bass acid sequencer roland',
     nav: true,
-    release: { version: '0.2.6', tag: 'ro-mono-303-v0.2.6', stage: 'beta', mac: 'ro-mono-303-0.2.6-mac.pkg', windows: 'ro-mono-303-0.2.6-windows.zip' },
+    release: { version: '0.2.7', tag: 'ro-mono-303-v0.2.7', stage: 'beta', mac: 'ro-mono-303-0.2.7-mac.pkg', windows: 'ro-mono-303-0.2.7-windows.zip' },
     changes: [
       {
         version: '0.2.7',
@@ -145,7 +145,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.10', tag: 'ro-drums-909-v0.2.10', stage: 'beta', mac: 'ro-drums-909-0.2.10-mac.pkg', windows: 'ro-drums-909-0.2.10-windows.zip' },
+    release: { version: '0.2.11', tag: 'ro-drums-909-v0.2.11', stage: 'beta', mac: 'ro-drums-909-0.2.11-mac.pkg', windows: 'ro-drums-909-0.2.11-windows.zip' },
     changes: [
       {
         version: '0.2.11',
@@ -235,7 +235,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '808 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.1.8', tag: 'ro-drums-808-v0.1.8', stage: 'beta', mac: 'ro-drums-808-0.1.8-mac.pkg', windows: 'ro-drums-808-0.1.8-windows.zip' },
+    release: { version: '0.1.9', tag: 'ro-drums-808-v0.1.9', stage: 'beta', mac: 'ro-drums-808-0.1.9-mac.pkg', windows: 'ro-drums-808-0.1.9-windows.zip' },
     changes: [
       {
         version: '0.1.9',
@@ -301,7 +301,7 @@ export const machines: Machine[] = [
     withoutRom: 'none',
     keywords: 'virus c access virtual analog va synth dsp osirus',
     nav: true,
-    release: { version: '0.1.1', tag: 'ac-digital-vc-v0.1.1', stage: 'beta', mac: 'ac-digital-vc-0.1.1-mac.pkg', windows: 'ac-digital-vc-0.1.1-windows.zip' },
+    release: { version: '0.1.2', tag: 'ac-digital-vc-v0.1.2', stage: 'beta', mac: 'ac-digital-vc-0.1.2-mac.pkg', windows: 'ac-digital-vc-0.1.2-windows.zip' },
     changes: [
       {
         version: '0.1.2',
@@ -329,7 +329,7 @@ export const machines: Machine[] = [
     withoutRom: 'none',
     keywords: 'quadraverb quadgt gt alesis guitar preamp amp distortion overdrive cabinet reverb delay chorus multi effects',
     nav: true,
-    release: { version: '0.1.2', tag: 'al-fx-quadgt-v0.1.2', stage: 'beta', mac: 'al-fx-quadgt-0.1.2-mac.pkg', windows: 'al-fx-quadgt-0.1.2-windows.zip' },
+    release: { version: '0.1.3', tag: 'al-fx-quadgt-v0.1.3', stage: 'beta', mac: 'al-fx-quadgt-0.1.3-mac.pkg', windows: 'al-fx-quadgt-0.1.3-windows.zip' },
     changes: [
       {
         version: '0.1.3',
@@ -370,7 +370,7 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '101 sh101 sh-101 mono synth bass lead arpeggio sequencer roland',
     nav: true,
-    release: { version: '0.1.4', tag: 'ro-mono-101-v0.1.4', stage: 'beta', mac: 'ro-mono-101-0.1.4-mac.pkg', windows: 'ro-mono-101-0.1.4-windows.zip' },
+    release: { version: '0.1.5', tag: 'ro-mono-101-v0.1.5', stage: 'beta', mac: 'ro-mono-101-0.1.5-mac.pkg', windows: 'ro-mono-101-0.1.5-windows.zip' },
     changes: [
       {
         version: '0.1.5',
@@ -419,7 +419,7 @@ export const machines: Machine[] = [
     standalone: false,
     keywords: 'rat proco pro co distortion pedal white face lm308 guitar 303 acid fuzz overdrive effect',
     nav: true,
-    release: { version: '0.1.0', tag: 'pr-dist-r-v0.1.0', stage: 'beta', mac: 'pr-dist-r-0.1.0-mac.pkg', windows: 'pr-dist-r-0.1.0-windows.zip' },
+    release: { version: '0.1.1', tag: 'pr-dist-r-v0.1.1', stage: 'beta', mac: 'pr-dist-r-0.1.1-mac.pkg', windows: 'pr-dist-r-0.1.1-windows.zip' },
     changes: [
       {
         version: '0.1.1',
@@ -440,7 +440,7 @@ export const machines: Machine[] = [
     withoutRom: 'none',
     keywords: 'xpander oberheim matrix-12 matrix 12 poly polyphonic analog six voice module cem3372 cem3374 filter modes fm modulation',
     nav: true,
-    release: { version: '0.1.0', tag: 'ob-poly-xp-v0.1.0', stage: 'beta', mac: 'ob-poly-xp-0.1.0-mac.pkg', windows: 'ob-poly-xp-0.1.0-windows.zip' },
+    release: { version: '0.1.1', tag: 'ob-poly-xp-v0.1.1', stage: 'beta', mac: 'ob-poly-xp-0.1.1-mac.pkg', windows: 'ob-poly-xp-0.1.1-windows.zip' },
     changes: [
       {
         version: '0.1.1',
@@ -461,7 +461,7 @@ export const machines: Machine[] = [
     withoutRom: 'none',
     keywords: 'bass station rack novation bassstation analogue mono monophonic bass dco 24db 12db filter 1u module mn1880',
     nav: true,
-    release: { version: '0.1.0', tag: 'no-mono-bsr-v0.1.0', stage: 'beta', mac: 'no-mono-bsr-0.1.0-mac.pkg', windows: 'no-mono-bsr-0.1.0-windows.zip' },
+    release: { version: '0.1.1', tag: 'no-mono-bsr-v0.1.1', stage: 'beta', mac: 'no-mono-bsr-0.1.1-mac.pkg', windows: 'no-mono-bsr-0.1.1-windows.zip' },
     changes: [
       {
         version: '0.1.1',

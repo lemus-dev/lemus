@@ -51,6 +51,7 @@ juce_add_gui_app(lemus_manager
   BUNDLE_ID org.lemusdev.pluginmanager
   VERSION ${LEMUS_MANAGER_VERSION}
   ICON_BIG ${CMAKE_CURRENT_SOURCE_DIR}/host/icon.png
+  NEEDS_CURL TRUE
 )
 target_sources(lemus_manager PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}/Main.cpp

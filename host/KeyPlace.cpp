@@ -1,7 +1,9 @@
 // The keyboard-layout lookup behind KeyPlace.h: which key types a character, and what that key
 // types on a US keyboard. macOS asks the current layout (UCKeyTranslate) what each key of the
 // main block types, unshifted and shifted; Windows asks it which key types the character
-// (VkKeyScanEx) and where that key sits (its scan code). Elsewhere the typed character stands.
+// (VkKeyScanEx) and where that key sits (its scan code). Linux asks xkbcommon what each key types
+// in the X server's current layout, as macOS does; xkbcommon, its X11 part and xcb are loaded when
+// first needed, so a computer without them still loads the plugin and keeps the typed character.
 // No JUCE here: Carbon's and Windows' names clash with it.
 #include "KeyPlace.h"
 
@@ -17,13 +19,21 @@
 #include <windows.h>
 
 #include <algorithm>
+#elif defined(__linux__)
+#include <xcb/xcb.h>
+#include <xkbcommon/xkbcommon-x11.h>
+#include <xkbcommon/xkbcommon.h>
+
+#include <dlfcn.h>
+#include <mutex>
 #endif
 
 namespace lemus::panel {
 namespace {
 
-// A key of the main block that types a character, by place (macOS virtual key code, or Windows
-// set-1 scan code), and what it types on a US keyboard, unshifted.
+// A key of the main block that types a character, by place (macOS virtual key code, or the
+// set-1 scan code that Windows uses and Linux's evdev codes match), and what it types on a US
+// keyboard, unshifted.
 struct Place
 {
 	unsigned code;
@@ -102,7 +112,7 @@ char32_t inNamedLayout(const char *layout, char32_t c)
 	return us;
 }
 
-#elif defined(_WIN32)
+#elif defined(_WIN32) || defined(__linux__)
 
 const Place kPlaces[] = {
 	{0x29, '`'}, {0x02, '1'}, {0x03, '2'}, {0x04, '3'}, {0x05, '4'},  {0x06, '5'}, {0x07, '6'}, {0x08, '7'},
@@ -112,6 +122,10 @@ const Place kPlaces[] = {
 	{0x24, 'j'}, {0x25, 'k'}, {0x26, 'l'}, {0x27, ';'}, {0x28, '\''}, {0x2c, 'z'}, {0x2d, 'x'}, {0x2e, 'c'},
 	{0x2f, 'v'}, {0x30, 'b'}, {0x31, 'n'}, {0x32, 'm'}, {0x33, ','},  {0x34, '.'}, {0x35, '/'},
 };
+
+#endif
+
+#if defined(_WIN32)
 
 char32_t lookUp(HKL layout, char32_t c)
 {
@@ -149,20 +163,141 @@ char32_t inNamedLayout(const char *layout, char32_t c)
 	return us;
 }
 
+#elif defined(__linux__)
+
+// xkbcommon's and xcb's functions, loaded once; null when a library or a function is missing.
+struct Xkb
+{
+	decltype(&xkb_context_new) contextNew = nullptr;
+	decltype(&xkb_keymap_new_from_names) keymapFromNames = nullptr;
+	decltype(&xkb_keymap_unref) keymapUnref = nullptr;
+	decltype(&xkb_keymap_key_get_syms_by_level) symsByLevel = nullptr;
+	decltype(&xkb_state_unref) stateUnref = nullptr;
+	decltype(&xkb_state_key_get_layout) keyLayout = nullptr;
+	decltype(&xkb_keysym_to_utf32) toUtf32 = nullptr;
+	decltype(&xkb_x11_setup_xkb_extension) setupX11 = nullptr;
+	decltype(&xkb_x11_get_core_keyboard_device_id) coreKeyboard = nullptr;
+	decltype(&xkb_x11_keymap_new_from_device) keymapFromDevice = nullptr;
+	decltype(&xkb_x11_state_new_from_device) stateFromDevice = nullptr;
+	decltype(&xcb_connect) connect = nullptr;
+	decltype(&xcb_connection_has_error) hasError = nullptr;
+	xkb_context *context = nullptr;
+	xcb_connection_t *x = nullptr; // the X server's, kept open; null without one
+	int32_t keyboard = -1;
+	std::mutex lock;
+
+	template <typename F> static void get(void *lib, F &f, const char *name)
+	{
+		f = lib != nullptr ? reinterpret_cast<F>(dlsym(lib, name)) : nullptr;
+	}
+
+	Xkb()
+	{
+		void *xkb = dlopen("libxkbcommon.so.0", RTLD_NOW | RTLD_LOCAL);
+		get(xkb, contextNew, "xkb_context_new");
+		get(xkb, keymapFromNames, "xkb_keymap_new_from_names");
+		get(xkb, keymapUnref, "xkb_keymap_unref");
+		get(xkb, symsByLevel, "xkb_keymap_key_get_syms_by_level");
+		get(xkb, stateUnref, "xkb_state_unref");
+		get(xkb, keyLayout, "xkb_state_key_get_layout");
+		get(xkb, toUtf32, "xkb_keysym_to_utf32");
+		if (contextNew == nullptr || keymapFromNames == nullptr || keymapUnref == nullptr || symsByLevel == nullptr || stateUnref == nullptr
+		    || keyLayout == nullptr || toUtf32 == nullptr || (context = contextNew(XKB_CONTEXT_NO_FLAGS)) == nullptr)
+			return;
+		void *xkbX11 = dlopen("libxkbcommon-x11.so.0", RTLD_NOW | RTLD_LOCAL);
+		void *xcb = dlopen("libxcb.so.1", RTLD_NOW | RTLD_LOCAL);
+		get(xkbX11, setupX11, "xkb_x11_setup_xkb_extension");
+		get(xkbX11, coreKeyboard, "xkb_x11_get_core_keyboard_device_id");
+		get(xkbX11, keymapFromDevice, "xkb_x11_keymap_new_from_device");
+		get(xkbX11, stateFromDevice, "xkb_x11_state_new_from_device");
+		get(xcb, connect, "xcb_connect");
+		get(xcb, hasError, "xcb_connection_has_error");
+		if (setupX11 == nullptr || coreKeyboard == nullptr || keymapFromDevice == nullptr || stateFromDevice == nullptr || connect == nullptr
+		    || hasError == nullptr)
+			return;
+		xcb_connection_t *c = connect(nullptr, nullptr);
+		if (c == nullptr || hasError(c) != 0
+		    || !setupX11(c, XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION, XKB_X11_SETUP_XKB_EXTENSION_NO_FLAGS, nullptr,
+		                 nullptr, nullptr, nullptr)
+		    || (keyboard = coreKeyboard(c)) < 0)
+			return; // the connection is left open: closing it would need xcb_disconnect, for nothing
+		x = c;
+	}
+};
+
+Xkb &xkb()
+{
+	static Xkb k;
+	return k;
+}
+
+// In a keymap, each key in its current layout (state), or in the keymap's first one (no state):
+// a key that types c unshifted (level 1) wins over one that types it shifted (level 2).
+char32_t lookUp(Xkb &k, xkb_keymap *keymap, xkb_state *state, char32_t c, char32_t fallback)
+{
+	char32_t shifted = 0;
+	for (const xkb_level_index_t level : {0u, 1u})
+		for (const auto &p : kPlaces) {
+			const xkb_keycode_t key = p.code + 8; // XKB's codes are evdev's plus 8
+			const xkb_layout_index_t layout = state != nullptr ? k.keyLayout(state, key) : 0;
+			const xkb_keysym_t *syms = nullptr;
+			if (layout == XKB_LAYOUT_INVALID || k.symsByLevel(keymap, key, layout, level, &syms) != 1 || k.toUtf32(syms[0]) != c)
+				continue;
+			if (level == 0)
+				return p.us;
+			if (shifted == 0)
+				shifted = p.us;
+		}
+	return shifted != 0 ? shifted : fallback;
+}
+
+char32_t fromLayout(char32_t c)
+{
+	Xkb &k = xkb();
+	if (k.x == nullptr)
+		return c;
+	const std::lock_guard<std::mutex> hold(k.lock);
+	xkb_keymap *keymap = k.keymapFromDevice(k.context, k.x, k.keyboard, XKB_KEYMAP_COMPILE_NO_FLAGS);
+	if (keymap == nullptr)
+		return c;
+	xkb_state *state = k.stateFromDevice(keymap, k.x, k.keyboard);
+	const char32_t us = state != nullptr ? lookUp(k, keymap, state, c, c) : c;
+	if (state != nullptr)
+		k.stateUnref(state);
+	k.keymapUnref(keymap);
+	return us;
+}
+
+// A layout by its XKB name ("de"), whether or not the X server uses it.
+char32_t inNamedLayout(const char *layout, char32_t c)
+{
+	Xkb &k = xkb();
+	if (k.context == nullptr)
+		return 0;
+	const std::lock_guard<std::mutex> hold(k.lock);
+	const xkb_rule_names names = {"evdev", "pc105", layout, "", ""};
+	xkb_keymap *keymap = k.keymapFromNames(k.context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
+	if (keymap == nullptr)
+		return 0;
+	const char32_t us = lookUp(k, keymap, nullptr, c, c);
+	k.keymapUnref(keymap);
+	return us;
+}
+
 #endif
 
 } // namespace
 
 void useKeyboardLayout()
 {
-#if defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__) || defined(_WIN32) || defined(__linux__)
 	usKeyAt = &fromLayout;
 #endif
 }
 
 char32_t usKeyIn(const char *layout, char32_t c)
 {
-#if defined(__APPLE__) || defined(_WIN32)
+#if defined(__APPLE__) || defined(_WIN32) || defined(__linux__)
 	return inNamedLayout(layout, c);
 #else
 	(void)layout;

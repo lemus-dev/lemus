@@ -23,6 +23,7 @@
 #include "solver_stats.h"
 
 #include <array>
+#include <cstdint>
 #include <limits>
 
 namespace xpander {

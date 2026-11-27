@@ -10,6 +10,7 @@
 #include "voiceboard.h"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <vector>

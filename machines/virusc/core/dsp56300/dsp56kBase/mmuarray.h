@@ -64,9 +64,11 @@ namespace dsp56k
 			// On macOS, remapping sub-regions of an existing allocation triggers
 			// DEALLOC_GAP (EXC_GUARD SIGKILL) regardless of API used (mmap or
 			// mach_vm_map). Use fallback path until a working approach is found.
-#ifdef __APPLE__
+			// Lemus: the fallback on every platform. With the MMU path the JIT crashed in
+			// JitBlockChain::getChildBlock after the firmware's STORE TO FLASH swaps RAM in as
+			// code (Linux, x86-64 and arm64; Windows takes the same path); the fallback, which
+			// the macOS builds have always run, passes viruscplugintest everywhere.
 			return initFallback();
-#endif
 
 			// Try MMU path
 			const auto totalElements = m_numBlocks * _blockSize; // round up to full blocks

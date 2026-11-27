@@ -445,6 +445,12 @@ void TR909Processor::handleMidi(const juce::MidiMessage &m)
 		return;
 	if (m.isActiveSense())
 		return;
+	// System exclusive the 909 has no use for (all but Roland's, its bank dump) stays out of the
+	// firmware: Logic and GarageBand send an instrument a master fine tuning and a MIDI tuning dump
+	// (about 420 bytes) at each Play, and at MIDI's 0.32 ms a byte they held the start and the first
+	// clocks back about 130 ms (forum t/67). The firmware ignores them.
+	if (m.isSysEx() && (m.getSysExDataSize() < 1 || m.getSysExData()[0] != 0x41))
+		return;
 	if (!m_romOk) {
 		if (m.isNoteOn())
 			voiceModeNote(m.getNoteNumber(), m.getVelocity());

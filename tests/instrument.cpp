@@ -143,11 +143,13 @@ char32_t inTestLayout(char32_t c)
 void testKeyPlace()
 {
 	std::printf("\nComputer keys by place\n");
-#if JUCE_MAC || JUCE_WINDOWS
+#if JUCE_MAC || JUCE_WINDOWS || JUCE_LINUX
 #if JUCE_MAC
 	const char *us = "com.apple.keylayout.US", *de = "com.apple.keylayout.German", *fr = "com.apple.keylayout.French";
-#else
+#elif JUCE_WINDOWS
 	const char *us = "00000409", *de = "00000407", *fr = "0000040C";
+#else
+	const char *us = "us", *de = "de", *fr = "fr";
 #endif
 	panel::usKeyAt = nullptr;
 	{

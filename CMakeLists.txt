@@ -30,7 +30,9 @@ set(LEMUS_PRIVATE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../private CACHE PATH "Private
 set(LEMUS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(LEMUS_MACHINES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/machines)
 set(LEMUS_FONTS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fonts)
-set(LEMUS_DEFINITIONS JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_VST3_CAN_REPLACE_VST2=0 JUCE_DISPLAY_SPLASH_SCREEN=0)
+# No curl here: what goes online (the plugins' update check, the manager) asks JUCE for it with
+# NEEDS_CURL, which links it on Linux, where JUCE has no https without it, and does nothing elsewhere.
+set(LEMUS_DEFINITIONS JUCE_WEB_BROWSER=0 JUCE_VST3_CAN_REPLACE_VST2=0 JUCE_DISPLAY_SPLASH_SCREEN=0)
 
 # The machines in this build, by id (their folder names), or empty for all of them. A release
 # lists the machines that ship: -DLEMUS_MACHINES=tb303. A host with no machines isn't built.
@@ -228,6 +230,7 @@ juce_add_plugin(Lemus
   NEEDS_MIDI_INPUT TRUE
   NEEDS_MIDI_OUTPUT FALSE
   EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+  NEEDS_CURL TRUE
   COPY_PLUGIN_AFTER_BUILD ${LEMUS_COPY_PLUGINS}
   AU_MAIN_TYPE kAudioUnitType_MusicDevice
   VST3_CATEGORIES Instrument Synth
@@ -251,6 +254,7 @@ juce_add_plugin(LemusFX
   NEEDS_MIDI_INPUT TRUE
   NEEDS_MIDI_OUTPUT FALSE
   EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+  NEEDS_CURL TRUE
   COPY_PLUGIN_AFTER_BUILD ${LEMUS_COPY_PLUGINS}
   AU_MAIN_TYPE kAudioUnitType_MusicEffect
   VST3_CATEGORIES Fx
@@ -271,7 +275,11 @@ foreach(id ${LEMUS_PLUGIN_MACHINES})
   else()
     set(_lemus_kind IS_SYNTH FALSE AU_MAIN_TYPE kAudioUnitType_MusicEffect VST3_CATEGORIES Fx)
   endif()
+  # AU builds on macOS only (JUCE leaves it out elsewhere); LV2, Linux's own format, on Linux.
   set(_lemus_formats AU VST3)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(APPEND _lemus_formats LV2)
+  endif()
   set(_lemus_midi_out FALSE)
   if(LEMUS_PLUGIN_${id}_MIDI_OUT)
     set(_lemus_midi_out TRUE)
@@ -290,6 +298,8 @@ foreach(id ${LEMUS_PLUGIN_MACHINES})
     ICON_BIG ${_lemus_icon}
     PLUGIN_MANUFACTURER_CODE Lmus
     PLUGIN_CODE ${LEMUS_PLUGIN_${id}_CODE}
+    # LV2's name for the plugin, permanent as the name and code are: its page on the site
+    LV2URI "${LEMUS_SITE}/${LEMUS_PLUGIN_${id}_NAME}"
     FORMATS ${_lemus_formats}
     PRODUCT_NAME "${LEMUS_PLUGIN_${id}_NAME}"
     VERSION ${LEMUS_PLUGIN_${id}_VERSION}
@@ -297,6 +307,7 @@ foreach(id ${LEMUS_PLUGIN_MACHINES})
     NEEDS_MIDI_INPUT TRUE
     NEEDS_MIDI_OUTPUT ${_lemus_midi_out}
     EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+    NEEDS_CURL TRUE
     COPY_PLUGIN_AFTER_BUILD ${LEMUS_COPY_PLUGINS}
     ${_lemus_kind}
   )

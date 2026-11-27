@@ -11,14 +11,14 @@ namespace lemus::panel {
 // has no such key or the platform can't tell.
 inline char32_t (*usKeyAt)(char32_t c) = nullptr;
 
-// Sets usKeyAt to look keys up in the computer's keyboard layout (macOS and Windows; elsewhere it
+// Sets usKeyAt to look keys up in the computer's keyboard layout (macOS, Windows and Linux; elsewhere it
 // stays null). Called by the host's editor, not by a static initializer: in a plugin the host's
 // files sit in a static library, and the linker leaves out a file nothing calls into, its
 // initializers with it (0.2.3 shipped with keys by label that way).
 void useKeyboardLayout();
 
 // For the checks (tests/instrument.cpp): as usKeyAt, in a layout named for the platform (macOS
-// "com.apple.keylayout.German", Windows "00000407"), whether or not it's the one in use. 0 when
+// "com.apple.keylayout.German", Windows "00000407", Linux "de"), whether or not it's the one in use. 0 when
 // the computer doesn't have that layout or the platform has no lookup.
 char32_t usKeyIn(const char *layout, char32_t c);
 

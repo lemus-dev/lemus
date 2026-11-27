@@ -386,7 +386,8 @@ void syncLoad(const Roms &r, double rate)
 // Runs the processor from the host's playhead at `ppq` (playing) for `len` samples of the
 // timeline: sample i of the result is where the playhead's beat is i samples past the top (a
 // block's samples go where its ppq says, those before the top dropped), the main pair.
-juce::AudioBuffer<float> runFrom(TR909Processor &p, FakePlayHead &ph, double ppq, int len, double rate, int block)
+juce::AudioBuffer<float> runFrom(TR909Processor &p, FakePlayHead &ph, double ppq, int len, double rate, int block,
+                                 const juce::MidiBuffer *firstMidi = nullptr)
 {
 	const int channels = 2;
 	juce::AudioBuffer<float> out(channels, len), buf(channels, block);
@@ -398,6 +399,10 @@ juce::AudioBuffer<float> runFrom(TR909Processor &p, FakePlayHead &ph, double ppq
 	for (int at = int(std::lround(ph.ppq / bps * rate)); at < len; at = int(std::lround(ph.ppq / bps * rate))) {
 		buf.clear();
 		midi.clear();
+		if (firstMidi != nullptr) {
+			midi = *firstMidi;
+			firstMidi = nullptr;
+		}
 		p.processBlock(buf, midi);
 		for (int ch = 0; ch < channels; ++ch)
 			for (int i = std::max(0, -at); i < block && at + i < len; ++i)
@@ -449,6 +454,49 @@ void syncAhead(const Roms &r, double rate)
 			              late * 1000, corr);
 			check(firstRef > 1e-2 && first > 0.5 * firstRef && std::abs(late) <= 0.003 && corr > 0.8, line);
 		}
+}
+
+// SYNC with the host's system exclusive at Play (forum t/67): Logic and GarageBand send an
+// instrument a master fine tuning (F0 7F 00 04 03) and a MIDI tuning dump (F0 7E 7F 08 01, 408
+// bytes) in the first block as the transport starts, GarageBand's 343 samples before the top (its
+// pre-roll for the 909's latency). At MIDI's 0.32 ms a byte they held the start and the first
+// clocks back about 130 ms: the first steps late, then a catch-up. Pattern 1 from the top plays as
+// without them, its first step in time.
+void syncSysEx(const Roms &r, double rate)
+{
+	auto synced = [&](TR909Processor &p, FakePlayHead &ph) {
+		p.setPlayHead(&ph);
+		p.prepareToPlay(rate, 512);
+		run(p, ph, 1.0, rate);
+		set(p, "sync", 1.0f);
+		run(p, ph, 1.0, rate);
+	};
+	TR909Processor a(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+	FakePlayHead ph;
+	synced(a, ph);
+	const int bar = int(std::lround(4 * 60.0 / ph.bpm * rate)), latency = a.getLatencySamples();
+	const double preroll = -343.0 / 44100 * ph.bpm / 60.0;
+	const auto ref = runFrom(a, ph, preroll, bar, rate, 128);
+	juce::MidiBuffer tuning;
+	const uint8_t fine[] = {0xf0, 0x7f, 0x00, 0x04, 0x03, 0x00, 0x40, 0xf7};
+	tuning.addEvent(fine, int(sizeof fine), 0);
+	std::vector<uint8_t> dump = {0xf0, 0x7e, 0x7f, 0x08, 0x01, 0x00};
+	for (const char c : std::string("Logic Tuning    "))
+		dump.push_back(uint8_t(c));
+	for (int k = 0; k < 128; ++k)
+		dump.insert(dump.end(), {uint8_t(k), 0, 0});
+	dump.insert(dump.end(), {0x37, 0xf7});
+	tuning.addEvent(dump.data(), int(dump.size()), 0);
+	TR909Processor q(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+	FakePlayHead pq;
+	synced(q, pq);
+	const auto x = runFrom(q, pq, preroll, bar, rate, 128, &tuning);
+	const auto [late, corr] = barLag(ref, x, 0, bar, rate);
+	const double first = rms(x, 0, latency, int(0.02 * rate)), firstRef = rms(ref, 0, latency, int(0.02 * rate));
+	char line[200];
+	std::snprintf(line, sizeof line, "sync sysex: the host's tuning dump at Play leaves the first step in time (%.2f of its level, %+.1f ms, correlation %.3f)",
+	              first / std::max(1e-9, firstRef), late * 1000, corr);
+	check(firstRef > 1e-2 && first > 0.5 * firstRef && std::abs(late) <= 0.003 && corr > 0.8, line);
 }
 
 // SYNC with the host looping (forum t/40: the 909 stopped at the loop's end and stayed silent):
@@ -1530,6 +1578,7 @@ int main(int argc, char **argv)
 		Roms r;
 		syncLoad(r, 48000);
 		syncAhead(r, 48000);
+		syncSysEx(r, 48000);
 		state(r, 48000);
 		tempo(r, 48000);
 		return failures ? 1 : 0;
@@ -1574,6 +1623,7 @@ int main(int argc, char **argv)
 		hostLoop(r, 48000, true, true, 133);
 		syncLoad(r, 48000);
 		syncAhead(r, 48000);
+		syncSysEx(r, 48000);
 	}
 	state(r, 48000);
 	tempo(r, 48000);

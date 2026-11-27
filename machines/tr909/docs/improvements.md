@@ -209,6 +209,24 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-27, fix (forum t/67, still late in 0.2.11 with Logic's Plug-in Latency Compensation on):
+  the host's system exclusive at Play held the start back. Logic and GarageBand send an
+  instrument a master fine tuning (F0 7F 00 04 03 00 40 F7) and a MIDI tuning dump (F0 7E 7F 08
+  01 "Logic Tuning", 408 bytes) in the first block of every Play; the host's MIDI goes into the
+  firmware at MIDI's 0.32 ms a byte, so the start and the first clocks, sent after it, reached the
+  CPU about 130 ms late (the firmware's echoed FA came 127.7 ms after the grid in GarageBand), then
+  the clocks in a burst: the first steps late, then a catch-up, the same time at any tempo. Seen in
+  GarageBand 10.4.14 with a sync log (no Logic here): GarageBand sends the SysEx in its pre-roll,
+  343 samples before the top. With a latent plugin after the 909 (AUNewPitch, 93 ms) GarageBand
+  also gives the first block after Play a stale position far ahead (ppq 15-44) and the right one
+  from the next block; the continue, stop and start that makes (4 ms apart) then queued behind the
+  SysEx, reached the CPU back to back, and the 909 played nothing for two starts. System exclusive
+  other than Roland's (the bank dump) now stays out of the firmware, which ignores it. Reproduced
+  first (`tr909plugintest --load`, "sync sysex": the first step silent), then fixed. In GarageBand,
+  factory pattern 1's first hit was 1.07 16ths after the grid before, 0.04 after (the firmware's
+  own 3 ms); with AUNewPitch after it, five starts in five in time, the two with a stale first
+  block too. Left: that stale block's continue can play one stray hit about 1 ms before step 1.
+
 - 2026-11-27, fix (forum t/67, Logic's Bounce in Place with Plug-in Latency Compensation on): a
   start from the top no longer comes a 16th late when the host runs the track ahead. A host that
   compensates the 909's latency, and that of any plugin after it on the track, runs the track that
