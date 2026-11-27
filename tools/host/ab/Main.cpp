@@ -2,22 +2,30 @@
 // looping, and lets you hear one at a time: Space switches, 1-9 pick, Return plays and stops.
 // Sources are level-matched when the scene loads (one loop rendered offline), switching
 // crossfades over 5 ms, and blind mode hides which is which until you reveal it. The other
-// scenes in the same folder are a click (or Up/Down) away, numbered from 1 in the folder's
-// natural sort order (in the title and the picker: "scene 7, B" names a clip and a source). After changing a source in its editor
+// scenes in the same folder are listed at the pane's left (a click, Up/Down, or type to filter) in
+// the folder's natural sort order. Every scene has its own number, across all machines and kept for
+// good (SceneIds): "scene 214, B" names a clip and a source. After changing a source in its editor
 // (its volume, say), Match levels (L) measures them again. The spectrum (Spectrum.h) shows what
 // is playing against the reference (hidden in blind mode until Reveal); Left/Right stop and step it
 // through the loop a frame at a time.
 // Dual mode (D) plays two at once, one in each ear, each in mono: the selected source left, another
 // right; Space swaps them.
-// One app, one window: a test per scene folder, listed down the left and named for the machines
-// its scenes test. A scene opened while the app runs, from any session's build, goes to its
-// folder's test, or a new one; only the test shown plays. The tests come back after a restart.
+// Drag across the position bar (or drag its ends) to loop a part of the scene; a part plays from
+// the renders the level match made (so after changing a plugin, Match levels hears the change).
+// Drag across the spectrum to hear only that band (every source, so switching compares the band).
+// Double-click either, or Esc, for all of it again.
+// One app, one window: a test (a set) per scene folder, named for the machines its scenes test.
+// The machines are listed down the left, newest first (a scene or clip changed, or a session
+// opened the set); a machine's sets are tabs over the pane. A scene opened while the app runs, from
+// any session's build, goes to its folder's set, or a new one; only the set shown plays. The sets
+// come back after a restart.
 // Our own plugins load from a fresh copy whenever the installed one has changed, so a rebuilt
 // plugin is heard at the next scene load or Reload, without a restart.
 //
 //   open -a "Lemus AB.app" /abs/SCENE.json            add the scene's folder as a test (or go to it)
 //   open -a "Lemus AB.app" --args --reload [/abs/PATH] load the test again, with rebuilt plugins
 //   open -a "Lemus AB.app" --args --remove /abs/PATH   take the test off the list
+//   Lemus AB.app/Contents/MacOS/Lemus AB --which N     print scene N's file
 //   (or Lemus AB.app/Contents/MacOS/Lemus AB [ARGS], or drop a scene on the window; PATH is a
 //   scene or its folder; without one, --reload is the test shown)
 #include "../Player.h"
@@ -25,6 +33,9 @@
 
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <juce_gui_extra/juce_gui_extra.h>
+#include <array>
+#include <map>
+#include <set>
 #include <numeric>
 
 using namespace lemus::host;
@@ -111,6 +122,79 @@ juce::File appDir()
 	return juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("Application Support/Lemus AB");
 }
 
+// A folder's scenes, in natural order (by file name: 2 before 10).
+juce::Array<juce::File> scenesIn(const juce::File &folder)
+{
+	auto files = folder.findChildFiles(juce::File::findFiles, false, "*.json");
+	std::sort(files.begin(), files.end(), [](const juce::File &a, const juce::File &b) { return a.getFileName().compareNatural(b.getFileName()) < 0; });
+	return files;
+}
+
+// Every scene's number, to name it by: given once, the first time the app sees the scene (a set's
+// scenes together, in their order, so they run on), never reused, from 101 (so it can't be taken for
+// a list position). Kept in scene-ids.json in the app's folder ({"next": n, "ids": {path: n}}),
+// written only by the app itself (not a headless run); a session looks a number up there or with
+// --which N. A scene renamed or moved is a new scene.
+class SceneIds {
+public:
+	static SceneIds &get()
+	{
+		static SceneIds ids;
+		return ids;
+	}
+	void setSaving(bool on) { m_saving = on; }
+	int of(const juce::File &f) const
+	{
+		const auto it = m_ids.find(f.getFullPathName());
+		return it != m_ids.end() ? it->second : 0;
+	}
+	juce::File fileOf(int id) const
+	{
+		for (const auto &[path, i] : m_ids)
+			if (i == id)
+				return juce::File(path);
+		return {};
+	}
+	void give(const juce::Array<juce::File> &scenes)
+	{
+		bool added = false;
+		for (const auto &f : scenes)
+			if (m_ids.emplace(f.getFullPathName(), m_next).second) {
+				++m_next;
+				added = true;
+			}
+		if (added && m_saving)
+			save();
+	}
+
+private:
+	SceneIds()
+	{
+		const auto json = juce::JSON::parse(file());
+		m_next = std::max(101, int(json.getProperty("next", 101)));
+		if (const auto *o = json.getProperty("ids", {}).getDynamicObject())
+			for (const auto &p : o->getProperties()) {
+				m_ids[p.name.toString()] = int(p.value);
+				m_next = std::max(m_next, int(p.value) + 1);
+			}
+	}
+	static juce::File file() { return appDir().getChildFile("scene-ids.json"); }
+	void save() const
+	{
+		auto *ids = new juce::DynamicObject();
+		for (const auto &[path, i] : m_ids)
+			ids->setProperty(path, i);
+		auto *o = new juce::DynamicObject();
+		o->setProperty("next", m_next);
+		o->setProperty("ids", juce::var(ids));
+		appDir().createDirectory();
+		file().replaceWithText(juce::JSON::toString(juce::var(o)));
+	}
+	std::map<juce::String, int> m_ids;
+	int m_next = 101;
+	bool m_saving = false;
+};
+
 // One of our plugins (a machine's own, or Lemus) loads from a copy of its bundle, made again
 // whenever the installed one changes: macOS hands back a bundle it has already loaded from a path
 // (CFBundle, dlopen), so a plugin rebuilt and installed over the old one would play the old binary
@@ -145,11 +229,12 @@ juce::String freshCopy(const juce::String &plugin)
 class Main final : public juce::Component,
                    public juce::FileDragAndDropTarget,
                    private juce::AudioIODeviceCallback,
+                   private juce::ListBoxModel,
                    private juce::Timer {
 public:
 	Main(juce::AudioDeviceManager &devices, juce::AudioPluginFormatManager &formats) : m_devices(devices), m_formats(formats)
 	{
-		for (auto *b : {&m_open, &m_play, &m_match, &m_prev, &m_next, &m_dualButton, &m_blind, &m_reveal}) {
+		for (auto *b : {&m_open, &m_play, &m_match, &m_dualButton, &m_blind, &m_reveal}) {
 			addAndMakeVisible(*b);
 			b->setWantsKeyboardFocus(false);
 		}
@@ -159,17 +244,39 @@ public:
 		m_blind.onClick = [this] { setBlind(!m_isBlind); };
 		m_reveal.onClick = [this] { m_revealed = true; refresh(); };
 		m_match.onClick = [this] { rematch(); };
-		m_prev.onClick = [this] { step(-1); };
-		m_next.onClick = [this] { step(1); };
-		addAndMakeVisible(m_picker);
-		m_picker.setWantsKeyboardFocus(false);
-		m_picker.setTextWhenNothingSelected("Scenes in this folder");
-		m_picker.onChange = [this] {
-			const int i = m_picker.getSelectedItemIndex();
-			if (i >= 0 && i < m_siblings.size() && m_siblings[i] != m_file)
-				load(m_siblings[i]);
+		// The folder's scenes: a list, filtered by what is typed above it (Return: the first match;
+		// Esc: all again). The list never takes the keys: Up/Down step through what it shows.
+		addAndMakeVisible(m_filter);
+		m_filter.setFont(juce::FontOptions(13.0f));
+		m_filter.setIndents(8, 7);
+		m_filter.setColour(juce::TextEditor::backgroundColourId, juce::Colour(0xff1f2227));
+		m_filter.setColour(juce::TextEditor::outlineColourId, juce::Colour(0xff3a414b));
+		m_filter.setColour(juce::TextEditor::focusedOutlineColourId, colours::accent);
+		m_filter.setColour(juce::TextEditor::textColourId, colours::text);
+		m_filter.setColour(juce::TextEditor::highlightColourId, colours::accent.withAlpha(0.35f));
+		m_filter.setColour(juce::CaretComponent::caretColourId, colours::accent);
+		m_filter.onTextChange = [this] { filterScenes(); };
+		m_filter.onReturnKey = [this] {
+			if (!m_visible.empty() && std::find(m_visible.begin(), m_visible.end(), m_siblings.indexOf(m_file)) == m_visible.end())
+				load(m_siblings[m_visible.front()]);
+			grabKeyboardFocus();
 		};
+		m_filter.onEscapeKey = [this] {
+			m_filter.clear();
+			filterScenes();
+			grabKeyboardFocus();
+		};
+		addAndMakeVisible(m_list);
+		m_list.setModel(this);
+		m_list.setRowHeight(30);
+		m_list.setWantsKeyboardFocus(false);
+		m_list.setColour(juce::ListBox::backgroundColourId, colours::background);
+		m_list.getVerticalScrollBar().setColour(juce::ScrollBar::thumbColourId, colours::edge);
 		addAndMakeVisible(m_spectrum);
+		m_spectrum.onBand = [this](float low, float high) {
+			m_bandLow = low;
+			m_bandHigh = high;
+		};
 		addAndMakeVisible(m_status);
 		m_status.setColour(juce::Label::textColourId, colours::dim);
 		m_status.setJustificationType(juce::Justification::topLeft);
@@ -196,11 +303,22 @@ public:
 			refresh();
 		}
 	}
+	// For headless checks (--part, --band): a part of the loop (seconds), a band (Hz).
+	void loopPart(double from, double to) { setPart(std::llround(from * m_scene.rate), std::llround(to * m_scene.rate)); }
+	void hearBand(float low, float high) { setBand(low, high); }
 	bool hasScene() const { return m_file != juce::File(); }
 	bool isPlaying() const { return m_playing; }
 	juce::File file() const { return m_file; }
 	const juce::StringArray &machines() const { return m_machines; }
 	int scenes() const { return m_siblings.size(); }
+	// The folder's list again (a scene added or taken away), the scene playing on.
+	void relist()
+	{
+		if (hasScene()) {
+			listSiblings();
+			repaint();
+		}
+	}
 	// The scene again: the folder's list, the scene, its plugins (a rebuilt one from a new copy).
 	void reload()
 	{
@@ -241,6 +359,8 @@ public:
 			m_scene.block = std::max(32, dev->getCurrentBufferSizeSamples());
 		}
 		m_loop = std::max<int64_t>(1, int64_t(std::llround(m_scene.beats * m_scene.samplesPerBeat())));
+		m_partFrom = 0;
+		m_partTo = m_loop;
 		for (const auto &src : m_scene.sources) {
 			auto p = std::make_unique<Player>(m_formats, m_scene, src, false);
 			p->setLoop(m_loop); // each pass starts with new key-downs
@@ -295,8 +415,9 @@ public:
 		if (const auto about = juce::JSON::parse(file).getProperty("about", {}).toString(); about.isNotEmpty())
 			notes.insert(0, about);
 		notes.insert(0, "Space: next (dual: swap ears)   1-" + juce::String(int(m_players.size())) +
-		                    ": pick   Return: play/stop   D: dual   B: blind   L: match levels   Up/Down: scene\n"
-		                    "Left/Right: stop, step the spectrum a frame (with Shift, a 16th)   [ ]: test\n");
+		                    ": pick   Return: play/stop   D: dual   B: blind   L: match levels\n"
+		                    "Up/Down: scene   Shift+Up/Down: set   [ ]: machine   Left/Right: stop, step the spectrum a frame (Shift: a 16th)\n"
+		                    "Drag across the bar: loop a part   Drag across the spectrum: hear a band   Esc: all\n");
 		m_status.setText(notes.joinIntoString("\n"), juce::dontSendNotification);
 		refresh();
 		resized();
@@ -359,15 +480,59 @@ public:
 			setBlind(!m_isBlind);
 		else if (k.getTextCharacter() == 'l' || k.getTextCharacter() == 'L')
 			rematch();
-		else if (k == juce::KeyPress::upKey)
+		else if (k == juce::KeyPress::upKey && !k.getModifiers().isShiftDown()) // with Shift: the set (the app's)
 			step(-1);
-		else if (k == juce::KeyPress::downKey)
+		else if (k == juce::KeyPress::downKey && !k.getModifiers().isShiftDown())
 			step(1);
 		else if (k.getKeyCode() == juce::KeyPress::leftKey || k.getKeyCode() == juce::KeyPress::rightKey) // with Shift too
 			stepFrame(k.getKeyCode() == juce::KeyPress::leftKey ? -1 : 1, k.getModifiers().isShiftDown());
-		else
+		else if (k == juce::KeyPress::escapeKey) {
+			setPart(0, m_loop);
+			setBand(0, 0);
+		} else
 			return false;
 		return true;
+	}
+
+	// The position bar: a press on an end of the part (within 6 px) takes that end; a drag anywhere
+	// else on the bar loops the part dragged across; a double-click, all of it.
+	void mouseDown(const juce::MouseEvent &e) override
+	{
+		m_barDrag = BarDrag::None;
+		if (m_players.empty() || !barHit(e.position))
+			return;
+		const float x0 = xOfSample(m_partFrom.load()), x1 = xOfSample(m_partTo.load());
+		if (std::abs(e.position.x - x0) <= 6)
+			m_barDrag = BarDrag::From;
+		else if (std::abs(e.position.x - x1) <= 6)
+			m_barDrag = BarDrag::To;
+		else {
+			m_barDrag = BarDrag::New;
+			m_barAnchor = sampleAt(e.position.x);
+		}
+	}
+	void mouseDrag(const juce::MouseEvent &e) override
+	{
+		const int64_t at = sampleAt(e.position.x), shortest = std::llround(0.05 * m_scene.rate);
+		const int64_t from = m_partFrom.load(), to = m_partTo.load();
+		if (m_barDrag == BarDrag::From)
+			setPart(std::min(at, to - shortest), to);
+		else if (m_barDrag == BarDrag::To)
+			setPart(from, std::max(at, from + shortest));
+		else if (m_barDrag == BarDrag::New && std::abs(e.getDistanceFromDragStartX()) > 3)
+			setPart(std::min(at, m_barAnchor), std::max(std::max(at, m_barAnchor), std::min(at, m_barAnchor) + shortest));
+	}
+	void mouseUp(const juce::MouseEvent &) override { m_barDrag = BarDrag::None; }
+	void mouseDoubleClick(const juce::MouseEvent &e) override
+	{
+		if (!m_players.empty() && barHit(e.position))
+			setPart(0, m_loop);
+	}
+	void mouseMove(const juce::MouseEvent &e) override
+	{
+		const bool edge = !m_players.empty() && barHit(e.position) &&
+		                  (std::abs(e.position.x - xOfSample(m_partFrom.load())) <= 6 || std::abs(e.position.x - xOfSample(m_partTo.load())) <= 6);
+		setMouseCursor(edge ? juce::MouseCursor::LeftRightResizeCursor : juce::MouseCursor::NormalCursor);
 	}
 
 	bool isInterestedInFileDrag(const juce::StringArray &files) override { return files.size() == 1 && files[0].endsWith(".json"); }
@@ -376,25 +541,44 @@ public:
 	void paint(juce::Graphics &g) override
 	{
 		g.fillAll(colours::background);
-		// The machines under test (in the accent), then the scene.
+		g.setColour(colours::edge);
+		g.fillRect(m_list.getRight(), 0, 1, getHeight());
+		// The scene: its number (SceneIds, in the accent), its name, its recording and length.
 		const int at = m_siblings.indexOf(m_file);
-		const juce::String number = at >= 0 ? juce::String(at + 1) + "  " : juce::String();
 		juce::AttributedString title;
 		title.setJustification(juce::Justification::centredLeft);
 		title.setWordWrap(juce::AttributedString::none);
-		if (!m_machines.isEmpty())
-			title.append(m_machines.joinIntoString(", ") + "     ", juce::FontOptions(20.0f, juce::Font::bold), colours::accent);
-		title.append(m_scene.name.isEmpty() ? juce::String("Open or drop a scene") : number + m_scene.name,
-		             juce::FontOptions(20.0f, juce::Font::bold), colours::text);
-		title.draw(g, juce::Rectangle<float>(16, 12, float(getWidth() - 32), 28));
+		if (at >= 0)
+			title.append(juce::String(m_rows[size_t(at)].id) + "  ", juce::FontOptions(19.0f, juce::Font::bold), colours::accent);
+		title.append(at >= 0 ? m_rows[size_t(at)].name : m_scene.name.isEmpty() ? juce::String("Open or drop a scene") : m_scene.name,
+		             juce::FontOptions(19.0f, juce::Font::bold), colours::text);
+		if (at >= 0)
+			title.append("    " + m_rows[size_t(at)].detail(), juce::FontOptions(13.0f), colours::dim);
+		title.draw(g, m_title.toFloat());
 		if (m_players.empty())
 			return;
-		// Position through the loop.
-		const auto bar = juce::Rectangle<float>(16, 112, float(getWidth() - 32), 6);
+		// Position through the loop, and the part looped: lit, with a handle at each end.
+		const auto bar = barRect();
+		const int64_t from = m_partFrom.load(), to = m_partTo.load();
+		const float x0 = xOfSample(from), x1 = xOfSample(to), xp = xOfSample(m_position.load());
 		g.setColour(colours::panel);
 		g.fillRoundedRectangle(bar, 3);
+		if (isPart()) {
+			g.setColour(colours::accent.withAlpha(0.25f));
+			g.fillRect(juce::Rectangle<float>(x0, bar.getY(), x1 - x0, bar.getHeight()));
+		}
 		g.setColour(colours::accent);
-		g.fillRoundedRectangle(bar.withWidth(bar.getWidth() * float(m_position.load()) / float(m_loop)), 3);
+		g.fillRoundedRectangle(juce::Rectangle<float>(x0, bar.getY(), std::max(0.0f, xp - x0), bar.getHeight()), 3);
+		g.setColour(isPart() ? colours::accent : colours::dim.withAlpha(0.5f));
+		for (float x : {x0, x1})
+			g.fillRoundedRectangle(juce::Rectangle<float>(x - 2, bar.getY() - 5, 4, bar.getHeight() + 10), 2);
+		if (isPart()) {
+			g.setColour(colours::dim);
+			g.setFont(juce::FontOptions(12.0f));
+			g.drawText("looping " + juce::String(double(from) / m_scene.rate, 2) + " to " + juce::String(double(to) / m_scene.rate, 2) +
+			               " s   (double-click the bar: all)",
+			           bar.withY(bar.getY() - 19).withHeight(13).toNearestInt(), juce::Justification::centredLeft);
+		}
 		// Level per source (before the switch), under its button.
 		for (size_t k = 0; k < m_sourceButtons.size(); ++k) {
 			const size_t i = m_isBlind ? size_t(m_order[k]) : k;
@@ -409,8 +593,13 @@ public:
 
 	void resized() override
 	{
-		auto r = getLocalBounds().reduced(16);
-		r.removeFromTop(36);
+		auto all = getLocalBounds();
+		auto side = all.removeFromLeft(getWidth() >= 1000 ? 340 : 260);
+		m_filter.setBounds(side.removeFromTop(48).reduced(12, 8));
+		m_list.setBounds(side.withTrimmedRight(1));
+		auto r = all.reduced(18, 14);
+		m_title = r.removeFromTop(30);
+		r.removeFromTop(6);
 		auto row = r.removeFromTop(44);
 		m_open.setBounds(row.removeFromLeft(90).reduced(0, 4));
 		row.removeFromLeft(8);
@@ -422,11 +611,7 @@ public:
 		m_blind.setBounds(row.removeFromRight(90).reduced(0, 4));
 		row.removeFromRight(8);
 		m_dualButton.setBounds(row.removeFromRight(90).reduced(0, 4));
-		row.reduce(16, 0);
-		m_prev.setBounds(row.removeFromLeft(36).reduced(0, 4));
-		m_next.setBounds(row.removeFromRight(36).reduced(0, 4));
-		m_picker.setBounds(row.reduced(4, 4));
-		r.removeFromTop(28);
+		m_bar = r.removeFromTop(28).withTrimmedTop(16).withHeight(6).toFloat();
 		auto sources = r.removeFromTop(56);
 		const int n = std::max(1, int(m_sourceButtons.size()));
 		const int w = (sources.getWidth() - (n - 1) * 12) / n;
@@ -462,24 +647,139 @@ private:
 			load(file);
 	}
 
-	// The scenes next to the current one, by name, for the picker and Up/Down; numbered from 1 in
-	// that order.
-	void listSiblings()
+	// A scene in the list: its name to read (its "title", else its file's name without the number in
+	// front, the recording's id or the dashes), the recording (the id in brackets in a source's
+	// label: "MS-20 (g6OfcNTvJow)") and the loop's length.
+	struct SceneRow {
+		juce::String name, recording, file;
+		double seconds = 0;
+		int id = 0; // SceneIds'
+		juce::String detail() const
+		{
+			return (recording.isNotEmpty() ? recording + "  " : juce::String()) + juce::String(seconds, 1) + " s";
+		}
+	};
+	static SceneRow describeScene(const juce::File &f)
 	{
-		m_siblings = m_file.getParentDirectory().findChildFiles(juce::File::findFiles, false, "*.json");
-		std::sort(m_siblings.begin(), m_siblings.end(),
-		          [](const juce::File &a, const juce::File &b) { return a.getFileName().compareNatural(b.getFileName()) < 0; });
-		m_picker.clear(juce::dontSendNotification);
-		for (int i = 0; i < m_siblings.size(); ++i)
-			m_picker.addItem(juce::String(i + 1) + "  " + m_siblings[i].getFileNameWithoutExtension(), i + 1);
-		m_picker.setSelectedItemIndex(m_siblings.indexOf(m_file), juce::dontSendNotification);
+		SceneRow row;
+		row.file = f.getFileNameWithoutExtension();
+		const auto json = juce::JSON::parse(f), list = json.getProperty("sources", {});
+		if (const auto *sources = list.getArray())
+			for (const auto &src : *sources) {
+				const auto label = src.getProperty("label", {}).toString();
+				const auto id = label.fromLastOccurrenceOf("(", false, false).upToFirstOccurrenceOf(")", false, false);
+				if (label.containsChar('(') && id.length() >= 6 && !id.containsAnyOf(" ,:")) {
+					row.recording = id;
+					break;
+				}
+			}
+		const double bpm = json.getProperty("bpm", 120.0);
+		row.seconds = double(json.getProperty("beats", 0.0)) * 60.0 / (bpm > 0 ? bpm : 120.0);
+		if (const auto title = json.getProperty("title", {}).toString(); title.isNotEmpty()) {
+			row.name = title;
+			return row;
+		}
+		auto s = row.file;
+		int digits = 0;
+		while (digits < s.length() && juce::CharacterFunctions::isDigit(s[digits]))
+			++digits;
+		if (digits > 0 && digits < s.length() && s[digits] == '-')
+			s = s.substring(digits + 1);
+		if (row.recording.isNotEmpty() && s.startsWith(row.recording + "-"))
+			s = s.substring(row.recording.length() + 1);
+		s = s.trimCharactersAtEnd("-");
+		for (int i = 0; i < s.length(); ++i) {
+			const bool between = i > 0 && i + 1 < s.length() && juce::CharacterFunctions::isDigit(s[i - 1]) &&
+			                     juce::CharacterFunctions::isDigit(s[i + 1]);
+			row.name += s[i] == '-' && !between ? juce::juce_wchar(' ') : s[i];
+		}
+		return row;
 	}
 
+	// The scenes next to the current one, by name, for the list and Up/Down, each with its number
+	// (new ones get theirs now).
+	void listSiblings()
+	{
+		m_siblings = scenesIn(m_file.getParentDirectory());
+		SceneIds::get().give(m_siblings);
+		m_rows.clear();
+		for (const auto &f : m_siblings) {
+			m_rows.push_back(describeScene(f));
+			m_rows.back().id = SceneIds::get().of(f);
+		}
+		m_filter.setTextToShowWhenEmpty("Filter the " + juce::String(m_siblings.size()) + (m_siblings.size() == 1 ? " scene" : " scenes"),
+		                                colours::dim);
+		filterScenes();
+	}
+	// The rows the filter leaves (every word typed, in the number, the name, the file or the recording).
+	void filterScenes()
+	{
+		juce::StringArray words;
+		words.addTokens(m_filter.getText().toLowerCase(), " ", "");
+		words.removeEmptyStrings();
+		m_visible.clear();
+		for (size_t i = 0; i < m_rows.size(); ++i) {
+			const auto &r = m_rows[i];
+			const auto hay = (juce::String(r.id) + " " + r.name + " " + r.file + " " + r.recording).toLowerCase();
+			bool all = true;
+			for (const auto &w : words)
+				all = all && hay.contains(w);
+			if (all)
+				m_visible.push_back(int(i));
+		}
+		m_list.updateContent();
+		const auto at = std::find(m_visible.begin(), m_visible.end(), m_siblings.indexOf(m_file));
+		if (at != m_visible.end())
+			m_list.scrollToEnsureRowIsOnscreen(int(at - m_visible.begin()));
+		m_list.repaint();
+	}
+
+	// Up/Down: the next scene the list shows (filtered: from the current one, else the first).
 	void step(int by)
 	{
-		const int i = m_siblings.indexOf(m_file);
-		if (i >= 0 && i + by >= 0 && i + by < m_siblings.size())
-			load(m_siblings[i + by]);
+		if (m_visible.empty())
+			return;
+		const auto at = std::find(m_visible.begin(), m_visible.end(), m_siblings.indexOf(m_file));
+		if (at == m_visible.end()) {
+			load(m_siblings[m_visible.front()]);
+			return;
+		}
+		const int k = int(at - m_visible.begin()) + by;
+		if (k >= 0 && k < int(m_visible.size()))
+			load(m_siblings[m_visible[size_t(k)]]);
+	}
+
+	int getNumRows() override { return int(m_visible.size()); }
+	void paintListBoxItem(int k, juce::Graphics &g, int w, int h, bool) override
+	{
+		if (k < 0 || k >= int(m_visible.size()))
+			return;
+		const int i = m_visible[size_t(k)];
+		const auto &r = m_rows[size_t(i)];
+		const bool on = m_siblings[i] == m_file;
+		if (on) {
+			g.fillAll(colours::accentDim);
+			g.setColour(colours::accent);
+			g.fillRect(0, 0, 3, h);
+		}
+		auto box = juce::Rectangle<int>(0, 0, w, h).reduced(12, 0);
+		g.setFont(juce::FontOptions(13.0f));
+		g.setColour(on ? colours::accent : colours::dim);
+		g.drawText(juce::String(r.id), box.removeFromLeft(34), juce::Justification::centredRight);
+		box.removeFromLeft(10);
+		g.setFont(juce::FontOptions(12.0f));
+		g.setColour(colours::dim);
+		g.drawText(juce::String(r.seconds, 1) + " s", box.removeFromRight(44), juce::Justification::centredRight);
+		box.removeFromRight(8);
+		g.setFont(juce::FontOptions(13.0f, juce::Font::bold));
+		g.setColour(on ? colours::accent : colours::text);
+		g.drawText(r.name, box, juce::Justification::centredLeft, true);
+	}
+	void listBoxItemClicked(int k, const juce::MouseEvent &) override
+	{
+		if (k >= 0 && k < int(m_visible.size()) && m_siblings[m_visible[size_t(k)]] != m_file)
+			load(m_siblings[m_visible[size_t(k)]]);
+		grabKeyboardFocus();
 	}
 
 	// Measures the levels again with the sources as they are now (e.g. after a change in an editor),
@@ -519,22 +819,26 @@ private:
 	{
 		m_autoGain.assign(m_players.size(), 1.0f);
 		m_renders.assign(m_players.size(), std::vector<float>(size_t(m_loop)));
+		m_full.clear();
 		std::vector<double> db;
 		for (size_t k = 0; k < m_players.size(); ++k) {
 			auto &p = m_players[k];
 			juce::AudioBuffer<float> buf(std::max(1, p->numOutputs()), m_scene.block);
 			const int channels = heard(buf.getNumChannels());
+			m_full.emplace_back(channels, int(m_loop));
 			double sum = 0;
 			int64_t count = 0;
 			for (int64_t pos = 0; pos < m_loop; pos += m_scene.block) {
 				juce::AudioBuffer<float> view(buf.getArrayOfWritePointers(), buf.getNumChannels(), 0,
 				                              int(std::min<int64_t>(m_scene.block, m_loop - pos)));
 				p->process(view, pos);
-				for (int c = 0; c < channels; ++c)
+				for (int c = 0; c < channels; ++c) {
+					m_full[k].copyFrom(c, int(pos), view, c, 0, view.getNumSamples());
 					for (int i = 0; i < view.getNumSamples(); ++i) {
 						sum += double(view.getSample(c, i)) * view.getSample(c, i), ++count;
 						m_renders[k][size_t(pos + i)] += view.getSample(c, i) / float(channels);
 					}
+				}
 			}
 			p->reset();
 			db.push_back(10 * std::log10(sum / double(std::max<int64_t>(1, count)) + 1e-20));
@@ -642,9 +946,7 @@ private:
 	void refresh()
 	{
 		m_play.setButtonText(m_playing ? "Stop" : "Play");
-		const int at = m_siblings.indexOf(m_file);
-		m_prev.setEnabled(at > 0);
-		m_next.setEnabled(at >= 0 && at + 1 < m_siblings.size());
+		m_list.repaint();
 		m_dualButton.setButtonText(m_dual ? "Dual: on" : "Dual: off");
 		m_blind.setButtonText(m_isBlind ? "Blind: on" : "Blind: off");
 		m_reveal.setVisible(m_isBlind && !m_revealed);
@@ -684,6 +986,111 @@ private:
 			m_spectrum.show(m_reference, m_scene.sources[size_t(m_reference)].label, heard, m_scene.sources[size_t(heard)].label);
 	}
 
+	// ------------------------------------------------------------------ part and band
+	juce::Rectangle<float> barRect() const { return m_bar; }
+	bool barHit(juce::Point<float> p) const
+	{
+		const auto bar = barRect();
+		return p.y >= bar.getY() - 12 && p.y <= bar.getBottom() + 6 && p.x >= bar.getX() - 8 && p.x <= bar.getRight() + 8;
+	}
+	float xOfSample(int64_t s) const
+	{
+		const auto bar = barRect();
+		return bar.getX() + bar.getWidth() * float(double(s) / double(m_loop));
+	}
+	int64_t sampleAt(float x) const
+	{
+		const auto bar = barRect();
+		return std::llround(double(m_loop) * juce::jlimit(0.0, 1.0, double(x - bar.getX()) / double(bar.getWidth())));
+	}
+	bool isPart() const { return m_partFrom.load() > 0 || m_partTo.load() < m_loop; }
+	// The part looped, in samples ([0, m_loop): all of it, played live). Back to all of it, every
+	// source starts again from the top.
+	void setPart(int64_t from, int64_t to)
+	{
+		from = std::clamp<int64_t>(from, 0, m_loop);
+		to = std::clamp<int64_t>(to, from, m_loop);
+		const bool was = isPart();
+		m_partFrom = from;
+		m_partTo = to;
+		if (was && !isPart())
+			m_restart = true;
+		repaint();
+	}
+	void setBand(float low, float high)
+	{
+		m_spectrum.setBand(low, high);
+		m_bandLow = low;
+		m_bandHigh = high;
+	}
+
+	// Source i's render (the level match's) from pos for len samples into view, faded over 3 ms at
+	// the part's ends so the loop doesn't click.
+	void playRender(size_t i, juce::AudioBuffer<float> &view, int64_t pos, int len, int64_t from, int64_t to) const
+	{
+		const auto &src = m_full[i];
+		const int have = src.getNumChannels();
+		const double fade = std::max(1.0, 0.003 * m_scene.rate);
+		for (int c = 0; c < view.getNumChannels(); ++c) {
+			const float *in = src.getReadPointer(std::min(c, have - 1));
+			float *o = view.getWritePointer(c);
+			for (int s = 0; s < len; ++s) {
+				const int64_t at = pos + s;
+				const double g = std::min({1.0, double(at - from + 1) / fade, double(to - at) / fade});
+				o[s] = in[at] * float(g);
+			}
+		}
+	}
+
+	// The band (Butterworth, 8th order each side: a high-pass at its bottom, a low-pass at its top)
+	// over what is heard, worked out again on the audio thread when it changes.
+	struct Biquad {
+		double b0, b1, b2, a1, a2;
+	};
+	void designBand(float low, float high)
+	{
+		constexpr double q[] = {0.50979558, 0.60134489, 0.89997622, 2.56291545};
+		const bool wasOff = m_stages == 0;
+		m_stages = 0;
+		const auto add = [&](double f, double qq, bool highPass) {
+			const double w = juce::MathConstants<double>::twoPi * f / m_scene.rate, cs = std::cos(w), alpha = std::sin(w) / (2 * qq);
+			const double a0 = 1 + alpha;
+			const double b0 = highPass ? (1 + cs) / 2 : (1 - cs) / 2, b1 = highPass ? -(1 + cs) : 1 - cs;
+			m_biquads[size_t(m_stages++)] = {b0 / a0, b1 / a0, b0 / a0, -2 * cs / a0, (1 - alpha) / a0};
+		};
+		if (high > low) {
+			if (low > 20)
+				for (double qq : q)
+					add(low, qq, true);
+			if (high < 0.45 * m_scene.rate)
+				for (double qq : q)
+					add(high, qq, false);
+		}
+		if (wasOff)
+			for (auto &ch : m_z)
+				for (auto &st : ch)
+					st[0] = st[1] = 0;
+		m_bandLowSet = low;
+		m_bandHighSet = high;
+	}
+	void applyBand(float *const *out, int numOut, int n)
+	{
+		const float low = m_bandLow.load(), high = m_bandHigh.load();
+		if (low != m_bandLowSet || high != m_bandHighSet)
+			designBand(low, high);
+		for (int c = 0; c < std::min(numOut, kBandChannels); ++c)
+			for (int k = 0; k < m_stages; ++k) {
+				const auto &b = m_biquads[size_t(k)];
+				auto &z = m_z[size_t(c)][size_t(k)];
+				for (int s = 0; s < n; ++s) {
+					const double x = out[c][s], y = b.b0 * x + z[0];
+					z[0] = b.b1 * x - b.a1 * y + z[1];
+					z[1] = b.b2 * x - b.a2 * y;
+					out[c][s] = float(y);
+				}
+			}
+	}
+
 	void timerCallback() override
 	{
 		if (!isShowing())
@@ -704,23 +1111,33 @@ private:
 			juce::FloatVectorOperations::clear(out[c], n);
 		if (!m_playing || m_players.empty())
 			return;
+		// A part of the loop plays from the renders; all of it, live.
+		const int64_t from = m_partFrom.load(), to = m_partTo.load();
+		const bool part = (from > 0 || to < m_loop) && to > from && m_full.size() == m_players.size();
+		const int64_t start = part ? from : 0, end = part ? to : m_loop;
 		if (m_restart.exchange(false)) {
-			for (auto &p : m_players)
-				p->reset();
-			m_position = 0;
+			if (!part)
+				for (auto &p : m_players)
+					p->reset();
+			m_position = start;
 		}
 		if (int(m_mix.size()) < int(m_players.size()))
 			return;
 		const int left = m_selected, right = m_dual ? m_right.load() : left;
 		const bool dual = m_dual;
 		for (int done = 0; done < n;) {
-			// Up to the loop's end; there every source starts over.
+			// Up to the loop's (or the part's) end; there every source starts over.
 			int64_t pos = m_position.load();
-			const int len = int(std::min<int64_t>(n - done, m_loop - pos));
+			if (pos < start || pos >= end) // the part has moved
+				pos = start;
+			const int len = int(std::min<int64_t>(n - done, end - pos));
 			for (size_t i = 0; i < m_players.size(); ++i) {
 				auto &buf = m_mix[i];
 				juce::AudioBuffer<float> view(buf.getArrayOfWritePointers(), buf.getNumChannels(), 0, len);
-				m_players[i]->process(view, pos);
+				if (part)
+					playRender(i, view, pos, len, start, end);
+				else
+					m_players[i]->process(view, pos);
 				m_meters[i] = std::max(view.getRMSLevel(0, 0, len), m_meters[i].load() * 0.95f);
 				m_spectrum.tap(i).push(view, std::min(heard(m_players[i]->numOutputs()), view.getNumChannels()), len, m_autoGain[i]);
 				// Ramp each source's gain in each ear toward on (the selected one; in dual mode, the
@@ -742,13 +1159,15 @@ private:
 			}
 			pos += len;
 			done += len;
-			if (pos >= m_loop) {
-				pos = 0;
-				for (auto &p : m_players)
-					p->reset();
+			if (pos >= end) {
+				pos = start;
+				if (!part)
+					for (auto &p : m_players)
+						p->reset();
 			}
 			m_position = pos;
 		}
+		applyBand(out, numOut, n);
 	}
 
 	juce::AudioDeviceManager &m_devices; // the app's, shared by the tests
@@ -767,14 +1186,29 @@ private:
 	std::vector<int> m_order;
 	std::atomic<int64_t> m_position{0};
 	int64_t m_loop = 1;
+	std::atomic<int64_t> m_partFrom{0}, m_partTo{1};       // the part looped (all of it: 0, m_loop)
+	std::vector<juce::AudioBuffer<float>> m_full;          // a loop of each source as heard, before its gain
+	enum class BarDrag { None, New, From, To } m_barDrag = BarDrag::None;
+	int64_t m_barAnchor = 0;
+	std::atomic<float> m_bandLow{0}, m_bandHigh{0};        // the band heard (0, 0: all)
+	static constexpr int kBandChannels = 8, kBandStages = 8;
+	float m_bandLowSet = 0, m_bandHighSet = 0;             // the audio thread's: what m_biquads are for
+	int m_stages = 0;
+	std::array<Biquad, kBandStages> m_biquads{};
+	std::array<std::array<std::array<double, 2>, kBandStages>, kBandChannels> m_z{};
 	std::atomic<int> m_selected{0}, m_right{1}; // heard (dual: left), dual's right
 	int m_reference = 0;
 	std::atomic<bool> m_playing{false}, m_restart{false}, m_dual{false};
 	bool m_isBlind = false, m_revealed = false;
-	juce::TextButton m_open{"Open"}, m_play{"Play"}, m_match{"Match levels"}, m_prev{"<"}, m_next{">"}, m_dualButton{"Dual: off"},
-		m_blind{"Blind: off"}, m_reveal{"Reveal"};
-	juce::ComboBox m_picker;
+	juce::TextButton m_open{"Open"}, m_play{"Play"}, m_match{"Match levels"}, m_dualButton{"Dual: off"}, m_blind{"Blind: off"},
+		m_reveal{"Reveal"};
+	juce::TextEditor m_filter;
+	juce::ListBox m_list;
 	juce::Array<juce::File> m_siblings;
+	std::vector<SceneRow> m_rows; // one per sibling
+	std::vector<int> m_visible;   // the siblings the filter leaves, in order
+	juce::Rectangle<int> m_title;
+	juce::Rectangle<float> m_bar; // the position bar
 	juce::Label m_status;
 	Spectrum m_spectrum{{colours::panel, colours::edge, colours::dim, colours::accent, colours::text.withAlpha(0.7f)}};
 	std::unique_ptr<juce::FileChooser> m_chooser;
@@ -788,12 +1222,15 @@ private:
 	}
 };
 
-// The window's content: the tests down the left, the one shown on the right. A test is a folder of
-// scenes; its pane (a Main) keeps its scene, sources and modes while another is shown, and stops
-// when another is shown. A test restored from tests.json loads when it is first shown.
+// The window's content: the machines down the left, newest first; the shown machine's sets as tabs
+// over the pane; the set shown below them. A set is a folder of scenes (a "test" in the commands and
+// tests.json); its pane (a Main) keeps its scene, sources and modes while another is shown, and
+// stops when another is shown. A set restored from tests.json loads when it is first shown.
+// A set's time is the newest of its files' (a scene or clip changed) and the last time a session
+// opened or reloaded it; a machine's, its newest set's. The files are looked at again every 5 s.
 class Shell final : public juce::Component, private juce::Timer {
 public:
-	static constexpr int kNav = 240, kHeader = 44, kRow = 56;
+	static constexpr int kNav = 250, kHeader = 44, kRow = 56, kFoot = 64, kTabs = 60; // kFoot: the help under the list
 
 	Shell()
 	{
@@ -802,7 +1239,7 @@ public:
 		m_blank = makePane();
 		addAndMakeVisible(*m_blank);
 		setWantsKeyboardFocus(true);
-		setSize(kNav + 880, 680);
+		setSize(kNav + 1190, 820);
 		startTimerHz(5);
 	}
 	~Shell() override
@@ -811,9 +1248,9 @@ public:
 		m_blank.reset();
 	}
 
-	std::function<void()> changed; // the tests, or the scene shown, changed (the app saves them)
+	std::function<void()> changed; // the sets, or the scene shown, changed (the app saves them)
 
-	// Into the test on the scene's folder (loaded there), else a new one at the end; shows it.
+	// Into the set on the scene's folder (loaded there), else a new one; shows it.
 	void open(const juce::File &file)
 	{
 		int i = find(file);
@@ -824,44 +1261,47 @@ public:
 			i = int(m_tests.size()) - 1;
 		}
 		auto &t = *m_tests[size_t(i)];
+		t.touched = juce::Time::getCurrentTime();
+		scan(t);
 		if (t.pane == nullptr || !t.pane->hasScene())
 			t.pending = file;
+		regroup();
 		if (!show(i))
 			t.pane->load(file);
 	}
 
-	// The test on `path` (a scene or its folder; none: the one shown) loads its scene again, a
-	// rebuilt plugin from a new copy. A test not shown yet loads fresh when it is.
+	// The set on `path` (a scene or its folder; none: the one shown) loads its scene again, a
+	// rebuilt plugin from a new copy. A set not shown yet loads fresh when it is.
 	void reload(const juce::File &path)
 	{
 		const int i = path == juce::File() ? m_shown : find(path);
-		if (i >= 0 && i < int(m_tests.size()) && m_tests[size_t(i)]->pane != nullptr)
-			m_tests[size_t(i)]->pane->reload();
+		if (i < 0 || i >= int(m_tests.size()))
+			return;
+		auto &t = *m_tests[size_t(i)];
+		t.touched = juce::Time::getCurrentTime();
+		scan(t);
+		regroup();
+		if (t.pane != nullptr)
+			t.pane->reload();
+		if (changed)
+			changed();
 	}
 
 	void remove(const juce::File &path)
 	{
 		const int i = path == juce::File() ? m_shown : find(path);
-		if (i < 0 || i >= int(m_tests.size()))
-			return;
-		m_tests.erase(m_tests.begin() + i);
-		const int next = m_shown == i ? std::min(i, int(m_tests.size()) - 1) : m_shown - (m_shown > i ? 1 : 0);
-		m_shown = -1;
-		if (next >= 0)
-			show(next);
-		else
-			showBlank();
-		if (changed)
-			changed();
+		if (i >= 0 && i < int(m_tests.size()))
+			removeIf([i](int k) { return k == i; }, -1);
 	}
 
-	// {"tests": [{"scene": path}, ...], "shown": n}
+	// {"tests": [{"scene": path, "touched": ms}, ...], "shown": n}
 	juce::var saved() const
 	{
 		juce::Array<juce::var> list;
 		for (const auto &t : m_tests) {
 			auto *o = new juce::DynamicObject();
 			o->setProperty("scene", (t->pane != nullptr && t->pane->hasScene() ? t->pane->file() : t->pending).getFullPathName());
+			o->setProperty("touched", t->touched.toMilliseconds());
 			list.add(juce::var(o));
 		}
 		auto *o = new juce::DynamicObject();
@@ -877,20 +1317,37 @@ public:
 				if (!juce::File::isAbsolutePath(file.getFullPathName()) || !file.existsAsFile() || find(file) >= 0)
 					continue;
 				m_tests.push_back(std::make_unique<Test>());
-				m_tests.back()->folder = file.getParentDirectory();
-				m_tests.back()->pending = file;
-				describe(*m_tests.back(), file);
+				auto &t = *m_tests.back();
+				t.folder = file.getParentDirectory();
+				t.pending = file;
+				t.touched = juce::Time(juce::int64(e.getProperty("touched", 0)));
+				describe(t, file);
+				scan(t);
 			}
+		regroup();
 		if (!m_tests.empty())
 			show(std::clamp(int(saved.getProperty("shown", 0)), 0, int(m_tests.size()) - 1));
 	}
 
 	Main &shown() { return m_shown >= 0 ? *m_tests[size_t(m_shown)]->pane : *m_blank; }
 
+	// [ ]: the machine above or below; Shift+Up/Down: the set left or right (the pane passes them on).
 	bool keyPressed(const juce::KeyPress &k) override
 	{
-		if ((k.getTextCharacter() == '[' || k.getTextCharacter() == ']') && !m_tests.empty()) {
-			show((m_shown + (k.getTextCharacter() == '[' ? -1 : 1) + int(m_tests.size())) % int(m_tests.size()));
+		const auto c = k.getTextCharacter();
+		if ((c == '[' || c == ']') && !m_groups.empty()) {
+			const int n = int(m_groups.size()), g = std::max(0, groupOf(m_shown));
+			showGroup((g + (c == '[' ? -1 : 1) + n) % n);
+			return true;
+		}
+		if (k.getModifiers().isShiftDown() && (k.getKeyCode() == juce::KeyPress::upKey || k.getKeyCode() == juce::KeyPress::downKey)) {
+			if (const int g = groupOf(m_shown); g >= 0) {
+				const auto &sets = m_groups[size_t(g)].sets;
+				const int at = int(std::find(sets.begin(), sets.end(), m_shown) - sets.begin());
+				const int next = at + (k.getKeyCode() == juce::KeyPress::upKey ? -1 : 1);
+				if (next >= 0 && next < int(sets.size()))
+					show(sets[size_t(next)]);
+			}
 			return true;
 		}
 		return false;
@@ -899,73 +1356,99 @@ public:
 	void paint(juce::Graphics &g) override
 	{
 		g.fillAll(colours::background);
-		const auto nav = getLocalBounds().removeFromLeft(kNav).toFloat();
-		g.setColour(colours::panel);
-		g.fillRect(nav);
-		g.setColour(colours::edge);
-		g.fillRect(nav.withX(nav.getRight() - 1).withWidth(1));
-		g.setColour(colours::dim);
-		g.setFont(juce::FontOptions(12.0f, juce::Font::bold));
-		g.drawText("TESTS", juce::Rectangle<float>(16, 0, kNav - 32, kHeader), juce::Justification::centredLeft);
-		for (size_t i = 0; i < m_tests.size(); ++i) {
-			const auto &t = *m_tests[i];
-			const auto row = rowBounds(int(i)).toFloat();
-			const bool on = int(i) == m_shown, playing = t.pane != nullptr && t.pane->isPlaying();
-			if (on) {
-				g.setColour(colours::accentDim);
-				g.fillRect(row);
-				g.setColour(colours::accent);
-				g.fillRect(row.withWidth(3));
-			}
-			const auto text = row.reduced(16, 8);
-			g.setColour(on ? colours::accent : colours::text);
-			g.setFont(juce::FontOptions(14.0f, juce::Font::bold));
-			g.drawText(t.machines.isEmpty() ? t.where.upToFirstOccurrenceOf("/", false, false) : t.machines.joinIntoString(", "), text.withHeight(20).withTrimmedRight(14),
-			           juce::Justification::centredLeft, true);
-			g.setColour(colours::dim);
-			g.setFont(juce::FontOptions(12.0f));
-			g.drawText(t.where + "   " + juce::String(t.scenes) + (t.scenes == 1 ? " scene" : " scenes"),
-			           text.withTrimmedTop(22).withHeight(18), juce::Justification::centredLeft, true);
-			if (playing) {
-				g.setColour(colours::accent);
-				g.fillEllipse(text.getRight() - 8, text.getY() + 6, 8, 8);
-			}
-		}
-		g.setColour(colours::dim);
-		g.setFont(juce::FontOptions(12.0f));
-		g.drawFittedText(m_tests.empty() ? "Open a scene, or drop one here" : "[ and ] step through the tests. Right-click one to reload or remove it.",
-		                 juce::Rectangle<int>(16, getHeight() - 56, kNav - 32, 44), juce::Justification::bottomLeft, 3);
+		paintNav(g);
+		paintTabs(g);
 	}
 
 	void resized() override
 	{
-		const auto pane = getLocalBounds().withTrimmedLeft(kNav);
+		const auto pane = getLocalBounds().withTrimmedLeft(kNav).withTrimmedTop(kTabs);
 		m_blank->setBounds(pane);
 		for (auto &t : m_tests)
 			if (t->pane != nullptr)
 				t->pane->setBounds(pane);
+		clampScroll();
 	}
 
 	void mouseDown(const juce::MouseEvent &e) override
 	{
-		const int i = e.x < kNav && e.y >= kHeader ? (e.y - kHeader) / kRow : -1;
-		if (i < 0 || i >= int(m_tests.size()))
+		if (const int tab = tabAt(e.getPosition()); tab >= 0) {
+			const auto folder = m_tests[size_t(tab)]->folder;
+			if (!e.mods.isPopupMenu()) {
+				show(tab);
+				return;
+			}
+			juce::PopupMenu menu;
+			menu.addItem(1, "Reload", m_tests[size_t(tab)]->pane != nullptr);
+			menu.addItem(2, "Remove");
+			menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this).withTargetScreenArea(localAreaToGlobal(tabBounds()[size_t(tabIndex(tab))])),
+			                   [this, folder](int r) {
+				                   if (r == 1)
+					                   reload(folder);
+				                   else if (r == 2)
+					                   remove(folder);
+			                   });
 			return;
+		}
+		const int gi = rowAt(e.getPosition());
+		if (gi < 0)
+			return;
+		const auto name = m_groups[size_t(gi)].name;
 		if (!e.mods.isPopupMenu()) {
-			show(i);
+			if (closeBounds(gi).contains(e.getPosition()))
+				removeMachines([name](const Group &g) { return g.name == name; }, {});
+			else
+				showGroup(gi);
 			return;
 		}
 		juce::PopupMenu menu;
-		menu.addItem(1, "Reload", m_tests[size_t(i)]->pane != nullptr);
+		menu.addItem(1, "Reload");
 		menu.addItem(2, "Remove");
-		const auto folder = m_tests[size_t(i)]->folder;
-		menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this).withTargetScreenArea(localAreaToGlobal(rowBounds(i))),
-		                   [this, folder](int r) {
+		menu.addItem(3, "Remove the ones below", gi + 1 < int(m_groups.size()));
+		menu.addItem(4, "Remove all others", m_groups.size() > 1);
+		menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this).withTargetScreenArea(localAreaToGlobal(rowBounds(gi))),
+		                   [this, name](int r) {
+			                   const int at = groupNamed(name); // the list may have changed meanwhile
+			                   if (at < 0)
+				                   return;
 			                   if (r == 1)
-				                   reload(folder);
+				                   reload(m_tests[size_t(remembered(at))]->folder);
 			                   else if (r == 2)
-				                   remove(folder);
+				                   removeMachines([name](const Group &g) { return g.name == name; }, {});
+			                   else if (r == 3) {
+				                   const auto below = groupTime(at);
+				                   removeMachines([below, name](const Group &g) { return g.name != name && g.updated <= below; }, name);
+			                   } else if (r == 4)
+				                   removeMachines([name](const Group &g) { return g.name != name; }, name);
 		                   });
+	}
+
+	void mouseMove(const juce::MouseEvent &e) override
+	{
+		const int gi = rowAt(e.getPosition());
+		const bool close = gi >= 0 && closeBounds(gi).contains(e.getPosition());
+		if (gi != m_hover || close != m_hoverClose) {
+			m_hover = gi;
+			m_hoverClose = close;
+			repaint(getLocalBounds().removeFromLeft(kNav));
+		}
+	}
+	void mouseExit(const juce::MouseEvent &) override
+	{
+		m_hover = -1;
+		m_hoverClose = false;
+		repaint(getLocalBounds().removeFromLeft(kNav));
+	}
+
+	// Over the list (a pane passes on the wheel it doesn't use, so check where)
+	void mouseWheelMove(const juce::MouseEvent &e, const juce::MouseWheelDetails &wheel) override
+	{
+		if (e.x >= kNav)
+			return;
+		m_scroll -= juce::roundToInt(wheel.deltaY * 224.0f); // as juce::Viewport's step
+		clampScroll();
+		mouseMove(e);
+		repaint(getLocalBounds().removeFromLeft(kNav));
 	}
 
 private:
@@ -975,11 +1458,320 @@ private:
 		juce::StringArray machines;
 		juce::String where; // the folder's last three parts
 		int scenes = 0;
+		juce::Time touched, changedOn, shownAt; // a session opened it; its newest file; last shown here
+		juce::Time updated() const { return std::max(touched, changedOn); }
+	};
+	// A machine: its sets (positions in m_tests, newest first), its time and how many scenes.
+	struct Group {
+		juce::String name;
+		std::vector<int> sets;
+		juce::Time updated;
+		int scenes = 0;
 	};
 
-	juce::Rectangle<int> rowBounds(int i) const { return {0, kHeader + i * kRow, kNav - 1, kRow}; }
+	static juce::String nameOf(const Test &t)
+	{
+		return t.machines.isEmpty() ? t.where.upToFirstOccurrenceOf("/", false, false) : t.machines.joinIntoString(", ");
+	}
+	static juce::String when(juce::Time t)
+	{
+		return t.toMilliseconds() <= 0 ? juce::String() : juce::String(t.getDayOfMonth()) + " " + t.getMonthName(true) + " " + t.formatted("%H:%M");
+	}
+	// The set's name on its tab: its folder's, or with the folder above when another set of the
+	// machine has the same.
+	juce::String label(int i) const
+	{
+		const auto &t = *m_tests[size_t(i)];
+		const auto name = t.folder.getFileName();
+		for (size_t k = 0; k < m_tests.size(); ++k)
+			if (int(k) != i && m_tests[k]->folder.getFileName() == name && nameOf(*m_tests[k]) == nameOf(t))
+				return t.folder.getParentDirectory().getFileName() + "/" + name;
+		return name;
+	}
 
-	// The test on a scene's folder, or on a folder.
+	// The newest of the set's files (not the hidden ones: Finder's .DS_Store).
+	static void scan(Test &t)
+	{
+		juce::Time newest;
+		int seen = 0;
+		for (const auto &entry : juce::RangedDirectoryIterator(t.folder, true, "*", juce::File::findFiles)) {
+			if (++seen > 5000)
+				break;
+			if (!entry.getFile().getFileName().startsWithChar('.'))
+				newest = std::max(newest, entry.getModificationTime());
+		}
+		t.changedOn = newest;
+	}
+
+	void regroup()
+	{
+		std::map<juce::String, Group> by;
+		for (size_t i = 0; i < m_tests.size(); ++i) {
+			const auto &t = *m_tests[i];
+			auto &g = by[nameOf(t)];
+			g.name = nameOf(t);
+			g.sets.push_back(int(i));
+			g.updated = std::max(g.updated, t.updated());
+			g.scenes += t.scenes;
+		}
+		m_groups.clear();
+		for (auto &entry : by) {
+			auto &g = entry.second;
+			std::stable_sort(g.sets.begin(), g.sets.end(), [this](int a, int b) { return m_tests[size_t(b)]->updated() < m_tests[size_t(a)]->updated(); });
+			m_groups.push_back(std::move(g));
+		}
+		std::stable_sort(m_groups.begin(), m_groups.end(), [](const Group &a, const Group &b) { return b.updated < a.updated; });
+		clampScroll();
+		repaint();
+	}
+	int groupOf(int test) const
+	{
+		for (size_t g = 0; g < m_groups.size(); ++g)
+			if (std::find(m_groups[g].sets.begin(), m_groups[g].sets.end(), test) != m_groups[g].sets.end())
+				return int(g);
+		return -1;
+	}
+	int groupNamed(const juce::String &name) const
+	{
+		for (size_t g = 0; g < m_groups.size(); ++g)
+			if (m_groups[g].name == name)
+				return int(g);
+		return -1;
+	}
+	juce::Time groupTime(int g) const { return m_groups[size_t(g)].updated; }
+	// The machine's set to show: the one shown here last, else its newest.
+	int remembered(int g) const
+	{
+		const auto &sets = m_groups[size_t(g)].sets;
+		int best = sets.front();
+		for (int i : sets)
+			if (m_tests[size_t(best)]->shownAt < m_tests[size_t(i)]->shownAt)
+				best = i;
+		return best;
+	}
+	void showGroup(int g)
+	{
+		if (g >= 0 && g < int(m_groups.size()))
+			show(remembered(g));
+	}
+
+	// Takes off the sets of the machines `drop` picks; shows the set shown before if it stays, else
+	// machine `keep`'s.
+	void removeMachines(const std::function<bool(const Group &)> &drop, const juce::String &keep)
+	{
+		std::set<juce::String> names;
+		for (const auto &g : m_groups)
+			if (drop(g))
+				names.insert(g.name);
+		const int k = groupNamed(keep);
+		removeIf([this, names](int i) { return names.count(nameOf(*m_tests[size_t(i)])) > 0; }, k >= 0 ? remembered(k) : -1);
+	}
+	// Takes off the sets `drop` picks (by position); shows the one shown before if it stays, else
+	// set `fallback` (a position before the removal, kept), else the newest machine's.
+	void removeIf(const std::function<bool(int)> &drop, int fallback)
+	{
+		const Test *was = m_shown >= 0 ? m_tests[size_t(m_shown)].get() : nullptr;
+		const Test *alt = fallback >= 0 && fallback < int(m_tests.size()) ? m_tests[size_t(fallback)].get() : nullptr;
+		std::vector<std::unique_ptr<Test>> kept;
+		for (size_t i = 0; i < m_tests.size(); ++i)
+			if (!drop(int(i)))
+				kept.push_back(std::move(m_tests[i]));
+		m_tests = std::move(kept); // the dropped ones' panes go with them
+		m_shown = -1;
+		m_hover = -1;
+		regroup();
+		int next = -1;
+		for (size_t i = 0; i < m_tests.size(); ++i)
+			if (m_tests[i].get() == was || (m_tests[i].get() == alt && next < 0))
+				next = int(i);
+		if (next < 0 && !m_groups.empty())
+			next = remembered(0);
+		if (next >= 0)
+			show(next);
+		else
+			showBlank();
+		if (changed)
+			changed();
+	}
+
+	// ------------------------------------------------------------------ the machines
+	juce::Rectangle<int> listArea() const { return {0, kHeader, kNav - 1, std::max(0, getHeight() - kHeader - kFoot)}; }
+	juce::Rectangle<int> rowBounds(int g) const { return {0, kHeader + g * kRow - m_scroll, kNav - 1, kRow}; }
+	juce::Rectangle<int> closeBounds(int g) const { return rowBounds(g).reduced(16, 8).removeFromRight(18).withSizeKeepingCentre(18, 18); }
+	int rowAt(juce::Point<int> p) const
+	{
+		if (!listArea().contains(p))
+			return -1;
+		const int g = (p.y - kHeader + m_scroll) / kRow;
+		return g < int(m_groups.size()) ? g : -1;
+	}
+	void clampScroll() { m_scroll = std::clamp(m_scroll, 0, std::max(0, int(m_groups.size()) * kRow - listArea().getHeight())); }
+	void scrollTo(int g)
+	{
+		if (g < 0)
+			return;
+		const auto list = listArea();
+		const auto row = rowBounds(g);
+		if (row.getY() < list.getY())
+			m_scroll -= list.getY() - row.getY();
+		else if (row.getBottom() > list.getBottom())
+			m_scroll += row.getBottom() - list.getBottom();
+		clampScroll();
+	}
+
+	void paintNav(juce::Graphics &g)
+	{
+		const auto nav = getLocalBounds().removeFromLeft(kNav).toFloat();
+		g.setColour(colours::panel);
+		g.fillRect(nav);
+		g.setColour(colours::edge);
+		g.fillRect(nav.withX(nav.getRight() - 1).withWidth(1));
+		g.setColour(colours::dim);
+		g.setFont(juce::FontOptions(12.0f, juce::Font::bold));
+		g.drawText("MACHINES", juce::Rectangle<float>(16, 0, kNav - 32, kHeader), juce::Justification::centredLeft);
+		const int shown = groupOf(m_shown);
+		g.saveState();
+		g.reduceClipRegion(listArea());
+		for (size_t gi = 0; gi < m_groups.size(); ++gi) {
+			const auto &grp = m_groups[gi];
+			const auto row = rowBounds(int(gi)).toFloat();
+			if (!row.intersects(listArea().toFloat()))
+				continue;
+			bool playing = false;
+			for (int i : grp.sets)
+				playing = playing || (m_tests[size_t(i)]->pane != nullptr && m_tests[size_t(i)]->pane->isPlaying());
+			const bool on = int(gi) == shown, hover = int(gi) == m_hover;
+			if (on) {
+				g.setColour(colours::accentDim);
+				g.fillRect(row);
+				g.setColour(colours::accent);
+				g.fillRect(row.withWidth(3));
+			}
+			const auto text = row.reduced(16, 8);
+			g.setColour(on ? colours::accent : colours::text);
+			g.setFont(juce::FontOptions(14.0f, juce::Font::bold));
+			g.drawText(grp.name, text.withHeight(20).withTrimmedRight(hover ? 22 : 14), juce::Justification::centredLeft, true);
+			juce::String line = when(grp.updated);
+			if (grp.sets.size() > 1)
+				line << (line.isEmpty() ? "" : " · ") << int(grp.sets.size()) << " sets";
+			line << (line.isEmpty() ? "" : " · ") << grp.scenes << (grp.scenes == 1 ? " scene" : " scenes");
+			g.setColour(colours::dim);
+			g.setFont(juce::FontOptions(12.0f));
+			g.drawText(line, text.withTrimmedTop(22).withHeight(18).withTrimmedRight(hover ? 22 : 0), juce::Justification::centredLeft, true);
+			if (hover) {
+				const auto x = closeBounds(int(gi)).toFloat();
+				g.setColour(m_hoverClose ? colours::text : colours::dim);
+				g.drawLine(x.getX() + 4, x.getY() + 4, x.getRight() - 4, x.getBottom() - 4, 1.5f);
+				g.drawLine(x.getRight() - 4, x.getY() + 4, x.getX() + 4, x.getBottom() - 4, 1.5f);
+			} else if (playing) {
+				g.setColour(colours::accent);
+				g.fillEllipse(text.getRight() - 8, text.getY() + 6, 8, 8);
+			}
+		}
+		g.restoreState();
+		const auto list = listArea();
+		const int content = int(m_groups.size()) * kRow;
+		if (content > list.getHeight()) { // where the list is scrolled to
+			const float h = std::max(24.0f, float(list.getHeight()) * float(list.getHeight()) / float(content));
+			const float y = float(list.getY()) + float(m_scroll) / float(content - list.getHeight()) * (float(list.getHeight()) - h);
+			g.setColour(colours::edge);
+			g.fillRoundedRectangle(float(kNav - 6), y, 3.0f, h, 1.5f);
+		}
+		g.setColour(colours::dim);
+		g.setFont(juce::FontOptions(12.0f));
+		g.drawFittedText(m_tests.empty() ? juce::String("Open a scene, or drop one here")
+		                                 : juce::String(juce::CharPointer_UTF8("Newest first. [ ]: machine. \xc3\x97 removes one; right-click for more.")),
+		                 juce::Rectangle<int>(16, getHeight() - 56, kNav - 32, 44), juce::Justification::bottomLeft, 3);
+	}
+
+	// ------------------------------------------------------------------ the sets, as tabs
+	static juce::Font nameFont() { return juce::Font(juce::FontOptions(14.0f, juce::Font::bold)); }
+	static juce::Font countFont() { return juce::Font(juce::FontOptions(14.0f)); }
+	static juce::Font dateFont() { return juce::Font(juce::FontOptions(11.0f)); }
+	static juce::Font machineFont() { return juce::Font(juce::FontOptions(19.0f, juce::Font::bold)); }
+	// The tabs of the shown machine's sets, in its order (newest first).
+	std::vector<juce::Rectangle<int>> tabBounds() const
+	{
+		std::vector<juce::Rectangle<int>> r;
+		const int gi = groupOf(m_shown);
+		if (gi < 0)
+			return r;
+		const auto &grp = m_groups[size_t(gi)];
+		float x = float(kNav + 20) + juce::GlyphArrangement::getStringWidth(machineFont(), grp.name) + 22;
+		for (int i : grp.sets) {
+			const auto &t = *m_tests[size_t(i)];
+			const float w = std::max(juce::GlyphArrangement::getStringWidth(nameFont(), label(i)) +
+			                             juce::GlyphArrangement::getStringWidth(countFont(), "  " + juce::String(t.scenes)),
+			                         juce::GlyphArrangement::getStringWidth(dateFont(), when(t.updated()))) + 32;
+			r.emplace_back(int(x), 8, int(std::ceil(w)), kTabs - 9);
+			x += w + 4;
+		}
+		return r;
+	}
+	int tabIndex(int test) const
+	{
+		const int gi = groupOf(test);
+		if (gi < 0)
+			return -1;
+		const auto &sets = m_groups[size_t(gi)].sets;
+		return int(std::find(sets.begin(), sets.end(), test) - sets.begin());
+	}
+	int tabAt(juce::Point<int> p) const
+	{
+		const int gi = groupOf(m_shown);
+		if (gi < 0 || p.y >= kTabs)
+			return -1;
+		const auto tabs = tabBounds();
+		for (size_t k = 0; k < tabs.size(); ++k)
+			if (tabs[k].contains(p))
+				return m_groups[size_t(gi)].sets[k];
+		return -1;
+	}
+
+	void paintTabs(juce::Graphics &g)
+	{
+		const auto strip = juce::Rectangle<int>(kNav, 0, getWidth() - kNav, kTabs);
+		g.setColour(colours::edge);
+		g.fillRect(strip.withTop(kTabs - 1).withHeight(1));
+		const int gi = groupOf(m_shown);
+		if (gi < 0)
+			return;
+		g.saveState();
+		g.reduceClipRegion(strip);
+		g.setColour(colours::accent);
+		g.setFont(machineFont());
+		g.drawText(m_groups[size_t(gi)].name, juce::Rectangle<int>(kNav + 20, 8, getWidth(), kTabs - 9), juce::Justification::centredLeft, false);
+		const auto tabs = tabBounds();
+		const auto &sets = m_groups[size_t(gi)].sets;
+		for (size_t k = 0; k < tabs.size(); ++k) {
+			const int i = sets[k];
+			const auto &t = *m_tests[size_t(i)];
+			const auto r = tabs[k];
+			const bool on = i == m_shown;
+			if (on) {
+				g.setColour(colours::accentDim);
+				g.fillRoundedRectangle(r.toFloat().withTrimmedBottom(-6), 6); // square at the bottom: the strip's edge cuts it
+				g.setColour(colours::accent);
+				g.fillRect(r.withTop(r.getBottom() - 3));
+			}
+			auto text = r.reduced(16, 9);
+			auto top = text.removeFromTop(18);
+			const auto name = label(i);
+			const int nw = int(std::ceil(juce::GlyphArrangement::getStringWidth(nameFont(), name)));
+			g.setFont(nameFont());
+			g.setColour(on ? colours::accent : colours::text);
+			g.drawText(name, top.removeFromLeft(nw), juce::Justification::centredLeft, false);
+			g.setFont(countFont());
+			g.setColour(colours::dim);
+			g.drawText("  " + juce::String(t.scenes), top, juce::Justification::centredLeft, false);
+			g.setFont(dateFont());
+			g.drawText(when(t.updated()), text.withTrimmedTop(2), juce::Justification::topLeft, false);
+		}
+		g.restoreState();
+	}
+
+	// ------------------------------------------------------------------ sets
+	// The set on a scene's folder, or on a folder.
 	int find(const juce::File &path) const
 	{
 		const auto folder = path.isDirectory() ? path : path.getParentDirectory();
@@ -989,8 +1781,8 @@ private:
 		return -1;
 	}
 
-	// The test's name: the machines its scene tests, else the first that another scene in its folder
-	// names (a scene of recordings only names none).
+	// The set's machine: the machines its scene tests, else the first that another scene in its
+	// folder names (a scene of recordings only names none).
 	void describe(Test &t, const juce::File &scene)
 	{
 		juce::String error;
@@ -999,7 +1791,9 @@ private:
 		for (const auto &other : t.folder.findChildFiles(juce::File::findFiles, false, "*.json"))
 			if (t.machines.isEmpty())
 				t.machines = machinesOf(other, templates);
-		t.scenes = t.folder.getNumberOfChildFiles(juce::File::findFiles, "*.json");
+		const auto scenes = scenesIn(t.folder);
+		SceneIds::get().give(scenes); // a set's numbers run on, given when it first comes
+		t.scenes = scenes.size();
 		juce::StringArray parts;
 		for (auto f = t.folder; parts.size() < 3 && f.getParentDirectory() != f; f = f.getParentDirectory())
 			parts.insert(0, f.getFileName());
@@ -1013,7 +1807,7 @@ private:
 		return pane;
 	}
 
-	// Shows test i (its pane made and its pending scene loaded the first time; true if it loaded
+	// Shows set i (its pane made and its pending scene loaded the first time; true if it loaded
 	// one), stopping the one shown before.
 	bool show(int i)
 	{
@@ -1025,6 +1819,8 @@ private:
 			}
 		m_blank->setVisible(false);
 		m_shown = i;
+		t.shownAt = juce::Time::getCurrentTime();
+		scrollTo(groupOf(i));
 		bool loaded = false;
 		if (t.pane == nullptr) {
 			t.pane = makePane();
@@ -1037,7 +1833,8 @@ private:
 						x->scenes = pane->scenes();
 						x->pending = juce::File();
 					}
-				repaint();
+				regroup();
+				scrollTo(groupOf(m_shown));
 				if (changed)
 					changed();
 			};
@@ -1064,13 +1861,39 @@ private:
 		repaint();
 	}
 
-	void timerCallback() override { repaint(getLocalBounds().removeFromLeft(kNav)); } // the playing dots
+	// The playing dots; every 5 s, the sets' files again (another session's new scene or render).
+	void timerCallback() override
+	{
+		if (++m_ticks % 25 == 0) {
+			bool moved = false;
+			for (auto &t : m_tests) {
+				const auto before = t->changedOn;
+				scan(*t);
+				moved = moved || t->changedOn != before;
+				if (const int n = t->folder.getNumberOfChildFiles(juce::File::findFiles, "*.json"); n != t->scenes) {
+					t->scenes = n; // a scene added or taken away: the list again
+					SceneIds::get().give(scenesIn(t->folder));
+					if (t->pane != nullptr)
+						t->pane->relist();
+					moved = true;
+				}
+			}
+			if (moved)
+				regroup();
+		}
+		repaint(getLocalBounds().removeFromLeft(kNav));
+	}
 
 	juce::AudioDeviceManager m_devices;
 	juce::AudioPluginFormatManager m_formats;
 	std::vector<std::unique_ptr<Test>> m_tests;
-	std::unique_ptr<Main> m_blank; // shown with no tests: Open and drops
+	std::vector<Group> m_groups;   // the machines, newest first
+	std::unique_ptr<Main> m_blank; // shown with no sets: Open and drops
 	int m_shown = -1;
+	int m_scroll = 0;              // the machine list's, in pixels
+	int m_hover = -1;              // the machine under the mouse (its × shows)
+	bool m_hoverClose = false;
+	int m_ticks = 0;
 };
 
 class Window final : public juce::DocumentWindow {
@@ -1101,12 +1924,20 @@ public:
 
 	void initialise(const juce::String &commandLine) override
 	{
-		// [SCENE.json ...] [--reload [PATH]] [--remove PATH] [--selftest OUT.wav] [--snapshot OUT.png]:
+		// [SCENE.json ...] [--reload [PATH]] [--remove PATH] [--selftest OUT.wav [--part FROM TO] [--band LOW HIGH]] [--snapshot OUT.png]:
 		// the snapshot writes the window (scene loaded, not playing; after a selftest, its spectrum)
-		// and quits, for checks that mustn't make a sound.
+		// and quits, for checks that mustn't make a sound. --which N prints scene N's file and quits.
 		const auto args = juce::StringArray::fromTokens(commandLine, true);
 		const auto cwd = juce::File::getCurrentWorkingDirectory();
+		if (const int w = args.indexOf("--which"); w >= 0) {
+			const auto f = w + 1 < args.size() ? SceneIds::get().fileOf(args[w + 1].getIntValue()) : juce::File();
+			std::printf("%s\n", f == juce::File() ? "no such scene" : f.getFullPathName().toRawUTF8());
+			std::fflush(stdout);
+			juce::MessageManager::callAsync([] { juce::JUCEApplicationBase::quit(); });
+			return;
+		}
 		const bool headless = args.contains("--selftest") || args.contains("--snapshot");
+		SceneIds::get().setSaving(!headless);
 		if (!headless) {
 			if (!m_lock.enter(0)) { // running: hand the command line over
 				handOver(args, cwd);
@@ -1129,6 +1960,11 @@ public:
 			startTimer(250);
 		}
 		Main &main = shell.shown();
+		// --part FROM TO (seconds), --band LOW HIGH (Hz): the selftest plays that part, that band
+		if (const int p = args.indexOf("--part"); p >= 0 && p + 2 < args.size())
+			main.loopPart(args[p + 1].getDoubleValue(), args[p + 2].getDoubleValue());
+		if (const int b = args.indexOf("--band"); b >= 0 && b + 2 < args.size())
+			main.hearBand(args[b + 1].getFloatValue(), args[b + 2].getFloatValue());
 		const int st = args.indexOf("--selftest");
 		if (st >= 0 && st + 1 < args.size()) {
 			main.selfTest(cwd.getChildFile(args[st + 1].unquoted()));

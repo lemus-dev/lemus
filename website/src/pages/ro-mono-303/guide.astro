@@ -40,7 +40,7 @@ const at = {
   tapBlock: { x: 1059, y: 424, w: 115, h: 136 },
   tap: { x: 1076, y: 449, w: 81, h: 56 },
   selector: { x: 203, y: 539, w: 835, h: 20 },
-  bar: { x: 8, y: 604, w: 530, h: 32 },
+  bar: { x: 8, y: 604, w: 480, h: 32 },
 };
 
 // The sections and their headings, for the contents at the top and the sidebar. Keep in step
@@ -81,7 +81,7 @@ const toc: Entry[] = [
   { id: 'bars', title: 'The bars and SERVICE', sub: [
     { id: 'top-bar', title: 'The top bar' },
     { id: 'bottom-bar', title: 'The bottom bar' },
-    { id: 'service', title: 'SERVICE: the trimmers' },
+    { id: 'service', title: 'SERVICE: the trimmers and the part' },
   ] },
   { id: 'midi', title: 'MIDI and your DAW', sub: [
     { id: 'midi-notes', title: 'MIDI notes' },
@@ -231,7 +231,7 @@ const toc: Entry[] = [
 <div><dt><Num n="13" /> DOWN, UP, ACCENT, SLIDE</dt><dd>Transpose an octave down or up while writing notes; note, tie and rest in time mode; accent and slide; sections A and B (ACCENT and SLIDE); STEP and triplets (with FUNCTION); and the digits 9, 0, 100 and 200 for measure numbers.</dd></div>
 <div><dt><Num n="14" /> BACK (segno)</dt><dd>Steps back one note while writing notes; in TRACK WRITE it sets the segno.</dd></div>
 <div><dt><Num n="15" /> TAP (WRITE/NEXT, D.S.)</dt><dd>Steps through notes and steps to check them; taps in a rhythm; in TRACK WRITE writes the measure and moves on; in TRACK PLAY jumps to the segno.</dd></div>
-<div><dt><Num n="16" /> Bottom bar</dt><dd>SYNC, CUT OFF MAX and SERVICE: see <a href="#bottom-bar">the bottom bar</a>.</dd></div>
+<div><dt><Num n="16" /> Bottom bar</dt><dd>SYNC and SERVICE: see <a href="#bottom-bar">the bottom bar</a>.</dd></div>
 </dl>
 <p>The jacks along the top edge (MIX IN, SYNC IN, CV, GATE, HEADPHONE, OUTPUT, DC 9V) are legends only. CV and gate out, MIX IN and the headphone amplifier aren't emulated; DIN sync comes from your DAW.</p>
 </section>
@@ -420,28 +420,28 @@ const toc: Entry[] = [
 <li><span class="k">BETA</span> after the name: this version is a beta. About shows the version.</li>
 <li><span class="k">VOICE MODE</span> and a line saying what's missing, while ro-mono-303 runs without its ROM.</li>
 <li><span class="k">ROMs:</span> the ROM folder, the CPU ROM and the <a href="#artwork">artwork</a>, with their full paths, and Change… and Rescan for the folder. In voice mode it reads <span class="k">Add CPU ROM…</span>: see <a href="#add-rom">Adding the ROM later</a>.</li>
-<li><span class="k">State:</span> saves the instance (knobs, trimmers, pattern and track memory) to a file, or loads one, the standalone app's saved states too. Reset makes it a new instance: every pattern as PATTERN CLEAR leaves it, every knob, switch and trimmer at its default.</li>
+<li><span class="k">State:</span> saves the instance (knobs, the trimmers and the part in SERVICE, pattern and track memory) to a file, or loads one, the standalone app's saved states too. Reset makes it a new instance: every pattern as PATTERN CLEAR leaves it, every knob, switch, trimmer and part at its default.</li>
 <li><span class="k">About:</span> the version, the ROM folder and artwork in use, the <a href="/support#updates">update check</a>, and links to this guide, the site and the forum. A newer version shows as a button in the bar.</li>
 </ul>
 
 <h3 id="bottom-bar">The bottom bar</h3>
-<Shot src={panel} alt="The bottom bar: SYNC, CUT OFF MAX, SERVICE, the status line and the question mark" crop={{ x: 0, y: 594, w: 720, h: 46 }} marks={[{ x: 8, y: 605, w: 114, h: 30, n: 1 }, { x: 126, y: 605, w: 200, h: 30, n: 2 }, { x: 330, y: 605, w: 86, h: 30, n: 3 }, { x: 426, y: 606, w: 270, h: 28, n: 4 }]} caption="The left end of the bottom bar; ? is at the far right." />
+<Shot src={panel} alt="The bottom bar: SYNC, SERVICE and the status line" crop={{ x: 0, y: 594, w: 500, h: 46 }} marks={[{ x: 8, y: 605, w: 114, h: 30, n: 1 }, { x: 126, y: 605, w: 86, h: 30, n: 2 }, { x: 222, y: 606, w: 266, h: 28, n: 3 }]} caption="The left end of the bottom bar; ? is at the far right." />
 <dl class="legend">
 <div><dt><Num n="1" /> SYNC</dt><dd>OFF: the 303 runs on its own clock. HOST: your DAW's transport runs it. See <a href="#sync">Sync</a>.</dd></div>
-<div><dt><Num n="2" /> CUT OFF MAX</dt><dd>The filter's top, with CUT OFF and RESONANCE full: 1.2 to 3 kHz, 2.3 kHz by default. Units differ here (<a href="/ro-mono-303#differences">known differences</a>). Double-click resets it.</dd></div>
-<div><dt><Num n="3" /> SERVICE</dt><dd>Takes the panel off to show the boards and the trimmers. A dot on it means a trimmer is off its factory setting. See <a href="#service">SERVICE</a>.</dd></div>
-<div><dt><Num n="4" /> Status line</dt><dd>RUN, STOP or HOST, the tempo, the note playing, GATE, ACC and SLIDE while they're on, and the filter's frequency.</dd></div>
-<div><dt><Num n="5" /> ?</dt><dd>Shows the list of computer keys over the panel. Any click, ? or Escape closes it.</dd></div>
+<div><dt><Num n="2" /> SERVICE</dt><dd>Takes the panel off to show the boards, the trimmers and CUT OFF's pot. A dot on it means a trimmer is off its factory setting, or the pot is off 2.3 kHz. See <a href="#service">SERVICE</a>.</dd></div>
+<div><dt><Num n="3" /> Status line</dt><dd>RUN, STOP or HOST, the tempo, the note playing, GATE, ACC and SLIDE while they're on, and the filter's frequency.</dd></div>
+<div><dt><Num n="4" /> ?</dt><dd>Shows the list of computer keys over the panel. Any click, ? or Escape closes it.</dd></div>
 </dl>
 
-<h3 id="service">SERVICE: the boards and the trimmers</h3>
-<Shot src={service} base={{ w: 1200, h: 608 }} alt="SERVICE view: the main board and the switch board where the panel was, TM3 picked and ringed on the board, and on the right the scope timing the filter's ring at TP6, the counter, the meter and the six trimmer rows" marks={[{ x: 438, y: 150, w: 32, h: 32, n: 1 }, { x: 890, y: 6, w: 300, h: 186, n: 2 }, { x: 890, y: 196, w: 300, h: 60, n: 3 }, { x: 890, y: 262, w: 300, h: 300, n: 4 }]} caption="SERVICE with TM3 picked: the scope times the filter's ring at test point TP6." />
-<p>The main board and switch board where the panel was, every part where the service notes draw it, with a scope, a frequency counter, a meter and the six trimmers on the right.</p>
+<h3 id="service">SERVICE: the boards, the trimmers and the part</h3>
+<Shot src={service} base={{ w: 1200, h: 608 }} alt="SERVICE view: the main board and the switch board where the panel was, TM3 picked and ringed on the board, and on the right the scope on TP6 with the service notes' adjustment under it, the counter, the meter, the six trimmer rows and the PARTS row, VR3 CUT OFF" marks={[{ x: 438, y: 150, w: 32, h: 32, n: 1 }, { x: 890, y: 6, w: 300, h: 186, n: 2 }, { x: 890, y: 196, w: 300, h: 60, n: 3 }, { x: 890, y: 262, w: 300, h: 238, n: 4 }, { x: 890, y: 504, w: 300, h: 56, n: 5 }]} caption="SERVICE with TM3 picked: the scope is on test point TP6, waiting for a note." />
+<p>The main board and switch board where the panel was, every part where the service notes draw it, with a scope, a frequency counter, a meter, the six trimmers and the part units differ in on the right.</p>
 <ul>
 <li><span class="k">Pick a trimmer</span> by its row, on the board <Num n="1" />, or with ↑ ↓. The scope <Num n="2" /> moves to its test point, with the service notes' adjustment under the screen.</li>
 <li><span class="k">The counter and the meter</span> <Num n="3" /> read the VCO's frequency and the CV output's voltage.</li>
 <li><span class="k">Turn it</span> by dragging its row <Num n="4" /> or on the board, with ← →, or the wheel; shift is finer. Green is in spec; the white tick is the factory setting.</li>
 <li><span class="k">Reset</span> one by double-clicking it. State: Reset in the top bar puts back the whole instance.</li>
+<li><span class="k">The part</span> <Num n="5" />: where units differ. VR3 CUT OFF is CUT OFF FREQ's pot, and its law sets how high full CUT OFF reaches (with RESONANCE full and ENV MOD down), 1.2 to 3 kHz. It ships at 2.3 kHz, a typical unit's. The tick marks the printed parts' 2.2 kHz and the caret the measured unit's 1.35 kHz. Raising it brightens the whole upper half of CUT OFF, not only the top. Pick it and turn it as a trimmer, and a double-click goes back to 2.3 kHz. Picked, VR3 is ringed on the board and the scope's caption says what it does. Sessions from before 0.2.7 keep their CUT OFF MAX setting here.</li>
 </ul>
 <div class="scroll">
 <table>
@@ -456,7 +456,7 @@ const toc: Entry[] = [
 </tbody>
 </table>
 </div>
-<p>Factory settings are in spec; TM3 is at 2.5 ms, the fitted unit's, at the slow end. Set WIDTH before TUNE. Trimmers are saved with the session.</p>
+<p>Factory settings are in spec; TM3 is at 2.5 ms, the measured unit's, at the slow end. Set WIDTH before TUNE. The trimmers and the part are saved with the session.</p>
 </section>
 
 <!-- ===================================================================== -->
@@ -497,7 +497,7 @@ const toc: Entry[] = [
 </ul>
 
 <h3 id="automation">Automation and sessions</h3>
-<p>These parameters can be automated, in this order: Tuning, Cut Off Freq, Resonance, Env Mod, Decay, Accent, Volume, Waveform, Tempo, Mode, Track / Patt. Group, Sync to Host, the six trimmers, and Full Cut Off (CUT OFF MAX).</p>
+<p>These parameters can be automated, in this order: Tuning, Cut Off Freq, Resonance, Env Mod, Decay, Accent, Volume, Waveform, Tempo, Mode, Track / Patt. Group, Sync to Host, the six trimmers, and Full Cut Off (VR3 CUT OFF in SERVICE).</p>
 <p>A session saves every parameter, the pattern and track memory, the window size, and whether SERVICE is open. When a session opens, the 303 starts stopped, as when it's switched on.</p>
 <p>Idle, it uses almost no CPU but its sequencer keeps running. Don't let the DAW suspend it on silent tracks, or the 303 can't play its own patterns.</p>
 </section>
@@ -526,7 +526,7 @@ const toc: Entry[] = [
 <tr><td class="mono">F1 F2 F3 F4</td><td>MODE: TRACK WRITE, TRACK PLAY, PATTERN PLAY, PATTERN WRITE</td></tr>
 <tr><td class="mono">?</td><td>The key list</td></tr>
 <tr><td class="mono">Escape</td><td>Closes the key list and lets go of every key</td></tr>
-<tr><td class="mono">↑ ↓ ← →</td><td>In SERVICE: pick a trimmer, turn it</td></tr>
+<tr><td class="mono">↑ ↓ ← →</td><td>In SERVICE: pick a trimmer or the part, turn it</td></tr>
 </tbody>
 </table>
 </div>

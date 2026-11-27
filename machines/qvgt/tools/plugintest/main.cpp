@@ -1,14 +1,21 @@
 // Headless test of the QuadraVerb GT's processor: it boots with the factory programs, the effects
 // sound, the session keeps the RAM, the unit sleeps with exact zeros and wakes, POWER, and the
-// same input gives the same output. Needs the ROM from the private folder (QVGT_ROM).
+// same input gives the same output; an offline render waits for the boot, the latency is the
+// host's rate's, NaN input passes as silence, a save with no audio running is quick, and a
+// decimal-comma locale changes nothing. Needs the ROM from the private folder (QVGT_ROM).
 #include "HardwareView.h"
 #include "PluginProcessor.h"
 #include "QVGTPanel.h"
 #include "host/Roms.h"
 
+#include <atomic>
+#include <clocale>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <limits>
+#include <string>
+#include <thread>
 
 namespace {
 
@@ -76,6 +83,32 @@ float rmsDb(const juce::AudioBuffer<float> &b, int from, int to)
 		for (int i = from; i < to; ++i)
 			s += double(b.getSample(ch, i)) * b.getSample(ch, i);
 	return float(10 * std::log10(s / (2.0 * (to - from)) + 1e-30));
+}
+
+bool allFinite(const juce::AudioBuffer<float> &b)
+{
+	for (int ch = 0; ch < b.getNumChannels(); ++ch)
+		for (int i = 0; i < b.getNumSamples(); ++i)
+			if (!std::isfinite(b.getSample(ch, i)))
+				return false;
+	return true;
+}
+
+// The RAM a saved session holds.
+juce::MemoryBlock savedRam(const juce::MemoryBlock &state)
+{
+	const auto xml = juce::AudioProcessor::getXmlFromBinary(state.getData(), int(state.getSize()));
+	if (xml == nullptr)
+		return {};
+	const auto tree = juce::ValueTree::fromXml(*xml);
+	const auto *b = tree.getProperty("ram").getBinaryData();
+	return b != nullptr ? *b : juce::MemoryBlock();
+}
+
+bool sameRam(const juce::MemoryBlock &saved, QVGTProcessor &p)
+{
+	const auto &ram = p.unitForTests().board().ram();
+	return saved.getSize() == ram.size() && std::memcmp(saved.getData(), ram.data(), ram.size()) == 0;
 }
 
 juce::String lcd(const QVGTProcessor &p, int line)
@@ -376,6 +409,187 @@ int main(int argc, char **argv)
 	b.prepareToPlay(kRate, kBlock);
 	run(b, silence(kBlock * 10));
 	check(b.booted() && lcd(b, 1).contains("GUITARBYALESIS"), "POWER on: boots from the RAM the battery kept");
+
+	std::printf("Offline renders\n");
+	{
+		// A bounce right after loading, a session load or POWER on: the host can wait for the boot
+		// (it used to be cleared until the boot was done, about 120 ms of wall time: a short bounce
+		// came out silent). Booted, the output starts at the latency (the hiss alone is nonzero).
+		const auto firstSound = [](const juce::AudioBuffer<float> &o) {
+			for (int i = 0; i < o.getNumSamples(); ++i)
+				if (o.getSample(0, i) != 0.0f || o.getSample(1, i) != 0.0f)
+					return i;
+			return -1;
+		};
+		const auto bounce = [&](QVGTProcessor &x, const char *what) {
+			const auto t0 = juce::Time::getMillisecondCounterHiRes();
+			const auto o = run(x, in);
+			const int first = firstSound(o);
+			const float level = rmsDb(o, 0, int(kRate * 0.25));
+			std::printf("    %s: first sound at sample %d, %.1f dB over the first 0.25 s (%.0f ms to render 2 s)\n", what, first, level,
+			            juce::Time::getMillisecondCounterHiRes() - t0);
+			return first >= 0 && first <= x.getLatencySamples() && level > -40;
+		};
+		QVGTProcessor x(&rom, &font);
+		x.setNonRealtime(true);
+		x.setRateAndBufferSizeDetails(kRate, kBlock);
+		x.prepareToPlay(kRate, kBlock);
+		check(bounce(x, "right after loading"), "a bounce right after loading has the effects from the start (the latency)");
+		x.setStateInformation(state.getData(), int(state.getSize()));
+		check(bounce(x, "right after a session load"), "and right after a session load");
+		x.setPowered(false);
+		x.setPowered(true);
+		check(bounce(x, "right after POWER on"), "and right after POWER on");
+		QVGTProcessor live(&rom, &font);
+		live.setRateAndBufferSizeDetails(kRate, kBlock);
+		live.prepareToPlay(kRate, kBlock);
+		juce::AudioBuffer<float> blk(2, kBlock);
+		blk.clear();
+		juce::MidiBuffer none;
+		const auto t0 = juce::Time::getMillisecondCounterHiRes();
+		live.processBlock(blk, none);
+		const auto ms = juce::Time::getMillisecondCounterHiRes() - t0;
+		check(ms < 20 && blk.getMagnitude(0, kBlock) == 0.0f, "playing live, a block during the boot doesn't wait: silent");
+	}
+
+	std::printf("Latency\n");
+	for (const double rate : {44100.0, 96000.0}) {
+		// prepared while the firmware boots (at 48 kHz unless told otherwise): the host is told this
+		// rate's latency, and the unit runs at this rate once booted
+		QVGTProcessor x(&rom, &font);
+		x.setRateAndBufferSizeDetails(rate, kBlock);
+		const bool during = !x.booted();
+		x.prepareToPlay(rate, kBlock);
+		const int told = x.getLatencySamples();
+		x.waitForBoot();
+		const int unit = x.unitForTests().latency();
+		std::printf("    %.0f Hz: told %d (prepared %s the boot), the unit's %d\n", rate, told, during ? "during" : "after", unit);
+		check(x.booted() && told == unit && told == x.unitForTests().latencyAt(rate), "a prepare during the boot tells the host the unit's latency at its rate");
+		// a session load (a boot at this rate) and a prepare at another rate during it
+		const double other = rate == 44100.0 ? 96000.0 : 44100.0;
+		x.setStateInformation(state.getData(), int(state.getSize()));
+		x.setRateAndBufferSizeDetails(other, kBlock);
+		x.prepareToPlay(other, kBlock);
+		const int told2 = x.getLatencySamples();
+		x.waitForBoot();
+		std::printf("    then %.0f Hz during a session load: told %d, the unit's %d\n", other, told2, x.unitForTests().latency());
+		check(x.booted() && told2 == x.unitForTests().latency() && told2 != told, "and a rate change during a session load: the new rate's, told and run");
+	}
+
+	std::printf("Bad input\n");
+	{
+		// NaN and Inf from the host are silence: they used to reach the A/D (undefined behaviour in
+		// its conversion) and stay in the DSP's memory and the filters, NaN out until a reload
+		juce::AudioBuffer<float> bad(2, kBlock);
+		for (int ch = 0; ch < 2; ++ch)
+			for (int i = 0; i < kBlock; ++i)
+				bad.setSample(ch, i, i % 3 == 0 ? std::numeric_limits<float>::quiet_NaN() : i % 3 == 1 ? std::numeric_limits<float>::infinity() : -std::numeric_limits<float>::infinity());
+		const auto during = run(a, bad);
+		const auto after = run(a, riff(int(kRate)));
+		float pk = 0;
+		for (int ch = 0; ch < 2; ++ch)
+			pk = std::max(pk, after.getMagnitude(ch, 0, after.getNumSamples()));
+		check(allFinite(during) && allFinite(after) && pk > 0.01f, "a block of NaN and Inf, then the riff: finite output, with the effects");
+	}
+
+	std::printf("Saving\n");
+	{
+		// with no audio running the save copies the RAM itself (it used to wait 400 ms for the
+		// audio thread)
+		QVGTProcessor x(&rom, &font);
+		x.setRateAndBufferSizeDetails(kRate, kBlock);
+		x.waitForBoot();
+		auto timedSave = [&](juce::MemoryBlock &m) {
+			const auto t0 = juce::Time::getMillisecondCounterHiRes();
+			x.getStateInformation(m);
+			return juce::Time::getMillisecondCounterHiRes() - t0;
+		};
+		juce::MemoryBlock s1;
+		const double ms1 = timedSave(s1);
+		x.prepareToPlay(kRate, kBlock);
+		juce::MidiBuffer m;
+		m.addEvent(juce::MidiMessage::programChange(1, 5), 0);
+		run(x, silence(int(kRate * 1.0)), 0, &m);
+		juce::Thread::sleep(300); // the audio thread stopped
+		juce::MemoryBlock s2;
+		const double ms2 = timedSave(s2);
+		std::printf("    booted, never played: %.1f ms; played, then stopped: %.1f ms\n", ms1, ms2);
+		check(ms1 < 50 && ms2 < 50, "a save with no audio running returns at once");
+		check(sameRam(savedRam(s2), x) && savedRam(s1) != savedRam(s2), "with the unit's RAM as it is");
+		// with audio running, the audio thread hands it over
+		std::atomic<bool> stop{false};
+		std::thread audio([&] {
+			juce::AudioBuffer<float> blk(2, kBlock);
+			juce::MidiBuffer none;
+			while (!stop) {
+				blk.clear();
+				x.processBlock(blk, none);
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+		});
+		juce::Thread::sleep(100);
+		juce::MemoryBlock s3;
+		const double ms3 = timedSave(s3);
+		stop = true;
+		audio.join();
+		std::printf("    playing: %.1f ms\n", ms3);
+		check(ms3 < 100 && sameRam(savedRam(s3), x), "and with audio running, the RAM from the audio thread");
+	}
+
+	std::printf("Decimal-comma locale\n");
+	{
+		// A host or another plugin in its process may set a C locale with a decimal comma; the
+		// netlists' values (".01u") must read the same (std::stod used to throw: a crash from POWER)
+		QVGTProcessor ref(&rom, &font);
+		ref.setRateAndBufferSizeDetails(kRate, kBlock);
+		ref.setStateInformation(state.getData(), int(state.getSize()));
+		ref.waitForBoot();
+		ref.prepareToPlay(kRate, kBlock);
+		const auto want = run(ref, in);
+		const std::string was = std::setlocale(LC_NUMERIC, nullptr);
+		std::string set;
+		for (const char *name : {"de_DE.UTF-8", "de_DE", "fr_FR.UTF-8", "fr_FR"})
+			if (std::setlocale(LC_NUMERIC, name) != nullptr) {
+				set = name;
+				break;
+			}
+		const bool comma = !set.empty() && std::strtod("0.5", nullptr) == 0.0;
+		std::string error;
+		juce::AudioBuffer<float> got;
+		bool booted = false;
+		try {
+			QVGTProcessor x(&rom, &font);
+			x.setRateAndBufferSizeDetails(kRate, kBlock);
+			x.setStateInformation(state.getData(), int(state.getSize()));
+			x.waitForBoot();
+			x.prepareToPlay(kRate, kBlock);
+			got = run(x, in);
+			booted = x.booted();
+			x.setPowered(false);
+			x.setPowered(true); // a power-on builds a new unit
+			x.waitForBoot();
+			booted = booted && x.booted();
+		} catch (const std::exception &e) {
+			error = e.what();
+		}
+		std::setlocale(LC_NUMERIC, was.c_str());
+		if (!comma)
+			std::printf("    no decimal-comma locale here: checked in the C locale only\n");
+		else
+			std::printf("    built in %s%s%s\n", set.c_str(), error.empty() ? "" : ": ", error.c_str());
+		bool same = booted && got.getNumSamples() == want.getNumSamples();
+		int differ = 0, firstDiff = -1;
+		for (int ch = 0; same && ch < 2; ++ch)
+			for (int i = 0; i < want.getNumSamples(); ++i)
+				if (got.getSample(ch, i) != want.getSample(ch, i)) {
+					++differ;
+					if (firstDiff < 0)
+						firstDiff = i;
+				}
+		std::printf("    booted %d, %d samples differ (first at %d)\n", int(booted), differ, firstDiff);
+		same = same && differ == 0;
+		check(error.empty() && same, "built and powered on under a decimal-comma locale: the same output, bit for bit");
+	}
 
 	std::printf(g_failures ? "\n%d FAILED\n" : "\nAll passed.\n", g_failures);
 	return g_failures ? 1 : 0;

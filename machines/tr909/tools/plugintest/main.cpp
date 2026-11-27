@@ -341,9 +341,9 @@ void syncLoad(const Roms &r, double rate)
 			check(std::abs(late) <= 0.003 && corr > 0.8, line);
 		}
 	{
-		ph.ppq = 0.1; // the start waits for the 16th at 0.25
+		ph.ppq = 0.24; // in the first 16th's last clock: the start waits for the 16th at 0.25
 		ph.playing = true;
-		run(a, ph, 0.05, rate);
+		run(a, ph, 0.004, rate);
 		ph.playing = false;
 		run(a, ph, 0.3, rate);
 		ph.ppq = 0;
@@ -381,6 +381,74 @@ void syncLoad(const Roms &r, double rate)
 		std::snprintf(line, sizeof line, "sync: and then plays the host's bar in time (%+.1f ms, correlation %.3f)", late * 1000, corr);
 		check(std::abs(late) <= 0.003 && corr > 0.8, line);
 	}
+}
+
+// Runs the processor from the host's playhead at `ppq` (playing) for `len` samples of the
+// timeline: sample i of the result is where the playhead's beat is i samples past the top (a
+// block's samples go where its ppq says, those before the top dropped), the main pair.
+juce::AudioBuffer<float> runFrom(TR909Processor &p, FakePlayHead &ph, double ppq, int len, double rate, int block)
+{
+	const int channels = 2;
+	juce::AudioBuffer<float> out(channels, len), buf(channels, block);
+	out.clear();
+	juce::MidiBuffer midi;
+	const double bps = ph.bpm / 60.0;
+	ph.playing = true;
+	ph.ppq = ppq;
+	for (int at = int(std::lround(ph.ppq / bps * rate)); at < len; at = int(std::lround(ph.ppq / bps * rate))) {
+		buf.clear();
+		midi.clear();
+		p.processBlock(buf, midi);
+		for (int ch = 0; ch < channels; ++ch)
+			for (int i = std::max(0, -at); i < block && at + i < len; ++i)
+				out.setSample(ch, at + i, buf.getSample(ch, i));
+		ph.ppq += block / rate * bps;
+	}
+	return out;
+}
+
+// SYNC with the host running the track ahead (forum t/67, Logic's Plug-in Latency Compensation): a
+// host that compensates the 909's latency, and that of any plugin after it on the track, runs the
+// track that far ahead of the timeline, so a start from the top comes in the first block past it.
+// The 909 starts on the first 16th that late (pattern 1's first step plays there), and from the
+// second 16th on plays as a start from the top does, in time; more than a clock ahead, it started
+// on the next 16th, and pattern play from where it last stopped.
+void syncAhead(const Roms &r, double rate)
+{
+	auto synced = [&](TR909Processor &p, FakePlayHead &ph, int block) {
+		p.setPlayHead(&ph);
+		p.prepareToPlay(rate, block);
+		run(p, ph, 1.0, rate, nullptr, false, nullptr, block);
+		set(p, "sync", 1.0f);
+		run(p, ph, 1.0, rate, nullptr, false, nullptr, block);
+	};
+	TR909Processor a(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+	FakePlayHead ph;
+	synced(a, ph, 512);
+	const int bar = int(std::lround(4 * 60.0 / ph.bpm * rate)), sixteenth = bar / 16, latency = a.getLatencySamples();
+	const auto ref = runFrom(a, ph, 0, bar + 2 * sixteenth, rate, 512);
+	// the main pair from the second 16th
+	auto from2nd = [&](const juce::AudioBuffer<float> &b) {
+		juce::AudioBuffer<float> o(2, bar);
+		o.clear();
+		o.copyFrom(0, 0, b, 0, sixteenth, bar);
+		return o;
+	};
+	for (const int block : {512, 4096})
+		for (const double ms : {latency * 1000.0 / rate, 25.0, 60.0, 100.0}) {
+			TR909Processor q(&r.fw, &r.hh, &r.cr, &r.rd, {}, &r.v1);
+			FakePlayHead pq;
+			synced(q, pq, block);
+			const int ahead = int(std::lround(ms / 1000 * rate));
+			const auto x = runFrom(q, pq, ahead / rate * pq.bpm / 60.0, bar + 2 * sixteenth, rate, block);
+			const auto [late, corr] = barLag(from2nd(ref), from2nd(x), 0, bar - sixteenth, rate);
+			const double first = rms(x, 0, ahead + latency, int(0.02 * rate)), firstRef = rms(ref, 0, latency, int(0.02 * rate));
+			char line[240];
+			std::snprintf(line, sizeof line,
+			              "sync ahead %.1f ms (%d samples): the first step that late, then in time (%+.1f ms, correlation %.3f)", ms, block,
+			              late * 1000, corr);
+			check(firstRef > 1e-2 && first > 0.5 * firstRef && std::abs(late) <= 0.003 && corr > 0.8, line);
+		}
 }
 
 // SYNC with the host looping (forum t/40: the 909 stopped at the loop's end and stayed silent):
@@ -1461,6 +1529,7 @@ int main(int argc, char **argv)
 	if (argc > 1 && juce::String(argv[1]) == "--load") { // tools: the session-load checks alone
 		Roms r;
 		syncLoad(r, 48000);
+		syncAhead(r, 48000);
 		state(r, 48000);
 		tempo(r, 48000);
 		return failures ? 1 : 0;
@@ -1504,6 +1573,7 @@ int main(int argc, char **argv)
 		hostLoop(r, 48000, false);
 		hostLoop(r, 48000, true, true, 133);
 		syncLoad(r, 48000);
+		syncAhead(r, 48000);
 	}
 	state(r, 48000);
 	tempo(r, 48000);

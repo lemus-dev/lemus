@@ -25,7 +25,7 @@ set(BSRACK_PLUGIN_INCLUDES ${BSRACK_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACHIN
 set_source_files_properties(${BSRACK_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${BSRACK_PLUGIN_INCLUDES}")
 
 lemus_machine(bsrack instrument)
-lemus_plugin(bsrack NAME "no-mono-bsr" CODE Nbsr VERSION 0.1.0 STAGE beta STANDALONE MIDI_OUT
+lemus_plugin(bsrack NAME "no-mono-bsr" CODE Nbsr VERSION 0.1.1 STAGE beta STANDALONE MIDI_OUT
   DESCRIPTION "Emulation of the Novation Bass Station Rack. Not affiliated with Novation.")
 function(lemus_add_bsrack target)
   target_sources(${target} PRIVATE ${BSRACK_DIR}/bsrack.cpp ${BSRACK_PLUGIN_SOURCES})

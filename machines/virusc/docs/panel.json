@@ -140,7 +140,8 @@
   "knob_numbers": "same face, ~1.9 mm figures: 6 at the top and 0 / 12 at the scale ends, or the knob's own marks (-48 / 0 / 48, 1 / 1+2 / 2, -6 / 0 / 6, - / +)",
   "arrows": "PART and PARAMETER have solid triangles (shown as ◄ ►) at both ends of the legend",
   "lcd": "5x7 dot-matrix characters of an HD44780-type controller (red on dark)",
-  "logos": "Brand marks (maker emblem + wordmark, model lettering, tagline) are slots only, filled from the user's artwork places (maker, name, tagline); nothing here traces them."
+  "logos": "Brand marks (maker emblem + wordmark, model lettering, tagline) are slots only, filled from the user's artwork places (maker, name, tagline); nothing here traces them.",
+  "classes": "Each legend's font names its print class: legend, title, small, or number (the knob figures and the other scale print: the transpose figures, OSC SHAPE's WAVE, SATURATION). A knob's scale labels are number unless they say otherwise (SOFT KNOB's - and +, whose + measures as the legend size's, as VALUE's do). The print is one size per class, while the measured boxes scatter by 0.1-0.25 mm: the editor draws each class at one cap height and one width, the medians over its measured legends."
  },
  "conventions": {
   "text": "bbox = ink bounding box (includes ~0.1 mm blur per side); x,y = bbox centre; cap_h = bbox height - 0.2",
@@ -151,6 +152,91 @@
   "outline_box": "bbox = outer edge of the stroke",
   "param": "interactive elements carry a param hint; knobs carry mame_knob (MAME ADC index = channel*4 + mux), buttons mame_key [row, bit] where the match is clear",
   "matrix": "LED: column (P5 bits 0-2), latch A or B, bit (docs/firmware.md, \"LEDs and key scan\"); button: mame_key [row, bit] of the key matrix, checked by pressing each on the firmware"
+ },
+ "legend_columns": {
+  "note": "Legends printed on one edge: each list beside a column of LEDs starts about 3.2 mm right of the LEDs' centres (the LFO 1 and 2/3 legends over the LFO 2 and 3 lists, WAVE over the MOD list), and the filter modes share one centre line. The editor sets each column's legends on the median of their measured left edges (ink: bbox + 0.1) or centres.",
+  "columns": [
+   {
+    "id": "lfo_select",
+    "align": "left",
+    "legends": [
+     "text_lfo_sel_lfo1",
+     "text_lfo_sel_lfo2",
+     "text_lfo_sel_lfo3",
+     "text_lfo_sel_mod"
+    ]
+   },
+   {
+    "id": "lfo1_dest",
+    "align": "left",
+    "legends": [
+     "text_lfo1_osc1",
+     "text_lfo1_osc2",
+     "text_lfo1_pw12",
+     "text_lfo1_reso12",
+     "text_lfo1_filt_gain",
+     "text_lfo1_assign"
+    ]
+   },
+   {
+    "id": "lfo2_dest",
+    "align": "left",
+    "legends": [
+     "text_lfo_led_1",
+     "text_lfo2_filter1",
+     "text_lfo2_filter2",
+     "text_lfo2_shape12",
+     "text_lfo2_fm_amt",
+     "text_lfo2_pan",
+     "text_lfo2_assign"
+    ]
+   },
+   {
+    "id": "lfo3_dest",
+    "align": "left",
+    "legends": [
+     "text_lfo_led_23",
+     "text_lfo3_osc1",
+     "text_lfo3_osc2",
+     "text_lfo3_pw1",
+     "text_lfo3_pw2",
+     "text_lfo3_sync",
+     "text_lfo3_phase"
+    ]
+   },
+   {
+    "id": "lfo_shape_mod_dest",
+    "align": "left",
+    "legends": [
+     "text_lfo_wave",
+     "text_mod_assign1",
+     "text_mod_assign2",
+     "text_mod_assign3",
+     "text_mod_assign4",
+     "text_mod_assign5",
+     "text_mod_assign6"
+    ]
+   },
+   {
+    "id": "fx_type",
+    "align": "left",
+    "legends": [
+     "text_fx_dist",
+     "text_fx_pha",
+     "text_fx_cho"
+    ]
+   },
+   {
+    "id": "filter_mode",
+    "align": "centre",
+    "legends": [
+     "text_filt_lp",
+     "text_filt_hp",
+     "text_filt_bp",
+     "text_filt_bs"
+    ]
+   }
+  ]
  },
  "elements": [
   {
@@ -3798,7 +3884,7 @@
     132.31
    ],
    "cap_h": 2.05,
-   "font": "legend",
+   "font": "number",
    "colour": "print_white",
    "source": "master+bare",
    "x": 132.62,
@@ -3819,7 +3905,7 @@
     132.31
    ],
    "cap_h": 2.05,
-   "font": "legend",
+   "font": "number",
    "colour": "print_white",
    "source": "master+bare",
    "x": 137.69,
@@ -3840,7 +3926,7 @@
     132.25
    ],
    "cap_h": 1.99,
-   "font": "small",
+   "font": "number",
    "colour": "print_white",
    "source": "master+bare",
    "x": 143.25,
@@ -3861,7 +3947,7 @@
     132.31
    ],
    "cap_h": 1.99,
-   "font": "small",
+   "font": "number",
    "colour": "print_white",
    "source": "master+bare",
    "x": 147.53,
@@ -3882,7 +3968,7 @@
     132.31
    ],
    "cap_h": 2.05,
-   "font": "legend",
+   "font": "number",
    "colour": "print_white",
    "source": "master+bare",
    "x": 152.5,
@@ -4302,7 +4388,7 @@
     156.38
    ],
    "cap_h": 0.61,
-   "font": "small",
+   "font": "legend",
    "colour": "print_white",
    "source": "master+bare",
    "x": 267.19,
@@ -4323,7 +4409,7 @@
     156.88
    ],
    "cap_h": 1.68,
-   "font": "small",
+   "font": "legend",
    "colour": "print_white",
    "source": "master+bare",
    "x": 290.81,
@@ -4386,7 +4472,7 @@
     50.12
    ],
    "cap_h": 1.99,
-   "font": "small",
+   "font": "number",
    "colour": "print_white",
    "source": "master+bare",
    "x": 180.5,
@@ -5437,7 +5523,7 @@
    "start_deg": 30.0,
    "end_deg": 106.0,
    "cap_h": 1.9,
-   "font": "legend",
+   "font": "number",
    "colour": "print_white",
    "bbox": [
     313.4,
@@ -9138,7 +9224,8 @@
        212.12,
        150.44
       ],
-      "cap_h": 0.49
+      "cap_h": 0.49,
+      "font": "legend"
      },
      {
       "text": "+",
@@ -9151,7 +9238,8 @@
        228.56,
        151.06
       ],
-      "cap_h": 1.68
+      "cap_h": 1.68,
+      "font": "legend"
      }
     ],
     "note": "bipolar: \"-\" at mark 0, \"+\" at mark 12, a dot at the top (mark 6)"
@@ -9267,7 +9355,8 @@
        241.75,
        150.5
       ],
-      "cap_h": 0.55
+      "cap_h": 0.55,
+      "font": "legend"
      },
      {
       "text": "+",
@@ -9280,7 +9369,8 @@
        258.25,
        151.0
       ],
-      "cap_h": 1.61
+      "cap_h": 1.61,
+      "font": "legend"
      }
     ],
     "note": "bipolar: \"-\" at mark 0, \"+\" at mark 12, a dot at the top (mark 6)"
@@ -10643,23 +10733,23 @@
    "param": "parameter_down",
    "section": null,
    "x": 272.71,
-   "y": 124.28,
+   "y": 125.22,
    "w": 11.7,
    "h": 11.7,
    "bbox": [
     266.86,
-    118.43,
+    119.37,
     278.56,
-    130.13
+    131.07
    ],
    "colour": "button_grey",
    "style": "square_cap",
    "height": 3.5,
    "cutout_bbox": [
     266.38,
-    117.0,
+    118.92,
     291.68,
-    129.6
+    131.52
    ],
    "cutout_shared_by": 2,
    "mame_key": [
@@ -10668,7 +10758,8 @@
    ],
    "note": "left button of the pair = the printed left arrow / \"-\", right = right arrow / \"+\"",
    "nx": 0.579,
-   "ny": 0.686
+   "ny": 0.692,
+   "y_note": "y from the caps alone (125.26 and 125.18): the measured cut-out (y 117.00-129.60) read 1.9 mm high and pulled the mean of cut-out and cap up 0.95 mm. The master has the three rows evenly spaced (cap tops 125 px apart) and DEMO clear of the recess; the cut-out is the standard one, centred on the caps."
   },
   {
    "id": "button_parameter_up",
@@ -10677,23 +10768,23 @@
    "param": "parameter_up",
    "section": null,
    "x": 285.36,
-   "y": 124.24,
+   "y": 125.22,
    "w": 11.7,
    "h": 11.7,
    "bbox": [
     279.51,
-    118.39,
+    119.37,
     291.21,
-    130.09
+    131.07
    ],
    "colour": "button_grey",
    "style": "square_cap",
    "height": 3.5,
    "cutout_bbox": [
     266.38,
-    117.0,
+    118.92,
     291.68,
-    129.6
+    131.52
    ],
    "cutout_shared_by": 2,
    "mame_key": [
@@ -10702,7 +10793,8 @@
    ],
    "note": "left button of the pair = the printed left arrow / \"-\", right = right arrow / \"+\"",
    "nx": 0.606,
-   "ny": 0.686
+   "ny": 0.692,
+   "y_note": "y from the caps alone (125.26 and 125.18): the measured cut-out (y 117.00-129.60) read 1.9 mm high and pulled the mean of cut-out and cap up 0.95 mm. The master has the three rows evenly spaced (cap tops 125 px apart) and DEMO clear of the recess; the cut-out is the standard one, centred on the caps."
   },
   {
    "id": "button_value_down",

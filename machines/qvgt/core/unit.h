@@ -54,6 +54,9 @@ public:
 
 	void prepare(double hostRate);
 	int latency() const { return m_latency; }
+	// The latency prepare(hostRate) sets, without preparing (safe while the unit runs or prepares on
+	// another thread).
+	int latencyAt(double hostRate) const;
 	// Stereo in, stereo out; the buffers may alias.
 	void process(const float *inL, const float *inR, float *outL, float *outR, int n);
 

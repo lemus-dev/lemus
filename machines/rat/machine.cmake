@@ -41,7 +41,7 @@ set(RAT_PLUGIN_INCLUDES ${RAT_DIR}/plugin ${LEMUS_ROOT_DIR})
 set_source_files_properties(${RAT_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${RAT_PLUGIN_INCLUDES}")
 
 lemus_machine(rat fx)
-lemus_plugin(rat NAME "pr-dist-r" CODE Prdi VERSION 0.1.0 STAGE beta
+lemus_plugin(rat NAME "pr-dist-r" CODE Prdi VERSION 0.1.1 STAGE beta
   DESCRIPTION "Emulation of the ProCo RAT distortion pedal (1984). Not affiliated with Pro Co Sound.")
 function(lemus_add_rat target)
   target_sources(${target} PRIVATE ${RAT_DIR}/rat.cpp ${RAT_PLUGIN_SOURCES})

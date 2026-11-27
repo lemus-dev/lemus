@@ -109,3 +109,8 @@ Checked four ways; the numbers are in `docs/improvements.md` and `docs/firmware.
 `check DIR`, `render SCRIPT OUT.wav`) and, on the board alone, every block timed across the factory
 programs (`spikes`). `tools/demos` holds the MIDI scripts of the website's clips.
 `tools/port_c515.py` regenerates the 80C515's instructions from MAME's source.
+
+## Thanks
+
+Marcus Horndt sent the fix that makes an offline render wait for the firmware to boot, so a bounce
+right after loading a project isn't silent (pull request #6).

@@ -6,6 +6,9 @@
 #include "machines/drivers.h"
 #include "bsrack/plugin/PluginProcessor.h"
 
+#include <clocale>
+#include <string>
+
 namespace {
 
 using namespace lemus;
@@ -68,6 +71,44 @@ void testSession()
 	check(b.modelVersion() == BassStationProcessor::kModelVersion, "with the model version");
 }
 
+// Another plugin in the host can switch the process to a decimal-comma locale (de_DE): the
+// netlists' numbers ("0.01u") read as C numbers all the same, so the Bass Station Rack builds and
+// plays as in C.
+void testCommaLocale(const juce::MemoryBlock &rom)
+{
+	std::printf("\nBass Station Rack in a decimal-comma locale\n");
+	RomSet roms;
+	roms.add("v1.5.bin", rom);
+	const MidiEvents notes{{int(1.2 * kRate), juce::MidiMessage::noteOn(1, 48, juce::uint8(100))},
+	                       {int(1.6 * kRate), juce::MidiMessage::noteOff(1, 48)}};
+	juce::AudioBuffer<float> in(2, int(1.8 * kRate));
+	in.clear();
+	auto play = [&] { return render(*drivers::bsrack().create(roms), in, notes); };
+	const auto plain = play();
+	const std::string was = std::setlocale(LC_NUMERIC, nullptr);
+	juce::String comma;
+	for (const char *name : {"de_DE.UTF-8", "de_DE", "de-DE", "fr_FR.UTF-8", "fr_FR", "fr-FR"})
+		if (std::setlocale(LC_NUMERIC, name) != nullptr && std::localeconv()->decimal_point[0] == ',') {
+			comma = name;
+			break;
+		}
+	if (comma.isEmpty()) {
+		std::setlocale(LC_NUMERIC, was.c_str());
+		std::printf("No decimal-comma locale here: skipped.\n");
+		return;
+	}
+	juce::String error;
+	juce::AudioBuffer<float> out;
+	try {
+		out = play();
+	} catch (const std::exception &e) {
+		error = e.what();
+	}
+	std::setlocale(LC_NUMERIC, was.c_str());
+	check(error.isEmpty(), "with LC_NUMERIC " + comma + " it builds" + (error.isEmpty() ? "" : " (" + error + ")"));
+	check(error.isEmpty() && peak(plain) > 0.01f && differences(out, plain) == 0, "and plays bit-identical to the C locale");
+}
+
 } // namespace
 
 LEMUS_HOST_TEST(bsrack)
@@ -81,4 +122,5 @@ LEMUS_HOST_TEST(bsrack)
 	}
 	testRom(rom);
 	testThroughHost(rom);
+	testCommaLocale(rom);
 }

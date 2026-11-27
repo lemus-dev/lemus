@@ -4,6 +4,7 @@
 #include "LcdFont.h"
 #include "VirusCPanel.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace virusc {
@@ -68,48 +69,155 @@ const lemus::panel::Mono &barMono()
 	return m;
 }
 
-// A legend in Michroma, its ink fitted to the measured box: the cap height as measured, the width
-// stretched or narrowed to the box (the panel's face is wider than Michroma in places).
-void drawLegend(juce::Graphics &g, const juce::String &text, juce::Rectangle<float> box, float capH, juce::Colour c)
+bool isArrow(const juce::String &text) { return text.containsAnyOf(juce::String::charToString(0x25c4) + juce::String::charToString(0x25ba)); }
+// Glyphs whose ink isn't a cap height: the arrows (drawn as triangles), minus and plus.
+bool isSign(const juce::String &text) { return text == "-" || text == "+" || isArrow(text); }
+
+float median(std::vector<float> v)
+{
+	if (v.empty())
+		return 0;
+	std::sort(v.begin(), v.end());
+	const size_t n = v.size();
+	return n % 2 != 0 ? v[n / 2] : 0.5f * (v[n / 2 - 1] + v[n / 2]);
+}
+
+// Michroma's ink for a text at a cap height of 1.
+juce::Rectangle<float> unitInk(const juce::String &text)
+{
+	juce::GlyphArrangement ga;
+	ga.addLineOfText(fonts::legend(10.0f), text, 0, 0);
+	const auto ink = inkOf(ga);
+	return {ink.getX() / 10, ink.getY() / 10, ink.getWidth() / 10, ink.getHeight() / 10};
+}
+
+bool hasLetters(const juce::String &text) { return text.containsAnyOf("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"); }
+
+// One class of the panel's print: Michroma's cap height for it, and its horizontal squeeze for words
+// and for figures alone (against Michroma, the panel's figures are wider than its letters).
+struct Print {
+	float capH = 2.3f, squeeze = 0.65f, figures = 0.65f;
+	float squeezeFor(const juce::String &text) const { return hasLetters(text) ? squeeze : figures; }
+};
+
+// The print's classes (docs/panel.json, "fonts"): each legend's font names its class, a knob's scale
+// labels are "number" unless they say otherwise, and the arrows are a class of their own. The print is
+// one size per class, while the measured boxes scatter by 0.1-0.25 mm, so each class is drawn at one
+// cap height and one squeeze: the cap height that makes Michroma's ink as tall as the measured ink
+// (round letters' overshoot and slashes included), and the squeezes that make it as wide, for words
+// and for figures alone, each the median over the class's measured legends (a class with none of a
+// kind takes the legend class's). A legend with a 1 doesn't count for the squeeze: the panel's 1 is a
+// bare stem and Michroma's isn't, which no squeeze makes up for.
+const Print &print(const juce::String &cls)
+{
+	static const std::map<juce::String, Print> classes = [] {
+		struct Sample {
+			juce::String cls, text;
+			float capH, width;
+		};
+		std::vector<Sample> samples;
+		const auto measured = [&](const juce::String &cls, const juce::String &text, const juce::var &v) {
+			const auto box = rectOf(v["bbox"]);
+			samples.push_back({isArrow(text) ? juce::String("arrow") : cls, text, float(v["cap_h"]), box.getWidth() - 0.2f});
+		};
+		const auto &els = panelJson()["elements"];
+		for (int i = 0; i < els.size(); ++i) {
+			const auto &v = els[i];
+			if (v["type"] == "text" && v.hasProperty("source"))
+				measured(v["font"].toString(), v["label"].toString(), v);
+			else if (v["type"] == "knob" && v["scale"]["labels"].isArray())
+				for (int k = 0; k < v["scale"]["labels"].size(); ++k) {
+					const auto &l = v["scale"]["labels"][k];
+					measured(l.getProperty("font", "number").toString(), l["text"].toString(), l);
+				}
+		}
+		std::map<juce::String, std::vector<float>> caps, words, figures;
+		for (const auto &s : samples)
+			if (s.cls == "arrow")
+				caps[s.cls].push_back(s.capH); // a triangle: its own height
+			else if (!isSign(s.text))
+				caps[s.cls].push_back(s.capH / unitInk(s.text).getHeight());
+		std::map<juce::String, Print> out;
+		for (const auto &[cls, v] : caps)
+			out[cls].capH = median(v);
+		for (const auto &s : samples)
+			if (!isSign(s.text) && !s.text.containsChar('1'))
+				(hasLetters(s.text) ? words : figures)[s.cls].push_back(s.width / (unitInk(s.text).getWidth() * out[s.cls].capH));
+		const float legendWords = median(words["legend"]);
+		for (auto &[cls, p] : out) {
+			p.squeeze = words[cls].empty() ? legendWords : median(words[cls]);
+			p.figures = figures[cls].empty() ? p.squeeze : median(figures[cls]);
+		}
+		return out;
+	}();
+	static const Print fallback;
+	const auto it = classes.find(cls);
+	return it != classes.end() ? it->second : fallback;
+}
+
+// Legends printed on one edge (docs/panel.json, "legend_columns"), by id: true and the median of the
+// column's measured left edges for a left-aligned column, false and the median centre for a centred one.
+const std::map<juce::String, std::pair<bool, float>> &columns()
+{
+	static const std::map<juce::String, std::pair<bool, float>> out = [] {
+		std::map<juce::String, juce::Rectangle<float>> boxes;
+		const auto &els = panelJson()["elements"];
+		for (int i = 0; i < els.size(); ++i)
+			boxes[els[i]["id"].toString()] = rectOf(els[i]["bbox"]);
+		std::map<juce::String, std::pair<bool, float>> m;
+		const auto &cols = panelJson()["legend_columns"]["columns"];
+		for (int i = 0; i < cols.size(); ++i) {
+			const bool left = cols[i]["align"] == "left";
+			const auto &ids = cols[i]["legends"];
+			std::vector<float> edges;
+			for (int k = 0; k < ids.size(); ++k) {
+				const auto b = boxes[ids[k].toString()];
+				edges.push_back(left ? b.getX() + 0.1f : b.getCentreX()); // the ink, without the blur
+			}
+			const float edge = median(edges);
+			for (int k = 0; k < ids.size(); ++k)
+				m[ids[k].toString()] = {left, edge};
+		}
+		return m;
+	}();
+	return out;
+}
+
+// A legend in Michroma at its class's cap height and squeeze, its ink centred on the measured box, or
+// on its column's left edge or centre line (`id`); narrowed further only where it must fit `maxWidth`.
+void drawLegend(juce::Graphics &g, const juce::String &text, const juce::String &id, juce::Rectangle<float> box, const Print &p, juce::Colour c,
+                float maxWidth = 0)
 {
 	if (text.isEmpty() || box.isEmpty())
 		return;
-	const auto font = fonts::legend(capH);
 	juce::GlyphArrangement ga;
-	ga.addLineOfText(font, text, 0, 0);
+	ga.addLineOfText(fonts::legend(p.capH), text, 0, 0);
 	const auto ink = inkOf(ga);
 	if (ink.isEmpty())
 		return;
-	const float sx = juce::jlimit(0.55f, 1.6f, box.getWidth() / ink.getWidth());
-	const float sy = box.getHeight() / ink.getHeight();
+	float squeeze = p.squeezeFor(text);
+	if (maxWidth > 0 && ink.getWidth() * squeeze > maxWidth)
+		squeeze = maxWidth / ink.getWidth();
+	const float w = ink.getWidth() * squeeze;
+	float x = box.getCentreX() - w / 2;
+	if (const auto col = columns().find(id); col != columns().end())
+		x = col->second.first ? col->second.second : col->second.second - w / 2;
 	g.setColour(c);
-	ga.draw(g, juce::AffineTransform::translation(-ink.getX(), -ink.getY())
-	               .scaled(sx, juce::jlimit(0.8f, 1.25f, sy))
-	               .translated(box.getX() + (box.getWidth() - ink.getWidth() * sx) / 2, box.getY()));
+	ga.draw(g, juce::AffineTransform::translation(-ink.getX(), -ink.getCentreY()).scaled(squeeze, 1.0f).translated(x, box.getCentreY()));
 }
 
-// The PART and PARAMETER legends: solid triangles at both ends of the word.
-void drawArrowLegend(juce::Graphics &g, juce::String text, juce::Rectangle<float> box, float capH, juce::Colour c)
+// The PART and PARAMETER arrows: solid triangles, all of the arrows' one size, on the measured centre.
+void drawArrow(juce::Graphics &g, const juce::String &text, juce::Rectangle<float> box, float capH, juce::Colour c)
 {
-	const bool left = text.contains(juce::String::charToString(0x25c4)), right = text.contains(juce::String::charToString(0x25ba));
-	text = text.removeCharacters(juce::String::charToString(0x25c4) + juce::String::charToString(0x25ba)).trim();
 	const float t = capH * 0.9f;
-	auto inner = box;
+	const auto a = juce::Rectangle<float>(t * 0.9f, t).withCentre(box.getCentre());
+	juce::Path p;
+	if (text.contains(juce::String::charToString(0x25c4)))
+		p.addTriangle(a.getRight(), a.getY(), a.getRight(), a.getBottom(), a.getX(), a.getCentreY());
+	else
+		p.addTriangle(a.getX(), a.getY(), a.getX(), a.getBottom(), a.getRight(), a.getCentreY());
 	g.setColour(c);
-	if (left) {
-		juce::Path p;
-		const auto a = inner.removeFromLeft(t * 0.9f);
-		p.addTriangle(a.getRight(), a.getCentreY() - t / 2, a.getRight(), a.getCentreY() + t / 2, a.getX(), a.getCentreY());
-		g.fillPath(p);
-	}
-	if (right) {
-		juce::Path p;
-		const auto a = inner.removeFromRight(t * 0.9f);
-		p.addTriangle(a.getX(), a.getCentreY() - t / 2, a.getX(), a.getCentreY() + t / 2, a.getRight(), a.getCentreY());
-		g.fillPath(p);
-	}
-	const float textW = juce::jmin(inner.getWidth(), capH * 0.95f * float(text.length()) * 1.25f);
-	drawLegend(g, text, inner.withSizeKeepingCentre(textW, capH), capH, c);
+	g.fillPath(p);
 }
 
 void drawSymbol(juce::Graphics &g, const juce::String &kind, juce::Rectangle<float> b, float stroke, juce::Colour c)
@@ -242,30 +350,35 @@ void HardwareView::drawStaticElement(juce::Graphics &g, const Element &e)
 	} else if (e.type == "label_box") {
 		g.setColour(c);
 		g.fillRoundedRectangle(e.box, float(v.getProperty("corner_r", 0.0)));
-		const float capH = float(v.getProperty("cap_h", 2.0));
-		drawLegend(g, e.label, e.box.withSizeKeepingCentre(juce::jmin(e.box.getWidth() - 0.6f, capH * 0.95f * float(e.label.length())), capH),
-		           capH, colour(v["text_colour"].toString()));
+		drawLegend(g, e.label, e.id, e.box, print(v["font"].toString()), colour(v["text_colour"].toString()), e.box.getWidth() - 0.6f);
 	} else if (e.type == "text") {
-		const float capH = float(v.getProperty("cap_h", 2.0));
-		if (e.label.containsAnyOf(juce::String::charToString(0x25c4) + juce::String::charToString(0x25ba)))
-			drawArrowLegend(g, e.label, e.box.reduced(0.1f), capH, c);
+		if (isArrow(e.label))
+			drawArrow(g, e.label, e.box, print("arrow").capH, c);
 		else
-			drawLegend(g, e.label, e.box.reduced(0.1f), capH, c);
+			drawLegend(g, e.label, e.id, e.box, print(v["font"].toString()), c);
 	} else if (e.type == "text_arc") {
-		// letters along the arc, angles from the top, clockwise
+		// The letters along the arc, upright to it (angles from the top, clockwise), each where its
+		// advance puts it, at the class's cap height and squeezed so the word's ink spans the measured arc.
 		const juce::Point<float> centre{float(v["centre"][0]), float(v["centre"][1])};
-		const float r = float(v["r"]), a0 = float(v["start_deg"]), a1 = float(v["end_deg"]);
-		const float capH = float(v.getProperty("cap_h", 1.9));
-		const auto font = fonts::legend(capH);
-		const int n = e.label.length();
-		g.setColour(c);
-		for (int i = 0; i < n; ++i) {
-			const float a = juce::degreesToRadians(a0 + (a1 - a0) * (float(i) + 0.5f) / float(n));
-			juce::GlyphArrangement ga;
-			ga.addLineOfText(font, e.label.substring(i, i + 1), 0, 0);
-			const auto ink = inkOf(ga);
-			const juce::Point<float> at{centre.x + r * std::sin(a), centre.y - r * std::cos(a)};
-			ga.draw(g, juce::AffineTransform::translation(-ink.getCentreX(), -ink.getCentreY()).rotated(a).translated(at));
+		const float r = float(v["r"]), a0 = juce::degreesToRadians(float(v["start_deg"])), a1 = juce::degreesToRadians(float(v["end_deg"]));
+		juce::GlyphArrangement ga;
+		ga.addLineOfText(fonts::legend(print(v["font"].toString()).capH), e.label, 0, 0);
+		const auto ink = inkOf(ga);
+		if (!ink.isEmpty()) {
+			const float squeeze = r * (a1 - a0) / ink.getWidth();
+			g.setColour(c);
+			for (int i = 0; i < ga.getNumGlyphs(); ++i) {
+				const auto &glyph = ga.getGlyph(i);
+				if (glyph.isWhitespace())
+					continue;
+				const float mid = (glyph.getLeft() + glyph.getRight()) / 2, a = a0 + (mid - ink.getX()) * squeeze / r;
+				juce::Path letter;
+				glyph.createPath(letter);
+				g.fillPath(letter, juce::AffineTransform::translation(-mid, -ink.getCentreY())
+				                       .scaled(squeeze, 1.0f)
+				                       .rotated(a)
+				                       .translated(centre.x + r * std::sin(a), centre.y - r * std::cos(a)));
+			}
 		}
 	} else if (e.type == "symbol") {
 		drawSymbol(g, e.label, e.box, float(v.getProperty("stroke", 0.4)), c);
@@ -292,7 +405,7 @@ void HardwareView::drawStaticElement(juce::Graphics &g, const Element &e)
 		if (scale["labels"].isArray())
 			for (int i = 0; i < scale["labels"].size(); ++i) {
 				const auto &l = scale["labels"][i];
-				drawLegend(g, l["text"].toString(), rectOf(l["bbox"]).reduced(0.1f), float(l.getProperty("cap_h", 1.9)), colour(scale["colour"].toString()));
+				drawLegend(g, l["text"].toString(), {}, rectOf(l["bbox"]), print(l.getProperty("font", "number").toString()), colour(scale["colour"].toString()));
 			}
 	} else if (e.type == "button") {
 		// the recess the caps sit in
@@ -498,7 +611,8 @@ void HardwareView::drawRear(juce::Graphics &g)
 	g.setColour(colour("gap_black"));
 	g.fillRect(0.0f, kRearTop + kRearH - 1.2f, w, 1.2f);
 
-	const auto print = colour("print_white");
+	const auto white = colour("print_white");
+	const auto &legend = print("legend"); // the rear's legends are the top panel's print
 	const auto metal = juce::Colour(0xff9a9da2), hole = juce::Colour(0xff0b0c0e);
 	std::vector<std::pair<juce::Point<float>, bool>> cables; // where, a 6.3 mm plug (or a DIN plug)
 	for (const auto &it : *rearItems().getArray()) {
@@ -507,12 +621,10 @@ void HardwareView::drawRear(juce::Graphics &g)
 		// the legend above the socket
 		// (two lines where it has two names: OUT 1 L / PHONES, the jacks are 16.5 mm apart)
 		const auto label = it["label"].toString();
-		g.setColour(print.withAlpha(0.85f));
-		g.setFont(juce::FontOptions(2.4f));
 		const auto first = label.upToFirstOccurrenceOf(" / ", false, false), second = label.fromFirstOccurrenceOf(" / ", false, false);
-		g.drawText(first, juce::Rectangle<float>(c.x - 8, second.isEmpty() ? c.y - 14.5f : c.y - 17.0f, 16, 3), juce::Justification::centred, false);
+		drawLegend(g, first, {}, juce::Rectangle<float>(c.x - 8, second.isEmpty() ? c.y - 14.5f : c.y - 17.5f, 16, 3), legend, white.withAlpha(0.85f), 16.0f);
 		if (second.isNotEmpty())
-			g.drawText(second, juce::Rectangle<float>(c.x - 8, c.y - 14.0f, 16, 3), juce::Justification::centred, false);
+			drawLegend(g, second, {}, juce::Rectangle<float>(c.x - 8, c.y - 14.0f, 16, 3), legend, white.withAlpha(0.85f), 16.0f);
 		if (kind.startsWith("5-pin DIN")) {
 			g.setColour(metal.darker(0.2f));
 			g.fillEllipse(juce::Rectangle<float>(16.0f, 16.0f).withCentre(c));
@@ -557,10 +669,8 @@ void HardwareView::drawRear(juce::Graphics &g)
 			juce::ColourGradient lit(juce::Colour(0xff5c5f65), 0, r.getY(), juce::Colour(0xff34363a), 0, r.getBottom(), false);
 			g.setGradientFill(lit);
 			g.fillRect(on ? lower : upper);
-			g.setColour(print.withAlpha(0.8f));
-			g.setFont(juce::FontOptions(3.2f));
-			g.drawText("I", upper, juce::Justification::centred);
-			g.drawText("O", lower, juce::Justification::centred);
+			drawLegend(g, "I", {}, upper, legend, white.withAlpha(0.8f));
+			drawLegend(g, "O", {}, lower, legend, white.withAlpha(0.8f));
 			if (m_hoverSwitch) {
 				g.setColour(lemus::panel::col::accent.withAlpha(0.8f));
 				g.drawRoundedRectangle(r.expanded(2.0f), 1.5f, 0.5f);

@@ -11,6 +11,10 @@ namespace {
 // The INPUT and OUTPUT pots' rotation 0-10 (the panel's scale) as 0-1; the stages around them are
 // the unit's (core/unit.h).
 double rotation(float r) { return juce::jlimit(0.0, 1.0, double(r) / 10.0); }
+
+int64_t nowNs() { return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count(); }
+// A block started this recently: the audio thread is running, and copies the RAM for a save itself.
+constexpr int64_t kAudioRunningNs = 250'000'000;
 } // namespace
 
 juce::AudioProcessorValueTreeState::ParameterLayout QVGTProcessor::layout()
@@ -71,16 +75,25 @@ void QVGTProcessor::startBoot(const std::vector<uint8_t> &ram)
 		std::memcpy(unit->board().ram().data(), ram.data(), qvgt::kRamSize);
 	m_unit = std::move(unit);
 	const bool factory = ram.size() != qvgt::kRamSize;
+	m_booting.store(true, std::memory_order_release);
 	m_boot = std::thread([this, factory] {
 		auto &u = *m_unit;
 		u.powerOn();
 		if (factory && !m_cancelBoot)
 			u.recallFactoryPrograms();
-		if (m_cancelBoot)
-			return;
-		u.prepare(m_rate.load());
-		applyGains();
-		m_ready.store(true, std::memory_order_release);
+		while (!m_cancelBoot) {
+			// at the host's rate. A prepareToPlay meanwhile leaves a unit that isn't ready to this,
+			// with the new rate in m_rate: prepared again until the rate it has is still the host's
+			const double rate = m_rate.load();
+			u.prepare(rate);
+			applyGains();
+			const juce::SpinLock::ScopedLockType lock(m_audioLock);
+			if (rate == m_rate.load()) {
+				m_ready.store(true, std::memory_order_release);
+				break;
+			}
+		}
+		m_booting.store(false, std::memory_order_release); // with m_audioLock free
 	});
 }
 
@@ -123,10 +136,13 @@ void QVGTProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 	m_rate = sampleRate;
 	m_silence.assign(size_t(juce::jmax(1, samplesPerBlock)), 0.0f);
 	m_right.assign(m_silence.size(), 0.0f);
-	const juce::SpinLock::ScopedLockType lock(m_audioLock);
-	if (m_unit != nullptr && m_ready.load(std::memory_order_acquire))
-		m_unit->prepare(sampleRate);
-	setLatencySamples(m_unit != nullptr ? m_unit->latency() : 0);
+	{
+		const juce::SpinLock::ScopedLockType lock(m_audioLock);
+		if (m_unit != nullptr && m_ready.load(std::memory_order_acquire))
+			m_unit->prepare(sampleRate);
+	}
+	// this rate's, booted or still booting (the boot prepares the unit at m_rate)
+	setLatencySamples(m_unit != nullptr ? m_unit->latencyAt(sampleRate) : 0);
 }
 
 void QVGTProcessor::applyGains()
@@ -145,6 +161,12 @@ void QVGTProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuf
 {
 	juce::ScopedNoDenormals noDenormals;
 	const int n = buffer.getNumSamples();
+	m_lastBlockNs.store(nowNs(), std::memory_order_relaxed);
+	// Rendering offline, the host can wait: for the firmware's start first (up to 20 s), so a bounce
+	// right after a load, a session load or POWER on doesn't begin in silence.
+	if (isNonRealtime())
+		for (int i = 0; i < 20000 && m_booting.load(std::memory_order_acquire); ++i)
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	const juce::SpinLock::ScopedTryLockType audio(m_audioLock);
 	if (!audio.isLocked() || !m_ready.load(std::memory_order_acquire)) {
 		buffer.clear();
@@ -288,7 +310,14 @@ void QVGTProcessor::getStateInformation(juce::MemoryBlock &destData)
 	auto state = m_params.copyState();
 	state.setProperty("model", kModelVersion, nullptr);
 	std::vector<uint8_t> ram;
-	if (m_ready.load(std::memory_order_acquire)) {
+	if (m_ready.load(std::memory_order_acquire) && nowNs() - m_lastBlockNs.load(std::memory_order_relaxed) > kAudioRunningNs) {
+		// no audio running: the unit is ours (the lock keeps out a block that starts meanwhile)
+		const juce::SpinLock::ScopedLockType lock(m_audioLock);
+		if (m_ready.load(std::memory_order_acquire))
+			ram.assign(m_unit->board().ram().begin(), m_unit->board().ram().end());
+		else
+			ram = m_bootRam;
+	} else if (m_ready.load(std::memory_order_acquire)) {
 		m_ramAsk.store(1, std::memory_order_release);
 		for (int i = 0; i < 400 && m_ramAsk.load(std::memory_order_acquire) != 2; ++i)
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));

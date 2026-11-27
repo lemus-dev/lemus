@@ -212,7 +212,7 @@ inline int snapshot(const juce::String &machine, const juce::String &png, const 
 			b = findButton(*e, "Add "); // the ROMs pill while a ROM is missing
 		if (b != nullptr)
 			b->triggerClick();
-		pump(50); // a call-out box closes itself within 200 ms when the process isn't in front
+		pump(50);
 
 	}
 	const auto image = e->createComponentSnapshot(e->getLocalBounds(), true, scale);

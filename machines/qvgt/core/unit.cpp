@@ -163,11 +163,7 @@ void Unit::prepare(double hostRate)
 	m_envelope = 0;
 	m_headroom = m_ovfHold = 0;
 
-	// Each resampler interpolates about its kernel's centre: an output stands for the input time it
-	// is at but exists only once the kernel has filled. The FIFO is primed with the chain's lag and a
-	// margin, for a fixed latency.
-	m_latency = int(std::ceil((m_inL->latencyInput() + 1) + (m_decAdc.delay() + m_over) * hostRate / m_preampRate +
-	                          (m_upL->latencyInput() + 1) * hostRate / kSampleRate)) + 4;
+	m_latency = latencyAt(hostRate);
 	m_fifoL.assign(size_t(m_latency), 0.0f);
 	m_fifoR.assign(size_t(m_latency), 0.0f);
 	m_bufL.clear();
@@ -176,6 +172,16 @@ void Unit::prepare(double hostRate)
 	m_wetR.clear();
 	m_heldDebt = 0;
 	m_settleSamples = int(std::ceil(kSettleSeconds * hostRate));
+}
+
+// Each resampler interpolates about its kernel's centre: an output stands for the input time it is
+// at but exists only once the kernel has filled. The FIFO is primed with the chain's lag and a
+// margin, for a fixed latency. Only the members the constructor sets: callable while another
+// thread prepares.
+int Unit::latencyAt(double hostRate) const
+{
+	const int half = Resampler::kDefaultHalfTaps; // the kernels' centres, in their input's samples
+	return int(std::ceil((half + 1) + (m_decAdc.delay() + m_over) * hostRate / m_preampRate + (half + 1) * hostRate / kSampleRate)) + 4;
 }
 
 // VCA C.V. (sheet 2): latch 0600h b1-b4 through R190 1.5K, R191 3K, R192 6.2K, R193 12K to a node
@@ -387,7 +393,13 @@ void Unit::process(const float *inL, const float *inR, float *outL, float *outR,
 {
 	m_preamp.setControls(m_board->latch(Board::kLatchU10), m_board->latch(Board::kLatchU11), m_board->latch(Board::kLatch0400), inputPot);
 	for (int i = 0; i < n; ++i) {
-		const float l = inL[i], r = inR[i];
+		// NaN or Inf from the host as silence: through the converters it would stay in the DSP's
+		// memory and the filters for good
+		float l = inL[i], r = inR[i];
+		if (!std::isfinite(l))
+			l = 0.0f;
+		if (!std::isfinite(r))
+			r = 0.0f;
 
 		if (std::abs(l) >= kInputSilence || std::abs(r) >= kInputSilence) {
 			m_quiet = 0;

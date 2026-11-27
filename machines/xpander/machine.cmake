@@ -26,7 +26,7 @@ set(XPANDER_PLUGIN_INCLUDES ${XPANDER_DIR}/plugin ${LEMUS_ROOT_DIR} ${LEMUS_MACH
 set_source_files_properties(${XPANDER_PLUGIN_SOURCES} PROPERTIES INCLUDE_DIRECTORIES "${XPANDER_PLUGIN_INCLUDES}")
 
 lemus_machine(xpander instrument)
-lemus_plugin(xpander NAME "ob-poly-xp" CODE Oxpp VERSION 0.1.0 STAGE beta STANDALONE MIDI_OUT
+lemus_plugin(xpander NAME "ob-poly-xp" CODE Oxpp VERSION 0.1.1 STAGE beta STANDALONE MIDI_OUT
   DESCRIPTION "Emulation of the Oberheim Xpander. Not affiliated with Oberheim.")
 function(lemus_add_xpander target)
   target_sources(${target} PRIVATE ${XPANDER_DIR}/xpander.cpp ${XPANDER_PLUGIN_SOURCES})

@@ -9,6 +9,9 @@
 #include "tr808/plugin/HardwareView.h"
 #include "tr808/plugin/PluginProcessor.h"
 
+#include <clocale>
+#include <string>
+
 namespace {
 
 using namespace lemus;
@@ -415,10 +418,49 @@ void testEditor()
 	e.reset();
 }
 
+// Another plugin in the host can switch the process to a decimal-comma locale (de_DE): the
+// netlists' numbers ("0.01u") read as C numbers all the same, so the 808 builds and plays as in C.
+// In voice mode, so it runs without the ROM.
+void testCommaLocale()
+{
+	std::printf("\nTR-808 in a decimal-comma locale\n");
+	MidiEvents beat;
+	const int notes[] = {36, 38, 42, 39};
+	for (int i = 0; i < 4; ++i)
+		beat.push_back({int(kRate * 0.1) + i * int(kRate * 0.25), juce::MidiMessage::noteOn(1, notes[i], juce::uint8(i == 0 ? 120 : 80))});
+	juce::AudioBuffer<float> in(2, int(kRate * 1.5));
+	in.clear();
+	auto play = [&] { return render(*drivers::tr808().create({}), in, beat); };
+	const auto plain = play();
+	const std::string was = std::setlocale(LC_NUMERIC, nullptr);
+	juce::String comma;
+	for (const char *name : {"de_DE.UTF-8", "de_DE", "de-DE", "fr_FR.UTF-8", "fr_FR", "fr-FR"})
+		if (std::setlocale(LC_NUMERIC, name) != nullptr && std::localeconv()->decimal_point[0] == ',') {
+			comma = name;
+			break;
+		}
+	if (comma.isEmpty()) {
+		std::setlocale(LC_NUMERIC, was.c_str());
+		std::printf("No decimal-comma locale here: skipped.\n");
+		return;
+	}
+	juce::String error;
+	juce::AudioBuffer<float> out;
+	try {
+		out = play();
+	} catch (const std::exception &e) {
+		error = e.what();
+	}
+	std::setlocale(LC_NUMERIC, was.c_str());
+	check(error.isEmpty(), "with LC_NUMERIC " + comma + " it builds" + (error.isEmpty() ? "" : " (" + error + ")"));
+	check(error.isEmpty() && peak(plain) > 0.05f && differences(out, plain) == 0, "and plays bit-identical to the C locale");
+}
+
 } // namespace
 
 LEMUS_HOST_TEST(tr808)
 {
+	testCommaLocale();
 	g_rom = privateRom("tr808", "d650c-085.ic4");
 	if (g_rom.isEmpty()) {
 		std::printf("\nNo TR-808 ROM in the private folder: TR-808 checks skipped.\n");

@@ -95,6 +95,7 @@ void VirusCProcessor::startBoot(const std::vector<uint8_t> &ram, const std::vect
 		m_machine->ram() = ram;
 	// the flash's sectors the firmware wrote (STORE TO FLASH), over the ROM as it was loaded
 	m_machine->setFlashChanges(flash);
+	m_booting.store(true, std::memory_order_release);
 	m_boot = std::thread([this] {
 		auto &m = *m_machine;
 		m.powerOn();
@@ -108,6 +109,7 @@ void VirusCProcessor::startBoot(const std::vector<uint8_t> &ram, const std::vect
 			m.warmUp();
 		if (!m_cancelBoot)
 			m_ready.store(true, std::memory_order_release);
+		m_booting.store(false, std::memory_order_release);
 	});
 }
 
@@ -247,6 +249,11 @@ void VirusCProcessor::ledState(float out[virusc::Machine::kLedColumns][virusc::M
 void VirusCProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midi)
 {
 	juce::ScopedNoDenormals noDenormals;
+	// rendering offline, the host can wait: the firmware's boot first (up to 20 s), so a render of a
+	// just-loaded instance doesn't begin in silence (as the SP-12's and the QuadraVerbs')
+	if (isNonRealtime())
+		for (int i = 0; i < 20000 && m_booting.load(std::memory_order_acquire) && !m_ready.load(std::memory_order_acquire); ++i)
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	const juce::SpinLock::ScopedTryLockType audio(m_audioLock);
 	const int n = buffer.getNumSamples();
 	if (!audio.isLocked() || !m_ready.load(std::memory_order_acquire)) {
@@ -452,6 +459,9 @@ void VirusCProcessor::getStateInformation(juce::MemoryBlock &destData)
 			flash = m_machine->flashChanges();
 		}
 		m_ramAsk.store(0, std::memory_order_release);
+	} else { // still booting: what it is booting with
+		ram = m_bootRam;
+		flash = m_bootFlash;
 	}
 	if (!m_powered) { // switched off: what the battery and the flash hold
 		ram = m_offRam;

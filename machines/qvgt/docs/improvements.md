@@ -129,6 +129,23 @@ known level).
 
 ## Done
 
+- 2026-11-27, fix (a robustness check's findings, Chris's go): five bugs, booted audio unchanged
+  (golden renders `build/qvgt-golden-6` exact; renders alone and through the host at 44.1, 48
+  and 96 kHz bit-identical before and after). **Offline renders wait for the boot:** a bounce
+  right after loading, a session load or POWER on came out silent until the firmware had booted
+  (about 120 ms of wall time; a 3 s bounce from a cold start was silent throughout); now, offline
+  only, the first block waits for the boot (up to 20 s), as the SP-12 does. **Latency:** a prepare
+  during the boot told the host 48 kHz's latency (94 samples at any rate: 44.1 kHz is 89, 96 kHz
+  159, 192 kHz 288); it is now worked out from the rate (`Unit::latencyAt`), and a prepare at a new
+  rate as the boot ends prepares the unit again. **NaN or Inf input** went through the A/D
+  (undefined behaviour in its conversion) into the DSP's memory: NaN out until a reload; it is
+  silence now. **A save with no audio running** waited 400 ms for the audio thread; with no block
+  in the last 250 ms it copies the RAM itself (under 1 ms). **A decimal-comma C locale** (set by a
+  host or another plugin in the process) made building a unit throw ("not a number: .01u", a crash
+  from POWER or State › Reset) and would have read the netlists' `.param` values put back in as
+  "0,01" as 0; the netlist reader reads and writes numbers in the C locale now. Checks in
+  `qvgtplugintest` (offline renders, latency, bad input, saving, locale) and `tests/host.cpp`
+  (latency and a bounce through the host).
 - 2026-11-24, fix: the HISS setting is gone, on Chris's word ("100 % real at all times"): the parts'
   own noise and the A/D's servo are always on, as on the unit, and the bar is REAR and ? only. An
   old session saved with HISS off loads with the hiss. `Unit::setHiss` stays for the tools'

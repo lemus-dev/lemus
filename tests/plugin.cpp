@@ -157,6 +157,56 @@ void testRomTexts()
 	}
 }
 
+juce::CallOutBox *findCallOut(juce::Component &c)
+{
+	if (auto *box = dynamic_cast<juce::CallOutBox *>(&c))
+		return box;
+	for (auto *child : c.getChildren())
+		if (auto *box = findCallOut(*child))
+			return box;
+	return nullptr;
+}
+
+// The host closes the window with a call-out open (About, State, ROMs) the way JUCE's AU wrapper
+// does: its holder deletes every component still in it, the editor and anything else. A call-out
+// launched into that window with launchAsynchronously is a member of its callback, not a heap object
+// of its own, and deleting it aborted Logic's plugin process (a user's crash reports, al-fx-quadgt 0.1.2).
+void testCloseWithCallOut()
+{
+	std::printf("\nThe window closes with a call-out open\n");
+	lemus::romfolder::setOverride(juce::File(juce::String(LEMUS_PRIVATE_DIR) + "/roms"));
+	lemus::setRomPromptAnswered(kId, true); // kept in memory: the ROM folder is overridden
+	LemusProcessor p;
+	if (p.machine() == nullptr) {
+		std::printf("  (skipped: no ROMs for %s in the private folder)\n", kId.toRawUTF8());
+		return;
+	}
+	for (const juce::String pill : {"About", "State", "ROMs"}) {
+		juce::Component window; // the wrapper's holder (JuceAU::EditorCompHolder)
+		auto *e = p.createEditorIfNeeded();
+		window.setSize(e->getWidth(), e->getHeight());
+		window.addAndMakeVisible(e);
+		auto *b = findButton(*e, pill);
+		if (b == nullptr && pill == "ROMs")
+			b = findButton(*e, "Add "); // the ROMs pill while a ROM is missing
+		if (b == nullptr) {
+			check(false, pill + ": the bar has the pill");
+			continue;
+		}
+		b->triggerClick();
+		pump(50);
+		check(findCallOut(window) != nullptr, pill + ": its call-out is open");
+		p.editorBeingDeleted(e);
+		window.deleteAllChildren();
+		pump(300);
+		check(findCallOut(window) == nullptr && juce::ModalComponentManager::getInstance()->getNumModalComponents() == 0,
+		      pill + ": the window closes with it open, and nothing is left modal");
+	}
+	std::unique_ptr<LemusEditor> e(dynamic_cast<LemusEditor *>(p.createEditorIfNeeded()));
+	check(e != nullptr && e->machineEditor() != nullptr && dynamic_cast<juce::GenericAudioProcessorEditor *>(e->machineEditor()) == nullptr,
+	      "and the window opens again with the machine's own editor");
+}
+
 } // namespace
 
 int main(int argc, char **argv)
@@ -173,6 +223,7 @@ int main(int argc, char **argv)
 	testRomTexts();
 	testOutputs();
 	testSessions();
+	testCloseWithCallOut(); // last: it points the ROM folder at the private one
 	finish();
 	return g_failures == 0 ? 0 : 1;
 }

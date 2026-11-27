@@ -56,7 +56,10 @@ public:
 	void setTip(int i, juce::String tip) { m_items[size_t(i)].tip = std::move(tip); }
 
 	juce::Rectangle<float> operator[](int i) const { return i == kHelp ? help() : m_items[size_t(i)].r; }
-	juce::Rectangle<float> help() const { return {m_width - 44, m_y, 34, kPillHeight}; }
+	// ? stays clear of the window's resize grip: JUCE's corner is 18 px at every window size, and a
+	// panel can be drawn at half size, where those 18 px are 36 of the bar's.
+	static constexpr float kGripClear = 36;
+	juce::Rectangle<float> help() const { return {m_width - 10 - kGripClear - 34, m_y, 34, kPillHeight}; }
 	juce::Rectangle<float> area() const { return {0, m_top, m_width, m_height}; }
 	// The status line: from after the last pill to `right` (by default, up to ?).
 	juce::Rectangle<float> status(float right = -1) const

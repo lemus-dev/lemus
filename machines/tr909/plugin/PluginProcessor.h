@@ -236,6 +236,7 @@ private:
 	int64_t m_stopDue = -1;                      // a stop waiting for kStopGap after the last start, at this sample
 	bool m_held = false;                         // stopped for the loop's end coming
 	static constexpr double kStopGap = 0.004;    // s between starts and stops: the firmware's scan, and margin
+	static constexpr double kStartLate = 5.0;    // clocks past a 16th that a start still starts on it, late (planStart)
 	int m_syncMacro = 0;    // samples to the macro's next step
 	int m_syncMacroStep = 0;
 	bool m_startSent = false; // a start went out since the last stop (a stop goes out only then)

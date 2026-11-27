@@ -54,6 +54,16 @@ void testThroughHost(const juce::MemoryBlock &rom)
 	const auto direct = render(alone, silence, notes);
 	check(peak(hosted) > 0.01f, "a note sounds");
 	check(differences(hosted, direct) == 0, "the same bit for bit as the machine alone");
+
+	// A bounce right after a session load: offline the machine waits for its boot, so a note at the
+	// start is heard at once.
+	p.setNonRealtime(true);
+	v->setStateInformation(state.getData(), int(state.getSize()));
+	juce::AudioBuffer<float> tenth(2, int(kRate / 10));
+	tenth.clear();
+	const auto bounced = render(p, tenth, {{0, juce::MidiMessage::noteOn(1, 60, uint8_t(100))}});
+	check(peak(bounced) > 0.01f, "offline, a bounce right after a session load sounds within 100 ms");
+	p.setNonRealtime(false);
 }
 
 } // namespace

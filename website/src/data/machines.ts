@@ -43,6 +43,15 @@ export const machines: Machine[] = [
     release: { version: '0.2.6', tag: 'ro-mono-303-v0.2.6', stage: 'beta', mac: 'ro-mono-303-0.2.6-mac.pkg', windows: 'ro-mono-303-0.2.6-windows.zip' },
     changes: [
       {
+        version: '0.2.7',
+        notes: [
+          "CUT OFF MAX has moved from the bottom bar into SERVICE. It's now the PARTS row VR3 CUT OFF under the trimmers, the pot whose law sets how high full CUT OFF reaches (1.2 to 3 kHz). Sessions keep their setting.",
+          "The row marks the printed parts' 2.2 kHz with a tick and the measured unit's 1.35 kHz with a caret. A double-click goes back to 2.3 kHz, a typical unit's.",
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
+      {
         version: '0.2.6',
         notes: [
           "With Sync to Host on, the pattern now lands on the DAW's grid in playback and bounces: the plugin reports the firmware's 1.6 ms lag behind the clock as its latency, so the DAW takes it off. MIDI notes are held back to match.",
@@ -136,8 +145,17 @@ export const machines: Machine[] = [
     withoutRom: 'voice',
     keywords: '909 drums drum machine rhythm composer roland',
     nav: true,
-    release: { version: '0.2.9', tag: 'ro-drums-909-v0.2.9', stage: 'beta', mac: 'ro-drums-909-0.2.9-mac.pkg', windows: 'ro-drums-909-0.2.9-windows.zip' },
+    release: { version: '0.2.10', tag: 'ro-drums-909-v0.2.10', stage: 'beta', mac: 'ro-drums-909-0.2.10-mac.pkg', windows: 'ro-drums-909-0.2.10-windows.zip' },
     changes: [
+      {
+        version: '0.2.11',
+        notes: [
+          'With SYNC on HOST, a start that reaches the 909 a little past a 16th, as it can in Logic with plug-in latency compensation on, now plays from that 16th and catches up at once. Before, it waited for the next 16th, so the whole pattern came a 16th late.',
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'Another plugin that switches the host to decimal commas (a German setting, say) no longer makes it go silent or crash.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
       {
         version: '0.2.10',
         notes: [
@@ -220,6 +238,14 @@ export const machines: Machine[] = [
     release: { version: '0.1.8', tag: 'ro-drums-808-v0.1.8', stage: 'beta', mac: 'ro-drums-808-0.1.8-mac.pkg', windows: 'ro-drums-808-0.1.8-windows.zip' },
     changes: [
       {
+        version: '0.1.9',
+        notes: [
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'Another plugin that switches the host to decimal commas (a German setting, say) no longer makes it go silent or crash.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
+      {
         version: '0.1.8',
         notes: ["SERVICE's CIRCUIT is now EARLY or LATE: an early unit, with the snare and clap as first drawn (the high snare), or the measured unit. Side by side, the other production changes can't be heard. A session saved with another unit plays on as it was until one is picked."],
       },
@@ -278,6 +304,16 @@ export const machines: Machine[] = [
     release: { version: '0.1.1', tag: 'ac-digital-vc-v0.1.1', stage: 'beta', mac: 'ac-digital-vc-0.1.1-mac.pkg', windows: 'ac-digital-vc-0.1.1-windows.zip' },
     changes: [
       {
+        version: '0.1.2',
+        notes: [
+          'An offline bounce right after loading no longer starts silent (thanks to Marcus Horndt).',
+          'Saving in the first seconds after loading now keeps the banks.',
+          "The panel's print sizes and alignment are closer to the unit's, and SATURATION and DEMO are readable.",
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
+      {
         version: '0.1.1',
         notes: ['Windows: built with JUCE 8.0.15, which fixes window drawing that could stop the host taking mouse clicks (seen with ro-drums-909 in Ableton Live).'],
       },
@@ -295,6 +331,19 @@ export const machines: Machine[] = [
     nav: true,
     release: { version: '0.1.2', tag: 'al-fx-quadgt-v0.1.2', stage: 'beta', mac: 'al-fx-quadgt-0.1.2-mac.pkg', windows: 'al-fx-quadgt-0.1.2-windows.zip' },
     changes: [
+      {
+        version: '0.1.3',
+        notes: [
+          "There's no HISS setting any more, so the parts' own noise is always on, as on the unit. Sessions saved with HISS off load with the hiss.",
+          'An offline bounce right after loading no longer starts silent.',
+          'The latency it reports is right at every sample rate. Before, it was only right at 48 kHz.',
+          "A bad (NaN) input no longer leaves it silent until it's reloaded.",
+          'Saving the project no longer stalls the host for half a second.',
+          'Another plugin that switches the host to decimal commas no longer makes POWER or State › Reset crash it.',
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
       {
         version: '0.1.2',
         notes: [
@@ -323,6 +372,13 @@ export const machines: Machine[] = [
     nav: true,
     release: { version: '0.1.4', tag: 'ro-mono-101-v0.1.4', stage: 'beta', mac: 'ro-mono-101-0.1.4-mac.pkg', windows: 'ro-mono-101-0.1.4-windows.zip' },
     changes: [
+      {
+        version: '0.1.5',
+        notes: [
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
       {
         version: '0.1.4',
         notes: [
@@ -364,7 +420,16 @@ export const machines: Machine[] = [
     keywords: 'rat proco pro co distortion pedal white face lm308 guitar 303 acid fuzz overdrive effect',
     nav: true,
     release: { version: '0.1.0', tag: 'pr-dist-r-v0.1.0', stage: 'beta', mac: 'pr-dist-r-0.1.0-mac.pkg', windows: 'pr-dist-r-0.1.0-windows.zip' },
-    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+    changes: [
+      {
+        version: '0.1.1',
+        notes: [
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
+      { version: '0.1.0', notes: ['The first release, a beta.'] },
+    ],
   },
   {
     slug: 'ob-poly-xp',
@@ -376,7 +441,16 @@ export const machines: Machine[] = [
     keywords: 'xpander oberheim matrix-12 matrix 12 poly polyphonic analog six voice module cem3372 cem3374 filter modes fm modulation',
     nav: true,
     release: { version: '0.1.0', tag: 'ob-poly-xp-v0.1.0', stage: 'beta', mac: 'ob-poly-xp-0.1.0-mac.pkg', windows: 'ob-poly-xp-0.1.0-windows.zip' },
-    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+    changes: [
+      {
+        version: '0.1.1',
+        notes: [
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
+      { version: '0.1.0', notes: ['The first release, a beta.'] },
+    ],
   },
   {
     slug: 'no-mono-bsr',
@@ -388,7 +462,17 @@ export const machines: Machine[] = [
     keywords: 'bass station rack novation bassstation analogue mono monophonic bass dco 24db 12db filter 1u module mn1880',
     nav: true,
     release: { version: '0.1.0', tag: 'no-mono-bsr-v0.1.0', stage: 'beta', mac: 'no-mono-bsr-0.1.0-mac.pkg', windows: 'no-mono-bsr-0.1.0-windows.zip' },
-    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+    changes: [
+      {
+        version: '0.1.1',
+        notes: [
+          'Closing the window while About, State or ROMs is open no longer crashes the AU, as it could in Logic.',
+          'Another plugin that switches the host to decimal commas (a German setting, say) no longer makes it go silent or crash.',
+          'At small window sizes the resize corner no longer covers the ? button.',
+        ],
+      },
+      { version: '0.1.0', notes: ['The first release, a beta.'] },
+    ],
   },
 ];
 

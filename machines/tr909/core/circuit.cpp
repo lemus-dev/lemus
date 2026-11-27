@@ -8,7 +8,9 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <chrono>
+#include <clocale>
 #include <cmath>
 #include <cstring>
 #include <cstdio>
@@ -18,6 +20,10 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+
+#if defined(__APPLE__)
+#include <xlocale.h> // strtod_l, newlocale, uselocale
+#endif
 
 namespace tr909::circuit {
 
@@ -174,10 +180,35 @@ std::vector<std::string> split(const std::string &line)
 	return out;
 }
 
+// Netlist text holds C numbers ("0.01u", and fmt's for the parameters) whatever locale the process
+// is in: another plugin in the host can set a decimal-comma one (de_DE), and strtod and snprintf
+// (std::stod with them) follow it. These read and write in the C locale.
+#if defined(_WIN32)
+_locale_t cLocale()
+{
+	static const _locale_t c = _create_locale(LC_ALL, "C");
+	return c;
+}
+double strtodC(const char *s, char **end) { return _strtod_l(s, end, cLocale()); }
+#else
+locale_t cLocale()
+{
+	static const locale_t c = newlocale(LC_ALL_MASK, "C", locale_t(0));
+	return c;
+}
+double strtodC(const char *s, char **end) { return strtod_l(s, end, cLocale()); }
+#endif
+
 std::string fmt(double v)
 {
 	char buf[40];
+#if defined(_WIN32)
+	_snprintf_s_l(buf, sizeof(buf), _TRUNCATE, "%.12g", cLocale(), v);
+#else
+	const locale_t was = uselocale(cLocale());
 	std::snprintf(buf, sizeof(buf), "%.12g", v);
+	uselocale(was);
+#endif
 	return buf;
 }
 
@@ -662,14 +693,14 @@ double limitVds(double vnew, double vold)
 double parseValue(const std::string &text)
 {
 	const std::string s = lower(text);
-	size_t pos = 0;
-	double v = 0;
-	try {
-		v = std::stod(s, &pos);
-	} catch (...) {
+	// std::stod's reading and refusals (no number, out of range), in the C locale (strtodC)
+	const char *start = s.c_str();
+	char *end = nullptr;
+	errno = 0;
+	const double v = strtodC(start, &end);
+	if (end == start || errno == ERANGE)
 		throw std::runtime_error("not a number: " + text);
-	}
-	const std::string rest = s.substr(pos);
+	const std::string rest = s.substr(size_t(end - start));
 	if (rest.rfind("meg", 0) == 0)
 		return v * 1e6;
 	if (rest.rfind("mil", 0) == 0)

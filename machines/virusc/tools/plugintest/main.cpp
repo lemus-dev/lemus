@@ -302,16 +302,47 @@ int main()
 		check(render(q, 100, noteOn(60)) > 0.01f, "and plays");
 		render(q, 50, program(0, 5));
 		check(programName(q) == "A5  AutoBendBC", "the stored program is in the session: " + programName(q));
+		{
+			// Saved again while that session is still booting (a project saved within about 2.4 s of
+			// opening it), the state keeps the memory the boot started from.
+			VirusCProcessor r(&rom);
+			r.prepareToPlay(48000.0, 480);
+			r.setStateInformation(state.getData(), int(state.getSize()));
+			juce::MemoryBlock during;
+			r.getStateInformation(during);
+			const bool booting = !r.booted();
+			VirusCProcessor s(&rom);
+			s.prepareToPlay(48000.0, 480);
+			s.setStateInformation(during.getData(), int(during.getSize()));
+			s.waitForBoot();
+			render(s, 50, program(0, 5));
+			check(booting && during.getSize() > 160000 && programName(s) == "A5  AutoBendBC",
+			      "a state saved during a boot holds the RAM: " + juce::String(int(during.getSize() / 1024)) + " KB, " + programName(s));
+		}
 
 		// The rear panel's ON/OFF: off is silent and dark; on is a power-on, the battery's banks as they were
 		q.setPowered(false);
 		const float off = render(q, 20, noteOn(60));
 		q.setPowered(true);
+		juce::MemoryBlock poweringOn;
+		q.getStateInformation(poweringOn);
+		const bool booting = !q.booted();
 		q.waitForBoot();
 		render(q, 100);
 		render(q, 50, program(0, 5));
 		check(off == 0.0f && q.booted() && programName(q) == "A5  AutoBendBC",
 		      "switched off it is silent (" + juce::String(off) + "); switched on it boots with bank A as stored: " + programName(q));
+		check(booting && poweringOn.getSize() > 160000, "a state saved while it boots after switching on holds the RAM");
+	}
+
+	{
+		// Offline, as a host bounces, a new instance waits for its boot: a note at the very start sounds
+		// within the first 100 ms. Live, the blocks before the boot are silent, and a bounce was too.
+		VirusCProcessor p(&rom);
+		p.setNonRealtime(true);
+		p.prepareToPlay(48000.0, 480);
+		const float early = render(p, 10, noteOn(60));
+		check(early > 0.01f, "offline, a new instance waits for its boot: a note at the start sounds within 100 ms, peak " + db(early));
 	}
 
 	{
@@ -513,10 +544,15 @@ int main()
 		VirusCProcessor q(&rom);
 		q.prepareToPlay(48000.0, 480);
 		q.setStateInformation(state.getData(), int(state.getSize()));
+		juce::MemoryBlock during;
+		q.getStateInformation(during);
+		const bool booting = !q.booted();
 		q.waitForBoot();
 		render(q, 50, program(4, 0));
 		check(programName(q) == "E0  AutoBendBC" && state.getSize() > 200000,
 		      "the written sector is in the session: " + programName(q) + ", the state " + juce::String(int(state.getSize() / 1024)) + " KB");
+		check(booting && during.getSize() > 200000,
+		      "and in a state saved during the boot: " + juce::String(int(during.getSize() / 1024)) + " KB");
 	}
 
 	{

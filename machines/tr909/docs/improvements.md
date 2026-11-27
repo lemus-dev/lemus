@@ -209,6 +209,23 @@ The calibration (`docs/model.md`, "Calibration") fitted the AudioRealism unit; w
 
 ## Done
 
+- 2026-11-27, fix (forum t/67, Logic's Bounce in Place with Plug-in Latency Compensation on): a
+  start from the top no longer comes a 16th late when the host runs the track ahead. A host that
+  compensates the 909's latency, and that of any plugin after it on the track, runs the track that
+  far ahead of its timeline (Logic shifts such tracks forward; a JUCE forum log shows a plugin on
+  a track with a 3809-sample instrument told sample 3809 at the top), so the first block of a start
+  from the top is already past it. More than a clock past (21 ms at 120 BPM) a start waited for
+  the next 16th: the whole pattern a 16th late in pattern play, or from where it last stopped
+  (pattern play ignores the song position). planStart now starts on the 16th the playhead is in
+  unless it is in that 16th's last clock (kStartLate, 5 clocks), late by that much, with the clocks
+  since sent at once: the firmware counts them as they come and the next step is on the grid.
+  Reproduced first (`tr909plugintest --load`, "sync ahead"): 25, 60 and 100 ms ahead at 512 and
+  4096 samples were a 16th late (+125-127 ms) or lost the first step; now each plays its first
+  step that late and the rest in time. The 909's own 3.2 ms was in time before and after. Not
+  fixed, seen on the way: Logic sometimes gives a start's first blocks a wrong position far ahead
+  (JUCE forum "Strange playhead timestamps in Logic Pro", buffers of 256 or less); at 64 samples a
+  block of that, then the right position, spoils the first bar (the start, a stop and a start
+  4 ms apart each).
 - 2026-11-27, fix (forum t/67, GitHub #4): a session reopens the 909 as it was saved, and follows
   the host from its first block. Three bugs, each reproduced first (`tr909plugintest --load`):
   - A session load booted the CPU from the battery RAM, so the mode, the pattern or track, the

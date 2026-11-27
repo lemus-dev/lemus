@@ -1,6 +1,7 @@
 // The Virus C as a plugin: the board (core/machine.h) resampled to the host's rate, the knobs as
 // parameters, MIDI in and out. A plugin load is not a power-on from the player's side: the firmware
-// boots on a worker thread and the instrument is silent until it has finished.
+// boots on a worker thread and the instrument is silent until it has finished (an offline render
+// waits for it).
 // Its buses are the unit's jacks: OUT 1 (the main output), OUT 2 and OUT 3 (stereo, off until the
 // host turns them on; a mono bus gets the jack's left side) and the two inputs as a stereo
 // side-chain, read only while the host has it on (host/Machine.h, MachineInfo::sideChain).
@@ -107,7 +108,7 @@ private:
 
 	std::unique_ptr<virusc::Machine> m_machine;
 	std::thread m_boot;
-	std::atomic<bool> m_ready{false}, m_cancelBoot{false};
+	std::atomic<bool> m_ready{false}, m_cancelBoot{false}, m_booting{false}; // m_booting: a boot thread is running
 	juce::SpinLock m_audioLock;
 
 	// The six output jacks, each resampled to the host's rate while its bus is on (OUT 1 always), and

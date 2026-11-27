@@ -127,6 +127,37 @@ None yet.
 
 ## Done
 
+- 2026-11-27, UX: the panel's print. Each legend was fitted to its own measured box, so print that is
+  one size on the unit came out at uneven sizes and widths (the boxes scatter by 0.1-0.25 mm). Each
+  print class (`fonts.classes` in `docs/panel.json`) now has one cap height and one squeeze for words
+  and one for figures, the medians over its measured legends against Michroma's ink: legend 2.30 mm,
+  0.66 (figures 0.95), number 1.91 mm, 0.86 (the knob figures, the transpose figures, OSC SHAPE's
+  WAVE, SATURATION), small 1.67 mm, 0.65, title 3.20 mm, 0.81, and the four arrows one size. Six
+  legends changed class: the transpose figures and OSC SHAPE's WAVE to number, VALUE's and SOFT KNOB's
+  - and + to legend (their + measures as the legend size's). The lists beside a column of LEDs (LFO
+  select, the three LFO destination lists, WAVE over the MOD list, the effect types) start on one left
+  edge each and the filter modes share one centre, the medians of the measured edges
+  (`legend_columns`), as in the master photo. SATURATION's letters go along the arc by their advance
+  widths, squeezed so the word spans the measured arc, where equal angles had them overlapping. The
+  rear view's legends and the switch's I and O are in the panel's face at the legend size, as the
+  rear photo has them, instead of the system font. Left as it is: the panel's 1 is a bare stem and
+  Michroma's isn't, so a legend with a 1 is wider than on the unit (a 12 by about 1 mm). Golden
+  renders identical; `viruscplugintest` 31 checks.
+- 2026-11-27, UX: the PARAMETER keys. Their recess sat 0.96 mm above the keys and hid half of DEMO
+  under the PART keys: the measured cut-out read 1.9 mm high, and the keys' y (the mean of cut-out
+  and cap) went up half as much. The keys now come from the caps alone, in a standard recess centred
+  on them, so the three rows of that column are evenly spaced as in the master photo and DEMO shows.
+- 2026-11-27, fix: a save during the boot keeps the memory. A project saved within about 2.4 s of
+  opening it, of loading a state or of switching POWER on held no banks A and B and no flash changes,
+  because only a booted board was asked for its RAM. While it boots, the state now holds the RAM and
+  flash the boot started from, as the QuadraVerb GT's does. Checks in `viruscplugintest`: a session,
+  the STORE TO FLASH sector and a switch-on, each saved during its boot.
+- 2026-11-27, fix: offline renders wait for the boot. The firmware boots on its own thread (about
+  2.4 s) and the blocks before it are silent, so a bounce right after loading came out silent.
+  Offline, `processBlock` now waits for the boot (up to 20 s), as the SP-12 does. Found and fixed by
+  Marcus Horndt (lemus-dev/lemus PR #6), done here the SP-12's way. Checks: `viruscplugintest` and
+  the host test render a note offline straight after loading and hear it within 100 ms; the golden
+  renders are identical.
 - 2026-11-11, accuracy round: the DACs. Three Cirrus Logic CS4390s, read off a repair shop's board
   photos; modelled from the datasheet (`core/dac.h`, `docs/firmware.md`, "Audio in and out"): the
   filter as the resampler's kernel from 48 kHz up (fitted to the datasheet's plots within 0.16 dB rms,

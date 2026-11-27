@@ -78,6 +78,39 @@ void testThroughHost(const juce::MemoryBlock &rom, const juce::MemoryBlock &font
 	check(differences(hosted, direct) == 0, "the same bit for bit as the machine alone");
 }
 
+// Loaded into a host already playing at 44.1 kHz, the machine is prepared while its firmware boots:
+// the host is told the latency at 44.1 kHz (it used to be 48 kHz's, 94 samples for 89). And loaded
+// for a bounce (offline), the first block waits for the boot rather than coming out silent.
+void testLoadedWhilePlaying(const juce::MemoryBlock &rom, const juce::MemoryBlock &font)
+{
+	std::printf("\nQuadraVerb GT loaded into a running host\n");
+	const RomFolder folder;
+	folder.add("qvgtv103.bin", rom);
+	folder.add("hd44780_a00.bin", font);
+	{
+		LemusProcessor p;
+		p.setRateAndBufferSizeDetails(44100.0, kBlock);
+		p.prepareToPlay(44100.0, kBlock);
+		check(p.selectMachine("qvgt"), "the host loads it at 44.1 kHz");
+		auto *q = dynamic_cast<QVGTProcessor *>(p.machineProcessor());
+		if (q == nullptr)
+			return;
+		const int told = p.getLatencySamples();
+		q->waitForBoot();
+		std::printf("    told %d samples, the unit's %d once booted\n", told, q->unitForTests().latency());
+		check(q->booted() && told == q->unitForTests().latency() && told == q->unitForTests().latencyAt(44100.0),
+		      "the host is told its latency at 44.1 kHz, and it runs at 44.1 kHz");
+	}
+	{
+		LemusProcessor p;
+		p.setNonRealtime(true);
+		check(p.selectMachine("qvgt"), "loaded for a bounce");
+		const auto out = render(p, testSignal(int(kRate / 4)));
+		const int latency = p.getLatencySamples();
+		check(latency > 0 && out.getSample(0, latency) != 0.0f && peak(out) > 0.01f, "the bounce has the effects from the start (the latency)");
+	}
+}
+
 // Firmware v1.00 in v1.03's place: found when v1.03 isn't there, never ahead of it; it boots and
 // sounds through the host; and a session's RAM stays with the firmware it was saved with.
 void testV100(const juce::MemoryBlock &v103, const juce::MemoryBlock &v100, const juce::MemoryBlock &font)
@@ -171,6 +204,7 @@ LEMUS_HOST_TEST(qvgt)
 	}
 	testRom(rom, font);
 	testThroughHost(rom, font);
+	testLoadedWhilePlaying(rom, font);
 	if (const auto v100 = privateRom("qvgt", "qvgtv100.bin"); !v100.isEmpty())
 		testV100(rom, v100, font);
 	else

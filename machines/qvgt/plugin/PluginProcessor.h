@@ -1,7 +1,8 @@
 // The QuadraVerb GT as a plugin: the unit (core/unit.h) at the host's rate, its INPUT and OUTPUT
 // pots as parameters, MIDI in and out, its battery-backed RAM in the session. A plugin load is not
 // a power-on from the player's side: the firmware boots on a worker thread, with the factory
-// programs the first time (as a unit leaves the factory), and the unit is silent until it has.
+// programs the first time (as a unit leaves the factory), and the unit is silent until it has (an
+// offline render waits for it).
 #pragma once
 
 #include "qvgt/core/unit.h"
@@ -118,6 +119,7 @@ private:
 	std::unique_ptr<qvgt::Unit> m_unit;
 	std::thread m_boot;
 	std::atomic<bool> m_ready{false}, m_cancelBoot{false};
+	std::atomic<bool> m_booting{false}; // the boot thread is running (offline renders wait for it)
 	juce::SpinLock m_audioLock;
 	std::atomic<double> m_rate{48000.0};
 	std::atomic<bool> m_asleep{false};
@@ -127,8 +129,9 @@ private:
 	std::vector<float> m_silence;
 	std::vector<float> m_right; // the right output, with one output jack
 
-	// the RAM, handed from the audio thread to whoever saves the session
+	// the RAM, handed from the audio thread to whoever saves the session while audio runs
 	std::atomic<int> m_ramAsk{0};
+	std::atomic<int64_t> m_lastBlockNs{0}; // when the last block started (steady clock)
 	std::vector<uint8_t> m_ramCopy;
 	bool m_powered = true;
 	std::vector<uint8_t> m_offRam, m_bootRam;

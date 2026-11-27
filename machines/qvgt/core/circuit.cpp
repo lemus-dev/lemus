@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <chrono>
 #include <cmath>
 #include <cstring>
@@ -18,6 +19,8 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+
+#include <locale.h> // newlocale, uselocale; _create_locale
 
 namespace qvgt::circuit {
 
@@ -173,12 +176,50 @@ std::vector<std::string> split(const std::string &line)
 	return out;
 }
 
+// Numbers read and written in the C locale whatever the process's: setlocale is process-wide, and
+// a host or another plugin in its process may have set one with a decimal comma (".01u" would not
+// be a number, a .param would be put in as "0,01" and read as 0). std::from_chars for double
+// needs macOS 26.
+#if defined(_WIN32)
+_locale_t cLocale()
+{
+	static const _locale_t c = _create_locale(LC_ALL, "C");
+	return c;
+}
+double strtodC(const char *s, char **end) { return _strtod_l(s, end, cLocale()); }
 std::string fmt(double v)
 {
+	char buf[40];
+	_sprintf_s_l(buf, sizeof(buf), "%.12g", cLocale(), v);
+	return buf;
+}
+#else
+// the C locale on this thread while it lives
+struct InCLocale {
+	static locale_t c()
+	{
+		static const locale_t loc = newlocale(LC_ALL_MASK, "C", locale_t(0));
+		return loc;
+	}
+	locale_t was = uselocale(c());
+	InCLocale() = default;
+	InCLocale(const InCLocale &) = delete;
+	InCLocale &operator=(const InCLocale &) = delete;
+	~InCLocale() { uselocale(was); }
+};
+double strtodC(const char *s, char **end)
+{
+	const InCLocale c;
+	return std::strtod(s, end);
+}
+std::string fmt(double v)
+{
+	const InCLocale c;
 	char buf[40];
 	std::snprintf(buf, sizeof(buf), "%.12g", v);
 	return buf;
 }
+#endif
 
 // Two doubles at a time, and the fused multiply-add the compiler contracts a plain loop's a * x + s
 // to where the machine has one: the vector loops below give each element the same arithmetic.
@@ -661,14 +702,12 @@ double limitVds(double vnew, double vold)
 double parseValue(const std::string &text)
 {
 	const std::string s = lower(text);
-	size_t pos = 0;
-	double v = 0;
-	try {
-		v = std::stod(s, &pos);
-	} catch (...) {
+	char *end = nullptr;
+	errno = 0;
+	const double v = strtodC(s.c_str(), &end);
+	if (end == s.c_str() || errno == ERANGE) // as std::stod throws
 		throw std::runtime_error("not a number: " + text);
-	}
-	const std::string rest = s.substr(pos);
+	const std::string rest = s.substr(size_t(end - s.c_str()));
 	if (rest.rfind("meg", 0) == 0)
 		return v * 1e6;
 	if (rest.rfind("mil", 0) == 0)

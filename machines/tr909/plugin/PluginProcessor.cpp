@@ -453,13 +453,18 @@ void TR909Processor::handleMidi(const juce::MidiMessage &m)
 	m_machine.midiIn(m.getRawData(), size_t(m.getRawDataSize()));
 }
 
-// A start at the host's clock count `clock` (24 ppqn): on the first 16th at or after it (one less
-// than a clock past a 16th starts on that one, that much late), never before the top: FA there at
+// A start at the host's clock count `clock` (24 ppqn): on the 16th it falls in, that much late,
+// the clocks since sent at once (the firmware counts them as they come, 0.3 ms a byte) so the next
+// step is on the grid; in a 16th's last clock, on the next 16th. Never before the top: FA there at
 // the top, otherwise the song position F2 (in 16ths) and continue FB, then the clock from there,
-// as a sequencer's MIDI clock out starts a 909. Pattern play ignores F2 (docs/firmware.md, "In").
+// as a sequencer's MIDI clock out starts a 909. Pattern play ignores F2 and goes on from where it
+// stopped (docs/firmware.md, "In"). A host that compensates the latency of the 909, and of any
+// plugin after it, runs the track that far ahead (Logic's Plug-in Latency Compensation): a start
+// from the top comes in a block past it, and waiting for the next 16th started the pattern a 16th
+// late (forum t/67).
 void TR909Processor::planStart(double clock)
 {
-	const int s = int(std::min(16383.0, std::max(0.0, std::ceil((clock - 1.0 + 1e-6) / 6.0))));
+	const int s = int(std::min(16383.0, std::max(0.0, std::ceil((clock - kStartLate + 1e-6) / 6.0))));
 	m_startClock = 6.0 * s;
 	m_lastClock = m_startClock - 1;
 	if (s == 0)

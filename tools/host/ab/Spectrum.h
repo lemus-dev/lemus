@@ -2,6 +2,8 @@
 // source you hear as a line over it, each after its level match. Frequency is log, 20 Hz to
 // 20 kHz; level is dBFS (a full-scale sine reads 0 dB). Peaks show at once and fall at 40 dB/s;
 // stopped, it holds, or shows single frames (frame()). Hover for a frequency and both levels there.
+// Drag across it to pick a band (onBand: the player then lets only that band through); drag a
+// band's edge to move it; double-click for all frequencies again.
 #pragma once
 
 #include <juce_dsp/juce_dsp.h>
@@ -138,6 +140,16 @@ public:
 		repaint();
 	}
 
+	// The band picked (Hz; 0, 0: none), told when it changes by a drag or a double-click.
+	std::function<void(float low, float high)> onBand;
+	void setBand(float low, float high)
+	{
+		m_bandLow = low;
+		m_bandHigh = high;
+		repaint();
+	}
+	bool hasBand() const { return m_bandHigh > m_bandLow; }
+
 	// A line after the key (where a frame is from, say); empty for none.
 	void setCaption(const juce::String &caption)
 	{
@@ -190,6 +202,14 @@ public:
 		const bool heard = m_heard >= 0 && m_heard < int(m_sources.size()) && m_heard != m_reference;
 		g.saveState();
 		g.reduceClipRegion(plot.toNearestInt());
+		if (hasBand()) { // the band heard: lit, its edges marked
+			const float x0 = xOf(std::max(m_bandLow, kLow), plot), x1 = xOf(std::min(m_bandHigh, high()), plot);
+			g.setColour(m_look.heard.withAlpha(0.10f));
+			g.fillRect(juce::Rectangle<float>(x0, plot.getY(), x1 - x0, plot.getHeight()));
+			g.setColour(m_look.heard.withAlpha(0.6f));
+			g.drawVerticalLine(int(x0), plot.getY(), plot.getBottom());
+			g.drawVerticalLine(int(x1), plot.getY(), plot.getBottom());
+		}
 		if (reference) {
 			auto p = curve(m_sources[size_t(m_reference)].db);
 			auto fill = p;
@@ -223,11 +243,14 @@ public:
 			keyEntry(m_look.heard, m_heardName);
 		g.setColour(m_look.label);
 		g.drawText(m_caption, key, juce::Justification::centredLeft);
+		if (hasBand())
+			g.drawText("hearing " + hz(m_bandLow) + " to " + hz(m_bandHigh) + "   (double-click: all)", plot.reduced(10, 6),
+			           juce::Justification::bottomLeft);
 		if (m_mouseX >= plot.getX() && m_mouseX <= plot.getRight()) {
 			g.setColour(m_look.label.withAlpha(0.5f));
 			g.drawVerticalLine(int(m_mouseX), plot.getY(), plot.getBottom());
 			const float f = freqAt(m_mouseX, plot), f0 = freqAt(m_mouseX - 0.5f, plot), f1 = freqAt(m_mouseX + 0.5f, plot);
-			juce::String text = f < 1000 ? juce::String(juce::roundToInt(f)) + " Hz" : juce::String(f / 1000, 2) + " kHz";
+			juce::String text = hz(f);
 			const auto level = [&](int i) {
 				const float db = levelBetween(m_sources[size_t(i)].db, f0, f1);
 				return db > kFloor ? juce::String(db, 1) + " dB" : juce::String("-");
@@ -252,7 +275,53 @@ public:
 		repaint();
 	}
 
+	// A press on a band's edge (within 6 px) takes that edge; anywhere else starts a new band.
+	void mouseDown(const juce::MouseEvent &e) override
+	{
+		const auto plot = plotArea();
+		m_drag = Drag::New;
+		m_anchor = freqAt(e.position.x, plot);
+		if (hasBand()) {
+			if (std::abs(e.position.x - xOf(m_bandLow, plot)) <= 6)
+				m_drag = Drag::Low;
+			else if (std::abs(e.position.x - xOf(m_bandHigh, plot)) <= 6)
+				m_drag = Drag::High;
+		}
+	}
+	void mouseDrag(const juce::MouseEvent &e) override
+	{
+		const auto plot = plotArea();
+		const float f = juce::jlimit(kLow, high(), freqAt(e.position.x, plot));
+		float lo = m_bandLow, hi = m_bandHigh;
+		if (m_drag == Drag::Low)
+			lo = std::min(f, hi / kNarrowest);
+		else if (m_drag == Drag::High)
+			hi = std::max(f, lo * kNarrowest);
+		else if (m_drag == Drag::New && std::abs(e.getDistanceFromDragStartX()) > 3) {
+			lo = std::min(m_anchor, f);
+			hi = std::max(std::max(m_anchor, f), lo * kNarrowest);
+		} else
+			return;
+		m_mouseX = e.position.x;
+		setBand(lo, hi);
+		if (onBand)
+			onBand(lo, hi);
+	}
+	void mouseUp(const juce::MouseEvent &) override { m_drag = Drag::None; }
+	void mouseDoubleClick(const juce::MouseEvent &) override
+	{
+		setBand(0, 0);
+		if (onBand)
+			onBand(0, 0);
+	}
+
 private:
+	static constexpr float kNarrowest = 1.06f; // a band is at least a semitone wide
+	enum class Drag { None, New, Low, High };
+	static juce::String hz(float f)
+	{
+		return f < 1000 ? juce::String(juce::roundToInt(f)) + " Hz" : juce::String(f / 1000, 2) + " kHz";
+	}
 	static constexpr float kLow = 20, kFloor = -100, kSilent = -200, kFall = 40; // Hz, dB, dB, dB/s
 
 	struct Source {
@@ -318,6 +387,8 @@ private:
 	int m_reference = -1, m_heard = -1;
 	juce::String m_referenceName, m_heardName, m_caption;
 	float m_mouseX = -1;
+	float m_bandLow = 0, m_bandHigh = 0, m_anchor = 0;
+	Drag m_drag = Drag::None;
 };
 
 } // namespace lemus::host

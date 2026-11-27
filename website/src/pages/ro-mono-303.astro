@@ -53,7 +53,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <figure class="panel">
 <div class="mount">
 <div class="pin">
-<img src="/media/ro-mono-303/voice-mode.png" alt="ro-mono-303 in voice mode: the TB-303 panel with knobs, switches and keys, its brand marks' places left blank, and the plugin bar with SYNC, CUT OFF MAX and SERVICE" width="1200" height="640">
+<img src="/media/ro-mono-303/voice-mode.png" alt="ro-mono-303 in voice mode: the TB-303 panel with knobs, switches and keys, its brand marks' places left blank, and the plugin bar with SYNC and SERVICE" width="1200" height="640">
 <span class="leader" style="left: 40.8%; top: -24px; height: calc(15% + 24px)" aria-hidden="true"></span>
 <span class="target" style="left: 40.8%; top: 15%" aria-hidden="true"></span>
 <span class="balloon" style="left: 40.8%; top: -56px" aria-hidden="true">A2</span>
@@ -65,7 +65,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <figcaption class="caption">
 <div class="row"><span class="key">A1</span><span><strong>Sequencer.</strong> The CPU, IC8, runs its original program from <span class="mono">d650c-133.ic8</span>.</span></div>
 <div class="row"><span class="key">A2</span><span><strong>Voice.</strong> Modelled part by part from the service notes.</span></div>
-<div class="row"><span class="fig">FIG. 1</span><span>Voice mode: the panel with its brand marks' places left blank, and the plugin bar with SYNC, CUT OFF MAX and SERVICE.</span></div>
+<div class="row"><span class="fig">FIG. 1</span><span>Voice mode: the panel with its brand marks' places left blank, and the plugin bar with SYNC and SERVICE.</span></div>
 </figcaption>
 </figure>
 </div>
@@ -76,7 +76,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <div class="numbers-head">
 <h2 class="h2 tap">In numbers</h2>
 <p class="dim">Measured note by note against 400 notes recorded from a real TB-303. Method: <a href="#made">How it was made</a>.</p>
-<p class="dim small">The clips at the top: acidvoice.com has recordings of a real TB-303 playing an accent test at three knob settings; these are ro-mono-303 playing the same pattern at the same settings, with no effects. It is set to match that unit: CUT OFF MAX <span class="mono">2.05 kHz</span> and DECAY <span class="mono">65 %</span> (the site doesn't give DECAY). At 100 %, RESONANCE is 98 %, matched to that unit by ear; at 60 %, CUT OFF is 51 %, where its filter sits where that unit's does at 60 %.</p>
+<p class="dim small">The clips at the top: acidvoice.com has recordings of a real TB-303 playing an accent test at three knob settings; these are ro-mono-303 playing the same pattern at the same settings, with no effects. It is set to match that unit: VR3 CUT OFF in SERVICE at <span class="mono">2.05 kHz</span> and DECAY <span class="mono">65 %</span> (the site doesn't give DECAY). At 100 %, RESONANCE is 98 %, matched to that unit by ear; at 60 %, CUT OFF is 51 %, where its filter sits where that unit's does at 60 %.</p>
 </div>
 
 <div class="numbers">
@@ -141,7 +141,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <div class="service-head">
 <div class="text">
 <h2 class="h2 tap">Take the panel off</h2>
-<p class="dim">The main board and switch board, every part where the service notes draw it, with the six trimmers and a scope, frequency counter and meter on each one's test point. <a href="/ro-mono-303/guide#service">SERVICE in the guide</a></p>
+<p class="dim">The main board and switch board, every part where the service notes draw it, with the six trimmers and a scope, frequency counter and meter on each one's test point, and the part units differ in (CUT OFF's pot). <a href="/ro-mono-303/guide#service">SERVICE in the guide</a></p>
 </div>
 <div class="stamp">
 <div><span class="count">16 / 16</span> <span class="spec">In spec</span></div>
@@ -151,9 +151,9 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 </div>
 <figure class="shot">
 <div class="mount">
-<img src="/media/ro-mono-303/service.webp" alt="ro-mono-303 with SERVICE on: the TB-303's main board and switch board, TM3 FREQ highlighted, a scope timing the filter's ring at TP6, a frequency counter on the VCO, a meter on CV OUT, and the six trimmers, all green: in spec" width="2400" height="1216" loading="lazy">
+<img src="/media/ro-mono-303/service.webp" alt="ro-mono-303 with SERVICE on: the TB-303's main board and switch board, TM3 FREQ highlighted, the scope on TP6 with the service notes' adjustment under it, a frequency counter on the VCO, a meter on CV OUT, the six trimmers, all green: in spec, and under them the PARTS row, VR3 CUT OFF" width="2400" height="1216" loading="lazy">
 </div>
-<figcaption class="caption"><div class="row"><span class="fig">FIG. 2</span><span><span class="mono">TM3</span> FREQ selected: the scope times the filter's ring at <span class="mono">TP6</span>. Green on a trimmer's track is the service notes' spec.</span></div></figcaption>
+<figcaption class="caption"><div class="row"><span class="fig">FIG. 2</span><span><span class="mono">TM3</span> FREQ selected: the scope goes to <span class="mono">TP6</span>, the filter, with the service notes' adjustment under it. Green on a trimmer's track is the service notes' spec. Under the trimmers, PARTS has CUT OFF's pot, where units differ.</span></div></figcaption>
 </figure>
 </div>
 </section>
@@ -166,7 +166,7 @@ const cents = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + 
 <div><dt>The accent's sweep</dt><dd>Fitted to one unit at one setting, ACCENT and RESONANCE full. There its accents peak within −70 to +30 cents of the real ones.</dd></div>
 <div><dt>Loud accents</dt><dd>Both real units flatten their loudest accents; the BA662 VCA chip, as reverse engineered, doesn't. Its output is limited to match, but why the real chip does this isn't known.</dd></div>
 <div><dt>The start of a note</dt><dd>Against Din Sync's unit, brightness in the first 0.1 s is about 25 % off. Two takes of that unit differ by about 2 %.</dd></div>
-<div><dt>Units differ</dt><dd>With CUT OFF and RESONANCE full, Din Sync's unit tops out at about 1.4 kHz; Whittle gives about 2.5 kHz as typical. CUT OFF MAX (1.2 to 3 kHz) and the SERVICE trimmers cover the spread.</dd></div>
+<div><dt>Units differ</dt><dd>With CUT OFF and RESONANCE full, Din Sync's unit tops out at about 1.4 kHz; Whittle gives about 2.5 kHz as typical. VR3 CUT OFF in SERVICE (1.2 to 3 kHz, 2.3 kHz by default) and the trimmers cover the spread.</dd></div>
 </dl>
 <div id="help" class="help">
 <div class="help-text">

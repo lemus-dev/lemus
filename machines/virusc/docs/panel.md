@@ -102,6 +102,9 @@ in enough detail to redo it.
   - x is the cut-out's even split; y is the mean of cut-out and cap.
   - Measured cut-outs that read wide (shadow) or narrow (FILT EDIT / FILT 1) were replaced by the standard
     width, centred between cut-out and caps.
+  - The PARAMETER pair's cut-out read 1.9 mm high, which pulled its y up 0.95 mm and hid half of DEMO.
+    Its caps are placed from the caps alone, in a standard cut-out centred on them: the master has the
+    three rows of that column evenly spaced.
 - **LEDs.** Each centre is the bare-plate hole: top edge + D/2 + 0.35 mm.
   - Through-holes lose their lower edge to the plate thickness.
   - On the 32 knob holes the top edge reads 0.35 mm high. The same holds for the LED holes against the
@@ -115,6 +118,10 @@ in enough detail to redo it.
   - Both photos are measured. If the two agree within 0.6 mm in width they are averaged (115 legends);
     otherwise the box with the right height and the larger width is kept (27 bare, 9 master).
   - Read by hand from 8 px/mm crops: BPM, PANIC, EXT IN R (it merges with its bar), SATURATION (arc).
+  - The print is one size per class while the boxes scatter by 0.1-0.25 mm, so the editor draws each class
+    (`fonts.classes`) at the median height and width of its measured legends. The lists beside a column of
+    LEDs start on one left edge, as in the master, and the editor sets each on its legends' median edge
+    (`legend_columns`).
 - **Display.** `char_origin` comes from the glyph fit. The pitches are the standard values; the window
   and bezel are traced rails.
 - **Colours.** The plate, case, knobs and buttons come from four other photos with neutral surroundings:
@@ -173,6 +180,8 @@ in enough detail to redo it.
   - `lcd` (`char_origin`, pitches, cell and dot sizes);
   - `text_arc` (SATURATION);
   - `label_box` tags (1, 2, 3, MOD, VALUE: blue-grey fill, light text).
+- `font` names a legend's print class (`fonts.classes`); `legend_columns` lists the legends that share
+  a left edge or a centre line.
 - `button.cutout_bbox` is the shared panel opening; `cutout_shared_by` says how many caps sit in it.
 - Interactive elements carry `param`. Knobs carry `mame_knob`; buttons carry `mame_key [row, bit]`
   where the match is clear.

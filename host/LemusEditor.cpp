@@ -1827,11 +1827,29 @@ private:
 		repaint();
 	}
 
+	// The call-out is the bar's own, in the editor. Not launchAsynchronously into the host's window:
+	// JUCE's AU wrapper deletes everything left in its window when it closes, and that box is a member
+	// of its callback, not an object of its own, so deleting it aborted the host's plugin process.
 	void launch(std::unique_ptr<juce::Component> content, juce::Component &from)
 	{
-		auto *top = getTopLevelComponent();
-		auto &box = juce::CallOutBox::launchAsynchronously(std::move(content), top->getLocalArea(&from, from.getLocalBounds()), top);
-		box.setLookAndFeel(&m_look.get());
+		closeCallOut();
+		auto *editor = getParentComponent();
+		m_callOutContent = std::move(content);
+		m_callOut = std::make_unique<juce::CallOutBox>(*m_callOutContent, editor->getLocalArea(&from, from.getLocalBounds()), editor);
+		m_callOut->setLookAndFeel(&m_look.get());
+		// Dismissed (a click outside, Escape, dismiss()): deleted after the message that closed it.
+		m_callOut->enterModalState(true, juce::ModalCallbackFunction::create([safe = juce::Component::SafePointer<Bar>(this)](int) {
+			                           juce::MessageManager::callAsync([safe] {
+				                           if (safe != nullptr)
+					                           safe->closeCallOut();
+			                           });
+		                           }),
+		                           false);
+	}
+	void closeCallOut()
+	{
+		m_callOut.reset();
+		m_callOutContent.reset();
 	}
 
 	void showAbout()
@@ -1843,9 +1861,8 @@ private:
 	}
 	void showRoms()
 	{
-		// Within the window: below the bar, inside the call-out's border.
-		const auto *top = getTopLevelComponent();
-		launch(std::make_unique<Scroller>(std::make_unique<RomsPopover>(m_proc, m_onReloaded), top->getHeight() - getHeight() - 60), m_roms);
+		// Within the editor: below the bar, inside the call-out's border.
+		launch(std::make_unique<Scroller>(std::make_unique<RomsPopover>(m_proc, m_onReloaded), getParentHeight() - getHeight() - 60), m_roms);
 	}
 	void showState() { launch(std::make_unique<StatePopover>(m_proc), m_state); }
 
@@ -1863,6 +1880,8 @@ private:
 	juce::SharedResourcePointer<LemusLook> m_look;
 	juce::SharedResourcePointer<lemus::updates::Checker> m_checker;
 	lemus::updates::Release m_release;
+	std::unique_ptr<juce::Component> m_callOutContent; // outlives the box that shows it
+	std::unique_ptr<juce::CallOutBox> m_callOut;
 };
 
 //==============================================================================

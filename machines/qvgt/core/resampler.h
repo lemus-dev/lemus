@@ -10,8 +10,10 @@ namespace qvgt {
 
 class Resampler {
 public:
+	static constexpr int kDefaultHalfTaps = 24;
+
 	// cutoffFraction: the passband's edge as a fraction of the lower Nyquist frequency.
-	Resampler(double inRate, double outRate, double cutoffFraction = 0.9, int halfTaps = 24)
+	Resampler(double inRate, double outRate, double cutoffFraction = 0.9, int halfTaps = kDefaultHalfTaps)
 		: m_step(inRate / outRate), m_half(halfTaps), m_hist(size_t(2 * halfTaps + 2), 0.0f)
 	{
 		constexpr double kPi = 3.14159265358979323846;
