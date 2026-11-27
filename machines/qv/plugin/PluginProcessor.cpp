@@ -1,0 +1,371 @@
+#include "PluginProcessor.h"
+#include "PluginEditor.h"
+
+#include "host/Roms.h"
+
+#include <chrono>
+#include <cmath>
+#include <cstring>
+
+namespace {
+// The INPUT and OUTPUT pots' rotation 0-10 (the panel's scale) as 0-1; the stages around them are
+// the unit's (core/unit.h).
+double rotation(float r) { return juce::jlimit(0.0, 1.0, double(r) / 10.0); }
+} // namespace
+
+juce::AudioProcessorValueTreeState::ParameterLayout QVProcessor::layout()
+{
+	juce::AudioProcessorValueTreeState::ParameterLayout l;
+	const auto attrs = juce::AudioParameterFloatAttributes().withStringFromValueFunction([](float v, int) { return juce::String(v, 1); });
+	// Defaults: INPUT at unity gain (5.5, core/unit.h), OUTPUT where a dry program comes out at the
+	// level it went in (7.1: the pot's 0.5 share, the output stages' gain of 2).
+	l.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("input", 1), "Input", juce::NormalisableRange<float>(0.0f, 10.0f), 5.5f, attrs));
+	l.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("output", 1), "Output", juce::NormalisableRange<float>(0.0f, 10.0f), 7.1f, attrs));
+	return l;
+}
+
+QVProcessor::QVProcessor(const juce::MemoryBlock *rom, const juce::MemoryBlock *lcdFont, lemus::Artwork artwork)
+	: AudioProcessor(BusesProperties().withInput("Input", juce::AudioChannelSet::stereo(), true).withOutput("Output", juce::AudioChannelSet::stereo(), true)),
+	  m_artwork(std::move(artwork)), m_params(*this, nullptr, "qv", layout())
+{
+	m_midiOut.reserve(8192);
+	m_input = m_params.getRawParameterValue("input");
+	m_output = m_params.getRawParameterValue("output");
+	if (rom != nullptr) {
+		const auto sha1 = lemus::sha1Hex(rom->getData(), rom->getSize());
+		m_firmware = sha1 == kV203Sha1 ? "v2.03" : sha1 == kV107Sha1 ? "v1.07" : "";
+		const auto *p = static_cast<const uint8_t *>(rom->getData());
+		std::vector<uint8_t> image(p, p + rom->getSize());
+		if (qv::Board::prepareRom(image))
+			m_rom = std::move(image);
+	}
+	if (lcdFont != nullptr && lcdFont->getSize() == 4096) {
+		const auto *p = static_cast<const uint8_t *>(lcdFont->getData());
+		m_lcdFont.assign(p, p + 4096);
+	}
+	startBoot({});
+}
+
+QVProcessor::~QVProcessor() { stopBoot(); }
+
+void QVProcessor::stopBoot()
+{
+	m_cancelBoot = true;
+	if (m_boot.joinable())
+		m_boot.join();
+	m_cancelBoot = false;
+}
+
+// The firmware from reset with `ram` (empty: a new unit, which gets the factory programs), as fast
+// as it runs, without audio.
+void QVProcessor::startBoot(const std::vector<uint8_t> &ram)
+{
+	stopBoot();
+	m_bootRam = ram;
+	{
+		const juce::SpinLock::ScopedLockType lock(m_audioLock);
+		m_ready = false;
+	}
+	if (!romLoaded())
+		return;
+	auto unit = std::make_unique<qv::Unit>(m_rom);
+	if (ram.size() == qv::kRamSize)
+		std::memcpy(unit->board().ram().data(), ram.data(), qv::kRamSize);
+	m_unit = std::move(unit);
+	const bool factory = ram.size() != qv::kRamSize;
+	m_boot = std::thread([this, factory] {
+		auto &u = *m_unit;
+		u.powerOn();
+		if (factory && !m_cancelBoot)
+			u.recallFactoryPrograms();
+		if (m_cancelBoot)
+			return;
+		u.prepare(m_rate.load());
+		applyGains();
+		m_ready.store(true, std::memory_order_release);
+	});
+}
+
+void QVProcessor::waitForBoot()
+{
+	if (m_boot.joinable())
+		m_boot.join();
+}
+
+void QVProcessor::setPowered(bool on)
+{
+	if (on == m_powered)
+		return;
+	if (!on) {
+		stopBoot();
+		const juce::SpinLock::ScopedLockType lock(m_audioLock);
+		if (m_unit != nullptr && m_ready.load(std::memory_order_acquire))
+			m_offRam.assign(m_unit->board().ram().begin(), m_unit->board().ram().end());
+		else
+			m_offRam = m_bootRam;
+		m_ready = false;
+		m_powered = false;
+		return;
+	}
+	m_powered = true;
+	startBoot(m_offRam);
+}
+
+// Mono or stereo, both ways, as the jacks take it (sheet 1): the left input takes the right's
+// (R (MONO) on the rear) with no plug in it, and one plug in the outputs is the left output.
+bool QVProcessor::isBusesLayoutSupported(const BusesLayout &layouts) const
+{
+	const auto mono = juce::AudioChannelSet::mono(), stereo = juce::AudioChannelSet::stereo();
+	const auto in = layouts.getMainInputChannelSet(), out = layouts.getMainOutputChannelSet();
+	return (in == mono || in == stereo) && (out == mono || out == stereo);
+}
+
+void QVProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+	m_rate = sampleRate;
+	m_silence.assign(size_t(juce::jmax(1, samplesPerBlock)), 0.0f);
+	m_right.assign(m_silence.size(), 0.0f);
+	const juce::SpinLock::ScopedLockType lock(m_audioLock);
+	if (m_unit != nullptr && m_ready.load(std::memory_order_acquire))
+		m_unit->prepare(sampleRate);
+	setLatencySamples(m_unit != nullptr ? m_unit->latency() : 0);
+}
+
+void QVProcessor::applyGains()
+{
+	m_unit->inputPot = rotation(m_input->load());
+	m_unit->outputPot = rotation(m_output->load());
+}
+
+void QVProcessor::setKey(int key, bool down, bool hard)
+{
+	const juce::SpinLock::ScopedLockType lock(m_keysLock);
+	m_keys.push_back({key, down, hard});
+}
+
+void QVProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midi)
+{
+	juce::ScopedNoDenormals noDenormals;
+	const int n = buffer.getNumSamples();
+	// rendering offline, the host can wait: the firmware's start first (up to 20 s), so a render of a
+	// just-loaded instance doesn't begin in silence (as the SP-12's)
+	if (isNonRealtime() && m_powered && romLoaded())
+		for (int i = 0; i < 20000 && !m_ready.load(std::memory_order_acquire); ++i)
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	const juce::SpinLock::ScopedTryLockType audio(m_audioLock);
+	if (!audio.isLocked() || !m_ready.load(std::memory_order_acquire)) {
+		buffer.clear();
+		midi.clear();
+		return;
+	}
+	auto &u = *m_unit;
+	auto &board = u.board();
+
+	if (m_ramAsk.load(std::memory_order_acquire) == 1) {
+		m_ramCopy.assign(board.ram().begin(), board.ram().end());
+		m_ramAsk.store(2, std::memory_order_release);
+	}
+	{
+		const juce::SpinLock::ScopedTryLockType lock(m_keysLock);
+		if (lock.isLocked() && !m_keys.empty()) {
+			for (const auto &k : m_keys) {
+				if (k.key >= kFootswitchKey) {
+					board.setFootswitch(k.key - kFootswitchKey, k.down);
+					continue;
+				}
+				if (k.down)
+					board.setKeyForce(k.hard ? qv::Unit::kHardPress : qv::Unit::kLightPress);
+				board.setKey(k.key, k.down);
+			}
+			m_keys.clear();
+			u.wake();
+		}
+	}
+	for (const auto event : midi) {
+		const auto msg = event.getMessage();
+		const auto *data = msg.getRawData();
+		for (int b = 0; b < msg.getRawDataSize(); ++b)
+			board.midiIn(data[b]);
+		u.wake();
+	}
+	applyGains();
+
+	if (int(m_silence.size()) < n) {
+		m_silence.assign(size_t(n), 0.0f);
+		m_right.assign(size_t(n), 0.0f);
+	}
+	// A mono input is one plug in R (MONO): J13's switch passes it to the left side too. A mono output
+	// is one plug in LEFT OUTPUT: the right output goes nowhere (J11, J12 aren't normalled).
+	const int inChannels = getTotalNumInputChannels();
+	const bool oneOut = getTotalNumOutputChannels() < 2 || buffer.getNumChannels() < 2;
+	const float *inL = inChannels > 0 ? buffer.getReadPointer(0) : m_silence.data();
+	const float *inR = inChannels > 1 ? buffer.getReadPointer(1) : inL;
+	float *outL = buffer.getWritePointer(0), *outR = oneOut ? m_right.data() : buffer.getWritePointer(1);
+	u.process(inL, inR, outL, outR, n);
+	for (int ch = 2; ch < buffer.getNumChannels(); ++ch)
+		buffer.clear(ch, 0, n);
+	m_asleep.store(u.asleep(), std::memory_order_relaxed);
+
+	// MIDI out as the UART sends it: whole messages this block, a message still being sent kept for
+	// the next one (with the last status, for running status)
+	midi.clear();
+	const auto sent = board.takeMidiOut();
+	m_midiOut.insert(m_midiOut.end(), sent.begin(), sent.end());
+	size_t at = 0;
+	while (at < m_midiOut.size()) {
+		const uint8_t first = m_midiOut[at];
+		if (first == 0xf0) {
+			size_t end = at;
+			while (end < m_midiOut.size() && m_midiOut[end] != 0xf7)
+				++end;
+			if (end == m_midiOut.size())
+				break; // still coming
+			midi.addEvent(m_midiOut.data() + at, int(end - at + 1), 0);
+			at = end + 1;
+			continue;
+		}
+		if (first >= 0xf8) { // real time, anywhere
+			midi.addEvent(m_midiOut.data() + at, 1, 0);
+			++at;
+			continue;
+		}
+		uint8_t msg[3] = {first, 0, 0};
+		size_t from = at + 1;
+		if (first < 0x80) { // running status
+			if (m_midiStatus < 0x80) {
+				++at;
+				continue;
+			}
+			msg[0] = m_midiStatus;
+			from = at;
+		}
+		const int len = juce::MidiMessage::getMessageLengthFromFirstByte(msg[0]);
+		if (from + size_t(len - 1) > m_midiOut.size())
+			break; // still coming
+		for (int k = 1; k < len; ++k)
+			msg[k] = m_midiOut[from + size_t(k - 1)];
+		if (msg[0] < 0xf0)
+			m_midiStatus = msg[0];
+		midi.addEvent(msg, len, 0);
+		at = from + size_t(len - 1);
+	}
+	m_midiOut.erase(m_midiOut.begin(), m_midiOut.begin() + std::ptrdiff_t(at));
+	if (m_midiOut.size() > 4096) // a SysEx with no end
+		m_midiOut.clear();
+	publishDisplay();
+}
+
+void QVProcessor::publishDisplay()
+{
+	const juce::SpinLock::ScopedTryLockType lock(m_displayLock);
+	if (!lock.isLocked())
+		return;
+	auto &board = m_unit->board();
+	board.lcd().line(0, m_display.text[0]);
+	board.lcd().line(1, m_display.text[1]);
+	std::memcpy(m_display.cgram, board.lcd().cgram, sizeof(m_display.cgram));
+	m_display.on = board.lcd().displayOn;
+	m_display.latch0400 = board.latch(qv::Board::kLatch0400);
+	m_display.latch0600 = board.latch(qv::Board::kLatch0600);
+	m_display.latch0800 = board.latch(qv::Board::kLatch0800);
+	m_display.clip = m_unit->clip();
+	m_display.headroom = m_unit->headroom();
+	m_solverStats = m_unit->solverStats();
+}
+
+QVProcessor::Display QVProcessor::display() const
+{
+	const juce::SpinLock::ScopedLockType lock(m_displayLock);
+	return m_display;
+}
+
+qv::SolverStats QVProcessor::solverStats() const
+{
+	const juce::SpinLock::ScopedLockType lock(m_displayLock);
+	return m_solverStats;
+}
+
+juce::AudioProcessorEditor *QVProcessor::createEditor() { return new QVEditor(*this); }
+
+void QVProcessor::getStateInformation(juce::MemoryBlock &destData)
+{
+	auto state = m_params.copyState();
+	state.setProperty("model", kModelVersion, nullptr);
+	std::vector<uint8_t> ram;
+	if (m_ready.load(std::memory_order_acquire)) {
+		m_ramAsk.store(1, std::memory_order_release);
+		for (int i = 0; i < 400 && m_ramAsk.load(std::memory_order_acquire) != 2; ++i)
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		if (m_ramAsk.load(std::memory_order_acquire) == 2)
+			ram = m_ramCopy;
+		else {
+			// no audio running: the unit is ours
+			const juce::SpinLock::ScopedLockType lock(m_audioLock);
+			ram.assign(m_unit->board().ram().begin(), m_unit->board().ram().end());
+		}
+		m_ramAsk.store(0, std::memory_order_release);
+	} else
+		ram = m_bootRam; // still booting: what it is booting with
+	if (!m_powered)
+		ram = m_offRam;
+	state.setProperty("powered", m_powered, nullptr);
+	state.setProperty("firmware", m_firmware, nullptr);
+	if (!ram.empty())
+		state.setProperty("ram", juce::var(juce::MemoryBlock(ram.data(), ram.size())), nullptr);
+	if (!m_asideRam.empty()) {
+		state.setProperty("asideFirmware", m_asideFirmware, nullptr);
+		state.setProperty("asideRam", juce::var(juce::MemoryBlock(m_asideRam.data(), m_asideRam.size())), nullptr);
+	}
+	if (auto xml = state.createXml())
+		copyXmlToBinary(*xml, destData);
+}
+
+void QVProcessor::setStateInformation(const void *data, int sizeInBytes)
+{
+	auto xml = getXmlFromBinary(data, sizeInBytes);
+	if (xml == nullptr || !xml->hasTagName(m_params.state.getType()))
+		return;
+	auto state = juce::ValueTree::fromXml(*xml);
+	m_modelVersion = state.getProperty("model", kModelVersion);
+	auto bytes = [&](const char *name) {
+		std::vector<uint8_t> v;
+		if (auto *block = state.getProperty(name).getBinaryData(); block != nullptr) {
+			const auto *p = static_cast<const uint8_t *>(block->getData());
+			v.assign(p, p + block->getSize());
+		}
+		return v;
+	};
+	// The RAM is the firmware's it was saved with. Opened with another, the unit starts as a new one,
+	// with its factory programs, and the session keeps the saved RAM for when that firmware is back.
+	auto ram = bytes("ram");
+	const juce::String savedFirmware = state.getProperty("firmware", "v2.03");
+	auto aside = bytes("asideRam");
+	const juce::String asideFirmware = state.getProperty("asideFirmware");
+	if (savedFirmware != m_firmware) {
+		std::vector<uint8_t> mine;
+		if (asideFirmware == m_firmware)
+			mine = std::move(aside);
+		m_asideFirmware = savedFirmware;
+		m_asideRam = std::move(ram);
+		ram = std::move(mine);
+	} else {
+		m_asideFirmware = asideFirmware;
+		m_asideRam = std::move(aside);
+	}
+	if (m_asideRam.empty())
+		m_asideFirmware.clear();
+	const bool powered = state.getProperty("powered", true);
+	for (const auto *name : {"ram", "powered", "firmware", "asideFirmware", "asideRam"})
+		state.removeProperty(name, nullptr);
+	m_params.replaceState(state);
+	if (powered) {
+		m_powered = true;
+		startBoot(ram);
+	} else {
+		stopBoot();
+		const juce::SpinLock::ScopedLockType lock(m_audioLock);
+		m_ready = false;
+		m_powered = false;
+		m_offRam = ram;
+	}
+}

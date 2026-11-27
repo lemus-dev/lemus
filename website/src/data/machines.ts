@@ -474,6 +474,18 @@ export const machines: Machine[] = [
       { version: '0.1.0', notes: ['The first release, a beta.'] },
     ],
   },
+  {
+    slug: 'ko-mono-20',
+    emulates: 'Korg MS-20',
+    year: 1978,
+    type: 'mono synth',
+    status: 'working',
+    withoutRom: 'not-needed',
+    keywords: 'ms20 ms-20 korg korg35 klm-307 lm13600 rev 1 rev 2 semi-modular patch analogue mono monophonic filter scream esp external signal processor',
+    nav: true,
+    release: { version: '0.1.0', tag: 'ko-mono-20-v0.1.0', stage: 'beta', mac: 'ko-mono-20-0.1.0-mac.pkg', windows: 'ko-mono-20-0.1.0-windows.zip' },
+    changes: [{ version: '0.1.0', notes: ['The first release, a beta.'] }],
+  },
 ];
 
 // True if version a is newer than b, number by number (0.10.0 is newer than 0.9.1).

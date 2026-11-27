@@ -1,0 +1,681 @@
+{
+ "source": "Front panel: the QuadraVerb GT's geometry (machines/qvgt/docs/panel.json: the same chassis, keys, knobs, meter and LCD bezel), checked against a straight-on photo of a QuadraVerb Plus front (6646 x 1140 px, 12.8-13.0 px/mm measured per row between the plate's edges, 482.6 mm; private/qv/docs/photos/front-straight-a): the keys within 0.2-2.5 mm of the GT's, the knobs and LEDs within 0.7 mm. Measured on that photo (about +-1 mm): the logos, the blue rule, the print band, the LCD bezel, the right-hand print. The LCD is the original unlit reflective one: its colour from the photo's unpowered glass with the face's cast taken out (the glass reads 2.1 times the face), lightened for the reflective look under light; the same on and off (no backlight). Rear: a listing's straight-on photo of the whole rear (private/qv/docs/photos/rear-straight-a, 4.16 px/mm across the chassis face taken as 445 mm, as the GT's), +-5 mm.",
+ "units": "mm from the plate's top left corner",
+ "width": 482.6,
+ "height": 43.66,
+ "colours": {
+  "face": "#1c1c1f",
+  "legend": "#ececea",
+  "digit": "#8a8a8c",
+  "blue": "#3a7cc4",
+  "rule": "#3159a8",
+  "key": "#808581",
+  "key_power": "#8a8e8a",
+  "lcd_lit": "#7c8670",
+  "lcd_ink": "#1c2116",
+  "lcd_off": "#7c8670",
+  "led_red": "#ff3324",
+  "led_green": "#46e85a"
+ },
+ "slots": {
+  "centres": [
+   [
+    8.75,
+    5.96
+   ],
+   [
+    8.75,
+    37.7
+   ],
+   [
+    473.85,
+    5.96
+   ],
+   [
+    473.85,
+    37.7
+   ]
+  ],
+  "w": 12.4,
+  "h": 7.2
+ },
+ "screws": {
+  "centres": [
+   [
+    30.4,
+    8.6
+   ],
+   [
+    30.4,
+    33.5
+   ],
+   [
+    453.5,
+    8.6
+   ],
+   [
+    453.5,
+    33.5
+   ]
+  ],
+  "d": 5.6
+ },
+ "logos": [
+  {
+   "place": "maker",
+   "mark": "alesis",
+   "label": "Alesis logo",
+   "box": [
+    40.9,
+    2.5,
+    24.1,
+    4.2
+   ]
+  },
+  {
+   "place": "name",
+   "mark": "quadraverb",
+   "label": "QuadraVerb logo",
+   "box": [
+    71.0,
+    2.4,
+    61.3,
+    8.6
+   ]
+  }
+ ],
+ "rule": {
+  "from": [
+   40.9,
+   8.35
+  ],
+  "to": [
+   204.0,
+   8.35
+  ],
+  "w": 0.55
+ },
+ "meter": {
+  "labels_right": 48.2,
+  "led_x": 52.7,
+  "led_d": 2.6,
+  "rows": [
+   {
+    "label": "CLIP",
+    "y": 19.4,
+    "colour": "led_red"
+   },
+   {
+    "label": "-6 dB",
+    "y": 25.1,
+    "colour": "led_green"
+   },
+   {
+    "label": "-12 dB",
+    "y": 30.9,
+    "colour": "led_green"
+   },
+   {
+    "label": "-18 dB",
+    "y": 36.6,
+    "colour": "led_green"
+   }
+  ],
+  "cap": 2.6,
+  "italic": true
+ },
+ "knobs": [
+  {
+   "name": "INPUT",
+   "param": "input",
+   "c": [
+    75.3,
+    24.2
+   ],
+   "d": 15.8,
+   "label_y": 37.8
+  },
+  {
+   "name": "OUTPUT",
+   "param": "output",
+   "c": [
+    103.0,
+    24.2
+   ],
+   "d": 15.8,
+   "label_y": 37.8
+  }
+ ],
+ "knob_label_cap": 3.0,
+ "knob_pointer": {
+  "w": 2.3,
+  "from_r": 0.0,
+  "to_r": 3.2
+ },
+ "lcd": {
+  "window": [
+   136.8,
+   10.9,
+   67.1,
+   19.8
+  ],
+  "text": [
+   143.7,
+   14.25,
+   53.3,
+   13.1
+  ]
+ },
+ "texts": [
+  {
+   "text": "20K BANDWIDTH SIMULTANEOUS DIGITAL EFFECTS PROCESSOR",
+   "box": [
+    136.5,
+    4.9,
+    67.5,
+    1.9
+   ],
+   "colour": "legend",
+   "bold": true,
+   "italic": true
+  },
+  {
+   "text": "FULLY PROGRAMMABLE",
+   "box": [
+    413.8,
+    28.4,
+    29.1,
+    1.9
+   ],
+   "colour": "blue",
+   "bold": true,
+   "italic": false,
+   "rule_below": 0.9
+  },
+  {
+   "text": "MIDI ADDRESSABLE",
+   "box": [
+    413.8,
+    32.5,
+    29.1,
+    1.9
+   ],
+   "colour": "blue",
+   "bold": true
+  }
+ ],
+ "triangles": [
+  {
+   "c": [
+    235.5,
+    10.6
+   ],
+   "w": 8.4,
+   "h": 4.3,
+   "up": true
+  },
+  {
+   "c": [
+    257.5,
+    10.6
+   ],
+   "w": 8.4,
+   "h": 4.3,
+   "up": true
+  },
+  {
+   "c": [
+    235.5,
+    40.2
+   ],
+   "w": 8.4,
+   "h": 4.0,
+   "up": false
+  },
+  {
+   "c": [
+    257.5,
+    40.2
+   ],
+   "w": 8.4,
+   "h": 4.0,
+   "up": false
+  }
+ ],
+ "key_cap": [
+  15.1,
+  5.7
+ ],
+ "key_label_cap": 2.7,
+ "rows": {
+  "upper": {
+   "key_y": 15.0,
+   "label_y": 11.4
+  },
+  "lower": {
+   "key_y": 30.3,
+   "label_y": 26.3
+  }
+ },
+ "keys": [
+  {
+   "key": 7,
+   "name": "PAGE up",
+   "x": 235.5,
+   "row": "upper",
+   "w": 16.0,
+   "led": null
+  },
+  {
+   "key": 6,
+   "name": "PAGE down",
+   "x": 235.5,
+   "row": "lower",
+   "w": 16.0,
+   "led": null
+  },
+  {
+   "key": 3,
+   "name": "VALUE up",
+   "x": 257.5,
+   "row": "upper",
+   "w": 16.0,
+   "led": null
+  },
+  {
+   "key": 2,
+   "name": "VALUE down",
+   "x": 257.5,
+   "row": "lower",
+   "w": 16.0,
+   "led": null
+  },
+  {
+   "key": 11,
+   "name": "PROG",
+   "x": 291.0,
+   "row": "upper",
+   "label": "PROG",
+   "label_colour": "digit",
+   "led": [
+    3,
+    7
+   ]
+  },
+  {
+   "key": 10,
+   "name": "STORE",
+   "x": 291.0,
+   "row": "lower",
+   "label": "STORE",
+   "led": [
+    2,
+    5
+   ]
+  },
+  {
+   "key": 15,
+   "name": "REVERB",
+   "x": 316.1,
+   "row": "upper",
+   "label": "REVERB",
+   "digit": "1",
+   "led": [
+    4,
+    1
+   ]
+  },
+  {
+   "key": 14,
+   "name": "CONFIG",
+   "x": 316.1,
+   "row": "lower",
+   "label": "CONFIG",
+   "digit": "6",
+   "led": [
+    4,
+    0
+   ]
+  },
+  {
+   "key": 12,
+   "name": "DELAY",
+   "x": 336.8,
+   "row": "upper",
+   "label": "DELAY",
+   "digit": "2",
+   "led": [
+    4,
+    3
+   ]
+  },
+  {
+   "key": 13,
+   "name": "MIX",
+   "x": 336.8,
+   "row": "lower",
+   "label": "MIX",
+   "digit": "7",
+   "led": [
+    4,
+    2
+   ]
+  },
+  {
+   "key": 8,
+   "name": "PITCH",
+   "x": 357.4,
+   "row": "upper",
+   "label": "PITCH",
+   "digit": "3",
+   "led": [
+    4,
+    5
+   ]
+  },
+  {
+   "key": 9,
+   "name": "MOD",
+   "x": 357.4,
+   "row": "lower",
+   "label": "MOD",
+   "digit": 8,
+   "led": [
+    4,
+    4
+   ]
+  },
+  {
+   "key": 0,
+   "name": "EQ",
+   "x": 378.1,
+   "row": "upper",
+   "label": "EQ",
+   "digit": "4",
+   "led": [
+    4,
+    7
+   ]
+  },
+  {
+   "key": 1,
+   "name": "NAME",
+   "x": 378.1,
+   "row": "lower",
+   "label": "NAME",
+   "digit": 9,
+   "led": [
+    4,
+    6
+   ]
+  },
+  {
+   "key": 4,
+   "name": "MIDI",
+   "x": 398.2,
+   "row": "upper",
+   "label": "MIDI",
+   "digit": "5",
+   "led": [
+    2,
+    7
+   ]
+  },
+  {
+   "key": 5,
+   "name": "BYPASS",
+   "x": 398.2,
+   "row": "lower",
+   "label": "BYPASS",
+   "digit": "0",
+   "led": [
+    2,
+    6
+   ]
+  }
+ ],
+ "labels_note": "PAGE and VALUE are printed between their keys (y 25.3); the function keys' labels sit over them with the number in grey; PROG is printed grey.",
+ "page_value_label_y": 25.3,
+ "led_in_key_d": 1.8,
+ "power": {
+  "box": [
+   425.8,
+   8.6,
+   16.4,
+   6.2
+  ],
+  "label": "POWER",
+  "label_y": 5.7,
+  "label_cap": 1.9
+ },
+ "rear": {
+  "source": "a listing's straight-on photo of the whole rear (private/qv/docs/photos/rear-straight-a, 4.16 px/mm across the chassis face taken as 445 mm, as the GT's), +-5 mm.",
+  "face": [
+   18.8,
+   0.8,
+   445.0,
+   42.0
+  ],
+  "screws": [
+   [
+    21.9,
+    6.1
+   ],
+   [
+    21.9,
+    32.1
+   ],
+   [
+    460.5,
+    6.1
+   ],
+   [
+    460.5,
+    32.1
+   ]
+  ],
+  "screw_d": 4.5,
+  "jack_y": 13.5,
+  "label_y": [
+   29.0,
+   34.1
+  ],
+  "label_cap": 2.0,
+  "jacks": [
+   {
+    "name": "POWER",
+    "label": [
+     "POWER",
+     "9V AC"
+    ],
+    "x": 59.7,
+    "kind": "din",
+    "d": 15.0
+   },
+   {
+    "name": "ADVANCE",
+    "label": [
+     "ADVANCE"
+    ],
+    "x": 88.6,
+    "kind": "jack",
+    "d": 14.4,
+    "footswitch": 1
+   },
+   {
+    "name": "BYPASS",
+    "label": [
+     "BYPASS"
+    ],
+    "x": 109.0,
+    "kind": "jack",
+    "d": 14.4,
+    "footswitch": 0
+   },
+   {
+    "name": "MIDI THRU/OUT",
+    "label": [
+     "THRU/OUT"
+    ],
+    "x": 135.7,
+    "kind": "din",
+    "d": 15.0
+   },
+   {
+    "name": "MIDI IN",
+    "label": [
+     "IN"
+    ],
+    "x": 156.4,
+    "kind": "din",
+    "d": 15.0
+   },
+   {
+    "name": "OUTPUT L",
+    "label": [
+     "L"
+    ],
+    "x": 180.7,
+    "kind": "jack",
+    "d": 14.4
+   },
+   {
+    "name": "OUTPUT R",
+    "label": [
+     "R"
+    ],
+    "x": 201.6,
+    "kind": "jack",
+    "d": 14.4
+   },
+   {
+    "name": "INPUT L",
+    "label": [
+     "L"
+    ],
+    "x": 233.6,
+    "kind": "jack",
+    "d": 14.4
+   },
+   {
+    "name": "INPUT R (MONO)",
+    "label": [
+     "R (MONO)"
+    ],
+    "x": 254.2,
+    "kind": "jack",
+    "d": 14.4
+   }
+  ],
+  "brackets": [
+   {
+    "text": "MIDI",
+    "from": 135.7,
+    "to": 156.4
+   },
+   {
+    "text": "OUTPUT",
+    "from": 180.7,
+    "to": 201.6
+   },
+   {
+    "text": "INPUT",
+    "from": 233.6,
+    "to": 254.2
+   }
+  ],
+  "logo": {
+   "mark": "alesis",
+   "box": [
+    375.5,
+    11.7,
+    69.8,
+    10.2
+   ]
+  },
+  "texts": [
+   {
+    "text": "THIS PRODUCT MEETS THE",
+    "box": [
+     311.8,
+     8.7,
+     42.4,
+     1.6
+    ]
+   },
+   {
+    "text": "FCC REQUIREMENTS FOR",
+    "box": [
+     313.7,
+     11.9,
+     38.5,
+     1.6
+    ]
+   },
+   {
+    "text": "CLASS B COMPUTING EQUIPMENT",
+    "box": [
+     307.0,
+     15.1,
+     52.0,
+     1.6
+    ]
+   },
+   {
+    "text": "CAUTION: TO PREVENT ELECTRICAL",
+    "box": [
+     304.1,
+     21.5,
+     57.8,
+     1.6
+    ]
+   },
+   {
+    "text": "SHOCK DO NOT REMOVE COVERS.",
+    "box": [
+     307.0,
+     24.7,
+     52.0,
+     1.6
+    ]
+   },
+   {
+    "text": "NO USER SERVICEABLE PARTS INSIDE.",
+    "box": [
+     301.2,
+     27.9,
+     63.6,
+     1.6
+    ]
+   },
+   {
+    "text": "REFER SERVICING TO QUALIFIED",
+    "box": [
+     306.0,
+     31.1,
+     53.9,
+     1.6
+    ]
+   },
+   {
+    "text": "SERVICE PERSONNEL.",
+    "box": [
+     315.7,
+     34.3,
+     34.7,
+     1.6
+    ]
+   },
+   {
+    "text": "ALESIS CORPORATION, LOS ANGELES",
+    "box": [
+     375.5,
+     24.0,
+     71.5,
+     2.6
+    ],
+    "bold": true
+   }
+  ]
+ }
+}

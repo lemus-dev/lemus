@@ -5,11 +5,11 @@ One shared host runs many machines (drivers). Each machine ships as a plugin of 
 with that machine alone, named maker, kind, model: the TB-303 is **ro-mono-303**, the TR-909
 **ro-drums-909**, the TR-808 **ro-drums-808**, the Virus C **ac-digital-vc**, the QuadraVerb GT
 **al-fx-quadgt**, the SH-101 **ro-mono-101**, the ProCo RAT **pr-dist-r**, the Xpander
-**ob-poly-xp**, the Bass Station Rack **no-mono-bsr**, the MS-20 **ko-mono-20**. Downloads, user
+**ob-poly-xp**, the Bass Station Rack **no-mono-bsr**, the MS-20 **ko-mono-20**, the QuadraVerb **al-fx-quad**. Downloads, user
 guides and measurements against real units are on https://lemusdev.org.
 
 Status: early. The machines released so far are the Roland TB-303 (ro-mono-303), the Roland
-TR-909 (ro-drums-909), the Roland TR-808 (ro-drums-808), the Access Virus C (ac-digital-vc), the Alesis QuadraVerb GT (al-fx-quadgt), the Roland SH-101 (ro-mono-101), the ProCo RAT (pr-dist-r), the Oberheim Xpander (ob-poly-xp), the Novation Bass Station Rack (no-mono-bsr) and the Korg MS-20 (ko-mono-20). Others are in development and join this repository when they're released.
+TR-909 (ro-drums-909), the Roland TR-808 (ro-drums-808), the Access Virus C (ac-digital-vc), the Alesis QuadraVerb GT (al-fx-quadgt), the Roland SH-101 (ro-mono-101), the ProCo RAT (pr-dist-r), the Oberheim Xpander (ob-poly-xp), the Novation Bass Station Rack (no-mono-bsr), the Korg MS-20 (ko-mono-20) and the Alesis QuadraVerb (al-fx-quad). Others are in development and join this repository when they're released.
 
 ## Building
 
@@ -27,12 +27,12 @@ Needs CMake 3.22+ and JUCE, a submodule (`git submodule update --init`).
     build/cmake/lemustest_rat_artefacts/Release/lemustest_rat
     build/cmake/lemustest_fx_artefacts/Release/lemustest_fx
 
-`plugin_tb303_All` is ro-mono-303, `plugin_tr909_All` ro-drums-909, `plugin_tr808_All` ro-drums-808, `plugin_virusc_All` ac-digital-vc, `plugin_qvgt_All` al-fx-quadgt, `plugin_sh101_All` ro-mono-101, `plugin_xpander_All` ob-poly-xp, `plugin_bsrack_All` no-mono-bsr and `plugin_ms20_All` ko-mono-20 (each AU, VST3, standalone), `plugin_rat_All` pr-dist-r (AU, VST3); `Lemus_All` is the development host,
+`plugin_tb303_All` is ro-mono-303, `plugin_tr909_All` ro-drums-909, `plugin_tr808_All` ro-drums-808, `plugin_virusc_All` ac-digital-vc, `plugin_qvgt_All` al-fx-quadgt, `plugin_sh101_All` ro-mono-101, `plugin_xpander_All` ob-poly-xp, `plugin_bsrack_All` no-mono-bsr, `plugin_ms20_All` ko-mono-20 and `plugin_qv_All` al-fx-quad (each AU, VST3, standalone), `plugin_rat_All` pr-dist-r (AU, VST3); `Lemus_All` is the development host,
 which starts empty and loads a machine from its picker. The AU and VST3 are copied to
 `~/Library/Audio/Plug-Ins/` (`-DLEMUS_COPY_PLUGINS=OFF` while a host has them loaded), and
 `-DLEMUS_TOOLS=OFF` leaves out the test host and tests. Releases: `tools/release/README.md`.
 `auval -v aumu R303 Lmus` checks ro-mono-303's AU, `auval -v aumu R909 Lmus` ro-drums-909's,
-`auval -v aumu R808 Lmus` ro-drums-808's, `auval -v aumu Avrc Lmus` ac-digital-vc's, `auval -v aumf Aqvg Lmus` al-fx-quadgt's, `auval -v aumu R101 Lmus` ro-mono-101's, `auval -v aumf Prdi Lmus` pr-dist-r's, `auval -v aumu Oxpp Lmus` ob-poly-xp's, `auval -v aumu Nbsr Lmus` no-mono-bsr's, `auval -v aumu K20m Lmus` ko-mono-20's.
+`auval -v aumu R808 Lmus` ro-drums-808's, `auval -v aumu Avrc Lmus` ac-digital-vc's, `auval -v aumf Aqvg Lmus` al-fx-quadgt's, `auval -v aumu R101 Lmus` ro-mono-101's, `auval -v aumf Prdi Lmus` pr-dist-r's, `auval -v aumu Oxpp Lmus` ob-poly-xp's, `auval -v aumu Nbsr Lmus` no-mono-bsr's, `auval -v aumu K20m Lmus` ko-mono-20's, `auval -v aumf Aqua Lmus` al-fx-quad's.
 
 The machines' Python tools run from a virtual environment with pinned libraries (Python 3.14), set
 up once from the repo root: `python3.14 -m venv .venv && .venv/bin/pip install -r tools/requirements.txt`.
@@ -143,7 +143,7 @@ are ports of MAME's uCOM-4 and uPD7810 cores, BSD 3-Clause (see their files' hea
 `tools/release/NOTICES.txt`). The Virus C's 80C515 and LCD controller are ports of MAME's mcs51
 and hd44780, BSD 3-Clause; its DSP56362 is the dsp56300 emulator, GPL-3.0, with asmjit (Zlib),
 combined with the AGPL code under section 13 of both licences (`machines/virusc/README.md`). The
-QuadraVerb GT's 80C31 is a port of MAME's mcs51 too, and the SH-101's 80C49 of MAME's mcs48, BSD
+QuadraVerb GT's and QuadraVerb's 80C31s are ports of MAME's mcs51 too, and the SH-101's 80C49 of MAME's mcs48, BSD
 3-Clause.
 
 Machine names identify the original equipment and are trademarks of their owners. Lemus is not

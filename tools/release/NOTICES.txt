@@ -73,10 +73,10 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-The Access Virus C's 80C515 and the Alesis QuadraVerb GT's 80C31 are ports
-of MAME's MCS-51 core (src/devices/cpu/mcs51), and the Virus C's LCD
-controller a port of MAME's HD44780 (src/devices/video/hd44780), all licensed
-under the BSD 3-Clause licence (its text is above):
+The Access Virus C's 80C515 and the Alesis QuadraVerb GT's and QuadraVerb's
+80C31s are ports of MAME's MCS-51 core (src/devices/cpu/mcs51), and the Virus
+C's LCD controller a port of MAME's HD44780 (src/devices/video/hd44780), all
+licensed under the BSD 3-Clause licence (its text is above):
 
 Copyright (c) Steve Ellenoff, Manuel Abadia, Couriersud (mcs51)
 Copyright (c) Sandro Ronco (hd44780)

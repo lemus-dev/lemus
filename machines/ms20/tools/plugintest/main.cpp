@@ -451,7 +451,18 @@ int main(int argc, char **argv)
 				view->mouseDown(juce::MouseEvent(juce::Desktop::getInstance().getMainMouseSource(), view->placeForTests("service"), {},
 				                                 juce::MouseInputSource::defaultPressure, 0.0f, 0.0f, 0.0f, 0.0f, view, view,
 				                                 juce::Time::getCurrentTime(), view->placeForTests("service"), juce::Time::getCurrentTime(), 1, false));
-			const auto img = view->createComponentSnapshot(view->getLocalBounds(), true, 1.0f);
+			bool clean = false;
+			float scale = 1.0f;
+			for (int a = 3; a < argc; ++a) {
+				clean = clean || juce::String(argv[a]) == "clean"; // no cables (the website's picture)
+				if (juce::String(argv[a]) == "x2")
+					scale = 2.0f;
+			}
+			if (clean) {
+				p.setPatch(ms20::Patch{});
+				view->repaint();
+			}
+			const auto img = view->createComponentSnapshot(view->getLocalBounds(), true, scale);
 			juce::File out(argv[2]);
 			out.deleteFile();
 			juce::FileOutputStream stream(out);

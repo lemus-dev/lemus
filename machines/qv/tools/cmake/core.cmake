@@ -1,0 +1,15 @@
+# The QuadraVerb's core library (no JUCE): the 80C31, the board, the DASP 24, the analog stages, the
+# unit.
+if(NOT TARGET lemus_qvcore)
+  set(_qv ${QV_DIR}/core)
+  add_library(lemus_qvcore STATIC ${_qv}/i8031.cpp ${_qv}/board.cpp ${_qv}/dasp24.cpp ${_qv}/unit.cpp)
+  get_filename_component(_qv_machines ${QV_DIR}/.. ABSOLUTE)
+  target_include_directories(lemus_qvcore PUBLIC ${_qv_machines})
+  target_compile_features(lemus_qvcore PUBLIC cxx_std_17)
+  set_target_properties(lemus_qvcore PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  if(MSVC)
+    target_compile_options(lemus_qvcore PRIVATE /O2 /W3)
+  else()
+    target_compile_options(lemus_qvcore PRIVATE -O3 -Wall -Wextra)
+  endif()
+endif()

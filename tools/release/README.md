@@ -1,7 +1,7 @@
 # Releases
 
-A release is each shipping machine's own plugin (`-DLEMUS_MACHINES`, for now `tb303;tr909;tr808;virusc;qvgt;sh101;rat;xpander;bsrack;ms20`),
-each a download of its own: the TB-303 is **ro-mono-303**, the TR-909 **ro-drums-909**, the TR-808 **ro-drums-808**, the Virus C **ac-digital-vc**, the QuadraVerb GT **al-fx-quadgt**, the SH-101 **ro-mono-101**, the ProCo RAT **pr-dist-r** (an effect, no standalone app), the Oberheim Xpander **ob-poly-xp**, the Novation Bass Station Rack **no-mono-bsr**, the Korg MS-20 **ko-mono-20**. A machine's plugin is the host with that
+A release is each shipping machine's own plugin (`-DLEMUS_MACHINES`, for now `tb303;tr909;tr808;virusc;qvgt;sh101;rat;xpander;bsrack;ms20;qv`),
+each a download of its own: the TB-303 is **ro-mono-303**, the TR-909 **ro-drums-909**, the TR-808 **ro-drums-808**, the Virus C **ac-digital-vc**, the QuadraVerb GT **al-fx-quadgt**, the SH-101 **ro-mono-101**, the ProCo RAT **pr-dist-r** (an effect, no standalone app), the Oberheim Xpander **ob-poly-xp**, the Novation Bass Station Rack **no-mono-bsr**, the Korg MS-20 **ko-mono-20**, the Alesis QuadraVerb **al-fx-quad** (an effect). A machine's plugin is the host with that
 machine alone, declared in its `machine.cmake` (`lemus_plugin`: name, plugin code, description,
 whether it has a standalone app, its version). The all-in-one Lemus and Lemus FX don't ship. Each
 plugin has its own version (`lemus_plugin(... VERSION x.y.z)`) and is released on its own: a
@@ -13,7 +13,7 @@ published at https://github.com/lemus-dev/lemus (AGPLv3), tagged `<plugin>-v<ver
 | Platform | Formats | Built by | Output |
 |---|---|---|---|
 | macOS 11+, universal | AU, VST3, standalone app | `tools/release/mac.sh`, locally | `dist/<plugin>-<version>-mac.pkg` per plugin |
-| Windows 10+, x64 | VST3, standalone app | `.github/workflows/release.yml` (GitHub Actions; the TR-909, TR-808, Virus C, QuadraVerb GT, SH-101, RAT, Xpander, Bass Station Rack and MS-20 with clang-cl) | `<plugin>-<version>-windows.zip` per plugin, the run's artifact |
+| Windows 10+, x64 | VST3, standalone app | `.github/workflows/release.yml` (GitHub Actions; the TR-909, TR-808, Virus C, QuadraVerb GT, SH-101, RAT, Xpander, Bass Station Rack, MS-20 and QuadraVerb with clang-cl) | `<plugin>-<version>-windows.zip` per plugin, the run's artifact |
 
 Both include `LICENSE.txt` (the AGPLv3, which must go with every copy) and `NOTICES.txt` (JUCE, MAME's uCOM-4, uPD7810, MCS-48, MCS-51, 6809, MN1880 and HD44780, the dsp56300 emulator with the GPLv3's text, asmjit, JetBrains Mono, IBM Plex Mono, Michroma, Liberation Sans, URW's Nimbus Sans). The Mac installer puts the
 AU and VST3 in `/Library/Audio/Plug-Ins` and the app in `/Applications`; the Windows zip has a

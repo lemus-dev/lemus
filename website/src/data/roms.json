@@ -69,6 +69,17 @@
         }
       ]
     },
+    "ko-mono-20": {
+      "machine": "ms20",
+      "roms": [],
+      "artwork": "ms20.svg",
+      "places": [
+        {
+          "id": "maker",
+          "label": "KORG logo"
+        }
+      ]
+    },
     "no-mono-bsr": {
       "machine": "bsrack",
       "roms": [
