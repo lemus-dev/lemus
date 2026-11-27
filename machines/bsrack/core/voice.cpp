@@ -10,6 +10,7 @@
 namespace bsrack {
 
 namespace {
+constexpr double kPi = 3.14159265358979323846; // M_PI isn't standard (MSVC lacks it)
 constexpr double kVt = 0.025852; // kT/q at 27 C
 constexpr double kIs = 1e-14;    // the DTA124E's internal PNP [F: a small-signal PNP's]
 } // namespace
@@ -47,7 +48,7 @@ void Voice::prepare(double rate)
 	m_cvCoef = 1.0 - std::exp(-m_dt / m_p.cvTau);
 	m_volCoef = 1.0 - std::exp(-m_dt / m_p.volTau);
 	m_vcaCoef = 1.0 - std::exp(-m_dt / m_p.vcaTau);
-	m_hpCoef = std::exp(-2 * M_PI * m_p.couplingHz * m_dt);
+	m_hpCoef = std::exp(-2 * kPi * m_p.couplingHz * m_dt);
 	m_quietLimit = int(0.1 * rate);
 
 	const std::string models = netlists::models;

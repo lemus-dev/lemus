@@ -11,7 +11,8 @@ if(NOT TARGET lemus_bsrackcore)
     list(APPEND BSRACK_NETLIST_NAMES ${n})
   endforeach()
   set(BSRACK_GENERATED ${CMAKE_BINARY_DIR}/generated/bsrack/netlists.h)
-  string(REPLACE ";" "\;" BSRACK_NAMES_ARG "${BSRACK_NETLIST_NAMES}")
+  # commas, not escaped semicolons: Visual Studio's custom build step splits those apart
+  string(REPLACE ";" "," BSRACK_NAMES_ARG "${BSRACK_NETLIST_NAMES}")
   add_custom_command(OUTPUT ${BSRACK_GENERATED}
     COMMAND ${CMAKE_COMMAND} -DDIR=${_bs}/netlists -DOUT=${BSRACK_GENERATED} "-DNAMES=${BSRACK_NAMES_ARG}"
             -P ${BSRACK_DIR}/tools/cmake/netlists.cmake

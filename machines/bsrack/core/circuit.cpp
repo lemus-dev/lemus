@@ -3962,11 +3962,12 @@ const std::array<double, kDecimTaps> &decimTaps()
 			return sum;
 		};
 		std::array<double, kDecimTaps> t{};
+		constexpr double kPi = 3.14159265358979323846; // M_PI isn't standard (MSVC lacks it)
 		const double beta = 6.5, fc = 0.125, mid = (kDecimTaps - 1) / 2.0;
 		double sum = 0;
 		for (int n = 0; n < kDecimTaps; ++n) {
 			const double x = n - mid, r = x / mid;
-			const double sinc = x == 0 ? 2 * fc : std::sin(2 * M_PI * fc * x) / (M_PI * x);
+			const double sinc = x == 0 ? 2 * fc : std::sin(2 * kPi * fc * x) / (kPi * x);
 			t[size_t(n)] = sinc * i0(beta * std::sqrt(1 - r * r)) / i0(beta);
 			sum += t[size_t(n)];
 		}
